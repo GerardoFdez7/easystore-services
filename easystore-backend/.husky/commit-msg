@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Read the commit message from the file
+commit_msg_file=$1
+commit_msg=$(cat "$commit_msg_file")
+
+# Define the pattern for conventional commits with optional emoji
+commit_pattern="^(feat|fix|docs|style|refactor|test|chore|revert|perf|build|ci|wip)(\(.+\))?: ([a-z]|:[a-z0-9_-]+:).*$"
+
+if ! [[ $commit_msg =~ $commit_pattern ]]; then
+    echo "ERROR: Commit message does not follow conventional commit format!"
+    echo "Valid formats:"
+    echo "  <type>: [emoji] <description>"
+    echo "  Supported types: feat, fix, docs, style, refactor, test, chore, revert, perf, build, ci, wip"
+    echo "  Description must be in lower case"
+    echo "  Example: 'feat: add login feature' or 'fix: :bug: resolve search bug'"
+    echo ""
+    echo "Your commit message: $commit_msg"
+    exit 1
+fi
+
+exit 0

@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Branch name validation pattern (kebab-case branches)
+branch_pattern="^(feat|fix|docs|style|refactor|test|chore|revert|perf|build|ci)/[a-z0-9]+(-[a-z0-9]+)*$"
+
+# Get current branch name
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+
+# Skip validation for main and development branches
+if [ "$current_branch" = "main" ] || [ "$current_branch" = "development" ]; then
+    echo "Pushing to $current_branch branch - skipping branch name validation"
+    exit 0
+fi
+
+if [[ ! $current_branch =~ $branch_pattern ]]; then
+    echo "ERROR: Branch name does not follow convention!"
+    echo "Valid formats:"
+    echo "  <type>/<kebab-case-description>"
+    echo "  Supported types: feature, fix, docs, style, refactor, test, chore, revert, perf, build, ci"
+    echo "  Example: feat/login-user or fix/search-bug"
+    echo "  For rename the brach do: git branch -m <type/new-name>"
+    echo "Invalid branch: $current_branch"
+    exit 1
+fi
+
+exit 0

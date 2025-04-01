@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    command: npm run start:dev
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL_POSTGRES=postgresql://user:password@postgres:5432/mydatabase
+      - DATABASE_URL_MONGO=mongodb://mongo:27017/mydatabase
+    depends_on:
+      - postgres
+      - mongo
+
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5433:5432"  
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  mongo:
+    image: mongo:6
+    restart: always
+    ports:
+      - "27018:27017" 
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  postgres_data:
+  mongo_data:
