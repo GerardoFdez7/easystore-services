@@ -7,5 +7,6 @@
   "semi": true,
   "arrowParens": "always",
   "trailingComma": "all",
-  "endOfLine": "auto"
+  "endOfLine": "auto",
+  "plugins": ["prettier-plugin-prisma"]
 }
