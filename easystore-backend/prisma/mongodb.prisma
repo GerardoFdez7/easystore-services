@@ -1,0 +1,97 @@
+generator mongodbClient {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/mongodb"
+}
+
+datasource mongodb {
+  provider = "mongodb"
+  url      = env("DATABASE_URL_MONGODB")
+}
+
+model Category {
+  id            String     @id @map("_id")
+  name          String     @unique
+  description   String?
+  subcategories Category[] @relation("Subcategory")
+  products      Product[]
+  parent        Category?  @relation("Subcategory", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  parentId      String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+/* 
+Types for Products
+*/
+
+type Product {
+  id                         String
+  productName                String
+  shortDescription           String
+  longDescription            String
+  sku                        String?
+  upc                        String?
+  ean                        String?
+  barcode                    String?
+  productCover               String
+  productMedia               String[]
+  price                      Float
+  taxes                      TaxDetail[]
+  quantityInStock            Int
+  condition                  ProductCondition
+  availability               AvailabilityStatus
+  estimatedReplenishmentDate DateTime?
+  warehouseLocation          String?
+  weight                     Float?
+  dimensions                 Dimension?
+  availableShippingMethods   String[]
+  shippingRestrictions       String[]
+  labels                     String[]
+  installmentPayments        InstallmentDetail[]
+  acceptedPaymentMethods     String[]
+  personalizationOptions     String[]
+  sustainabilityAttributes   SustainabilityAttribute[]
+  manufacturerSupplier       String?
+  warranty                   WarrantyDetail?
+}
+
+enum ProductCondition {
+  NEW
+  USED
+  REFURBISHED
+}
+
+enum AvailabilityStatus {
+  IN_STOCK
+  OUT_OF_STOCK
+  BACK_ORDER
+  COMING_SOON
+}
+
+type TaxDetail {
+  type    String
+  rate    Float
+  country String?
+}
+
+type Dimension {
+  height Float
+  width  Float
+  depth  Float
+}
+
+type InstallmentDetail {
+  months       Int
+  interestRate Float
+}
+
+type SustainabilityAttribute {
+  certification String
+  percentage    Int
+}
+
+type WarrantyDetail {
+  duration     String
+  coverage     String
+  instructions String
+}
