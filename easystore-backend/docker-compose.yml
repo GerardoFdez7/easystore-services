@@ -5,11 +5,11 @@ services:
       - "3000:3000"
     volumes:
       - .:/app
-    command: npm run start:prod
+    command: npm run start
     environment:
-      - NODE_ENV=development
-      - DATABASE_URL_POSTGRES=postgresql://user:password@postgres:5432/mydatabase
-      - DATABASE_URL_MONGO=mongodb://mongo:27017/mydatabase
+      - NODE_ENV=${NODE_ENV_PROD}
+      - DATABASE_URL_POSTGRES=${DATABASE_URL_POSTGRES}
+      - DATABASE_URL_MONGO=${DATABASE_URL_MONGODB}
     depends_on:
       - postgres
       - mongo
@@ -18,11 +18,11 @@ services:
     image: postgres:15
     restart: always
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: mydatabase
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5433:5432"  
+      - "${POSTGRES_PORT}:5432"  
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -30,7 +30,7 @@ services:
     image: mongo:6
     restart: always
     ports:
-      - "27018:27017" 
+      - "${MONGODB_PORT}:27017" 
     volumes:
       - mongo_data:/data/db
 
