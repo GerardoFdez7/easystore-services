@@ -1,11 +1,14 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      target: development
     ports:
       - "3000:3000"
     volumes:
       - .:/app
-    command: npm run start:prod
+      - /app/node_modules
+    command: npm run start:dev
     environment:
       - NODE_ENV=development
       - DATABASE_URL_POSTGRES=postgresql://user:password@postgres:5432/mydatabase

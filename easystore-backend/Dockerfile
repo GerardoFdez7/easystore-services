@@ -1,17 +1,20 @@
-# Usar una imagen de Node.js ligera como base
-FROM node:18-alpine
+FROM node:18-alpine AS base
 
-# Establecer el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copiar los archivos de dependencias package.json y package-lock.json al contenedor
 COPY package*.json ./
 
-# Ejecutar la instalación de dependencias en el contenedor
+# Development build stage
+FROM base AS development
 RUN npm install
-
-# Exponer el puerto 3000 para que la aplicación pueda ser accesible desde fuera del contenedor
+COPY . .
 EXPOSE 3000
-
-# Definir el comando por defecto para iniciar la aplicación en modo desarrollo
 CMD ["npm", "run", "start:dev"]
+
+# Production build stage
+FROM base AS production
+RUN npm install --omit=dev
+COPY . .
+RUN npm run build
+EXPOSE 3000
+CMD ["npm", "run", "start:prod"]
