@@ -39,14 +39,8 @@ Follow these instructions to set up and run the EasyStore backend application:
    ```bash
    cp .env.example .env
    ```
-4. Set up databases:
 
-   ```bash
-   npx prisma migrate dev
-   npx prisma generate
-   ```
-
-5. Start the development server:
+4. Start the development server:
 
    ```bash
    npm run dev
