@@ -132,7 +132,7 @@ Our codebase follows strict linting rules to ensure code quality and consistency
 > All code must pass ESLint checks before being committed.
 
  > [!CAUTION]
- > The Prettier extension is mandatory for this project. Please ensure you have it installed in your code editor.
+ > The ESLint and Prettier extensions are mandatory for this project. Please ensure you have them installed in your code editor.
 
 ### Gitflow
 
