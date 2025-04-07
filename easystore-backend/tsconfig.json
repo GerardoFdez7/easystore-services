@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "CommonJS",
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
@@ -9,13 +9,26 @@
     "target": "ES2021",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"],
+      "@test/*": ["src/test/*"],
+      "@modules/*": ["src/modules/*"],
+      "@infrastructure/*": ["src/infrastructure/*"],
+      "@config/*": ["src/config/*"],
+      "@database/*": ["src/infrastructure/database/*"],
+      "@cache/*": ["src/infrastructure/cache/*"],
+      "@grapghql/*": ["src/infrastructure/grapghql/*"],
+      "@loggin/*": ["src/infrastructure/loggin/*"],
+      "@search/*": ["src/infrastructure/search/*"],
+      "@transport/*": ["src/infrastructure/transport/*"]
+    }
   }
 }
