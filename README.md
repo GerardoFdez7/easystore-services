@@ -1,3 +1,52 @@
+<p align="center">
+<a href="https://www.typescriptlang.org/" target="_blank" rel="noreferrer">
+    <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/typescript/typescript-original.svg" alt="typescript" width="40" height="40"/>
+  </a>
+  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="40" alt="Nest Logo" /></a>
+  <a href="https://graphql.org/" target="_blank" rel="noreferrer">
+    <img src="https://www.vectorlogo.zone/logos/graphql/graphql-icon.svg" alt="graphql" width="40" height="40"/>
+  </a>      
+  <a href="https://kafka.apache.org/" target="_blank" rel="noreferrer">
+    <img src="https://www.vectorlogo.zone/logos/apache_kafka/apache_kafka-icon.svg" alt="kafka" width="60" height="40"/>
+  </a>
+  <a href="https://www.elastic.co/" target="_blank" rel="noreferrer">
+    <img src="https://www.vectorlogo.zone/logos/elastic/elastic-icon.svg" alt="elasticsearch" width="40" height="40"/>
+  </a>
+  <a href="https://www.elastic.co/logstash/" target="_blank" rel="noreferrer">
+    <img src="https://www.vectorlogo.zone/logos/elasticco_logstash/elasticco_logstash-icon.svg" alt="logstash" width="40" height="40"/>
+  </a>
+  <a href="https://www.elastic.co/kibana/" target="_blank" rel="noreferrer">
+    <img src="https://www.vectorlogo.zone/logos/elasticco_kibana/elasticco_kibana-icon.svg" alt="kibana" width="40" height="40"/>
+  </a>
+  <a href="https://redis.io/" target="_blank" rel="noreferrer">
+    <img src="https://www.vectorlogo.zone/logos/redis/redis-icon.svg" alt="redis" width="40" height="40"/>
+  </a>
+  <a href="https://grpc.io/" target="_blank" rel="noreferrer">
+    <img src="https://www.vectorlogo.zone/logos/grpcio/grpcio-ar21.svg" alt="grpc" width="80" height="40"/>
+  </a>
+  <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
+    <img src="https://www.vectorlogo.zone/logos/docker/docker-icon.svg" alt="docker" width="50" height="50"/>
+  </a>
+  <a href="https://www.postgresql.org/" target="_blank" rel="noreferrer">
+    <img src="https://www.vectorlogo.zone/logos/postgresql/postgresql-icon.svg" alt="postgresql" width="40" height="40"/>
+  </a>
+  <a href="https://www.mongodb.com/" target="_blank" rel="noreferrer">
+    <img src="https://www.vectorlogo.zone/logos/mongodb/mongodb-icon.svg" alt="mongodb" width="40" height="40"/>
+  </a>
+  <a href="https://www.prisma.io/" target="_blank" rel="noreferrer">
+    <img src="https://cdn.worldvectorlogo.com/logos/prisma-3.svg" alt="prisma" width="40" height="40"/>
+  </a>
+  <a href="https://jestjs.io/" target="_blank" rel="noreferrer">
+    <img src="https://www.vectorlogo.zone/logos/jestjsio/jestjsio-icon.svg" alt="jest" width="40" height="40"/>
+  </a>
+  <a href="https://nodejs.org/en" target="_blank" rel="noreferrer">
+    <img src="https://upload.vectorlogo.zone/logos/nodejs/images/eca9ff97-5734-46c4-b8a1-621819eaeaa9.svg" alt="nodejs" width="50" height="50"/>
+  </a>
+  <a href="https://www.npmjs.com/" target="_blank" rel="noreferrer">
+    <img src="https://www.vectorlogo.zone/logos/npmjs/npmjs-ar21.svg" alt="npm" width="60" height="40"/>
+  </a> 
+</p>
+
 # EasyStore Backend Repository
 Welcome to the backend repository of EasyStore, the web application that empowers you to build your own e-commerce platform without any programming knowledge. This user-friendly solution provides all the tools you need to create, manage, and grow your online store with ease.
 
@@ -5,7 +54,6 @@ Welcome to the backend repository of EasyStore, the web application that empower
 - [Getting Started](#getting-started)
   - [Development Environment](#development-environment)
   - [Production Environment](#production-environment)
-  - [Environment Configuration](#environment-configuration)
   - [Documentation](#documentation)
 - [Repository Rules](#repository-rules)
   - [ESLint Rules](#eslint-rules)
@@ -69,36 +117,19 @@ npm run start
 npm run docker
 ```
 
-### Environment Configuration
-.env file documentation:
-
-```ini
-# PostgreSQL (Relational DB)
-DATABASE_URL="postgresql://user:password@localhost:5432/easystore"
-
-# MongoDB (Product Catalog)
-MONGODB_URI="mongodb://localhost:27017/easystore-catalog"
-
-# Application Security
-JWT_SECRET=your_secure_jwt_secret_here
-API_PORT=3000
-```
-> [!TIP]
-> See .env.example for full configuration reference.
-
 > [!NOTE]
 > Prisma schemas are located at prisma/postgres.prisma and prisma/mongodb.prisma containing both PostgreSQL models and MongoDB product catalog.
 
 ### Documentation
 
-To explore our tRPC api documentation:
+To explore our GraphQL api documentation:
 
 ```bash
 npm run docs
 ```
 
 > [!NOTE]
-> OpenAPI documentation will be available at /docs endpoint.
+> GraphiQL documentation will be available at /docs endpoint.
 
 ## Repository Rules
 
@@ -224,6 +255,11 @@ EasyStore backend is built using the following architecture and technologies:
 - ORM: Prisma
 - Testing: Jest
 - Documentation: open-api
+- Message Broker: Kafka
+- Search Engine: ElasticSearch
+- Log Management: LogStash and Kibana
+- Cache: Redis
+- Containerization: Docker
 > [!NOTE] 
 > The CQRS (Command Query Responsibility Segregation) pattern separates read and write operations 
 > into distinct models:
