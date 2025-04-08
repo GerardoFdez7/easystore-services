@@ -19,7 +19,7 @@
     <img src="https://www.vectorlogo.zone/logos/elasticco_kibana/elasticco_kibana-icon.svg" alt="kibana" width="40" height="40"/>
   </a>
   <a href="https://redis.io/" target="_blank" rel="noreferrer">
-    <img src="https://www.vectorlogo.zone/logos/redis/redis-icon.svg" alt="redis" width="40" height="40"/>
+    <img src="https://raw.githubusercontent.com/gilbarbara/logos/92bb74e98bca1ea1ad794442676ebc4e75038adc/logos/redis.svg" alt="redis" width="40" height="40"/>
   </a>
   <a href="https://grpc.io/" target="_blank" rel="noreferrer">
     <img src="https://www.vectorlogo.zone/logos/grpcio/grpcio-ar21.svg" alt="grpc" width="80" height="40"/>
