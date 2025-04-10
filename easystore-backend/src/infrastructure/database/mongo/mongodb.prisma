@@ -1,6 +1,6 @@
 generator mongodbClient {
   provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/mongodb"
+  output   = "../../../../node_modules/.prisma/mongodb"
 }
 
 datasource mongodb {
