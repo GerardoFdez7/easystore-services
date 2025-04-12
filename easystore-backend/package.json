@@ -27,8 +27,10 @@
     "prepare": "cd .. && husky install easystore-backend/.husky"
   },
   "dependencies": {
+    "@elastic/elasticsearch": "^8.17.1",
     "@nestjs/common": "^11.0.12",
     "@nestjs/core": "^11.0.12",
+    "@nestjs/elasticsearch": "^11.0.0",
     "@nestjs/platform-express": "^11.0.12",
     "@prisma/client": "^6.5.0",
     "reflect-metadata": "^0.2.0",
