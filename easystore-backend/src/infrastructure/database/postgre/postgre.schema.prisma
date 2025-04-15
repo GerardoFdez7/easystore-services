@@ -1,18 +1,490 @@
 datasource postgres {
   provider = "postgresql"
   url      = env("DATABASE_URL_POSTGRES")
+  schemas  = ["tenant", "inventory", "marketing", "sales", "customer", "common", "geography"]
 }
 
 generator postgresClient {
-  provider = "prisma-client-js"
-  output   = "../../../../node_modules/.prisma/postgres"
+  provider        = "prisma-client-js"
+  output          = "../../../../node_modules/.prisma/postgres"
+  previewFeatures = ["multiSchema"]
 }
 
+// Tenant schema models
+model Client {
+  id             Int             @id @default(autoincrement())
+  businessName   String          @unique
+  ownerName      String
+  email          String          @unique
+  password       String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  roles          EmployeeRole[]
+  warehouses     Warehouse[]
+  promotions     Promotion[]
+  users          User[]
+  addresses      Address[]
+  phoneNumbers   PhoneNumber[]
+  paymentMethods PaymentMethod[]
+  Subscription   Subscription?
+
+  @@schema("tenant")
+}
+
+model Subscription {
+  id        Int                @id @default(autoincrement())
+  user      User?              @relation(fields: [userId], references: [id])
+  userId    Int?               @unique
+  client    Client?            @relation(fields: [clientId], references: [id])
+  clientId  Int?               @unique
+  status    SubscriptionStatus
+  startDate DateTime
+  endDate   DateTime
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  Plan      Plan?              @relation(fields: [planId], references: [id])
+  planId    Int?
+
+  @@schema("tenant")
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+
+  @@schema("tenant")
+}
+
+model Plan {
+  id           Int            @id @default(autoincrement())
+  name         String         @unique
+  description  String
+  price        Decimal
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  subscription Subscription[]
+
+  @@schema("tenant")
+}
+
+model EmployeeRole {
+  id        Int        @id @default(autoincrement())
+  role      String
+  client    Client     @relation(fields: [clientId], references: [id])
+  clientId  Int
+  feature   Feature[]
+  employees Employee[]
+
+  @@schema("tenant")
+}
+
+model Feature {
+  id             Int          @id @default(autoincrement())
+  code           String       @unique // p.ej. "REPORTS", "ORDERS" 
+  name           String
+  description    String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  employeeRole   EmployeeRole @relation(fields: [employeeRoleId], references: [id])
+  employeeRoleId Int
+
+  @@schema("tenant")
+}
+
+model Employee {
+  id       Int          @id @default(autoincrement())
+  name     String
+  email    String       @unique
+  password String
+  role     EmployeeRole @relation(fields: [roleId], references: [id])
+  roleId   Int
+
+  @@schema("tenant")
+}
+
+// Inventory schema models
+model Warehouse {
+  id             Int             @id @default(autoincrement())
+  name           String
+  address        Address         @relation(fields: [addressId], references: [id])
+  addressId      Int
+  client         Client          @relation(fields: [clientId], references: [id])
+  clientId       Int
+  stockMovements StockMovement[]
+
+  @@schema("inventory")
+}
+
+model StockMovement {
+  id          Int       @id @default(autoincrement())
+  productId   String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+  warehouseId Int
+  deltaQty    Int
+  reason      Bytes
+  // createdBy   Int 
+  ocurredAt   DateTime  @default(now())
+
+  @@schema("inventory")
+}
+
+// Marketing schema models
+model Promotion {
+  id                        Int                       @id @default(autoincrement())
+  client                    Client                    @relation(fields: [clientId], references: [id])
+  clientId                  Int
+  name                      String
+  description               String
+  type                      PromotionType
+  params                    Json
+  startDate                 DateTime
+  endDate                   DateTime
+  createdAt                 DateTime                  @default(now())
+  updatedAt                 DateTime                  @updatedAt
+  promotionProducts         PromotionProduct[]
+  promotionCategories       PromotionCategory[]
+  promotionBuyGets          PromotionBuyGet[]
+  promotionBuyGetCategories PromotionBuyGetCategory[]
+  scheduleTasks             ScheduleTask[]
+  coupons                   Coupon[]
+  carts                     Cart[]
+  cartItems                 CartItem[]
+
+  @@schema("marketing")
+}
+
+enum PromotionType {
+  PERCENTAGE
+  FIXEDGROUP
+  BUNDLE
+  BUY_X_GET_Y
+
+  @@schema("marketing")
+}
+
+model PromotionProduct {
+  promotion   Promotion @relation(fields: [promotionId], references: [id])
+  promotionId Int
+  productId   String
+  bundleQty   Int
+
+  @@id([promotionId, productId])
+  @@schema("marketing")
+}
+
+model PromotionCategory {
+  promotion   Promotion @relation(fields: [promotionId], references: [id])
+  promotionId Int
+  categoryId  String
+
+  @@id([promotionId, categoryId])
+  @@schema("marketing")
+}
+
+model PromotionBuyGet {
+  promotion    Promotion @relation(fields: [promotionId], references: [id])
+  promotionId  Int
+  buyProductId String
+  getProductId String
+
+  @@id([promotionId, buyProductId, getProductId])
+  @@schema("marketing")
+}
+
+model PromotionBuyGetCategory {
+  promotion     Promotion @relation(fields: [promotionId], references: [id])
+  promotionId   Int
+  buyCategoryId String
+  getCategoryId String
+
+  @@id([promotionId, buyCategoryId, getCategoryId])
+  @@schema("marketing")
+}
+
+model ScheduleTask {
+  id          Int        @id @default(autoincrement())
+  promotion   Promotion  @relation(fields: [promotionId], references: [id])
+  promotionId Int
+  type        Action
+  payload     Json
+  runAt       DateTime
+  status      TaskStatus
+  createdAt   DateTime   @default(now())
+
+  @@schema("marketing")
+}
+
+enum Action {
+  APPLY_PROMO
+  REVERT_PROMO
+
+  @@schema("marketing")
+}
+
+enum TaskStatus {
+  PENDING
+  DONE
+  FAILED
+
+  @@schema("marketing")
+}
+
+model Coupon {
+  id           Int           @id @default(autoincrement())
+  promotion    Promotion     @relation(fields: [promotionId], references: [id])
+  promotionId  Int
+  code         String        @unique
+  user         User?         @relation(fields: [userId], references: [id])
+  userId       Int?
+  usageLimit   Int?
+  perUserLimit Int           @default(1)
+  usedCount    Int           @default(0)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  couponUsages CouponUsage[]
+  carts        Cart[]
+
+  @@schema("marketing")
+}
+
+model CouponUsage {
+  id       Int      @id @default(autoincrement())
+  coupon   Coupon   @relation(fields: [couponId], references: [id])
+  couponId Int
+  order    Order    @relation(fields: [orderId], references: [id])
+  orderId  Int
+  usedAt   DateTime @default(now())
+
+  @@schema("marketing")
+}
+
+// Sales schema models
+model Cart {
+  id          Int        @id @default(autoincrement())
+  user        User       @relation(fields: [userId], references: [id])
+  userId      Int
+  coupon      Coupon?    @relation(fields: [couponId], references: [id])
+  couponId    Int?
+  promotion   Promotion? @relation(fields: [promotionId], references: [id])
+  promotionId Int?
+  cartItems   CartItem[]
+  orders      Order[]
+
+  @@schema("sales")
+}
+
+model CartItem {
+  id          Int        @id @default(autoincrement())
+  cart        Cart       @relation(fields: [cartId], references: [id])
+  cartId      Int
+  productId   String
+  qty         Int
+  promotion   Promotion? @relation(fields: [promotionId], references: [id])
+  promotionId Int?
+  updatedAt   DateTime   @updatedAt
+
+  @@schema("sales")
+}
+
+model Order {
+  id           Int           @id @default(autoincrement())
+  orderNumber  String
+  user         User          @relation(fields: [userId], references: [id])
+  userId       Int
+  cart         Cart          @relation(fields: [cartId], references: [id])
+  cartId       Int
+  orderDate    DateTime      @default(now())
+  status       OrderStatus
+  totalAmount  Decimal
+  address      Address       @relation(fields: [addressId], references: [id])
+  addressId    Int
+  updatedAt    DateTime      @updatedAt
+  orderDetails OrderDetail[]
+  returns      Return[]
+  payments     Payment[]
+  couponUsages CouponUsage[]
+
+  @@schema("sales")
+}
+
+enum OrderStatus {
+  PROCESSING
+  CONFIRMED
+  SHIPPED
+  COMPLETED
+  CANCELLED
+
+  @@schema("sales")
+}
+
+model OrderDetail {
+  id          Int      @id @default(autoincrement())
+  order       Order    @relation(fields: [orderId], references: [id])
+  orderId     Int
+  productId   String
+  productName String
+  qty         Int
+  unitPrice   Decimal
+  subtotal    Decimal
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@schema("sales")
+}
+
+model Return {
+  id           Int      @id @default(autoincrement())
+  order        Order    @relation(fields: [orderId], references: [id])
+  orderId      Int
+  productId    String
+  returnReason String   @postgres.Text
+  refundAmount Decimal
+  returnDate   DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@schema("sales")
+}
+
+model Payment {
+  id              Int           @id @default(autoincrement())
+  order           Order         @relation(fields: [orderId], references: [id])
+  orderId         Int
+  amount          Decimal
+  paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id])
+  paymentMethodId Int
+  paymentDate     DateTime      @default(now())
+  status          String
+  updatedAt       DateTime      @updatedAt
+
+  @@schema("sales")
+}
+
+model PaymentMethod {
+  id            Int       @id @default(autoincrement())
+  name          String
+  transactionId String
+  client        Client    @relation(fields: [clientId], references: [id])
+  clientId      Int
+  user          User      @relation(fields: [userId], references: [id])
+  userId        Int
+  createdDate   DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  payments      Payment[]
+
+  @@schema("sales")
+}
+
+// Customer schema models
 model User {
+  id                 Int                 @id @default(autoincrement())
+  client             Client              @relation(fields: [clientId], references: [id])
+  clientId           Int
+  name               String
+  email              String              @unique
+  password           String
+  registrationDate   DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  wishLists          WishList[]
+  userReviewProducts UserReviewProduct[]
+  addresses          Address[]
+  phoneNumbers       PhoneNumber[]
+  coupons            Coupon[]
+  carts              Cart[]
+  orders             Order[]
+  paymentMethods     PaymentMethod[]
+  Subscription       Subscription?
+
+  @@schema("customer")
+}
+
+model WishList {
   id        Int      @id @default(autoincrement())
-  name      String?
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  productId String
   updatedAt DateTime @updatedAt
+
+  @@schema("customer")
+}
+
+model UserReviewProduct {
+  id          Int      @id @default(autoincrement())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
+  productId   String
+  ratingCount Decimal
+  comment     String   @postgres.Text
+  createdDate DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@schema("customer")
+}
+
+// Common schema models
+model PhoneNumber {
+  id         Int           @id @default(autoincrement())
+  user       User?         @relation(fields: [userId], references: [id])
+  userId     Int?
+  client     Client?       @relation(fields: [clientId], references: [id])
+  clientId   Int?
+  number     String
+  isDefault  PhoneNumber?  @relation("DefaultPhone", fields: [defaultId], references: [id])
+  defaultId  Int?          @unique
+  defaultFor PhoneNumber[] @relation("DefaultPhone")
+
+  @@schema("common")
+}
+
+model Address {
+  id           Int          @id @default(autoincrement())
+  isDefault    Address?     @relation("DefaultAddress", fields: [defaultId], references: [id])
+  defaultId    Int?         @unique
+  defaultFor   Address[]    @relation("DefaultAddress")
+  name         String
+  deliveryNum  Int
+  addressLine1 String
+  addressLine2 String?
+  postalCode   String
+  city         String
+  country      Country      @relation(fields: [countryId], references: [id])
+  countryId    Int
+  addressType  AddressTypes
+  client       Client?      @relation(fields: [clientId], references: [id])
+  clientId     Int?
+  user         User?        @relation(fields: [userId], references: [id])
+  userId       Int?
+  warehouses   Warehouse[]
+  orders       Order[]
+
+  @@schema("common")
+}
+
+enum AddressTypes {
+  SHIPPING
+  BILLING
+  WAREHOUSE
+
+  @@schema("common")
+}
+
+// Geography schema models
+model Country {
+  id        Int       @id @default(autoincrement())
+  name      String
+  code      String
+  states    State[]
+  addresses Address[]
+
+  @@schema("geography")
+}
+
+model State {
+  id        Int     @id @default(autoincrement())
+  name      String
+  code      String
+  country   Country @relation(fields: [countryId], references: [id])
+  countryId Int
+
+  @@schema("geography")
 }

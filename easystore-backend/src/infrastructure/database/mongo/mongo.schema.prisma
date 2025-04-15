@@ -13,59 +13,74 @@ model Category {
   name          String     @unique
   description   String?
   subcategories Category[] @relation("Subcategory")
-  products      Product[]
   parent        Category?  @relation("Subcategory", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   parentId      String?
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
+  product       Product[]
+
+  @@index([parentId])
 }
 
-/* 
-Types for Products
-*/
+model Product {
+  id                       String                     @id @map("_id")
+  productName              String                     @unique
+  categoryId               String
+  category                 Category                   @relation(fields: [categoryId], references: [id])
+  shortDescription         String
+  longDescription          String
+  sku                      String?                    @unique
+  upc                      String?                    @unique
+  ean                      String?                    @unique
+  isbn                     String?                    @unique
+  barcode                  String?                    @unique
+  productCover             String
+  productMedia             String[]
+  price                    Float
+  taxes                    TaxDetail[]
+  condition                ProductCondition
+  weight                   Float
+  dimensions               Dimension?
+  availableShippingMethods String[]
+  shippingRestrictions     String[]
+  tags                     String[]
+  installmentPayments      InstallmentDetail[]
+  acceptedPaymentMethods   String[]
+  personalizationOptions   String[]
+  sustainability           SustainabilityAttributes[]
+  brand                    String?
+  manufacturer             String?
+  warranty                 WarrantyDetail?
+  createdAt                DateTime                   @default(now())
+  updatedAt                DateTime                   @updatedAt
+  inventoryState           Inventory[]
 
-type Product {
-  id                         String
-  productName                String
-  shortDescription           String
-  longDescription            String
-  sku                        String?
-  upc                        String?
-  ean                        String?
-  barcode                    String?
-  productCover               String
-  productMedia               String[]
-  price                      Float
-  taxes                      TaxDetail[]
-  quantityInStock            Int
-  condition                  ProductCondition
-  availability               AvailabilityStatus
+  @@index([categoryId])
+}
+
+model Inventory {
+  id                         String    @id @map("_id")
+  productId                  String
+  product                    Product   @relation(fields: [productId], references: [id])
+  warehouseId                String
+  productLocation            String?
+  qtyAvailable               Int       @default(0)
+  qtyReserved                Int       @default(0)
   estimatedReplenishmentDate DateTime?
-  warehouseLocation          String?
-  weight                     Float?
-  dimensions                 Dimension?
-  availableShippingMethods   String[]
-  shippingRestrictions       String[]
-  labels                     String[]
-  installmentPayments        InstallmentDetail[]
-  acceptedPaymentMethods     String[]
-  personalizationOptions     String[]
-  sustainabilityAttributes   SustainabilityAttribute[]
-  manufacturerSupplier       String?
-  warranty                   WarrantyDetail?
+  lotNumber                  String?
+  serialNumbers              String[]
+  createdAt                  DateTime  @default(now())
+  updatedAt                  DateTime  @updatedAt
+
+  @@index([warehouseId, productId])
+  @@index([productId, warehouseId, productLocation])
 }
 
+// Types for Products
 enum ProductCondition {
   NEW
   USED
   REFURBISHED
-}
-
-enum AvailabilityStatus {
-  IN_STOCK
-  OUT_OF_STOCK
-  BACK_ORDER
-  COMING_SOON
 }
 
 type TaxDetail {
@@ -85,9 +100,9 @@ type InstallmentDetail {
   interestRate Float
 }
 
-type SustainabilityAttribute {
-  certification String
-  percentage    Int
+type SustainabilityAttributes {
+  certification      String
+  recycledPercentage Float
 }
 
 type WarrantyDetail {
