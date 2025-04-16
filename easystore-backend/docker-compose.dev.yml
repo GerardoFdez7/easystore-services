@@ -7,7 +7,6 @@ services:
       - "3000:3000"
     volumes:
       - .:/app
-      #- /app/node_modules
     command: npm run dev
     environment:
       - NODE_ENV=${NODE_ENV_DEV}
@@ -61,3 +60,4 @@ volumes:
   postgres_data:
   mongo_data:
   esdata:
+  
