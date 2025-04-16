@@ -90,7 +90,7 @@ Follow these instructions to set up and run the EasyStore backend application:
 
 4. Run database migrations to create PostgreSQL models:
    ```bash
-   npm run migrate
+   npm run postgre
    ```
 
 5. Start the development server:
