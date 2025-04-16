@@ -1,9 +1,8 @@
-import { Resolver, Query } from '@nestjs/graphql';
+import { Resolver } from '@nestjs/graphql';
+import { CommandBus } from '@nestjs/cqrs';
+import { ClientType } from './types/client.type';
 
-@Resolver()
+@Resolver(() => ClientType)
 export class ClientResolver {
-  @Query(() => String)
-  client(): string {
-    return 'Hi Client';
-  }
+  constructor(private commandBus: CommandBus) {}
 }
