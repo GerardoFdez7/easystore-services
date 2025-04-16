@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import logger from './common/logger/winston.logger';
+import { LoggerService } from '@logging/winston/winston.service';
 
 @Injectable()
 export class AppService {
+  constructor(private readonly logger: LoggerService) {}
+
   getHello(): string {
-    logger.info({
-      message: 'Se llamó a getHello',
+    this.logger.log('getHello was called', {
       timestamp: new Date().toISOString(),
     });
     return 'Hello World!';

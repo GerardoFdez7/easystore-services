@@ -25,8 +25,8 @@
       "@config/*": ["src/config/*"],
       "@database/*": ["src/infrastructure/database/*"],
       "@cache/*": ["src/infrastructure/cache/*"],
-      "@grapghql/*": ["src/infrastructure/grapghql/*"],
-      "@loggin/*": ["src/infrastructure/loggin/*"],
+      "@graphql/*": ["src/infrastructure/graphql/*"],
+      "@logging/*": ["src/infrastructure/logging/*"],
       "@search/*": ["src/infrastructure/search/*"],
       "@transport/*": ["src/infrastructure/transport/*"]
     }
