@@ -81,7 +81,7 @@ model EmployeeRole {
 
 model Feature {
   id             Int          @id @default(autoincrement())
-  code           String       @unique // p.ej. "REPORTS", "ORDERS" 
+  code           String       @unique // "REPORTS", "ORDERS" 
   name           String
   description    String?
   createdAt      DateTime     @default(now())
@@ -93,12 +93,13 @@ model Feature {
 }
 
 model Employee {
-  id       Int          @id @default(autoincrement())
-  name     String
-  email    String       @unique
-  password String
-  role     EmployeeRole @relation(fields: [roleId], references: [id])
-  roleId   Int
+  id            Int             @id @default(autoincrement())
+  name          String
+  email         String          @unique
+  password      String
+  role          EmployeeRole    @relation(fields: [roleId], references: [id])
+  roleId        Int
+  StockMovement StockMovement[]
 
   @@schema("tenant")
 }
@@ -123,7 +124,8 @@ model StockMovement {
   warehouseId Int
   deltaQty    Int
   reason      Bytes
-  // createdBy   Int 
+  createdBy   Employee? @relation(fields: [createdById], references: [id])
+  createdById Int?
   ocurredAt   DateTime  @default(now())
 
   @@schema("inventory")
@@ -413,7 +415,7 @@ model UserReviewProduct {
   user        User     @relation(fields: [userId], references: [id])
   userId      Int
   productId   String
-  ratingCount Decimal
+  ratingCount Float
   comment     String   @postgres.Text
   createdDate DateTime @default(now())
   updatedAt   DateTime @updatedAt
