@@ -88,7 +88,12 @@ Follow these instructions to set up and run the EasyStore backend application:
    cp .env.example .env
    ```
 
-4. Start the development server:
+4. Run database migrations to create PostgreSQL models:
+   ```bash
+   npm run migrate
+   ```
+
+5. Start the development server:
 
    ```bash
    npm run dev
