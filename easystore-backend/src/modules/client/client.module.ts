@@ -1,19 +1,17 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ClientResolver } from './client.resolver';
-import { RegisterClientHandler } from './commands/handlers/register-client.handler';
-import { ClientRepository } from './client.repository';
-import { PrismaService } from '../../infrastructure/database/postgre/postgre';
-
-const CommandHandlers = [RegisterClientHandler];
+import { ClientService } from './client.service';
+import { RegisterClientHandler } from './commands/client.handler';
+import { FindClientByEmailHandler } from './queries/client.query-handler';
 
 @Module({
   imports: [CqrsModule],
   providers: [
     ClientResolver,
-    ClientRepository,
-    PrismaService,
-    ...CommandHandlers,
+    ClientService,
+    RegisterClientHandler,
+    FindClientByEmailHandler,
   ],
 })
 export class ClientModule {}

@@ -1,17 +1,35 @@
-import { Resolver, Mutation, Args } from '@nestjs/graphql';
-import { CommandBus } from '@nestjs/cqrs';
-import { RegisterClientInput } from './dto/register-client.input';
-import { ClientType } from './types/client.type';
-import { RegisterClientCommand } from './commands/impl/register-client.command';
+import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { RegisterClientCommand } from './commands/dto/register-client.command';
+import { FindClientByEmailQuery } from './queries/dto/find-client-by-email.query';
 
-@Resolver(() => ClientType)
+@Resolver()
 export class ClientResolver {
-  constructor(private commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
-  @Mutation(() => ClientType)
+  @Mutation(() => Boolean)
   async registerClient(
-    @Args('input') input: RegisterClientInput,
-  ): Promise<ClientType> {
-    return this.commandBus.execute(new RegisterClientCommand(input));
+    @Args('businessName') businessName: string,
+    @Args('ownerName') ownerName: string,
+    @Args('email') email: string,
+    @Args('password') password: string,
+  ): Promise<boolean> {
+    await this.commandBus.execute(
+      new RegisterClientCommand(businessName, ownerName, email, password),
+    );
+    return true;
+  }
+
+  @Query(() => String, { nullable: true })
+  async findClientEmail(
+    @Args('email') email: string,
+  ): Promise<string | undefined> {
+    const client: { email: string } | null = await this.queryBus.execute(
+      new FindClientByEmailQuery(email),
+    );
+    return client?.email;
   }
 }
