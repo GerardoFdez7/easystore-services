@@ -50,6 +50,7 @@
     "@nestjs/schedule": "^6.0.0",
     "@nestjs/terminus": "^11.0.0",
     "@prisma/client": "^6.5.0",
+    "@types/bcrypt": "^5.0.2",
     "apollo-server-express": "^3.13.0",
     "bcrypt": "^5.1.1",
     "graphql": "^16.10.0",
