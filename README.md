@@ -84,11 +84,13 @@ Follow these instructions to set up and run the EasyStore backend application:
    ```
 
 3. Set up environment variables:
+
    ```bash
    cp .env.example .env
    ```
 
 4. Run database migrations to create PostgreSQL models:
+
    ```bash
    npm run postgre
    ```
@@ -127,14 +129,20 @@ npm run docker
 
 ### Documentation
 
-To explore our GraphQL api documentation:
-
-```bash
-npm run docs
-```
-
 > [!NOTE]
-> GraphiQL documentation will be available at /docs endpoint.
+> The following endpoints will be available for API exploration:
+- GraphQL Playground & Documentation: /graphql
+- GraphQL Schema Visualization: /voyager
+
+The Apollo Playground provides an interactive environment to:
+- Explore the GraphQL schema
+- Test queries and mutations
+- View documentation for all types and fields
+
+The Voyager interface offers:
+- Visual representation of your GraphQL schema
+- Interactive graph of type relationships
+- Easy navigation through schema connections
 
 ## Repository Rules
 
@@ -142,26 +150,26 @@ npm run docs
 
 Our codebase follows strict linting rules to ensure code quality and consistency:
 
-- Base Rules :
+- Base Rules:
 
   - No console logs in production code
   - Curly braces required for all control statements
   - Strict equality checks ( === and !== )
 
-- TypeScript Rules :
+- TypeScript Rules:
 
   - No explicit any types
   - No non-null assertions
   - Proper promise handling
   - Unused variables must be prefixed with underscore
 
-- Naming Conventions :
+- Naming Conventions:
 
   - Variables: camelCase or PascalCase
   - Types/Interfaces: PascalCase
   - Functions: camelCase or PascalCase
 
-- Code Organization :
+- Code Organization:
   - Proper spacing between declarations, functions, and classes
   - Organized imports and exports
 > [!IMPORTANT]
@@ -204,18 +212,18 @@ We follow the Conventional Commits specification for commit messages:
 
 Supported types :
 
-- feat : New features
-- fix : Bug fixes
-- docs : Documentation changes
-- style : Code style changes (formatting, etc.)
-- refactor : Code changes that neither fix bugs nor add features
-- test : Adding or modifying tests
-- chore : Changes to the build process or auxiliary tools
-- revert : Reverting previous changes
-- perf : Performance improvements
-- build : Changes affecting build system
-- ci : Changes to CI configuration
-- wip : Work in progress
+- feat: New features
+- fix: Bug fixes
+- docs: Documentation changes
+- style: Code style changes (formatting, etc.)
+- refactor: Code changes that neither fix bugs nor add features
+- test: Adding or modifying tests
+- chore: Changes to the build process or auxiliary tools
+- revert: Reverting previous changes
+- perf: Performance improvements
+- build: Changes affecting build system
+- ci: Changes to CI configuration
+- wip: Work in progress
 > [!WARNING]
 > Commit descriptions must be in lowercase. For example, use "feat: add login feature" instead of "feat: Add Login Feature".
 
@@ -229,17 +237,17 @@ Branches must follow this naming convention:
 
 Supported types :
 
-- feat : Feature branches
-- fix : Bug fix branches
-- docs : Documentation branches
-- style : Style change branches
-- refactor : Refactoring branches
-- test : Test-related branches
-- chore : Maintenance branches
-- revert : Revert branches
-- perf : Performance improvement branches
-- build : Build-related branches
-- ci : CI configuration branches
+- feat: Feature branches
+- fix: Bug fix branches
+- docs: Documentation branches
+- style: Style change branches
+- refactor: Refactoring branches
+- test: Test-related branches
+- chore: Maintenance branches
+- revert: Revert branches
+- perf: Performance improvement branches
+- build: Build-related branches
+- ci: CI configuration branches
 > [!CAUTION]
 > Branches that don't follow this convention will be rejected during push.
 
