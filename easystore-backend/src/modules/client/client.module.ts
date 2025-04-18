@@ -4,14 +4,17 @@ import { ClientResolver } from './client.resolver';
 import { ClientService } from './client.service';
 import { RegisterClientHandler } from './commands/client.handler';
 import { FindClientByEmailHandler } from './queries/client.query-handler';
+import { Postgre } from '@/infrastructure/database/postgre/postgre';
 
 @Module({
   imports: [CqrsModule],
   providers: [
     ClientResolver,
     ClientService,
+    Postgre,
     RegisterClientHandler,
     FindClientByEmailHandler,
   ],
+  //exports:[ClientResolver]
 })
 export class ClientModule {}
