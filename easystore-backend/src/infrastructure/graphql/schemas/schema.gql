@@ -2,6 +2,10 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Mutation {
+  registerClient(businessName: String!, email: String!, ownerName: String!, password: String!): Boolean!
+}
+
 type Query {
-  client: String!
+  findClientEmail(email: String!): String
 }

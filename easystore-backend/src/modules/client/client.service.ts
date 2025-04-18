@@ -19,6 +19,7 @@ export class ClientService {
         businessName: data.businessName,
         ownerName: data.ownerName,
         email: data.email,
+
         password: hashedPassword,
       },
     });

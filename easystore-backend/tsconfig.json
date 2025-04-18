@@ -39,7 +39,8 @@
       "@logging/*": ["src/infrastructure/logging/*"],
       "@metrics/*": ["src/infrastructure/metrics/*"],
       "@search/*": ["src/infrastructure/search/*"],
-      "@transport/*": ["src/infrastructure/transport/*"]
+      "@transport/*": ["src/infrastructure/transport/*"],
+      "@prisma/postgres": ["./node_modules/.prisma/postgres"]
     }
   }
 }
