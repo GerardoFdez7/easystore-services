@@ -28,7 +28,8 @@
       "@graphql/*": ["src/infrastructure/graphql/*"],
       "@logging/*": ["src/infrastructure/logging/*"],
       "@search/*": ["src/infrastructure/search/*"],
-      "@transport/*": ["src/infrastructure/transport/*"]
+      "@transport/*": ["src/infrastructure/transport/*"],
+      "@prisma/postgres": ["./node_modules/.prisma/postgres"]
     }
   }
 }

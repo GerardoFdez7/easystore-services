@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { GraphqlModule } from '@graphql/graphql.module';
-import { ClientResolver } from './modules/client/client.resolver';
 import { LoggerModule } from '@logging/winston/winston.module';
+import { ClientModule } from './modules/client/client.module';
 
 @Module({
-  imports: [GraphqlModule, ClientResolver, LoggerModule],
+  imports: [GraphqlModule, ClientModule, LoggerModule],
   controllers: [AppController],
   providers: [AppService],
 })
