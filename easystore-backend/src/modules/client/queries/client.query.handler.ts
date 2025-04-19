@@ -1,5 +1,5 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { FindClientByEmailQuery } from './dto/find-client-by-email.query';
+import { FindClientByEmailQuery } from './client.query';
 import { ClientService } from '../client.service';
 
 @QueryHandler(FindClientByEmailQuery)

@@ -1,7 +1,7 @@
 import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { RegisterClientCommand } from './commands/dto/register-client.command';
-import { FindClientByEmailQuery } from './queries/dto/find-client-by-email.query';
+import { FindClientByEmailQuery } from './queries/client.query';
+import { RegisterClientCommand } from './commands/client.command';
 
 @Resolver()
 export class ClientResolver {
