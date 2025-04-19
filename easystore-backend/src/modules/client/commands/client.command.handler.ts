@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { RegisterClientCommand } from './dto/register-client.command';
 import { ClientService } from '../client.service';
 import { Client } from '.prisma/postgres';
+import { RegisterClientCommand } from './client.command';
 
 @CommandHandler(RegisterClientCommand)
 export class RegisterClientHandler
