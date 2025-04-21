@@ -14,7 +14,6 @@ import { MicroserviceOptions } from '@nestjs/microservices';
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, {
     bufferLogs: true,
-    logger: false,
   });
 
   const configService = app.get(ConfigService);
@@ -53,9 +52,7 @@ async function bootstrap(): Promise<void> {
 
   await app.startAllMicroservices();
   const port = configService.get<number>('PORT', 3000);
-
   await app.listen(port);
-
   loggerService.log(`Application running on port ${port}`);
 }
 

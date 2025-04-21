@@ -11,6 +11,8 @@ import { CartModule } from '@/modules/cart/cart.module';
 import { PrismaModule } from '@prisma/prisma.module';
 import { ProductConsumersModule } from '@transport/kafka/modules/product-consumers.module';
 
+import { ProductConsumersModule } from '@infrastructure/transport/kafka/modules/product-consumers.module';
+
 @Global()
 @Module({
   imports: [

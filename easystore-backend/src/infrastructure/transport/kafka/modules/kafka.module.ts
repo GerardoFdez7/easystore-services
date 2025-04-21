@@ -36,6 +36,10 @@ export class KafkaModule {
         ClientsModule,
         KafkaHealthIndicator,
         OrderCreatedProducer,
+<<<<<<< HEAD
+=======
+        EventSerializer,
+>>>>>>> 9a3bfa8 (feat(message-queue): event broker using kafka)
         ProductUpdatedProducer,
       ],
     };

@@ -37,7 +37,7 @@ export class CartItemAddedHandler implements IEventHandler<CartItemAddedEvent> {
         return;
       }
       if (product && quantity > product.stock * 0.8) {
-        // Caching high demand status for the product above 80% of stock
+        // TODO: Caching high demand status for the product above 80% of stock
         await this.cacheAdapter.set(
           `product:${productId}:high_demand`,
           true,

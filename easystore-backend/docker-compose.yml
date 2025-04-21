@@ -6,22 +6,31 @@ services:
     volumes:
       - .:/app
     command: npm run start
+    env_file:
+      - .env
     environment:
+      - HUSKY=0
       - NODE_ENV=${NODE_ENV}
       - DATABASE_URL_POSTGRES=${DATABASE_URL_POSTGRES}
       - DATABASE_URL_MONGO=${DATABASE_URL_MONGODB}
+      - LOGSTASH_HOST=${LOGSTASH_HOST}
+      - LOGSTASH_PORT=${LOGSTASH_PORT}
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
     depends_on:
       - postgres
       - mongo
       - redis
+      - zookeeper
+      - kafka
     networks:
       - ecommerce-network
 
   postgres:
     image: postgres:16
     restart: always
+    env_file:
+      - .env
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -37,7 +46,7 @@ services:
     image: mongo:7
     restart: always
     ports:
-      - '${MONGODB_PORT}:27017'
+      - '${MONGODB_PORT}:27027'
     volumes:
       - mongo_data:/data/db
     networks:
@@ -79,6 +88,8 @@ services:
 
   redis:
     image: redis:7-alpine
+    env_file:
+      - .env
     ports:
       - '${REDIS_PORT}:6379'
     volumes:
@@ -88,10 +99,85 @@ services:
     networks:
       - ecommerce-network
 
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0
+    container_name: zookeeper
+    ports:
+      - '2181:2181'
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+      - zookeeper-log:/var/lib/zookeeper/log
+    restart: unless-stopped
+    networks:
+      - ecommerce-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.3.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - '9092:9092'
+      - '9094:9094'
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,OUTSIDE://localhost:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,OUTSIDE://0.0.0.0:9094
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      KAFKA_NUM_PARTITIONS: 3
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    restart: unless-stopped
+    networks:
+      - ecommerce-network
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop:3.30.0
+    container_name: kafdrop
+    depends_on:
+      - kafka
+    ports:
+      - '9000:9000'
+    environment:
+      KAFKA_BROKERCONNECT: kafka:9092
+      JVM_OPTS: '-Xms32M -Xmx128M'
+    restart: unless-stopped
+    networks:
+      - ecommerce-network
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:7.3.0
+    container_name: schema-registry
+    depends_on:
+      - kafka
+    ports:
+      - '8081:8081'
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
+    restart: unless-stopped
+    networks:
+      - ecommerce-network
+
 volumes:
   postgres_data:
   mongo_data:
   esdata:
+  redis-data:
+  zookeeper-data:
+  zookeeper-log:
+  kafka-data:
 
 networks:
   ecommerce-network:

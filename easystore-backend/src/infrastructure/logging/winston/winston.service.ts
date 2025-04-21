@@ -1,7 +1,7 @@
 import { Injectable, LoggerService as NestLoggerService } from '@nestjs/common';
 import { createLogger, transports, format } from 'winston';
 import * as path from 'path';
-import * as DailyRotateFile from 'winston-daily-rotate-file';
+import DailyRotateFile from 'winston-daily-rotate-file';
 import TransportStream from 'winston-transport';
 
 const environment = process.env.NODE_ENV || 'development';
