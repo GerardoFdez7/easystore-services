@@ -26,6 +26,7 @@
       "@common/*": ["src/common/*"],
       "@services/*": ["src/services/*"],
       "@application/*": ["src/application/*"],
+      "@domain/*": ["src/domain/*"],
       "@prisma/*": ["src/prisma/*"],
       // TODO: Review and decomission/remove aliases as needed
       "@database/*": ["src/infrastructure/database/*"],
