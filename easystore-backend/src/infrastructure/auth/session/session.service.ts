@@ -13,8 +13,7 @@ interface SessionData {
 @Injectable()
 export class SessionService {
   private readonly sessionPrefix = 'session:';
-  private readonly sessionTtl = 86400; // 24 horas
-
+  private readonly sessionTtl = 86400;
   constructor(private readonly cacheAdapter: RedisCacheAdapter) {}
 
   async createSession(

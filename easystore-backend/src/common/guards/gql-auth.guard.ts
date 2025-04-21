@@ -35,7 +35,6 @@ export class GqlAuthGuard implements CanActivate {
       if (!process.env.JWT_SECRET) {
         throw new UnauthorizedException('JWT secret is not defined');
       }
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       const decoded: { sub: string } = verify(
         token,
         process.env.JWT_SECRET || '',

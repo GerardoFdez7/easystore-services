@@ -5,6 +5,7 @@
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "target": "ES2021",
     "sourceMap": true,
@@ -26,6 +27,7 @@
       "@common/*": ["src/common/*"],
       "@services/*": ["src/services/*"],
       "@application/*": ["src/application/*"],
+      "@domain/*": ["src/domain/*"],
       "@prisma/*": ["src/prisma/*"],
       // TODO: Review and decomission/remove aliases as needed
       "@database/*": ["src/infrastructure/database/*"],

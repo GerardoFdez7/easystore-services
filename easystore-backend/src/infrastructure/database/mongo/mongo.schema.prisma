@@ -9,7 +9,7 @@ datasource mongodb {
 }
 
 model Category {
-  id            String     @id @default(auto()) @map("_id") @db.ObjectId
+  id            String     @id @default(auto()) @map("_id") @mongodb.ObjectId
   name          String     @unique
   description   String?
   subcategories Category[] @relation("Subcategory")
@@ -23,7 +23,7 @@ model Category {
 }
 
 model Product {
-  id                       String                     @id @default(auto()) @map("_id") @db.ObjectId
+  id                       String                     @id @default(auto()) @map("_id") @mongodb.ObjectId
   productName              String                     @unique
   categoryId               String
   category                 Category                   @relation(fields: [categoryId], references: [id])
@@ -59,7 +59,7 @@ model Product {
 }
 
 model Inventory {
-  id                         String    @id @default(auto()) @map("_id") @db.ObjectId
+  id                         String    @id @default(auto()) @map("_id") @mongodb.ObjectId
   productId                  String
   product                    Product   @relation(fields: [productId], references: [id])
   warehouseId                String
