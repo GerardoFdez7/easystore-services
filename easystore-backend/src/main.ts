@@ -1,10 +1,15 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
-import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import { LoggerService } from '@logging/winston/winston.service';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
+
 import helmet, { HelmetOptions } from 'helmet';
 import * as compression from 'compression';
+
+import { KafkaConfigService } from '@infrastructure/transport/kafka/config/kafka-config.service';
+import { LoggerService } from '@logging/winston/winston.service';
+
+import { AppModule } from './app.module';
+import { MicroserviceOptions } from '@nestjs/microservices';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, {
@@ -14,8 +19,13 @@ async function bootstrap(): Promise<void> {
 
   const configService = app.get(ConfigService);
   const loggerService = app.get(LoggerService);
+  const kafkaConfigService = app.get(KafkaConfigService);
 
   app.useLogger(loggerService);
+  app.connectMicroservice<MicroserviceOptions>(
+    kafkaConfigService.createKafkaOptions(),
+  );
+
   app.use(helmet() as unknown as HelmetOptions);
   app.use(compression());
 
@@ -41,6 +51,7 @@ async function bootstrap(): Promise<void> {
     }),
   );
 
+  await app.startAllMicroservices();
   const port = configService.get<number>('PORT', 3000);
 
   await app.listen(port);

@@ -48,9 +48,11 @@
 </p>
 
 # EasyStore Backend Repository
+
 Welcome to the backend repository of EasyStore, the web application that empowers you to build your own e-commerce platform without any programming knowledge. This user-friendly solution provides all the tools you need to create, manage, and grow your online store with ease.
 
 ## Table of Contents
+
 - [Getting Started](#getting-started)
   - [Development Environment](#development-environment)
   - [Production Environment](#production-environment)
@@ -100,13 +102,33 @@ Follow these instructions to set up and run the EasyStore backend application:
    ```bash
    npm run dev
    ```
- 
- > [!TIP]
- > Alternatively, you can use Docker for development:
 
-   ```bash
-   npm run docker:dev
-   ```
+> [!TIP]
+> Alternatively, you can use Docker for development:
+
+```bash
+npm run docker:dev
+```
+
+#### Dev Tesing Kafka
+
+1. Iniciar los servicios:
+
+```bash
+  npm run docker:kafka:up
+```
+
+2. Enviar mensajes de prueba:
+
+```bash
+npm run kafka:producer:test
+```
+
+3. Verificar el procesamiento:
+
+```bash
+bashnpm run kafka:consumer:test
+```
 
 ### Production Environment
 
@@ -131,15 +153,18 @@ npm run docker
 
 > [!NOTE]
 > The following endpoints will be available for API exploration:
+
 - GraphQL Playground & Documentation: /graphql
 - GraphQL Schema Visualization: /voyager
 
 The Apollo Playground provides an interactive environment to:
+
 - Explore the GraphQL schema
 - Test queries and mutations
 - View documentation for all types and fields
 
 The Voyager interface offers:
+
 - Visual representation of your GraphQL schema
 - Interactive graph of type relationships
 - Easy navigation through schema connections
@@ -172,21 +197,23 @@ Our codebase follows strict linting rules to ensure code quality and consistency
 - Code Organization:
   - Proper spacing between declarations, functions, and classes
   - Organized imports and exports
-> [!IMPORTANT]
-> All code must pass ESLint checks before being committed.
+    > [!IMPORTANT]
+    > All code must pass ESLint checks before being committed.
 
- > [!CAUTION]
- > The ESLint and Prettier extensions are mandatory for this project. Please ensure you have them installed in your code editor.
+> [!CAUTION]
+> The ESLint and Prettier extensions are mandatory for this project. Please ensure you have them installed in your code editor.
 
 ### Gitflow
 
 We follow a Simplified Gitflow workflow:
 
 #### Main Branches
+
 - **Main**: Production-ready code
 - **Development**: Integration branch for features
 
 #### Workflow
+
 1. Each team member creates a feature branch from Development
 2. Work is completed on the feature branch following our branch naming convention
 3. When finished, the feature branch is merged into Development
@@ -194,6 +221,7 @@ We follow a Simplified Gitflow workflow:
 5. After approval, Development is merged into Main for production deployment
 
 #### Hotfixes
+
 - If a bug occurs in production, a hotfix branch is created from Main
 - After the fix is implemented, it's merged into both Main and Development to keep branches synchronized
 
@@ -207,8 +235,9 @@ We follow the Conventional Commits specification for commit messages:
 ```plaintext
 <type>: <description>
 ```
+
 > [!TIP]
-> For this purpose we recommend using the conventional commits extension or commitizen tool. 
+> For this purpose we recommend using the conventional commits extension or commitizen tool.
 
 Supported types :
 
@@ -224,8 +253,8 @@ Supported types :
 - build: Changes affecting build system
 - ci: Changes to CI configuration
 - wip: Work in progress
-> [!WARNING]
-> Commit descriptions must be in lowercase. For example, use "feat: add login feature" instead of "feat: Add Login Feature".
+  > [!WARNING]
+  > Commit descriptions must be in lowercase. For example, use "feat: add login feature" instead of "feat: Add Login Feature".
 
 ### Branch Rules
 
@@ -248,10 +277,10 @@ Supported types :
 - perf: Performance improvement branches
 - build: Build-related branches
 - ci: CI configuration branches
-> [!CAUTION]
-> Branches that don't follow this convention will be rejected during push.
+  > [!CAUTION]
+  > Branches that don't follow this convention will be rejected during push.
 
-> [!TIP] 
+> [!TIP]
 > To rename a branch, use: git branch -m <type/new-name>
 
 ## Architecture
@@ -261,7 +290,7 @@ EasyStore backend is built using the following architecture and technologies:
 - Design Pattern: Command Query Responsibility Segregation ( CQRS ) pattern
 - Programming Language: TypeScript
 - Framework: NestJS
-- Databases: 
+- Databases:
   - PostgreSQL: Core transactional data and user management
   - MongoDB: Flexible product catalog storage with nested categories
 - ORM: Prisma
@@ -271,14 +300,15 @@ EasyStore backend is built using the following architecture and technologies:
 - Log Management: LogStash and Kibana
 - Cache: Redis
 - Containerization: Docker
-> [!NOTE] 
-> The CQRS (Command Query Responsibility Segregation) pattern separates read and write operations 
-> into distinct models:
-> - **Commands**: Handle write operations, business logic, and data mutations through dedicated handlers
-> - **Queries**: Optimized read operations returning DTOs specifically tailored for client needs
-> - **Domain Events**: Capture state changes through events that trigger downstream processes
-> This architecture enables:
->   - Independent scaling of read/write workloads
->   - Optimized data models for each operation type
->   - Improved audit capabilities through event sourcing
->   - Reduced concurrency conflicts in complex domains
+  > [!NOTE]
+  > The CQRS (Command Query Responsibility Segregation) pattern separates read and write operations
+  > into distinct models:
+  >
+  > - **Commands**: Handle write operations, business logic, and data mutations through dedicated handlers
+  > - **Queries**: Optimized read operations returning DTOs specifically tailored for client needs
+  > - **Domain Events**: Capture state changes through events that trigger downstream processes
+  >   This architecture enables:
+  >   - Independent scaling of read/write workloads
+  >   - Optimized data models for each operation type
+  >   - Improved audit capabilities through event sourcing
+  >   - Reduced concurrency conflicts in complex domains
