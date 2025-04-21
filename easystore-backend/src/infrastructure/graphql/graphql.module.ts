@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';
-import { join } from 'path';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { VoyagerController } from './voyager.controller';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -20,6 +20,7 @@ import { VoyagerController } from './voyager.controller';
           ? [ApolloServerPluginLandingPageLocalDefault()]
           : [],
       introspection: true,
+      context: ({ req }: { req: Request }) => ({ req }),
     }),
   ],
   controllers: [VoyagerController],

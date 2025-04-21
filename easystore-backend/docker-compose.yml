@@ -2,7 +2,7 @@ services:
   app:
     build: .
     ports:
-      - "3000:3000"
+      - '3000:3000'
     volumes:
       - .:/app
     command: npm run start
@@ -10,9 +10,14 @@ services:
       - NODE_ENV=${NODE_ENV}
       - DATABASE_URL_POSTGRES=${DATABASE_URL_POSTGRES}
       - DATABASE_URL_MONGO=${DATABASE_URL_MONGODB}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
     depends_on:
       - postgres
       - mongo
+      - redis
+    networks:
+      - ecommerce-network
 
   postgres:
     image: postgres:16
@@ -22,17 +27,21 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "${POSTGRES_PORT}:5432"  
+      - '${POSTGRES_PORT}:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ecommerce-network
 
   mongo:
     image: mongo:7
     restart: always
     ports:
-      - "${MONGODB_PORT}:27017" 
+      - '${MONGODB_PORT}:27017'
     volumes:
       - mongo_data:/data/db
+    networks:
+      - ecommerce-network
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.14.1
@@ -41,9 +50,11 @@ services:
       - discovery.type=single-node
       - xpack.security.enabled=false
     ports:
-      - "9200:9200"
+      - '9200:9200'
     volumes:
       - esdata:/usr/share/elasticsearch/data
+    networks:
+      - ecommerce-network
 
   logstash:
     image: docker.elastic.co/logstash/logstash:8.14.1
@@ -53,17 +64,35 @@ services:
       - ./logs:/usr/share/logstash/logs
     depends_on:
       - app
+    networks:
+      - ecommerce-network
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.14.1
     container_name: kibana
     ports:
-      - "5601:5601"
+      - '5601:5601'
     depends_on:
       - elasticsearch
+    networks:
+      - ecommerce-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '${REDIS_PORT}:6379'
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    networks:
+      - ecommerce-network
 
 volumes:
   postgres_data:
   mongo_data:
   esdata:
-  
+
+networks:
+  ecommerce-network:
+    driver: bridge

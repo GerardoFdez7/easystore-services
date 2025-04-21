@@ -23,6 +23,11 @@
       "@modules/*": ["src/modules/*"],
       "@infrastructure/*": ["src/infrastructure/*"],
       "@config/*": ["src/config/*"],
+      "@common/*": ["src/common/*"],
+      "@services/*": ["src/services/*"],
+      "@application/*": ["src/application/*"],
+      "@prisma/*": ["src/prisma/*"],
+      // TODO: Review and decomission/remove aliases as needed
       "@database/*": ["src/infrastructure/database/*"],
       "@cache/*": ["src/infrastructure/cache/*"],
       "@graphql/*": ["src/infrastructure/graphql/*"],
