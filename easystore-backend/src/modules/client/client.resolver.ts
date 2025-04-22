@@ -1,6 +1,9 @@
 import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { FindClientByEmailQuery } from './queries/client.query';
+import {
+  FindClientByBusinessNameQuery,
+  FindClientByEmailQuery,
+} from './queries/client.query';
 import {
   LoginClientCommand,
   RegisterClientCommand,
@@ -12,6 +15,10 @@ export class ClientResolver {
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
+
+  ///////////////
+  // Mutations //
+  ///////////////
 
   @Mutation(() => Boolean)
   async registerClient(
@@ -26,6 +33,19 @@ export class ClientResolver {
     return true;
   }
 
+  @Mutation(() => Boolean)
+  async loginClient(
+    @Args('email') email: string,
+    @Args('password') password: string,
+  ): Promise<boolean> {
+    await this.commandBus.execute(new LoginClientCommand(email, password));
+    return true;
+  }
+
+  ///////////////
+  //  Querys   //
+  ///////////////
+
   @Query(() => String, { nullable: true })
   async findClientEmail(
     @Args('email') email: string,
@@ -36,12 +56,13 @@ export class ClientResolver {
     return client?.email;
   }
 
-  @Mutation(() => Boolean)
-  async loginClient(
-    @Args('email') email: string,
-    @Args('password') password: string,
-  ): Promise<boolean> {
-    await this.commandBus.execute(new LoginClientCommand(email, password));
-    return true;
+  @Query(() => String, { nullable: true })
+  async findClientBusiness(
+    @Args('business') business: string,
+  ): Promise<string | undefined> {
+    const client: { businessName: string } | null = await this.queryBus.execute(
+      new FindClientByBusinessNameQuery(business),
+    );
+    return client?.businessName;
   }
 }

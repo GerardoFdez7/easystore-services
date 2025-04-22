@@ -8,5 +8,6 @@ type Mutation {
 }
 
 type Query {
+  findClientBusiness(business: String!): String
   findClientEmail(email: String!): String
 }
