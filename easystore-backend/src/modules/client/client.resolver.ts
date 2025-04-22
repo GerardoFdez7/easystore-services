@@ -35,10 +35,10 @@ export class ClientResolver {
 
   @Mutation(() => Boolean)
   async loginClient(
-    @Args('email') email: string,
+    @Args('identifier') identifier: string,
     @Args('password') password: string,
   ): Promise<boolean> {
-    await this.commandBus.execute(new LoginClientCommand(email, password));
+    await this.commandBus.execute(new LoginClientCommand(identifier, password));
     return true;
   }
 
