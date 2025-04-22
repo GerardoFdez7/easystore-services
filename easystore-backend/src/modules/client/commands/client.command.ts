@@ -9,7 +9,7 @@ export class RegisterClientCommand {
 
 export class LoginClientCommand {
   constructor(
-    public readonly email: string,
+    public readonly identifier: string,
     public readonly password: string,
   ) {}
 }
