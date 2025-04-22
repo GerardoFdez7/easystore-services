@@ -28,7 +28,7 @@ jobs:
               repo: context.repo.repo,
             });
 
-            console.log(`🔍 Reviewing ${branches.data.length} ramas...`);
+            console.log(`🔍 Reviewing ${branches.data.length} branches...`);
 
             for (const branch of branches.data) {
               const name = branch.name;
@@ -59,7 +59,7 @@ jobs:
               }
             }
 
-            console.log(`✅ Eliminated: ${deleted.length} ramas.`);
+            console.log(`✅ Eliminated: ${deleted.length} branches.`);
             if (deleted.length) {
               console.log(`🧹 Branches removed: ${deleted.join(', ')}`);
             } else {
