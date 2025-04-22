@@ -18,6 +18,11 @@ export class ClientService {
     });
     if (existingEmail) throw new Error('Email is already in use');
 
+    const existingBusiness = await this.prisma.client.findUnique({
+      where: { businessName: data.businessName },
+    });
+    if (existingBusiness) throw new Error('Business name is already in use');
+
     const hashedPassword = await bcrypt.hash(data.password, 10);
     return this.prisma.client.create({
       data: {
