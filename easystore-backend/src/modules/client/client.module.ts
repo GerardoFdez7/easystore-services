@@ -6,7 +6,10 @@ import {
   LoginClientHandler,
   RegisterClientHandler,
 } from './commands/client.command.handler';
-import { FindClientByEmailHandler } from './queries/client.query.handler';
+import {
+  FindClientByEmailHandler,
+  FindClientByBusinessNameHandler,
+} from './queries/client.query.handler';
 import { Postgre } from '@/infrastructure/database/postgre/postgre';
 import { LoginClientCommand } from './commands/client.command';
 
@@ -16,8 +19,11 @@ import { LoginClientCommand } from './commands/client.command';
     ClientResolver,
     ClientService,
     Postgre,
-    RegisterClientHandler,
+    // Querys
     FindClientByEmailHandler,
+    FindClientByBusinessNameHandler,
+    // Commands
+    RegisterClientHandler,
     LoginClientHandler,
   ],
   //exports:[ClientResolver]

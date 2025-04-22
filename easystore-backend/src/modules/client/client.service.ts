@@ -38,4 +38,10 @@ export class ClientService {
   async findByEmail(email: string): Promise<Client | null> {
     return await this.prisma.client.findUnique({ where: { email } });
   }
+
+  async findByBusiness(business: string): Promise<Client | null> {
+    return await this.prisma.client.findUnique({
+      where: { businessName: business },
+    });
+  }
 }
