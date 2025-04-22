@@ -13,6 +13,11 @@ export class ClientService {
     email: string;
     password: string;
   }): Promise<Client> {
+    const existingEmail = await this.prisma.client.findUnique({
+      where: { email: data.email },
+    });
+    if (existingEmail) throw new Error('Email is already in use');
+
     const hashedPassword = await bcrypt.hash(data.password, 10);
     return this.prisma.client.create({
       data: {
