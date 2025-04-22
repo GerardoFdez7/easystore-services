@@ -1,7 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ClientService } from '../client.service';
 import { Client } from '.prisma/postgres';
-import { RegisterClientCommand } from './client.command';
+import { LoginClientCommand, RegisterClientCommand } from './client.command';
+import * as bcrypt from 'bcrypt';
 
 @CommandHandler(RegisterClientCommand)
 export class RegisterClientHandler
@@ -17,5 +18,22 @@ export class RegisterClientHandler
       email,
       password,
     });
+  }
+}
+
+@CommandHandler(LoginClientCommand)
+export class LoginClientHandler implements ICommandHandler<LoginClientCommand> {
+  constructor(private readonly clientService: ClientService) {}
+
+  async execute(command: LoginClientCommand): Promise<boolean> {
+    const { email, password } = command;
+
+    const client = await this.clientService.findByEmail(email);
+    if (!client) throw new Error('Client not found');
+
+    const isPasswordValid = await bcrypt.compare(password, client.password);
+    if (!isPasswordValid) throw new Error('Invalid credentials');
+
+    return true;
   }
 }
