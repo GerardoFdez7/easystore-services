@@ -6,7 +6,7 @@ import { EventSerializer } from '../serializers/event-serializer';
 import { OrderCreatedEvent } from '@domain/events/order-created.event';
 import { OrderService } from '@application/services/order.service';
 import { InventoryService } from '@application/services/inventory.service';
-import { RedisCacheAdapter } from '@infrastructure/cache/adapters/redis-cache.adapter';
+import { RedisCacheAdapter } from '@cache/adapters/redis-cache.adapter';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()

@@ -1,9 +1,9 @@
 import { Module, Global } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { RedisConfigModule } from '@/config/redis-config.module';
-import { RedisConfigService } from '@/config/redis-config.service';
-import { RedisCacheAdapter } from '@/infrastructure/cache/adapters/redis-cache.adapter';
-import { RedisHealthIndicator } from '@infrastructure/cache/health/redis-health.indicator';
+import { RedisConfigModule } from '@config/redis/redis.module';
+import { RedisConfigService } from '@/config/redis/redis.service';
+import { RedisCacheAdapter } from '@cache/adapters/redis-cache.adapter';
+import { RedisHealthIndicator } from '@cache/health/redis-health.indicator';
 
 @Global()
 @Module({

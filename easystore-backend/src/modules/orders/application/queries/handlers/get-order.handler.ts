@@ -1,8 +1,8 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { GetOrderQuery } from '@modules/orders/application/queries/get-order.query';
 import { PrismaService } from '@prisma/prisma.service';
-import { RedisCacheAdapter } from '@infrastructure/cache/adapters/redis-cache.adapter';
+import { RedisCacheAdapter } from '@cache/adapters/redis-cache.adapter';
+import { GetOrderQuery } from '../get-order.query';
 
 @Injectable()
 @QueryHandler(GetOrderQuery)

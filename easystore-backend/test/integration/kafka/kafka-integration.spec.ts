@@ -2,11 +2,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ClientKafka } from '@nestjs/microservices';
-import { KafkaConfigService } from '../../../src/infra/transport/kafka/config/kafka-config.service';
-import { OrderCreatedProducer } from '../../../src/infra/transport/kafka/producers/order-created.producer';
-import { EventSerializer } from '../../../src/infra/transport/kafka/serializers/event-serializer';
+import { KafkaConfigService } from '@transport/kafka/config/kafka-config.service';
+import { OrderCreatedProducer } from '@transport/kafka/producers/order-created.producer';
+import { EventSerializer } from '@transport/kafka/serializers/event-serializer';
 import { OrderCreatedEvent } from '../../../src/domain/events/order-created.event';
-import { CircuitBreaker } from '../../../src/infra/resilience/circuit-breaker';
+import { CircuitBreaker } from '@cache/circuit-breaker';
 
 // Mock CircuitBreaker para tests
 jest.mock('../../../src/infra/resilience/circuit-breaker');

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { Request } from 'express';
-import { SessionService } from '@infrastructure/auth/session/session.service';
+import { SessionService } from '@auth/session/session.service';
 import { verify } from 'jsonwebtoken';
 
 interface CustomRequest extends Request {
@@ -35,7 +35,6 @@ export class GqlAuthGuard implements CanActivate {
       if (!process.env.JWT_SECRET) {
         throw new UnauthorizedException('JWT secret is not defined');
       }
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call
       const decoded: { sub: string } = verify(
         token,
         process.env.JWT_SECRET || '',

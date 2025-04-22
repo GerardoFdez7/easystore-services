@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
-import { ClearCartCommand } from '@modules/cart/application/commands/clear-cart.command';
-import { RedisCacheAdapter } from '@infrastructure/cache/adapters/redis-cache.adapter';
-import { CartClearedEvent } from '@modules/cart/application/events/cart-cleared.event';
+import { ClearCartCommand } from '../../commands/clear-cart.command';
+import { RedisCacheAdapter } from '@cache/adapters/redis-cache.adapter';
+import { CartClearedEvent } from '../../events/cart-cleared.event';
 import { PrismaService } from '@prisma/prisma.service';
-import { PrometheusService } from '@infrastructure/metrics/prometheus.service';
+import { PrometheusService } from '@metrics/prometheus.service';
 
 @Injectable()
 @CommandHandler(ClearCartCommand)

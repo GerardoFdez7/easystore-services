@@ -1,9 +1,9 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
-import { ListProductsQuery } from '@modules/products/application/queries/list-products.query';
-import { RedisCacheAdapter } from '@infrastructure/cache/adapters/redis-cache.adapter';
-import { ProductRepository } from '@infrastructure/repositories/product.repository';
-import { ProductDto } from '@modules/products/interfaces/graphql/dto/product.dto';
 import { Logger } from '@nestjs/common';
+import { RedisCacheAdapter } from '@cache/adapters/redis-cache.adapter';
+import { ProductRepository } from '@repositories/product.repository';
+import { ListProductsQuery } from '../list-products.query';
+import { ProductDto } from '../../../interfaces/graphql/dto/product.dto';
 
 @QueryHandler(ListProductsQuery)
 export class ListProductsHandler implements IQueryHandler<ListProductsQuery> {

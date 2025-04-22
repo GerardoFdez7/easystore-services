@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { RedisCacheAdapter } from '@infrastructure/cache/adapters/redis-cache.adapter';
+import { RedisCacheAdapter } from '@cache/adapters/redis-cache.adapter';
 import { PrismaService } from '@prisma/prisma.service';
 
 @Injectable()

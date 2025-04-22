@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@prisma/prisma.service';
-import { ProductDto } from '@modules/products/interfaces/graphql/dto/product.dto';
-import { ProductUpdateData } from '@modules/products/application/commands/update-product.command';
+import { ProductDto } from '@/modules/products/interfaces/graphql/dto/product.dto';
+import { ProductUpdateData } from '@/modules/products/application/commands/update-product.command';
 import { LoggerService } from '@logging/winston/winston.service';
 
 export interface Product {

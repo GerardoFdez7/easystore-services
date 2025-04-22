@@ -5,7 +5,7 @@ import {
   OnModuleDestroy,
 } from '@nestjs/common';
 import Redis from 'ioredis';
-import { CircuitBreaker } from '@/infrastructure/cache/circuit-breaker';
+import { CircuitBreaker } from '@cache/circuit-breaker';
 import { CachePort } from '@application/ports/cache/cache.port';
 import { LoggerService } from '@logging/winston/winston.service';
 import { CacheInvalidationService } from '../pubsub/cache-invalidation.service';

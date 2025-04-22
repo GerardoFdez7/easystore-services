@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Logger } from '@nestjs/common';
 import { OrderItem } from '@domain/events/order-created.event';
 import { PrismaService } from '@prisma/prisma.service';
-import { RedisCacheAdapter } from '@/infrastructure/cache/adapters/redis-cache.adapter';
+import { RedisCacheAdapter } from '@cache/adapters/redis-cache.adapter';
 
 @Injectable()
 export class InventoryService {

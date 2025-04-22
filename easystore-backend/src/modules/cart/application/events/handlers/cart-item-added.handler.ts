@@ -1,9 +1,9 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { Injectable, Logger } from '@nestjs/common';
 import { CartItemAddedEvent } from '../cart-item-added.event';
-import { RedisCacheAdapter } from '@infrastructure/cache/adapters/redis-cache.adapter';
-import { PrometheusService } from '@infrastructure/metrics/prometheus.service';
-import { ProductRepository } from '@infrastructure/repositories/product.repository';
+import { RedisCacheAdapter } from '@cache/adapters/redis-cache.adapter';
+import { PrometheusService } from '@metrics/prometheus.service';
+import { ProductRepository } from '@repositories/product.repository';
 
 @Injectable()
 @EventsHandler(CartItemAddedEvent)

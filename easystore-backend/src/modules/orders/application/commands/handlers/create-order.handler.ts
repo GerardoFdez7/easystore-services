@@ -1,12 +1,12 @@
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
-import { CreateOrderCommand } from '@modules/orders/application/commands/create-order.command';
-import { PrismaService } from '@prisma/prisma.service';
-import { OrderCreatedProducer } from '@infrastructure/transport/kafka/producers/order-created.producer';
-import { OrderCreatedEvent } from '@domain/events/order-created.event';
-import { RedisCacheAdapter } from '@infrastructure/cache/adapters/redis-cache.adapter';
 import { Logger } from '@nestjs/common';
-import { OrderDto } from '@modules/orders/interfaces/graphql/dto/order.dto';
+import { PrismaService } from '@prisma/prisma.service';
+import { OrderCreatedProducer } from '@transport/kafka/producers/order-created.producer';
+import { OrderCreatedEvent } from '@domain/events/order-created.event';
+import { RedisCacheAdapter } from '@cache/adapters/redis-cache.adapter';
+import { CreateOrderCommand } from '../create-order.command';
+import { OrderDto } from '../../../interfaces/graphql/dto/order.dto';
 
 @Injectable()
 @CommandHandler(CreateOrderCommand)

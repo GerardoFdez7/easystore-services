@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
-import { AddToCartCommand } from '@modules/cart/application/commands/add-to-cart.command';
-import { CartItemAddedEvent } from '@modules/cart/application/events/cart-item-added.event';
-import { RedisCacheAdapter } from '@infrastructure/cache/adapters/redis-cache.adapter';
-import { CartRepository } from '@infrastructure/repositories/cart.repository';
+import { RedisCacheAdapter } from '@cache/adapters/redis-cache.adapter';
+import { CartRepository } from '@repositories/cart.repository';
 import { PrismaService } from '@prisma/prisma.service';
+import { AddToCartCommand } from '../../commands/add-to-cart.command';
+import { CartItemAddedEvent } from '../../events/cart-item-added.event';
 
 @Injectable()
 @CommandHandler(AddToCartCommand)

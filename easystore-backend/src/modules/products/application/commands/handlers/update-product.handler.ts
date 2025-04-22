@@ -1,14 +1,14 @@
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { UpdateProductCommand } from '@modules/products/application/commands/update-product.command';
-import { ProductRepository } from '@infrastructure/repositories/product.repository';
-import { RedisCacheAdapter } from '@infrastructure/cache/adapters/redis-cache.adapter';
+import { Logger } from '@nestjs/common';
+import { ProductRepository } from '@repositories/product.repository';
+import { RedisCacheAdapter } from '@cache/adapters/redis-cache.adapter';
 import {
   ProductData,
   ProductUpdatedEvent,
 } from '@domain/events/product-updated.event';
-import { ProductUpdatedProducer } from '@infrastructure/transport/kafka/producers/product-updated.producer';
-import { Logger } from '@nestjs/common';
+import { ProductUpdatedProducer } from '@transport/kafka/producers/product-updated.producer';
+import { UpdateProductCommand } from '../update-product.command';
 
 @Injectable()
 @CommandHandler(UpdateProductCommand)

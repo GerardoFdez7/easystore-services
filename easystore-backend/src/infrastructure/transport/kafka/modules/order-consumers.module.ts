@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { KafkaModule } from './kafka.module';
 import { OrderCreatedConsumer } from '../consumers/order-created.consumer';
-import { OrderModule } from '@modules/orders/order.module';
-import { InventoryModule } from '@modules/inventory/inventory.module';
-import { RedisCacheModule } from '@infrastructure/cache/redis.module';
+import { OrderModule } from '@/modules/orders/order.module';
+import { InventoryModule } from '@/modules/inventory/inventory.module';
+import { RedisCacheModule } from '@cache/redis.module';
 
 @Module({
   imports: [

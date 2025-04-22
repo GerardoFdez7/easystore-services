@@ -1,5 +1,5 @@
 import { Query } from '@nestjs/cqrs';
-import { InventoryDto } from '@modules/inventory/interfaces/graphql/dto/inventory.dto';
+import { InventoryDto } from '../../interfaces/graphql/dto/inventory.dto';
 import { RESULT_TYPE_SYMBOL } from '@nestjs/cqrs/dist/classes/constants';
 
 const queryResultType: unique symbol = Symbol('nestjs-query-result-type');

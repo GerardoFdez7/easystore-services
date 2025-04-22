@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { RedisCacheAdapter } from '@infrastructure/cache/adapters/redis-cache.adapter';
+import { RedisCacheAdapter } from '@cache/adapters/redis-cache.adapter';
 
 interface SessionData {
   userId: number;
@@ -13,7 +13,7 @@ interface SessionData {
 @Injectable()
 export class SessionService {
   private readonly sessionPrefix = 'session:';
-  private readonly sessionTtl = 86400; // 24 horas
+  private readonly sessionTtl = 86400; // 24h
 
   constructor(private readonly cacheAdapter: RedisCacheAdapter) {}
 

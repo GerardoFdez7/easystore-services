@@ -7,9 +7,9 @@ import {
 } from '@nestjs/common';
 import { CartDto } from './dto/cart.dto';
 import { AddToCartInput } from './dto/add-to-cart.input';
-import { AddToCartCommand } from '@modules/cart/application/commands/add-to-cart.command';
-import { GetCartQuery } from '@modules/cart/application/queries/get-cart.query';
-import { ClearCartCommand } from '@modules/cart/application/commands/clear-cart.command';
+import { AddToCartCommand } from '../../application/commands/add-to-cart.command';
+import { GetCartQuery } from '../../application/queries/get-cart.query';
+import { ClearCartCommand } from '../../application/commands/clear-cart.command';
 import { GqlAuthGuard } from '@common/guards/gql-auth.guard';
 import { CurrentUser } from '@common/decorators/current-user.decorator';
 

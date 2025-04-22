@@ -1,5 +1,5 @@
 import { RESULT_TYPE_SYMBOL } from '@nestjs/cqrs/dist/classes/constants';
-import { CartDto } from '@modules/cart/interfaces/graphql/dto/cart.dto';
+import { CartDto } from '../../interfaces/graphql/dto/cart.dto';
 
 export class GetCartQuery {
   readonly [RESULT_TYPE_SYMBOL]: CartDto;

@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { PrismaModule } from '@prisma/prisma.module';
-import { RedisCacheModule } from '@infrastructure/cache/redis.module';
-import { KafkaModule } from '@infrastructure/transport/kafka/modules/kafka.module';
+import { RedisCacheModule } from '@cache/redis.module';
+import { KafkaModule } from '@transport/kafka/modules/kafka.module';
 import { InventoryService } from '@application/services/inventory.service';
-import { InventoryResolver } from '@modules/inventory/interfaces/graphql/inventory.resolver';
-import { InventoryRepository } from '@infrastructure/repositories/inventory.repository';
-import { UpdateInventoryHandler } from '@modules/inventory/application/commands/handlers/update-inventory.handler';
-import { GetInventoryHandler } from '@modules/inventory/application/queries/handlers/get-inventory.handler';
+import { InventoryResolver } from './interfaces/graphql/inventory.resolver';
+import { InventoryRepository } from '@repositories/inventory.repository';
+import { UpdateInventoryHandler } from './application/commands/handlers/update-inventory.handler';
+import { GetInventoryHandler } from './application/queries/handlers/get-inventory.handler';
 
 const CommandHandlers = [UpdateInventoryHandler];
 const QueryHandlers = [GetInventoryHandler];

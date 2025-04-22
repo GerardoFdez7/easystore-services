@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { PrismaModule } from '@prisma/prisma.module';
-import { RedisCacheModule } from '@infrastructure/cache/redis.module';
-import { KafkaModule } from '@infrastructure/transport/kafka/modules/kafka.module';
-import { OrderResolver } from '@modules/orders/interfaces/graphql/order.resolver';
+import { RedisCacheModule } from '@cache/redis.module';
 import { OrderService } from '@application/services/order.service';
-import { CreateOrderHandler } from '@modules/orders/application/commands/handlers/create-order.handler';
-import { GetOrderHandler } from '@modules/orders/application/queries/handlers/get-order.handler';
-import { OrderCreatedProducer } from '@infrastructure/transport/kafka/producers/order-created.producer';
+import { KafkaModule } from '@transport/kafka/modules/kafka.module';
+import { OrderCreatedProducer } from '@transport/kafka/producers/order-created.producer';
+import { OrderResolver } from './interfaces/graphql/order.resolver';
+import { CreateOrderHandler } from './application/commands/handlers/create-order.handler';
+import { GetOrderHandler } from './application/queries/handlers/get-order.handler';
 
 const CommandHandlers = [CreateOrderHandler];
 const QueryHandlers = [GetOrderHandler];
