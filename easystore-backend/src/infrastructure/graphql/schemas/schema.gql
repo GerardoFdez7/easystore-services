@@ -3,6 +3,7 @@
 # ------------------------------------------------------
 
 type Mutation {
+  loginClient(email: String!, password: String!): Boolean!
   registerClient(businessName: String!, email: String!, ownerName: String!, password: String!): Boolean!
 }
 
