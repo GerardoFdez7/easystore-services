@@ -110,21 +110,21 @@ Follow these instructions to set up and run the EasyStore backend application:
 npm run docker:dev
 ```
 
-#### Dev Tesing Kafka
+#### Testing Kafka
 
-1. Iniciar los servicios:
+1. Start services:
 
 ```bash
   npm run docker:kafka:up
 ```
 
-2. Enviar mensajes de prueba:
+2. Send test messages:
 
 ```bash
 npm run kafka:producer:test
 ```
 
-3. Verificar el procesamiento:
+3. Verify processing:
 
 ```bash
 bashnpm run kafka:consumer:test
