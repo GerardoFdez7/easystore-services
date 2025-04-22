@@ -127,7 +127,7 @@ npm run kafka:producer:test
 3. Verify processing:
 
 ```bash
-bashnpm run kafka:consumer:test
+npm run kafka:consumer:test
 ```
 
 ### Production Environment
