@@ -1,7 +1,10 @@
 import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { FindClientByEmailQuery } from './queries/client.query';
-import { RegisterClientCommand } from './commands/client.command';
+import {
+  LoginClientCommand,
+  RegisterClientCommand,
+} from './commands/client.command';
 
 @Resolver()
 export class ClientResolver {
@@ -31,5 +34,14 @@ export class ClientResolver {
       new FindClientByEmailQuery(email),
     );
     return client?.email;
+  }
+
+  @Mutation(() => Boolean)
+  async loginClient(
+    @Args('email') email: string,
+    @Args('password') password: string,
+  ): Promise<boolean> {
+    await this.commandBus.execute(new LoginClientCommand(email, password));
+    return true;
   }
 }

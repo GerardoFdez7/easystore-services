@@ -6,3 +6,10 @@ export class RegisterClientCommand {
     public readonly password: string,
   ) {}
 }
+
+export class LoginClientCommand {
+  constructor(
+    public readonly email: string,
+    public readonly password: string,
+  ) {}
+}
