@@ -26,9 +26,13 @@ export class LoginClientHandler implements ICommandHandler<LoginClientCommand> {
   constructor(private readonly clientService: ClientService) {}
 
   async execute(command: LoginClientCommand): Promise<boolean> {
-    const { email, password } = command;
+    const { identifier, password } = command;
 
-    const client = await this.clientService.findByEmail(email);
+    let client = await this.clientService.findByEmail(identifier);
+    if (!client) {
+      client = await this.clientService.findByBusiness(identifier);
+    }
+
     if (!client) throw new Error('Client not found');
 
     const isPasswordValid = await bcrypt.compare(password, client.password);
