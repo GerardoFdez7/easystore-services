@@ -22,6 +22,7 @@ export class KafkaConfigService {
           clientId,
           brokers,
           ssl: this.configService.get<boolean>('KAFKA_SSL_ENABLED', false),
+          // TODO: Uncomment and implement SASL if needed
           // sasl: this.getSaslConfig(),
           connectionTimeout: this.configService.get<number>(
             'KAFKA_CONNECTION_TIMEOUT',

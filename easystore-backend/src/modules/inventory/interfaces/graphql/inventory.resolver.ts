@@ -3,10 +3,10 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '@common/guards/gql-auth.guard';
 import { CurrentUser } from '@common/decorators/current-user.decorator';
-import { InventoryDto } from '../../interfaces/graphql/dto/inventory.dto';
-import { UpdateInventoryInput } from '../../interfaces/graphql/dto/update-inventory.input';
-import { GetInventoryQuery } from '../../application/queries/get-inventory.query';
-import { UpdateInventoryCommand } from '../../application/commands/update-inventory.command';
+import { InventoryDto } from '@modules/inventory/interfaces/graphql/dto/inventory.dto';
+import { UpdateInventoryInput } from '@modules/inventory/interfaces/graphql/dto/update-inventory.input';
+import { GetInventoryQuery } from '@modules/inventory/application/queries/get-inventory.query';
+import { UpdateInventoryCommand } from '@modules/inventory/application/commands/update-inventory.command';
 import { Logger } from '@nestjs/common';
 
 @Resolver(() => InventoryDto)

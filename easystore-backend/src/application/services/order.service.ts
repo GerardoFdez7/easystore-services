@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { OrderItem } from '@domain/events/order-created.event';
-import { PrismaService } from '@prisma/prisma.service';
+import { PrismaService } from '@config/prisma/prisma.service';
 import { Logger } from '@nestjs/common';
 
 @Injectable()

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@prisma/prisma.service';
-import { ProductDto } from '@/modules/products/interfaces/graphql/dto/product.dto';
-import { ProductUpdateData } from '@/modules/products/application/commands/update-product.command';
+import { PrismaService } from '@config/prisma/prisma.service';
+import { ProductDto } from '@modules/products/interfaces/graphql/dto/product.dto';
+import { ProductUpdateData } from '@modules/products/application/commands/update-product.command';
 import { LoggerService } from '@logging/winston/winston.service';
 
 export interface Product {
@@ -21,7 +21,7 @@ export interface Product {
 export class ProductRepository {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly logger: LoggerService = console,
+    private readonly logger: LoggerService,
   ) {}
 
   async findById(productId: string | number): Promise<{
@@ -120,7 +120,6 @@ export class ProductRepository {
     limit: number = 10,
   ): Promise<{ id: string }[]> {
     try {
-      // Simulación para propósitos de prueba
       return Promise.resolve(
         Array(limit)
           .fill(null)
@@ -129,7 +128,7 @@ export class ProductRepository {
           })),
       );
 
-      // Implement the logic to fetch popular products from the database:
+      // TODO: Implement the logic to fetch popular products from the database:
       /*
       return await this.prisma.$queryRaw`
         SELECT p.id 

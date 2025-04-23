@@ -1,9 +1,9 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { Injectable, Logger } from '@nestjs/common';
-import { CartItemAddedEvent } from '../cart-item-added.event';
+import { CartItemAddedEvent } from '@modules/cart/application/events/cart-item-added.event';
 import { RedisCacheAdapter } from '@cache/adapters/redis-cache.adapter';
 import { PrometheusService } from '@metrics/prometheus.service';
-import { ProductRepository } from '@repositories/product.repository';
+import { ProductRepository } from '@infrastructure/repositories/product.repository';
 
 @Injectable()
 @EventsHandler(CartItemAddedEvent)
@@ -18,6 +18,14 @@ export class CartItemAddedHandler implements IEventHandler<CartItemAddedEvent> {
 
   async handle(event: CartItemAddedEvent): Promise<void> {
     const { userId, productId, quantity } = event;
+
+    if (
+      typeof userId !== 'number' ||
+      (typeof productId !== 'string' && typeof productId !== 'number') ||
+      typeof quantity !== 'number'
+    ) {
+      throw new Error('Invalid event data types');
+    }
     this.logger.log(
       `Product ${productId} added to cart for user ${userId} (quantity: ${quantity})`,
     );
@@ -27,7 +35,7 @@ export class CartItemAddedHandler implements IEventHandler<CartItemAddedEvent> {
         operation: 'add_item',
       });
       this.metricsService.incrementCounter('product_added_to_cart_total', {
-        productId,
+        productId: String(productId),
       });
 
       this.metricsService.incrementGauge('active_carts_total');
@@ -37,7 +45,7 @@ export class CartItemAddedHandler implements IEventHandler<CartItemAddedEvent> {
         return;
       }
       if (product && quantity > product.stock * 0.8) {
-        // Caching high demand status for the product above 80% of stock
+        // TODO: Caching high demand status for the product above 80% of stock
         await this.cacheAdapter.set(
           `product:${productId}:high_demand`,
           true,

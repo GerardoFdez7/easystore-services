@@ -1,12 +1,12 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
 import { KafkaMessage } from 'kafkajs';
-import { BaseConsumer } from '@transport/kafka/consumers/base-consumer';
-import { EventSerializer } from '@transport/kafka/serializers/event-serializer';
+import { BaseConsumer } from '@infrastructure/transport/kafka/consumers/base-consumer';
+import { EventSerializer } from '@infrastructure/transport/kafka/serializers/event-serializer';
 import { ProductUpdatedEvent } from '@domain/events/product-updated.event';
-import { RedisCacheAdapter } from '@cache/adapters/redis-cache.adapter';
+import { RedisCacheAdapter } from '@infrastructure/cache/adapters/redis-cache.adapter';
 import { ConfigService } from '@nestjs/config';
-import { LoggerService } from '@logging/winston/winston.service';
+import { LoggerService } from '@infrastructure/logging/winston/winston.service';
 
 @Injectable()
 export class ProductUpdatedConsumer extends BaseConsumer {
@@ -18,7 +18,7 @@ export class ProductUpdatedConsumer extends BaseConsumer {
     serializer: EventSerializer,
     private readonly configService: ConfigService,
     private readonly cacheService: RedisCacheAdapter,
-    protected readonly logger: LoggerService = console,
+    protected readonly logger: LoggerService,
   ) {
     super(kafkaClient, serializer, logger);
     this.topic = this.configService.get<string>(

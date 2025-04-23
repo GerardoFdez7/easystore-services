@@ -1,4 +1,4 @@
-import { Injectable, Inject, LoggerService } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
 import { KafkaMessage } from 'kafkajs';
 import { BaseConsumer } from './base-consumer';
@@ -6,8 +6,9 @@ import { EventSerializer } from '../serializers/event-serializer';
 import { OrderCreatedEvent } from '@domain/events/order-created.event';
 import { OrderService } from '@application/services/order.service';
 import { InventoryService } from '@application/services/inventory.service';
-import { RedisCacheAdapter } from '@cache/adapters/redis-cache.adapter';
+import { RedisCacheAdapter } from '@infrastructure/cache/adapters/redis-cache.adapter';
 import { ConfigService } from '@nestjs/config';
+import { LoggerService } from '@infrastructure/logging/winston/winston.service';
 
 @Injectable()
 export class OrderCreatedConsumer extends BaseConsumer {
@@ -21,7 +22,7 @@ export class OrderCreatedConsumer extends BaseConsumer {
     private readonly orderService: OrderService,
     private readonly inventoryService: InventoryService,
     private readonly cacheService: RedisCacheAdapter,
-    protected readonly logger: LoggerService = console,
+    protected readonly logger: LoggerService,
   ) {
     super(kafkaClient, serializer, logger);
     this.topic = this.configService.get<string>(
@@ -50,7 +51,7 @@ export class OrderCreatedConsumer extends BaseConsumer {
 
     await this.orderService.validateOrder(event.orderId, event.items);
 
-    this.inventoryService.reserveInventory(event.items);
+    await this.inventoryService.reserveInventory(event.items);
 
     await this.cacheService.set(
       `order:${event.orderId}:status`,

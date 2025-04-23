@@ -2,9 +2,9 @@ import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
 import { GetCartQuery } from '../../queries/get-cart.query';
 import { RedisCacheAdapter } from '@cache/adapters/redis-cache.adapter';
-import { CartRepository } from '@repositories/cart.repository';
+import { CartRepository } from '@infrastructure/repositories/cart.repository';
 import { CartDto } from '../../../interfaces/graphql/dto/cart.dto';
-import { PrismaService } from '@prisma/prisma.service';
+import { PrismaService } from '@config/prisma/prisma.service';
 
 @Injectable()
 @QueryHandler(GetCartQuery)

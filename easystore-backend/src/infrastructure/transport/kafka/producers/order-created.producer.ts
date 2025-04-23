@@ -1,8 +1,8 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
-import { EventSerializer } from '@transport/kafka/serializers/event-serializer';
-import { BaseProducer } from '@transport/kafka/producers/base.producer';
+import { EventSerializer } from '@infrastructure/transport/kafka/serializers/event-serializer';
+import { BaseProducer } from '@infrastructure/transport/kafka/producers/base.producer';
 import { OrderCreatedEvent } from '@domain/events/order-created.event';
 
 @Injectable()

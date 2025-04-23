@@ -54,10 +54,10 @@ async function consumeMessages(): Promise<void> {
         );
 
         try {
-          const parsedValue = JSON.parse(value);
+          const parsedValue: unknown = JSON.parse(value);
           console.log('Valor (JSON):');
           console.log(JSON.stringify(parsedValue, null, 2));
-        } catch (e) {
+        } catch (_e) {
           console.log(`Valor: ${value}`);
         }
 
@@ -94,25 +94,29 @@ async function consumeMessages(): Promise<void> {
   const signalTraps = ['SIGTERM', 'SIGINT', 'SIGUSR2'];
 
   errorTypes.forEach((type) => {
-    process.on(type, async (e) => {
-      try {
-        console.log(`Ocurrió un error de tipo ${type}: ${e}`);
-        await consumer.disconnect();
-        process.exit(0);
-      } catch (_) {
-        process.exit(1);
-      }
+    process.on(type, (e) => {
+      void (async () => {
+        try {
+          console.log(`Ocurrió un error de tipo ${type}: ${e}`);
+          await consumer.disconnect();
+          process.exit(0);
+        } catch (_) {
+          process.exit(1);
+        }
+      })();
     });
   });
 
   signalTraps.forEach((type) => {
-    process.once(type, async () => {
-      try {
-        await consumer.disconnect();
-        console.log('Consumidor desconectado limpiamente');
-      } finally {
-        process.exit(0);
-      }
+    process.once(type, () => {
+      void (async () => {
+        try {
+          await consumer.disconnect();
+          console.log('Consumidor desconectado limpiamente');
+        } finally {
+          process.exit(0);
+        }
+      })();
     });
   });
 }

@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { ClearCartCommand } from '../../commands/clear-cart.command';
 import { RedisCacheAdapter } from '@cache/adapters/redis-cache.adapter';
 import { CartClearedEvent } from '../../events/cart-cleared.event';
-import { PrismaService } from '@prisma/prisma.service';
+import { PrismaService } from '@config/prisma/prisma.service';
 import { PrometheusService } from '@metrics/prometheus.service';
 
 @Injectable()

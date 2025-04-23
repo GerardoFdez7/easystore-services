@@ -60,7 +60,7 @@ model Product {
 
 model Inventory {
   id                         String    @id @default(auto()) @map("_id") @mongodb.ObjectId
-  productId                  String    @mongodb.ObjectId
+  productId                  String
   product                    Product   @relation(fields: [productId], references: [id])
   warehouseId                String
   productLocation            String?

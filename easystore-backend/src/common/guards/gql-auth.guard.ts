@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { Request } from 'express';
-import { SessionService } from '@auth/session/session.service';
+import { SessionService } from '@infrastructure/auth/session/session.service';
 import { verify } from 'jsonwebtoken';
 
 interface CustomRequest extends Request {

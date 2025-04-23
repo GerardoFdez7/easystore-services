@@ -1,10 +1,10 @@
-import { Query } from '@nestjs/cqrs';
-import { InventoryDto } from '../../interfaces/graphql/dto/inventory.dto';
+import { IQuery } from '@nestjs/cqrs';
+import { InventoryDto } from '@modules/inventory/interfaces/graphql/dto/inventory.dto';
 import { RESULT_TYPE_SYMBOL } from '@nestjs/cqrs/dist/classes/constants';
 
 const queryResultType: unique symbol = Symbol('nestjs-query-result-type');
 
-export class GetInventoryQuery implements Query<InventoryDto> {
+export class GetInventoryQuery implements IQuery {
   static readonly QUERY_RESULT_TYPE = queryResultType;
   readonly [queryResultType]: InventoryDto;
 

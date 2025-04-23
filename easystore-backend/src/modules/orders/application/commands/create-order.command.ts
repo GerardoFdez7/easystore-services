@@ -1,6 +1,6 @@
 import { Command } from '@nestjs/cqrs';
+import { OrderDto } from '@modules/orders/interfaces/graphql/dto/order.dto';
 import { RESULT_TYPE_SYMBOL } from '@nestjs/cqrs/dist/classes/constants';
-import { OrderDto } from '../../interfaces/graphql/dto/order.dto';
 
 export class CreateOrderCommand implements Command<OrderDto> {
   readonly [RESULT_TYPE_SYMBOL]: OrderDto;

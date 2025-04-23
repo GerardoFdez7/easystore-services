@@ -27,9 +27,13 @@ export class KafkaHealthIndicator
   }
 
   async onModuleInit(): Promise<void> {
-    const kafka = this.kafkaClient.unwrap<Kafka>();
-    this.admin = kafka.admin();
-    await this.admin.connect();
+    try {
+      const kafka = this.kafkaClient.unwrap<Kafka>();
+      this.admin = kafka.admin();
+      await this.admin.connect();
+    } catch (error) {
+      this.logger.error('Error initializing Kafka health indicator', error);
+    }
   }
 
   async onModuleDestroy(): Promise<void> {

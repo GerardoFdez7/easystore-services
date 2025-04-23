@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
 import { UpdateInventoryCommand } from '../update-inventory.command';
-import { InventoryRepository } from '@repositories/inventory.repository';
-import { RedisCacheAdapter } from '@cache/adapters/redis-cache.adapter';
+import { InventoryRepository } from '@infrastructure/repositories/inventory.repository';
+import { RedisCacheAdapter } from '@infrastructure/cache/adapters/redis-cache.adapter';
 import { Logger } from '@nestjs/common';
-import { ProductUpdatedProducer } from '@transport/kafka/producers/product-updated.producer';
+import { ProductUpdatedProducer } from '@infrastructure/transport/kafka/producers/product-updated.producer';
 import { ProductUpdatedEvent } from '@domain/events/product-updated.event';
 
 @Injectable()

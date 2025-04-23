@@ -3,7 +3,7 @@ import { ClientKafka } from '@nestjs/microservices';
 import { Consumer, EachMessagePayload, Kafka, KafkaMessage } from 'kafkajs';
 import { EventSerializer } from '../serializers/event-serializer';
 import { LoggerService } from '@logging/winston/winston.service';
-import { CircuitBreaker } from '@cache/circuit-breaker';
+import { CircuitBreaker } from '@infrastructure/cache/circuit-breaker';
 
 export abstract class BaseConsumer implements OnModuleInit, OnModuleDestroy {
   protected consumer: Consumer;

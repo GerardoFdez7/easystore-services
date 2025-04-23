@@ -1,8 +1,8 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
+import { ProductUpdatedEvent } from '@modules/products/application/events/product-updated.event';
+import { RedisCacheAdapter } from '@infrastructure/cache/adapters/redis-cache.adapter';
 import { Logger } from '@nestjs/common';
-import { RedisCacheAdapter } from '@cache/adapters/redis-cache.adapter';
-import { ProductUpdatedEvent } from '../product-updated.event';
 
 @Injectable()
 @EventsHandler(ProductUpdatedEvent)

@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
 import { RedisCacheAdapter } from '@cache/adapters/redis-cache.adapter';
-import { CartRepository } from '@repositories/cart.repository';
-import { PrismaService } from '@prisma/prisma.service';
+import { CartRepository } from '@infrastructure/repositories/cart.repository';
+import { PrismaService } from '@config/prisma/prisma.service';
 import { AddToCartCommand } from '../../commands/add-to-cart.command';
 import { CartItemAddedEvent } from '../../events/cart-item-added.event';
 

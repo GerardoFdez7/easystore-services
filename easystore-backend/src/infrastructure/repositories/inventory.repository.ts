@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@prisma/prisma.service';
+import { PrismaService } from '@config/prisma/prisma.service';
 import { Logger } from '@nestjs/common';
 
 export interface InventoryItem {

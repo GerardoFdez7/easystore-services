@@ -3,10 +3,10 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UseGuards, Logger } from '@nestjs/common';
 import { GqlAuthGuard } from '@common/guards/gql-auth.guard';
 import { CurrentUser } from '@common/decorators/current-user.decorator';
-import { CreateOrderInput } from '../../interfaces/graphql/dto/create-order.input';
-import { OrderDto } from '../../interfaces/graphql/dto/order.dto';
-import { CreateOrderCommand } from '../../application/commands/create-order.command';
-import { GetOrderQuery } from '../../application/queries/get-order.query';
+import { CreateOrderInput } from '@modules/orders/interfaces/graphql/dto/create-order.input';
+import { OrderDto } from '@modules/orders/interfaces/graphql/dto/order.dto';
+import { CreateOrderCommand } from '@modules/orders/application/commands/create-order.command';
+import { GetOrderQuery } from '@modules/orders/application/queries/get-order.query';
 
 @Resolver(() => OrderDto)
 export class OrderResolver {

@@ -1,13 +1,13 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
+import { GetInventoryQuery } from '@modules/inventory/application/queries/get-inventory.query';
 import {
   InventoryRepository,
   InventoryItem,
-} from '@repositories/inventory.repository';
-import { RedisCacheAdapter } from '@cache/adapters/redis-cache.adapter';
+} from '@infrastructure/repositories/inventory.repository';
+import { RedisCacheAdapter } from '@infrastructure/cache/adapters/redis-cache.adapter';
 import { Logger } from '@nestjs/common';
-import { GetInventoryQuery } from '../../queries/get-inventory.query';
-import { InventoryDto } from '../../../interfaces/graphql/dto/inventory.dto';
+import { InventoryDto } from '@modules/inventory/interfaces/graphql/dto/inventory.dto';
 
 @Injectable()
 @QueryHandler(GetInventoryQuery)

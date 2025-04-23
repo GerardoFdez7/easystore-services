@@ -1,18 +1,36 @@
-FROM node:18-alpine AS base
+FROM node:23-alpine AS deps
 WORKDIR /app
-COPY package*.json ./
+COPY package.json package-lock.json ./
+RUN npm ci
 
-# Development build stage
-FROM base AS development
-COPY . .                     
-RUN npm install
+FROM deps AS builder
+WORKDIR /app
+COPY tsconfig*.json ./
+COPY src ./src
+RUN npm run generate
+RUN npm run build
+
+FROM deps AS development
+WORKDIR /app
+ENV NODE_ENV=development
+COPY . .
+RUN npm run generate
 EXPOSE 3000
 CMD ["npm", "run", "dev"]
 
-# Production build stage
-FROM base AS production
-COPY . .                    
-RUN npm install --omit=dev
-RUN npm run build
+FROM node:23-alpine AS prod-deps
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+
+FROM prod-deps AS production
+WORKDIR /app
+ENV NODE_ENV=production
+
+COPY --from=builder /app/dist ./dist
+
+RUN addgroup -S app && adduser -S app -G app
+USER app
+
 EXPOSE 3000
-CMD ["npm", "run", "start"]
+CMD ["node", "dist/main.js"]

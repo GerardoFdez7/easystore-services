@@ -1,14 +1,14 @@
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UseGuards } from '@nestjs/common';
-import { Logger } from '@nestjs/common';
 import { GqlAuthGuard } from '@common/guards/gql-auth.guard';
 import { CurrentUser } from '@common/decorators/current-user.decorator';
-import { ProductDto } from '../../interfaces/graphql/dto/product.dto';
-import { UpdateProductInput } from '../../interfaces/graphql/dto/update-product.input';
-import { GetProductQuery } from '../../application/queries/get-product.query';
-import { ListProductsQuery } from '../../application/queries/list-products.query';
-import { UpdateProductCommand } from '../../application/commands/update-product.command';
+import { ProductDto } from '@modules/products/interfaces/graphql/dto/product.dto';
+import { UpdateProductInput } from '@modules/products/interfaces/graphql/dto/update-product.input';
+import { GetProductQuery } from '@modules/products/application/queries/get-product.query';
+import { ListProductsQuery } from '@modules/products/application/queries/list-products.query';
+import { UpdateProductCommand } from '@modules/products/application/commands/update-product.command';
+import { Logger } from '@nestjs/common';
 
 @Resolver(() => ProductDto)
 export class ProductResolver {
@@ -55,7 +55,6 @@ export class ProductResolver {
         new UpdateProductCommand(id, user.clientId, input),
       );
 
-      // Obtener el producto actualizado
       return this.queryBus.execute(new GetProductQuery(id, user.clientId));
     } catch (error: unknown) {
       this.logger.error(
