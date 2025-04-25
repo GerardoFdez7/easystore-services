@@ -12,6 +12,7 @@ model Category {
   id            String     @id @default(auto()) @map("_id") @mongodb.ObjectId
   name          String     @unique
   description   String?
+  clientId      String
   subcategories Category[] @relation("Subcategory")
   parent        Category?  @relation("Subcategory", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   parentId      String?    @mongodb.ObjectId
@@ -28,55 +29,64 @@ model Product {
   categoryId               String                     @mongodb.ObjectId
   category                 Category                   @relation(fields: [categoryId], references: [id])
   shortDescription         String
-  longDescription          String
-  sku                      String?                    @unique
-  upc                      String?                    @unique
-  ean                      String?                    @unique
-  isbn                     String?                    @unique
-  barcode                  String?                    @unique
+  longDescription          String?
+  variants                 Variant[]
   productCover             String
   productMedia             String[]
-  price                    Float
   taxes                    TaxDetail[]
-  condition                ProductCondition
-  weight                   Float
-  dimensions               Dimension?
   availableShippingMethods String[]
   shippingRestrictions     String[]
   tags                     String[]
   installmentPayments      InstallmentDetail[]
   acceptedPaymentMethods   String[]
-  personalizationOptions   String[]
   sustainability           SustainabilityAttributes[]
   brand                    String?
   manufacturer             String?
   warranty                 WarrantyDetail?
   createdAt                DateTime                   @default(now())
   updatedAt                DateTime                   @updatedAt
-  inventoryState           Inventory[]
 
   @@index([categoryId])
-}
-
-model Inventory {
-  id                         String    @id @default(auto()) @map("_id") @mongodb.ObjectId
-  productId                  String    @mongodb.ObjectId
-  product                    Product   @relation(fields: [productId], references: [id])
-  warehouseId                String
-  productLocation            String?
-  qtyAvailable               Int       @default(0)
-  qtyReserved                Int       @default(0)
-  estimatedReplenishmentDate DateTime?
-  lotNumber                  String?
-  serialNumbers              String[]
-  createdAt                  DateTime  @default(now())
-  updatedAt                  DateTime  @updatedAt
-
-  @@index([warehouseId, productId])
-  @@index([productId, warehouseId, productLocation])
+  @@index([variants.sku])
+  @@index([variants.upc])
+  @@index([variants.ean])
+  @@index([variants.isbn])
+  @@index([variants.barcode])
+  @@index([variants.atributes.key, variants.atributes.value])
 }
 
 // Types for Products
+type Variant {
+  atributes              Atribute[]
+  stock_per_warehouse    StockPerWarehouse[]
+  price                  Float
+  productMedia           String[]
+  personalizationOptions String[]
+  weight                 Float
+  dimensions             Dimension?
+  condition              ProductCondition
+  sku                    String?
+  upc                    String?
+  ean                    String?
+  isbn                   String?
+  barcode                String?
+}
+
+type Atribute {
+  key   String
+  value String
+}
+
+type StockPerWarehouse {
+  warehouseId                String
+  qtyAvailable               Int       @default(0)
+  qtyReserved                Int       @default(0)
+  productLocation            String?
+  estimatedReplenishmentDate DateTime?
+  lotNumber                  String?
+  serialNumbers              String[]
+}
+
 enum ProductCondition {
   NEW
   USED
