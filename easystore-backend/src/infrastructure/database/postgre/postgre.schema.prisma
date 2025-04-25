@@ -118,15 +118,16 @@ model Warehouse {
 }
 
 model StockMovement {
-  id          Int       @id @default(autoincrement())
-  productId   String
-  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
-  warehouseId Int
-  deltaQty    Int
-  reason      Bytes
-  createdBy   Employee? @relation(fields: [createdById], references: [id])
-  createdById Int?
-  ocurredAt   DateTime  @default(now())
+  id                Int       @id @default(autoincrement())
+  productId         String
+  variantAttributes Json
+  warehouse         Warehouse @relation(fields: [warehouseId], references: [id])
+  warehouseId       Int
+  deltaQty          Int
+  reason            Bytes
+  createdBy         Employee? @relation(fields: [createdById], references: [id])
+  createdById       Int?
+  ocurredAt         DateTime  @default(now())
 
   @@schema("inventory")
 }
