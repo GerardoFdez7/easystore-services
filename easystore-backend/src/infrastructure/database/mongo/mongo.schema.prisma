@@ -59,7 +59,8 @@ model Product {
 type Variant {
   atributes              Atribute[]
   stock_per_warehouse    StockPerWarehouse[]
-  price                  Float
+  price                  Decimal             @default(0)
+  currency               Currency
   productMedia           String[]
   personalizationOptions String[]
   weight                 Float
@@ -87,6 +88,174 @@ type StockPerWarehouse {
   serialNumbers              String[]
 }
 
+enum Currency {
+  AFN
+  ALL
+  EUR
+  DZD
+  AOA
+  XCD
+  SAR
+  ARS
+  AMD
+  AWG
+  AUD
+  AZN
+  BSD
+  BDT
+  BBD
+  BHD
+  BZD
+  XOF
+  BMD
+  BYR
+  MMK
+  BOB
+  BOV
+  USD
+  BAM
+  BWP
+  BRL
+  BND
+  BGN
+  BIF
+  BTN
+  INR
+  CVE
+  KHR
+  XAF
+  CAD
+  CLF
+  CLP
+  CNY
+  COP
+  COU
+  KMF
+  CDF
+  CRC
+  HRK
+  CUC
+  CUP
+  ANG
+  DKK
+  EGP
+  SVC
+  AED
+  ERN
+  ETB
+  FJD
+  PHP
+  XDR
+  GMD
+  GEL
+  GHS
+  GIP
+  GNF
+  GYD
+  HTG
+  HNL
+  HKD
+  HUF
+  IDR
+  IQD
+  NOK
+  ISK
+  KYD
+  FKP
+  SBD
+  ILS
+  JMD
+  JPY
+  GBP
+  JOD
+  KZT
+  KES
+  KGS
+  KWD
+  LSL
+  ZAR
+  LRD
+  LYD
+  CHF
+  LBP
+  MOP
+  MKD
+  MGA
+  MYR
+  MWK
+  MVR
+  MAD
+  MUR
+  MRO
+  MNT
+  MZN
+  MXN
+  MXV
+  NAD
+  NPR
+  NIO
+  NGN
+  NZD
+  XPF
+  OMR
+  XUA
+  PKR
+  PAB
+  PGK
+  PYG
+  PEN
+  PLN
+  QAR
+  LAK
+  VEF
+  CZK
+  KRW
+  MDL
+  KPW
+  DOP
+  IRR
+  TZS
+  SYP
+  RWF
+  RON
+  RUB
+  WST
+  STD
+  RSD
+  SCR
+  SLL
+  SGD
+  XSU
+  SOS
+  LKR
+  SZL
+  SDG
+  SSP
+  SEK
+  CHE
+  CHW
+  SRD
+  THB
+  TWD
+  TJS
+  TOP
+  TTD
+  TMT
+  TRY
+  TND
+  UGX
+  UAH
+  UYI
+  UYU
+  UZS
+  VUV
+  VND
+  YER
+  DJF
+  ZMW
+  ZWL
+}
+
 enum ProductCondition {
   NEW
   USED
@@ -95,7 +264,7 @@ enum ProductCondition {
 
 type TaxDetail {
   type    String
-  rate    Float
+  rate    Decimal
   country String?
 }
 
