@@ -12,6 +12,7 @@ model Category {
   id            String     @id @default(auto()) @map("_id") @mongodb.ObjectId
   name          String     @unique
   description   String?
+  clientId      String
   subcategories Category[] @relation("Subcategory")
   parent        Category?  @relation("Subcategory", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   parentId      String?    @mongodb.ObjectId
@@ -28,34 +29,31 @@ model Product {
   categoryId               String                     @mongodb.ObjectId
   category                 Category                   @relation(fields: [categoryId], references: [id])
   shortDescription         String
-  longDescription          String
-  sku                      String?                    @unique
-  upc                      String?                    @unique
-  ean                      String?                    @unique
-  isbn                     String?                    @unique
-  barcode                  String?                    @unique
+  longDescription          String?
+  variants                 Variant[]
   productCover             String
   productMedia             String[]
-  price                    Float
   taxes                    TaxDetail[]
-  condition                ProductCondition
-  weight                   Float
-  dimensions               Dimension?
   availableShippingMethods String[]
   shippingRestrictions     String[]
   tags                     String[]
   installmentPayments      InstallmentDetail[]
   acceptedPaymentMethods   String[]
-  personalizationOptions   String[]
   sustainability           SustainabilityAttributes[]
   brand                    String?
   manufacturer             String?
   warranty                 WarrantyDetail?
   createdAt                DateTime                   @default(now())
   updatedAt                DateTime                   @updatedAt
-  inventoryState           Inventory[]
+  Inventory                Inventory[]
 
   @@index([categoryId])
+  @@index([variants.sku])
+  @@index([variants.upc])
+  @@index([variants.ean])
+  @@index([variants.isbn])
+  @@index([variants.barcode])
+  @@index([variants.atributes.key, variants.atributes.value])
 }
 
 model Inventory {
@@ -77,6 +75,206 @@ model Inventory {
 }
 
 // Types for Products
+type Variant {
+  atributes              Atribute[]
+  stock_per_warehouse    StockPerWarehouse[]
+  price                  Decimal             @default(0)
+  currency               Currency
+  productMedia           String[]
+  personalizationOptions String[]
+  weight                 Float
+  dimensions             Dimension?
+  condition              ProductCondition
+  sku                    String?
+  upc                    String?
+  ean                    String?
+  isbn                   String?
+  barcode                String?
+}
+
+type Atribute {
+  key   String
+  value String
+}
+
+type StockPerWarehouse {
+  warehouseId                String
+  qtyAvailable               Int       @default(0)
+  qtyReserved                Int       @default(0)
+  productLocation            String?
+  estimatedReplenishmentDate DateTime?
+  lotNumber                  String?
+  serialNumbers              String[]
+}
+
+enum Currency {
+  AFN
+  ALL
+  EUR
+  DZD
+  AOA
+  XCD
+  SAR
+  ARS
+  AMD
+  AWG
+  AUD
+  AZN
+  BSD
+  BDT
+  BBD
+  BHD
+  BZD
+  XOF
+  BMD
+  BYR
+  MMK
+  BOB
+  BOV
+  USD
+  BAM
+  BWP
+  BRL
+  BND
+  BGN
+  BIF
+  BTN
+  INR
+  CVE
+  KHR
+  XAF
+  CAD
+  CLF
+  CLP
+  CNY
+  COP
+  COU
+  KMF
+  CDF
+  CRC
+  HRK
+  CUC
+  CUP
+  ANG
+  DKK
+  EGP
+  SVC
+  AED
+  ERN
+  ETB
+  FJD
+  PHP
+  XDR
+  GMD
+  GEL
+  GHS
+  GIP
+  GNF
+  GYD
+  HTG
+  HNL
+  HKD
+  HUF
+  IDR
+  IQD
+  NOK
+  ISK
+  KYD
+  FKP
+  SBD
+  ILS
+  JMD
+  JPY
+  GBP
+  JOD
+  KZT
+  KES
+  KGS
+  KWD
+  LSL
+  ZAR
+  LRD
+  LYD
+  CHF
+  LBP
+  MOP
+  MKD
+  MGA
+  MYR
+  MWK
+  MVR
+  MAD
+  MUR
+  MRO
+  MNT
+  MZN
+  MXN
+  MXV
+  NAD
+  NPR
+  NIO
+  NGN
+  NZD
+  XPF
+  OMR
+  XUA
+  PKR
+  PAB
+  PGK
+  PYG
+  PEN
+  PLN
+  QAR
+  LAK
+  VEF
+  CZK
+  KRW
+  MDL
+  KPW
+  DOP
+  IRR
+  TZS
+  SYP
+  RWF
+  RON
+  RUB
+  WST
+  STD
+  RSD
+  SCR
+  SLL
+  SGD
+  XSU
+  SOS
+  LKR
+  SZL
+  SDG
+  SSP
+  SEK
+  CHE
+  CHW
+  SRD
+  THB
+  TWD
+  TJS
+  TOP
+  TTD
+  TMT
+  TRY
+  TND
+  UGX
+  UAH
+  UYI
+  UYU
+  UZS
+  VUV
+  VND
+  YER
+  DJF
+  ZMW
+  ZWL
+}
+
 enum ProductCondition {
   NEW
   USED
@@ -85,7 +283,7 @@ enum ProductCondition {
 
 type TaxDetail {
   type    String
-  rate    Float
+  rate    Decimal
   country String?
 }
 
