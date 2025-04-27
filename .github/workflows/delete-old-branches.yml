@@ -1,0 +1,69 @@
+name: Delete old branches
+
+on:
+  schedule:
+    - cron: '0 13 * * 1'
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write 
+
+    steps:
+      - name: Delete branches not updated in 14+ days
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const EXCLUDE = ['main', 'development'];
+            const cutoff = new Date();
+            cutoff.setDate(cutoff.getDate() - 14);
+
+            const deleted = [];
+            const skipped = [];
+
+            const branches = await github.rest.repos.listBranches({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+
+            console.log(`🔍 Reviewing ${branches.data.length} branches...`);
+
+            for (const branch of branches.data) {
+              const name = branch.name;
+
+              if (EXCLUDE.includes(name)) {
+                skipped.push(name);
+                continue;
+              }
+
+              const { data: commit } = await github.rest.repos.getCommit({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: branch.commit.sha,
+              });
+
+              const pushedDate = new Date(commit.commit.committer.date);
+
+              if (pushedDate < cutoff) {
+                console.log(`🗑️ Deleting old branch: ${name} (last commit: ${pushedDate.toISOString().slice(0, 10)})`);
+                await github.rest.git.deleteRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: `heads/${name}`,
+                });
+                deleted.push(name);
+              } else {
+                skipped.push(name);
+              }
+            }
+
+            console.log(`✅ Eliminated: ${deleted.length} branches.`);
+            if (deleted.length) {
+              console.log(`🧹 Branches removed: ${deleted.join(', ')}`);
+            } else {
+              console.log(`📦 No branches were deleted this time.`);
+            }
+
+            console.log(`🚫 Ignored branches (by name or recent): ${skipped.length}`);

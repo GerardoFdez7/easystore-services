@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';
-import { join } from 'path';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
-import { ClientModule } from '@/modules/client/client.module';
+import { VoyagerController } from './voyager.controller';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -15,10 +15,15 @@ import { ClientModule } from '@/modules/client/client.module';
       ),
       sortSchema: true,
       playground: false,
-      plugins: [ApolloServerPluginLandingPageLocalDefault()],
+      plugins:
+        process.env.NODE_ENV !== 'production'
+          ? [ApolloServerPluginLandingPageLocalDefault()]
+          : [],
+      introspection: true,
+      context: ({ req }: { req: Request }) => ({ req }),
     }),
   ],
-  controllers: [],
+  controllers: [VoyagerController],
   providers: [],
 })
 export class GraphqlModule {}

@@ -4,6 +4,7 @@ import {
   FindClientByEmailQuery,
 } from './client.query';
 import { ClientService } from '../client.service';
+import { Client } from '.prisma/postgres';
 
 @QueryHandler(FindClientByEmailQuery)
 export class FindClientByEmailHandler
@@ -11,7 +12,7 @@ export class FindClientByEmailHandler
 {
   constructor(private readonly clientService: ClientService) {}
 
-  async execute(query: FindClientByEmailQuery) {
+  async execute(query: FindClientByEmailQuery): Promise<Client> {
     return this.clientService.findByEmail(query.email);
   }
 }
@@ -22,7 +23,7 @@ export class FindClientByBusinessNameHandler
 {
   constructor(private readonly clientService: ClientService) {}
 
-  async execute(query: FindClientByBusinessNameQuery) {
+  async execute(query: FindClientByBusinessNameQuery): Promise<Client> {
     return this.clientService.findByBusiness(query.businessName);
   }
 }

@@ -11,7 +11,6 @@ import {
   FindClientByBusinessNameHandler,
 } from './queries/client.query.handler';
 import { Postgre } from '@/infrastructure/database/postgre/postgre';
-import { LoginClientCommand } from './commands/client.command';
 
 @Module({
   imports: [CqrsModule],

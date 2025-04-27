@@ -9,12 +9,12 @@ datasource mongodb {
 }
 
 model Category {
-  id            String     @id @map("_id")
+  id            String     @id @default(auto()) @map("_id") @mongodb.ObjectId
   name          String     @unique
   description   String?
   subcategories Category[] @relation("Subcategory")
   parent        Category?  @relation("Subcategory", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  parentId      String?
+  parentId      String?    @mongodb.ObjectId
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   product       Product[]
@@ -23,9 +23,9 @@ model Category {
 }
 
 model Product {
-  id                       String                     @id @map("_id")
+  id                       String                     @id @default(auto()) @map("_id") @mongodb.ObjectId
   productName              String                     @unique
-  categoryId               String
+  categoryId               String                     @mongodb.ObjectId
   category                 Category                   @relation(fields: [categoryId], references: [id])
   shortDescription         String
   longDescription          String
@@ -53,27 +53,8 @@ model Product {
   warranty                 WarrantyDetail?
   createdAt                DateTime                   @default(now())
   updatedAt                DateTime                   @updatedAt
-  inventoryState           Inventory[]
 
   @@index([categoryId])
-}
-
-model Inventory {
-  id                         String    @id @map("_id")
-  productId                  String
-  product                    Product   @relation(fields: [productId], references: [id])
-  warehouseId                String
-  productLocation            String?
-  qtyAvailable               Int       @default(0)
-  qtyReserved                Int       @default(0)
-  estimatedReplenishmentDate DateTime?
-  lotNumber                  String?
-  serialNumbers              String[]
-  createdAt                  DateTime  @default(now())
-  updatedAt                  DateTime  @updatedAt
-
-  @@index([warehouseId, productId])
-  @@index([productId, warehouseId, productLocation])
 }
 
 // Types for Products
