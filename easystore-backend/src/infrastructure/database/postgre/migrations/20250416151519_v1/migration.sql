@@ -124,7 +124,6 @@ CREATE TABLE "inventory"."Warehouse" (
 CREATE TABLE "inventory"."StockMovement" (
     "id" SERIAL NOT NULL,
     "productId" TEXT NOT NULL,
-    "variantAttributes" JSONB NOT NULL,
     "warehouseId" INTEGER NOT NULL,
     "deltaQty" INTEGER NOT NULL,
     "reason" BYTEA NOT NULL,
