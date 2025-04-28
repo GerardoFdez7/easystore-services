@@ -21,26 +21,20 @@
     "paths": {
       "@/*": ["src/*"],
       "@test/*": ["src/test/*"],
-      "@infrastructure/*": ["src/infrastructure/*"],
       "@config/*": ["src/config/*"],
       "@common/*": ["src/common/*"],
-      "@services/*": ["src/services/*"],
-      "@application/*": ["src/application/*"],
-      "@domain/*": ["src/domain/*"],
-      "@prisma/*": ["src/config/prisma/*"],
-      "@redis/*": ["src/config/redis/*"],
-      "@auth/*": ["src/infrastructure/auth/*"],
-      "@repositories/*": ["src/infrastructure/repositories/*"],
-      "@scheduler/*": ["src/infrastructure/scheduler/*"],
-      // TODO: Review and decomission/remove aliases as needed
+      "@domains/*": ["src/domains/*"],
+      "@infrastructure/*": ["src/infrastructure/*"],
       "@database/*": ["src/infrastructure/database/*"],
-      "@cache/*": ["src/infrastructure/cache/*"],
       "@graphql/*": ["src/infrastructure/graphql/*"],
       "@logging/*": ["src/infrastructure/logging/*"],
       "@metrics/*": ["src/infrastructure/metrics/*"],
-      "@search/*": ["src/infrastructure/search/*"],
-      "@transport/*": ["src/infrastructure/transport/*"],
-      "@prisma/postgres": ["./node_modules/.prisma/postgres"]
+      "@microservices/*": ["src/infrastructure/microservices/*"],
+      "@shared/*": ["src/shared/*"],
+      "@elastic/*": ["src/shared/elastic/*"],
+      "@event-store/*": ["src/shared/event-store/*"],
+      "@kafka/*": ["src/shared/kafka/*"],
+      "@redis/*": ["src/shared/redis/*"]
     }
   }
 }

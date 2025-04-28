@@ -1,13 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
-
 import helmet, { HelmetOptions } from 'helmet';
 import * as compression from 'compression';
-
-import { KafkaConfigService } from '@infrastructure/transport/kafka/config/kafka-config.service';
-import { LoggerService } from '@logging/winston/winston.service';
-
+import { KafkaConfigService } from '@shared/kafka/config/kafka-config.service';
+import { LoggerService } from '@shared/winston/winston.service';
 import { AppModule } from './app.module';
 import { MicroserviceOptions } from '@nestjs/microservices';
 

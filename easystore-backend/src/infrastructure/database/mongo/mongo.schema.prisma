@@ -26,7 +26,7 @@ model Category {
 model Product {
   id                       String                     @id @default(auto()) @map("_id") @mongodb.ObjectId
   productName              String                     @unique
-  categoryId               String                     @mongodb.ObjectId
+  categoryId               String[]                   @mongodb.ObjectId
   category                 Category                   @relation(fields: [categoryId], references: [id])
   shortDescription         String
   longDescription          String?
