@@ -1,4 +1,4 @@
-import {
+/* import {
   Injectable,
   CanActivate,
   ExecutionContext,
@@ -72,3 +72,4 @@ export class GqlAuthGuard implements CanActivate {
     return type === 'Bearer' ? token : undefined;
   }
 }
+ */

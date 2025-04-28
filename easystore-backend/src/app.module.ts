@@ -1,15 +1,14 @@
 import { Module, Global, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphqlModule } from '@graphql/graphql.module';
-import { RedisCacheModule } from '@cache/redis.module';
-import { PrometheusModule } from '@metrics/prometheus.module';
+import { PostgreModule } from '@database/postgre/postgre.module';
+import { MongoModule } from '@/infrastructure/database/mongo/mongo.module';
+import { RedisConfigModule } from '@shared/redis/redis.module';
 import { MetricsController } from '@metrics/metrics.controller';
 import { MetricsMiddleware } from '@metrics/metrics.middleware';
-import { KafkaModule } from '@transport/kafka/modules/kafka.module';
-import { OrderConsumersModule } from '@transport/kafka/modules/order-consumers.module';
-import { CartModule } from '@/modules/cart/cart.module';
-import { PrismaModule } from '@prisma/prisma.module';
-import { ProductConsumersModule } from '@transport/kafka/modules/product-consumers.module';
+import { PrometheusModule } from '@metrics/prometheus.module';
+import { KafkaConfigModule } from '@shared/kafka/config/kafka-config.module';
+import { ClientModule } from '@domains/client/client.module';
 
 import { ProductConsumersModule } from '@infrastructure/transport/kafka/modules/product-consumers.module';
 
@@ -20,14 +19,13 @@ import { ProductConsumersModule } from '@infrastructure/transport/kafka/modules/
       isGlobal: true,
       envFilePath: ['.env', `.env.${process.env.NODE_ENV || 'development'}`],
     }),
-    KafkaModule.register(),
-    OrderConsumersModule,
     GraphqlModule,
-    RedisCacheModule,
-    CartModule,
+    PostgreModule,
+    MongoModule,
     PrometheusModule,
-    PrismaModule,
-    ProductConsumersModule,
+    KafkaConfigModule,
+    RedisConfigModule,
+    ClientModule,
   ],
   providers: [],
   controllers: [MetricsController],

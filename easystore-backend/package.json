@@ -11,13 +11,6 @@
     "dev": "set NODE_ENV=development && nest start --watch",
     "start:debug": "nest start --debug --watch",
     "lint": "eslint ",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:cov": "jest --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json",
-    "test:kafka": "jest --config ./test/jest-e2e.json --forceExit ./test/integration/kafka",
-    "test:kafka:full": "npm run docker:kafka:up && sleep 10 && npm run kafka:producer:test && npm run test:kafka && npm run docker:kafka:down",
     "docker": "set npm_config_ignore_scripts=true && docker-compose up",
     "docker:dev": "set npm_config_ignore_scripts=true && docker-compose -f docker-compose.dev.yml up",
     "docker:kafka:up": "docker-compose -f docker-compose.kafka.yml up -d",
@@ -31,10 +24,17 @@
     "postgre": "set PRISMA_HIDE_UPDATE_MESSAGE=1 && npx prisma migrate dev --schema src/infrastructure/database/postgre/postgre.schema.prisma",
     "dbpush:postgre": "set PRISMA_HIDE_UPDATE_MESSAGE=1 && npx prisma db push --schema src/infrastructure/database/postgre/postgre.schema.prisma",
     "dbpush:mongo": "set PRISMA_HIDE_UPDATE_MESSAGE=1 && npx prisma db push --schema src/infrastructure/database/mongo/mongo.schema.prisma",
-    "postinstall": "npm run generate",
-    "prepare": "cd .. && husky install easystore-backend/.husky",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:kafka": "jest --config ./test/jest-e2e.json --forceExit ./test/integration/kafka",
+    "test:kafka:full": "npm run docker:kafka:up && sleep 10 && npm run kafka:producer:test && npm run test:kafka && npm run docker:kafka:down",
     "kafka:producer:test": "ts-node ./tools/kafka-producer-test.ts",
-    "kafka:consumer:test": "ts-node ./tools/kafka-consumer-test.ts"
+    "kafka:consumer:test": "ts-node ./tools/kafka-consumer-test.ts",
+    "postinstall": "npm run generate",
+    "prepare": "cd .. && husky install easystore-backend/.husky"
   },
   "dependencies": {
     "@elastic/elasticsearch": "^8.17.1",
@@ -64,7 +64,8 @@
     "rxjs": "^7.8.1",
     "uuid": "^11.1.0",
     "winston": "^3.17.0",
-    "winston-daily-rotate-file": "^5.0.0"
+    "winston-daily-rotate-file": "^5.0.0",
+    "zod": "^3.24.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
