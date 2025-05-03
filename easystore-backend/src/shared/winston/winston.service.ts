@@ -106,51 +106,59 @@ if (environment !== 'production') {
 
 @Injectable()
 export class LoggerService implements NestLoggerService {
+  private formatMeta(meta: unknown[]): string {
+    if (!meta || meta.length === 0) return '';
+    return meta
+      .map((item) => {
+        if (typeof item === 'object') {
+          try {
+            return JSON.stringify(item, null, 2);
+          } catch {
+            // eslint-disable-next-line @typescript-eslint/no-base-to-string
+            return String(item);
+          }
+        }
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
+        return String(item);
+      })
+      .join(' ');
+  }
+
   log(message: string, ...meta: unknown[]): void {
-    if (meta.length === 1 && typeof meta[0] === 'string') {
-      winstonLogger.info(`${message} ${meta[0]}`);
-    } else if (meta.length > 0) {
-      winstonLogger.info(message, ...meta);
+    if (meta.length > 0) {
+      winstonLogger.info(`${message} ${this.formatMeta(meta)}`);
     } else {
       winstonLogger.info(message);
     }
   }
 
   error(message: string, ...meta: unknown[]): void {
-    if (meta.length === 1 && typeof meta[0] === 'string') {
-      winstonLogger.error(`${message} ${meta[0]}`);
-    } else if (meta.length > 0) {
-      winstonLogger.error(message, ...meta);
+    if (meta.length > 0) {
+      winstonLogger.error(`${message} ${this.formatMeta(meta)}`);
     } else {
       winstonLogger.error(message);
     }
   }
 
   warn(message: string, ...meta: unknown[]): void {
-    if (meta.length === 1 && typeof meta[0] === 'string') {
-      winstonLogger.warn(`${message} ${meta[0]}`);
-    } else if (meta.length > 0) {
-      winstonLogger.warn(message, ...meta);
+    if (meta.length > 0) {
+      winstonLogger.warn(`${message} ${this.formatMeta(meta)}`);
     } else {
       winstonLogger.warn(message);
     }
   }
 
   debug?(message: string, ...meta: unknown[]): void {
-    if (meta.length === 1 && typeof meta[0] === 'string') {
-      winstonLogger.debug(`${message} ${meta[0]}`);
-    } else if (meta.length > 0) {
-      winstonLogger.debug(message, ...meta);
+    if (meta.length > 0) {
+      winstonLogger.debug(`${message} ${this.formatMeta(meta)}`);
     } else {
       winstonLogger.debug(message);
     }
   }
 
   verbose?(message: string, ...meta: unknown[]): void {
-    if (meta.length === 1 && typeof meta[0] === 'string') {
-      winstonLogger.verbose(`${message} ${meta[0]}`);
-    } else if (meta.length > 0) {
-      winstonLogger.verbose(message, ...meta);
+    if (meta.length > 0) {
+      winstonLogger.verbose(`${message} ${this.formatMeta(meta)}`);
     } else {
       winstonLogger.verbose(message);
     }
