@@ -147,14 +147,14 @@ npm run docker
 ```
 
 > [!NOTE]
-> Prisma schemas are located at prisma/postgres.prisma and prisma/mongodb.prisma containing both PostgreSQL models and MongoDB product catalog.
+> Prisma schemas are located at src/infrastructure/database containing both PostgreSQL and MongoDB models.
 
 ### Documentation
 
 > [!NOTE]
 > The following endpoints will be available for API exploration:
 
-- GraphQL Playground & Documentation: /graphql
+- GraphQL Playground & Documentation: /gql
 - GraphQL Schema Visualization: /voyager
 
 The Apollo Playground provides an interactive environment to:
@@ -285,8 +285,9 @@ Supported types :
 
 ## Architecture
 
-EasyStore backend is built using the following architecture and technologies:
+EasyStore backend is built using the following clean architecture and technologies:
 
+- Architectural Approach: Domain-Driven Design (DDD)
 - Design Pattern: Command Query Responsibility Segregation ( CQRS ) pattern
 - Programming Language: TypeScript
 - Framework: NestJS
@@ -300,6 +301,20 @@ EasyStore backend is built using the following architecture and technologies:
 - Log Management: LogStash and Kibana
 - Cache: Redis
 - Containerization: Docker
+
+  > [!TIP]
+  > **Domain-Driven Design (DDD):**
+  >
+  > EasyStore backend applies DDD principles to model complex business logic and ensure maintainability:
+  > - **Domains**: The codebase is organized by business domains (e.g., Tenant, Product), each encapsulating its logic.
+  > - **Aggregates & Entities**: Core business objects are represented as entities and aggregates, enforcing invariants and encapsulating state.
+  > - **Value Objects**: Immutable objects that represent descriptive aspects of the domain (e.g., Email, BusinessName).
+  > - **Repositories**: Abstractions for data access, allowing domain logic to remain persistence-agnostic.
+  > - **Application Layer**: Coordinates use cases via commands, queries, and handlers, orchestrating domain logic.
+  > - **Infrastructure Layer**: Implements technical details (e.g., database, messaging) and integrates with external systems.
+  >
+  > This DDD approach, combined with CQRS, ensures that business rules are explicit, code is modular, and the system is adaptable to evolving requirements.
+
   > [!NOTE]
   > The CQRS (Command Query Responsibility Segregation) pattern separates read and write operations
   > into distinct models:
