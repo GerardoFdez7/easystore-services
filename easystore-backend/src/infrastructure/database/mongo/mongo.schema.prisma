@@ -12,7 +12,7 @@ model Category {
   id            String     @id @default(auto()) @map("_id") @mongodb.ObjectId
   name          String     @unique
   description   String?
-  clientId      String
+  tenantId      String
   subcategories Category[] @relation("Subcategory")
   parent        Category?  @relation("Subcategory", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   parentId      String?    @mongodb.ObjectId
@@ -31,6 +31,7 @@ model Product {
   shortDescription         String
   longDescription          String?
   variants                 Variant[]
+  type                     Type
   productCover             String
   productMedia             String[]
   taxes                    TaxDetail[]
@@ -63,7 +64,7 @@ type Variant {
   currency               Currency
   productMedia           String[]
   personalizationOptions String[]
-  weight                 Float
+  weight                 Float?
   dimensions             Dimension?
   condition              ProductCondition
   sku                    String?
@@ -76,6 +77,11 @@ type Variant {
 type Atribute {
   key   String
   value String
+}
+
+enum Type {
+  PHYSICAL
+  DIGITAL
 }
 
 type StockPerWarehouse {

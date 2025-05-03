@@ -8,7 +8,7 @@ import { MetricsController } from '@metrics/metrics.controller';
 import { MetricsMiddleware } from '@metrics/metrics.middleware';
 import { PrometheusModule } from '@metrics/prometheus.module';
 import { KafkaConfigModule } from '@shared/kafka/config/kafka-config.module';
-import { ClientModule } from '@domains/client/client.module';
+import { TenantModule } from '@domains/tenant/tenant.module';
 
 import { ProductConsumersModule } from '@infrastructure/transport/kafka/modules/product-consumers.module';
 
@@ -25,7 +25,7 @@ import { ProductConsumersModule } from '@infrastructure/transport/kafka/modules/
     PrometheusModule,
     KafkaConfigModule,
     RedisConfigModule,
-    ClientModule,
+    TenantModule,
   ],
   providers: [],
   controllers: [MetricsController],

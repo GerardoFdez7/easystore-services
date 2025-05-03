@@ -38,7 +38,7 @@ CREATE TYPE "sales"."OrderStatus" AS ENUM ('PROCESSING', 'CONFIRMED', 'SHIPPED',
 CREATE TYPE "common"."AddressTypes" AS ENUM ('SHIPPING', 'BILLING', 'WAREHOUSE');
 
 -- CreateTable
-CREATE TABLE "tenant"."Client" (
+CREATE TABLE "tenant"."Tenant" (
     "id" SERIAL NOT NULL,
     "businessName" TEXT NOT NULL,
     "ownerName" TEXT NOT NULL,
@@ -47,14 +47,14 @@ CREATE TABLE "tenant"."Client" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Client_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Tenant_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "tenant"."Subscription" (
     "id" SERIAL NOT NULL,
     "userId" INTEGER,
-    "clientId" INTEGER,
+    "tenantId" INTEGER,
     "status" "tenant"."SubscriptionStatus" NOT NULL,
     "startDate" TIMESTAMP(3) NOT NULL,
     "endDate" TIMESTAMP(3) NOT NULL,
@@ -81,7 +81,7 @@ CREATE TABLE "tenant"."Plan" (
 CREATE TABLE "tenant"."EmployeeRole" (
     "id" SERIAL NOT NULL,
     "role" TEXT NOT NULL,
-    "clientId" INTEGER NOT NULL,
+    "tenantId" INTEGER NOT NULL,
 
     CONSTRAINT "EmployeeRole_pkey" PRIMARY KEY ("id")
 );
@@ -115,7 +115,7 @@ CREATE TABLE "inventory"."Warehouse" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "addressId" INTEGER NOT NULL,
-    "clientId" INTEGER NOT NULL,
+    "tenantId" INTEGER NOT NULL,
 
     CONSTRAINT "Warehouse_pkey" PRIMARY KEY ("id")
 );
@@ -137,7 +137,7 @@ CREATE TABLE "inventory"."StockMovement" (
 -- CreateTable
 CREATE TABLE "marketing"."Promotion" (
     "id" SERIAL NOT NULL,
-    "clientId" INTEGER NOT NULL,
+    "tenantId" INTEGER NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "type" "marketing"."PromotionType" NOT NULL,
@@ -306,7 +306,7 @@ CREATE TABLE "sales"."PaymentMethod" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "transactionId" TEXT NOT NULL,
-    "clientId" INTEGER NOT NULL,
+    "tenantId" INTEGER NOT NULL,
     "userId" INTEGER NOT NULL,
     "createdDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -317,7 +317,7 @@ CREATE TABLE "sales"."PaymentMethod" (
 -- CreateTable
 CREATE TABLE "customer"."User" (
     "id" SERIAL NOT NULL,
-    "clientId" INTEGER NOT NULL,
+    "tenantId" INTEGER NOT NULL,
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
@@ -354,7 +354,7 @@ CREATE TABLE "customer"."UserReviewProduct" (
 CREATE TABLE "common"."PhoneNumber" (
     "id" SERIAL NOT NULL,
     "userId" INTEGER,
-    "clientId" INTEGER,
+    "tenantId" INTEGER,
     "number" TEXT NOT NULL,
     "defaultId" INTEGER,
 
@@ -373,7 +373,7 @@ CREATE TABLE "common"."Address" (
     "city" TEXT NOT NULL,
     "countryId" INTEGER NOT NULL,
     "addressType" "common"."AddressTypes" NOT NULL,
-    "clientId" INTEGER,
+    "tenantId" INTEGER,
     "userId" INTEGER,
 
     CONSTRAINT "Address_pkey" PRIMARY KEY ("id")
@@ -399,16 +399,16 @@ CREATE TABLE "geography"."State" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Client_businessName_key" ON "tenant"."Client"("businessName");
+CREATE UNIQUE INDEX "Tenant_businessName_key" ON "tenant"."Tenant"("businessName");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Client_email_key" ON "tenant"."Client"("email");
+CREATE UNIQUE INDEX "Tenant_email_key" ON "tenant"."Tenant"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Subscription_userId_key" ON "tenant"."Subscription"("userId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Subscription_clientId_key" ON "tenant"."Subscription"("clientId");
+CREATE UNIQUE INDEX "Subscription_tenantId_key" ON "tenant"."Subscription"("tenantId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Plan_name_key" ON "tenant"."Plan"("name");
@@ -435,13 +435,13 @@ CREATE UNIQUE INDEX "Address_defaultId_key" ON "common"."Address"("defaultId");
 ALTER TABLE "tenant"."Subscription" ADD CONSTRAINT "Subscription_userId_fkey" FOREIGN KEY ("userId") REFERENCES "customer"."User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "tenant"."Subscription" ADD CONSTRAINT "Subscription_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "tenant"."Client"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "tenant"."Subscription" ADD CONSTRAINT "Subscription_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "tenant"."Tenant"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "tenant"."Subscription" ADD CONSTRAINT "Subscription_planId_fkey" FOREIGN KEY ("planId") REFERENCES "tenant"."Plan"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "tenant"."EmployeeRole" ADD CONSTRAINT "EmployeeRole_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "tenant"."Client"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "tenant"."EmployeeRole" ADD CONSTRAINT "EmployeeRole_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "tenant"."Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "tenant"."Feature" ADD CONSTRAINT "Feature_employeeRoleId_fkey" FOREIGN KEY ("employeeRoleId") REFERENCES "tenant"."EmployeeRole"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -453,7 +453,7 @@ ALTER TABLE "tenant"."Employee" ADD CONSTRAINT "Employee_roleId_fkey" FOREIGN KE
 ALTER TABLE "inventory"."Warehouse" ADD CONSTRAINT "Warehouse_addressId_fkey" FOREIGN KEY ("addressId") REFERENCES "common"."Address"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "inventory"."Warehouse" ADD CONSTRAINT "Warehouse_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "tenant"."Client"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "inventory"."Warehouse" ADD CONSTRAINT "Warehouse_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "tenant"."Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "inventory"."StockMovement" ADD CONSTRAINT "StockMovement_warehouseId_fkey" FOREIGN KEY ("warehouseId") REFERENCES "inventory"."Warehouse"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -462,7 +462,7 @@ ALTER TABLE "inventory"."StockMovement" ADD CONSTRAINT "StockMovement_warehouseI
 ALTER TABLE "inventory"."StockMovement" ADD CONSTRAINT "StockMovement_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "tenant"."Employee"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "marketing"."Promotion" ADD CONSTRAINT "Promotion_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "tenant"."Client"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "marketing"."Promotion" ADD CONSTRAINT "Promotion_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "tenant"."Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "marketing"."PromotionProduct" ADD CONSTRAINT "PromotionProduct_promotionId_fkey" FOREIGN KEY ("promotionId") REFERENCES "marketing"."Promotion"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -528,13 +528,13 @@ ALTER TABLE "sales"."Payment" ADD CONSTRAINT "Payment_orderId_fkey" FOREIGN KEY 
 ALTER TABLE "sales"."Payment" ADD CONSTRAINT "Payment_paymentMethodId_fkey" FOREIGN KEY ("paymentMethodId") REFERENCES "sales"."PaymentMethod"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "sales"."PaymentMethod" ADD CONSTRAINT "PaymentMethod_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "tenant"."Client"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "sales"."PaymentMethod" ADD CONSTRAINT "PaymentMethod_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "tenant"."Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "sales"."PaymentMethod" ADD CONSTRAINT "PaymentMethod_userId_fkey" FOREIGN KEY ("userId") REFERENCES "customer"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "customer"."User" ADD CONSTRAINT "User_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "tenant"."Client"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "customer"."User" ADD CONSTRAINT "User_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "tenant"."Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "customer"."WishList" ADD CONSTRAINT "WishList_userId_fkey" FOREIGN KEY ("userId") REFERENCES "customer"."User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -546,7 +546,7 @@ ALTER TABLE "customer"."UserReviewProduct" ADD CONSTRAINT "UserReviewProduct_use
 ALTER TABLE "common"."PhoneNumber" ADD CONSTRAINT "PhoneNumber_userId_fkey" FOREIGN KEY ("userId") REFERENCES "customer"."User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "common"."PhoneNumber" ADD CONSTRAINT "PhoneNumber_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "tenant"."Client"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "common"."PhoneNumber" ADD CONSTRAINT "PhoneNumber_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "tenant"."Tenant"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "common"."PhoneNumber" ADD CONSTRAINT "PhoneNumber_defaultId_fkey" FOREIGN KEY ("defaultId") REFERENCES "common"."PhoneNumber"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -558,7 +558,7 @@ ALTER TABLE "common"."Address" ADD CONSTRAINT "Address_defaultId_fkey" FOREIGN K
 ALTER TABLE "common"."Address" ADD CONSTRAINT "Address_countryId_fkey" FOREIGN KEY ("countryId") REFERENCES "geography"."Country"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "common"."Address" ADD CONSTRAINT "Address_clientId_fkey" FOREIGN KEY ("clientId") REFERENCES "tenant"."Client"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "common"."Address" ADD CONSTRAINT "Address_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "tenant"."Tenant"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "common"."Address" ADD CONSTRAINT "Address_userId_fkey" FOREIGN KEY ("userId") REFERENCES "customer"."User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
