@@ -71,4 +71,4 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 lint-staged.config.js
 eslint.config.mjs
 .prettierrc
-src/infrastructure/graphql/schema.gql
+easystore-backend/src/infrastructure/graphql/schema.gql
