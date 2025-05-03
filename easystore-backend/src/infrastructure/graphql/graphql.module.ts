@@ -11,7 +11,7 @@ import { join } from 'path';
       driver: ApolloDriver,
       autoSchemaFile: join(
         process.cwd(),
-        'src/infrastructure/graphql/schemas/schema.gql',
+        'src/infrastructure/graphql/schema.gql',
       ),
       sortSchema: true,
       playground: false,
@@ -21,6 +21,7 @@ import { join } from 'path';
           : [],
       introspection: true,
       context: ({ req }: { req: Request }) => ({ req }),
+      path: '/gql',
     }),
   ],
   controllers: [VoyagerController],
