@@ -16,7 +16,7 @@ import { ConfigService } from '@nestjs/config';
 import { EventSerializer } from '@shared/kafka/serializers/event-serializer';
 import { MessageProducerPort } from './base.producer';
 import { CircuitBreaker } from '@shared/redis/circuit-breaker';
-import { LoggerService } from '@/shared/winston/winston.service';
+import { LoggerService } from '@shared/winston/winston.service';
 
 @Injectable()
 export class MessageProducerService

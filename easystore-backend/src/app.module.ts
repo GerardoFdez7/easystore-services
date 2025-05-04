@@ -2,15 +2,13 @@ import { Module, Global, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphqlModule } from '@graphql/graphql.module';
 import { PostgreModule } from '@database/postgre/postgre.module';
-import { MongoModule } from '@/infrastructure/database/mongo/mongo.module';
+import { MongoModule } from '@infrastructure/database/mongo/mongo.module';
 import { RedisConfigModule } from '@shared/redis/redis.module';
 import { MetricsController } from '@metrics/metrics.controller';
 import { MetricsMiddleware } from '@metrics/metrics.middleware';
 import { PrometheusModule } from '@metrics/prometheus.module';
 import { KafkaConfigModule } from '@shared/kafka/config/kafka-config.module';
 import { TenantModule } from '@domains/tenant/tenant.module';
-
-import { ProductConsumersModule } from '@infrastructure/transport/kafka/modules/product-consumers.module';
 
 @Global()
 @Module({

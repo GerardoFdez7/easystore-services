@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PostgreService } from '@/infrastructure/database/postgre/postgre.service';
+import { PostgreService } from '@infrastructure/database/postgre/postgre.service';
 import { Tenant } from '../../../aggregates/entities/tenant.entity';
 import { Tenant as PrismaTenant } from '.prisma/postgres';
 import { ITenantRepository } from '../../../aggregates/repositories/tenant.repository.interface';

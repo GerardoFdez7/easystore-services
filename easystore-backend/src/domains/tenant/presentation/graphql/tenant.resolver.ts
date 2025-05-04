@@ -42,7 +42,7 @@ export class TenantResolver {
   }
 
   @Query(() => TenantType, { nullable: true })
-  async findTenantByBusiness(
+  async findTenantByBusinessName(
     @Args('businessName') businessName: string,
   ): Promise<TenantType | null> {
     return await this.queryBus.execute(

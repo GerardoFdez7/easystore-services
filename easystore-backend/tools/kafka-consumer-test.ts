@@ -54,10 +54,10 @@ async function consumeMessages(): Promise<void> {
         );
 
         try {
-          const parsedValue = JSON.parse(value);
+          const parsedValue: unknown = JSON.parse(value ?? '');
           console.log('Valor (JSON):');
           console.log(JSON.stringify(parsedValue, null, 2));
-        } catch (e) {
+        } catch (_error) {
           console.log(`Valor: ${value}`);
         }
 
@@ -94,50 +94,25 @@ async function consumeMessages(): Promise<void> {
   const signalTraps = ['SIGTERM', 'SIGINT', 'SIGUSR2'];
 
   errorTypes.forEach((type) => {
-<<<<<<< HEAD
-    process.on(type, async (e) => {
+    process.on(type, (e) => {
       try {
         console.log(`Ocurrió un error de tipo ${type}: ${e}`);
-        await consumer.disconnect();
+        consumer.disconnect().catch(console.error);
         process.exit(0);
       } catch (_) {
         process.exit(1);
       }
-=======
-    process.on(type, (e) => {
-      void (async () => {
-        try {
-          console.log(`Ocurrió un error de tipo ${type}: ${e}`);
-          await consumer.disconnect();
-          process.exit(0);
-        } catch (_) {
-          process.exit(1);
-        }
-      })();
->>>>>>> 9a3bfa8 (feat(message-queue): event broker using kafka)
     });
   });
 
   signalTraps.forEach((type) => {
-<<<<<<< HEAD
-    process.once(type, async () => {
+    process.once(type, () => {
       try {
-        await consumer.disconnect();
+        consumer.disconnect().catch(console.error);
         console.log('Consumidor desconectado limpiamente');
       } finally {
         process.exit(0);
       }
-=======
-    process.once(type, () => {
-      void (async () => {
-        try {
-          await consumer.disconnect();
-          console.log('Consumidor desconectado limpiamente');
-        } finally {
-          process.exit(0);
-        }
-      })();
->>>>>>> 9a3bfa8 (feat(message-queue): event broker using kafka)
     });
   });
 }

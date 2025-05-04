@@ -19,7 +19,6 @@
     "noFallthroughCasesInSwitch": false,
     "baseUrl": "./",
     "paths": {
-      "@/*": ["src/*"],
       "@test/*": ["src/test/*"],
       "@config/*": ["src/config/*"],
       "@common/*": ["src/common/*"],

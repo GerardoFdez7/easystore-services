@@ -60,7 +60,7 @@ model Product {
 type Variant {
   atributes              Atribute[]
   stock_per_warehouse    StockPerWarehouse[]
-  price                  Decimal             @default(0)
+  price                  Float               @default(0)
   currency               Currency
   productMedia           String[]
   personalizationOptions String[]
@@ -270,7 +270,7 @@ enum ProductCondition {
 
 type TaxDetail {
   type    String
-  rate    Decimal
+  rate    Float
   country String?
 }
 
