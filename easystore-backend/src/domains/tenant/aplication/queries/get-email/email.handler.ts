@@ -1,6 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { FindTenantByEmailDTO } from './email.dto';
-import { ITenantRepository } from '../../../aggregates/repositories/tenant.repository.interface';
+import { Email } from '../../../aggregates/value-objects/email.value-object';
+import { ITenantRepository } from '../../../aggregates/repositories/tenant.interface';
 import { TenantDto } from '../../mappers/tenant.dto';
 import { Inject } from '@nestjs/common';
 import { TenantMapper } from '../../mappers/tenant.mapper';
@@ -15,7 +16,8 @@ export class FindTenantByEmailHandler
   ) {}
 
   async execute(query: FindTenantByEmailDTO): Promise<TenantDto | null> {
-    const tenant = await this.tenantRepository.findByEmail(query.email);
+    const email = Email.create(query.email);
+    const tenant = await this.tenantRepository.findByEmail(email);
 
     if (!tenant) {
       return null;

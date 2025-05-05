@@ -3,7 +3,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { PostgreModule } from '@database/postgre/postgre.module';
 import { LoggerModule } from '@shared/winston/winston.module';
 import { TenantResolver } from './presentation/graphql/tenant.resolver';
-import { TenantPostgreRepository } from './infrastructure/persistence/postgre/tenant.postgre';
+import { TenantRepository } from './infrastructure/persistence/postgre/tenant.repository';
 import { FindTenantByBusinessNameHandler } from './aplication/queries/get-businessname/businessname.handler';
 import { FindTenantByEmailHandler } from './aplication/queries/get-email/email.handler';
 import { LoginTenantHandler } from './aplication/queries/login/login.handler';
@@ -27,10 +27,10 @@ const EventHandlers = [TenantCreatedHandler];
   imports: [CqrsModule, PostgreModule, LoggerModule],
   providers: [
     TenantResolver,
-    TenantPostgreRepository,
+    TenantRepository,
     {
       provide: 'TenantRepository',
-      useClass: TenantPostgreRepository,
+      useClass: TenantRepository,
     },
     ...CommandHandlers,
     ...QueryHandlers,
