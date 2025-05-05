@@ -25,16 +25,15 @@ model Category {
 
 model Product {
   id                       String                     @id @default(auto()) @map("_id") @mongodb.ObjectId
-  productName              String                     @unique
+  name                     String                     @unique
   categoryId               String[]                   @mongodb.ObjectId
   category                 Category                   @relation(fields: [categoryId], references: [id])
   shortDescription         String
   longDescription          String?
   variants                 Variant[]
   type                     Type
-  productCover             String
-  productMedia             String[]
-  taxes                    TaxDetail[]
+  cover                    String
+  media                    String[]
   availableShippingMethods String[]
   shippingRestrictions     String[]
   tags                     String[]
@@ -62,7 +61,7 @@ type Variant {
   stock_per_warehouse    StockPerWarehouse[]
   price                  Float               @default(0)
   currency               Currency
-  productMedia           String[]
+  variantMedia           String[]
   personalizationOptions String[]
   weight                 Float?
   dimensions             Dimension?
@@ -157,6 +156,7 @@ enum Currency {
   GHS
   GIP
   GNF
+  GTQ
   GYD
   HTG
   HNL
@@ -266,12 +266,6 @@ enum ProductCondition {
   NEW
   USED
   REFURBISHED
-}
-
-type TaxDetail {
-  type    String
-  rate    Float
-  country String?
 }
 
 type Dimension {
