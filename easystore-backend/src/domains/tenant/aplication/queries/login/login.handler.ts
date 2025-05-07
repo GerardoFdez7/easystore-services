@@ -9,6 +9,7 @@ import {
   ExceptionHandler,
   DomainErrorCode,
 } from '../../../../../shared/domains/auth/exception-handler';
+import { generateToken } from '../../../../../shared/domains/auth/jwt-handler';
 
 @QueryHandler(TenantLoginDTO)
 export class LoginTenantHandler implements IQueryHandler<TenantLoginDTO> {
@@ -22,16 +23,17 @@ export class LoginTenantHandler implements IQueryHandler<TenantLoginDTO> {
     this.exceptionHandler = new ExceptionHandler(this.logger);
   }
 
-  async execute(command: TenantLoginDTO): Promise<boolean> {
+  async execute(command: TenantLoginDTO): Promise<string> {
     const { identifier, password } = command;
 
     const tenant = await this.tenantRepository.findByEmail(
       Email.create(identifier),
     );
+
     if (!tenant) {
       this.exceptionHandler.handle(
         'AuthenticationError',
-        'Tenant with provided email was not found.',
+        'Invalid credentials provided.',
         DomainErrorCode.TENANT_NOT_FOUND,
         { 'X-Error-Type': 'TenantAuth' },
       );
@@ -51,6 +53,11 @@ export class LoginTenantHandler implements IQueryHandler<TenantLoginDTO> {
       );
     }
 
-    return true;
+    const token = generateToken({
+      id: tenant.get('id').getValue().toString(),
+      email: tenant.get('email').getValue(),
+    });
+
+    return token;
   }
 }
