@@ -50,11 +50,11 @@ export class TenantResolver {
     );
   }
 
-  @Query(() => Boolean)
+  @Query(() => String)
   async loginTenant(
     @Args('id') id: string,
     @Args('password') password: string,
-  ): Promise<boolean> {
+  ): Promise<string> {
     return await this.queryBus.execute(new TenantLoginDTO(id, password));
   }
 }
