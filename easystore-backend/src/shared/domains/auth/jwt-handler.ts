@@ -1,8 +1,9 @@
 // src/shared/jwt-handler.ts
 import jwt from 'jsonwebtoken';
 
-const jwtSecret = process.env.jwtSecret || 'yourSecretKey'; // ⚠️ Usa .env en producción
-const jwtExpiration = '1h'; // o '15m', '7d', etc.
+const jwtSecret = process.env.jwtSecret || 'yourSecretKey';
+const jwtExpiration = '1h';
+const refreshTokenExpiration = '7d';
 
 export interface JwtPayload {
   email: string;
@@ -17,4 +18,10 @@ export const generateToken = (payload: JwtPayload): string => {
 
 export const verifyToken = (token: string): JwtPayload => {
   return jwt.verify(token, jwtSecret) as JwtPayload;
+};
+
+export const generateRefreshToken = (payload: JwtPayload): string => {
+  return jwt.sign(payload, jwtSecret, {
+    expiresIn: refreshTokenExpiration,
+  });
 };
