@@ -5,6 +5,11 @@ import { FindTenantByEmailDTO } from '../../aplication/queries/get-email/email.d
 import { TenantLoginDTO } from '../../aplication/queries/login/login.dto';
 import { TenantSingUpDTO } from '../../aplication/commands/create/sing-up.dto';
 import { TenantType } from './tenant.type';
+import { AuthTokenType } from './auth-token.type';
+import {
+  verifyToken,
+  generateToken,
+} from '../../../../shared/domains/auth/jwt-handler';
 
 @Resolver(() => TenantType)
 export class TenantResolver {
@@ -50,11 +55,21 @@ export class TenantResolver {
     );
   }
 
-  @Query(() => String)
+  @Query(() => AuthTokenType)
   async loginTenant(
     @Args('id') id: string,
     @Args('password') password: string,
-  ): Promise<string> {
+  ): Promise<AuthTokenType> {
     return await this.queryBus.execute(new TenantLoginDTO(id, password));
+  }
+
+  @Query(() => String)
+  refreshToken(@Args('refreshToken') refreshToken: string): string {
+    const payload = verifyToken(refreshToken);
+
+    return generateToken({
+      id: payload.id,
+      email: payload.email,
+    });
   }
 }

@@ -9,7 +9,10 @@ import {
   ExceptionHandler,
   DomainErrorCode,
 } from '../../../../../shared/domains/auth/exception-handler';
-import { generateToken } from '../../../../../shared/domains/auth/jwt-handler';
+import {
+  generateToken,
+  generateRefreshToken,
+} from '../../../../../shared/domains/auth/jwt-handler';
 
 @QueryHandler(TenantLoginDTO)
 export class LoginTenantHandler implements IQueryHandler<TenantLoginDTO> {
@@ -23,7 +26,9 @@ export class LoginTenantHandler implements IQueryHandler<TenantLoginDTO> {
     this.exceptionHandler = new ExceptionHandler(this.logger);
   }
 
-  async execute(command: TenantLoginDTO): Promise<string> {
+  async execute(
+    command: TenantLoginDTO,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const { identifier, password } = command;
 
     const tenant = await this.tenantRepository.findByEmail(
@@ -53,11 +58,14 @@ export class LoginTenantHandler implements IQueryHandler<TenantLoginDTO> {
       );
     }
 
-    const token = generateToken({
+    const payload = {
       id: tenant.get('id').getValue().toString(),
       email: tenant.get('email').getValue(),
-    });
+    };
 
-    return token;
+    const accessToken = generateToken(payload);
+    const refreshToken = generateRefreshToken(payload);
+
+    return { accessToken, refreshToken };
   }
 }
