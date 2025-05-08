@@ -2,7 +2,8 @@ import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateProductDTO } from './update-product.dto';
 import { IProductRepository } from '../../../../aggregates/repositories/product.interface';
-import { Product } from '../../../../aggregates/entities/product.entity';
+import { ProductMapper } from '../../../mappers/product.mapper';
+import { ProductDTO } from '../../../mappers/product.dto';
 import { Id } from '../../../../aggregates/value-objects/id.value-object';
 
 @Injectable()
@@ -13,7 +14,7 @@ export class UpdateProductHandler implements ICommandHandler<UpdateProductDTO> {
     private readonly eventPublisher: EventPublisher,
   ) {}
 
-  async execute(command: UpdateProductDTO): Promise<void> {
+  async execute(command: UpdateProductDTO): Promise<ProductDTO> {
     const { id, ...updates } = command;
 
     // Find the product by ID
@@ -68,9 +69,12 @@ export class UpdateProductHandler implements ICommandHandler<UpdateProductDTO> {
       });
     }
 
+    // Add id back to processedUpdates and assert type
+    const processedUpdateDto: UpdateProductDTO = { ...processedUpdates, id };
+
     // Update the product using the domain method
     const updatedProduct = this.eventPublisher.mergeObjectContext(
-      Product.update(product, processedUpdates),
+      ProductMapper.fromUpdateDto(product, processedUpdateDto),
     );
 
     // Persist through repository
@@ -78,5 +82,8 @@ export class UpdateProductHandler implements ICommandHandler<UpdateProductDTO> {
 
     // Commit events to event bus
     updatedProduct.commit();
+
+    // Return the product as DTO
+    return ProductMapper.toDto(product) as ProductDTO;
   }
 }

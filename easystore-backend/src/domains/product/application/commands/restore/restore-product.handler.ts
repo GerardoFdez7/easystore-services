@@ -2,7 +2,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { IProductRepository } from '../../../aggregates/repositories/product.interface';
 import { Id } from '../../../aggregates/value-objects';
-import { Product } from '../../../aggregates/entities/product.entity';
+import { ProductMapper } from '../../mappers/product.mapper';
+import { ProductDTO } from '../../mappers/product.dto';
 import { RestoreProductDTO } from './restore-product.dto';
 
 export class RestoreProductCommand {
@@ -18,7 +19,7 @@ export class RestoreProductHandler
     private readonly productRepository: IProductRepository,
   ) {}
 
-  async execute(command: RestoreProductCommand): Promise<void> {
+  async execute(command: RestoreProductCommand): Promise<ProductDTO> {
     const { id } = command.dto;
 
     // Create ID value object
@@ -39,9 +40,12 @@ export class RestoreProductHandler
     }
 
     // Call the domain entity method to restore the product
-    const restoredProduct = Product.restore(product);
+    const restoredProduct = ProductMapper.fromRestoreDto(product);
 
     // Save the updated product with restored metadata
     await this.productRepository.save(restoredProduct);
+
+    // Return the product as DTO
+    return ProductMapper.toDto(product) as ProductDTO;
   }
 }

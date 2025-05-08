@@ -2,7 +2,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { IProductRepository } from '../../../../../aggregates/repositories/product.interface';
 import { Id } from '../../../../../aggregates/value-objects';
-import { Product } from '../../../../../aggregates/entities/product.entity';
+import { ProductMapper } from '../../../../mappers/product.mapper';
+import { ProductDTO } from '../../../../mappers/product.dto';
 import { SoftDeleteProductDTO } from './soft-delete-product.dto';
 
 export class SoftDeleteProductCommand {
@@ -18,7 +19,7 @@ export class SoftDeleteProductHandler
     private readonly productRepository: IProductRepository,
   ) {}
 
-  async execute(command: SoftDeleteProductCommand): Promise<void> {
+  async execute(command: SoftDeleteProductCommand): Promise<ProductDTO> {
     const { id } = command.dto;
 
     // Create ID value object
@@ -31,9 +32,12 @@ export class SoftDeleteProductHandler
     }
 
     // Call the domain entity method to soft delete the product
-    const deletedProduct = Product.softDelete(product);
+    const deletedProduct = ProductMapper.fromSoftDeleteDto(product);
 
     // Save the updated product with soft delete metadata
     await this.productRepository.save(deletedProduct);
+
+    // Return the product as DTO
+    return ProductMapper.toDto(product) as ProductDTO;
   }
 }

@@ -45,9 +45,7 @@ export class GetAllProductsHandler
     }
 
     return {
-      products: result.products.map(
-        (product) => ProductMapper.toDto(product) as ProductDTO,
-      ),
+      products: ProductMapper.toDtoArray(result.products),
       total: result.total,
     };
   }
