@@ -3,7 +3,7 @@ export { Name } from './name.value-object';
 export { CategoryId } from './category-id.value-object';
 export { ShortDescription } from './short-description.value-object';
 export { LongDescription } from './long-description.value-object';
-export { Variants } from './variants.value-object';
+export { Variant } from './variant.value-object';
 export { Type } from './type.value-object';
 export { Cover } from './cover.value-object';
 export { Media } from './media.value-object';
@@ -16,6 +16,7 @@ export { SustainabilityAttribute } from './sustainability-attribute.value-object
 export { Brand } from './brand.value-object';
 export { Manufacturer } from './manufacturer.value-object';
 export { WarrantyDetail } from './warranty-detail.value-object';
+export { Metadata } from './metadata.value-object';
 // Product variant value objects
 export { Attribute } from './attribute.value-object';
 export { StockPerWarehouse } from './stock-per-warehouse.value-object';

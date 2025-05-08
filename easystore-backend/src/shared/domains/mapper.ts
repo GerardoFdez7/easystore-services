@@ -57,6 +57,30 @@ export class Mapper {
   }
 
   /**
+   * Maps a DTO to a domain entity
+   * @param Model The entity class constructor
+   * @param dto The DTO to map from
+   * @param mappingFn Optional custom mapping function
+   * @returns The mapped domain entity
+   */
+  static fromDTO<T, U>(
+    Model: new (props: unknown) => U,
+    dto: T,
+    mappingFn?: (dto: T) => unknown,
+  ): U {
+    if (mappingFn) {
+      const props = mappingFn(dto);
+      return new Model(props);
+    }
+
+    // Default implementation would need to be customized per entity
+    // This is a placeholder that should be overridden by entity-specific static methods
+    throw new Error(
+      'Default mapping not implemented. Please provide a mapping function.',
+    );
+  }
+
+  /**
    * Maps a persistence model to a domain entity
    * @param Model The entity class constructor
    * @param persistenceModel The persistence model to map from

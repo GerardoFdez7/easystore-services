@@ -18,7 +18,7 @@ export class VariantMedia {
     return new VariantMedia(urls);
   }
 
-  public getValues(): string[] {
+  public getValue(): string[] {
     return this.values;
   }
 
