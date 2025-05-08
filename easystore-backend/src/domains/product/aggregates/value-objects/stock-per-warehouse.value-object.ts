@@ -23,64 +23,63 @@ const stockPerWarehouseSchema = z.object({
     .nullable(),
 });
 
-const stockPerWarehouseArraySchema = z.array(stockPerWarehouseSchema);
+type StockEntry = {
+  qtyAvailable: number;
+  qtyReserved: number;
+  productLocation: string | null;
+  estimatedReplenishmentDate: Date | null;
+  lotNumber: string | null;
+  serialNumbers: string[] | null;
+};
+
+// Define the type for the stock map
+type StockMap = Record<number, StockEntry>;
 
 export class StockPerWarehouse {
-  private readonly stockDetails: Array<{
-    warehouseId: string;
-    qtyAvailable: number;
-    qtyReserved: number;
-    productLocation: string | null;
-    estimatedReplenishmentDate: Date | null;
-    lotNumber: string | null;
-    serialNumbers: string[];
-  }>;
+  private readonly stockMap: StockMap;
 
-  private constructor(
-    stockDetails: Array<{
-      warehouseId: string;
-      qtyAvailable: number;
-      qtyReserved: number;
-      productLocation: string | null;
-      estimatedReplenishmentDate: Date | null;
-      lotNumber: string | null;
-      serialNumbers: string[];
-    }>,
-  ) {
-    this.stockDetails = stockDetails;
+  private constructor(stockMap: StockMap) {
+    this.stockMap = stockMap;
   }
 
   public static create(
     stockDetails: Array<{
-      warehouseId: string;
+      warehouseId: number;
       qtyAvailable: number;
       qtyReserved: number;
       productLocation: string | null;
       estimatedReplenishmentDate: Date | null;
       lotNumber: string | null;
-      serialNumbers: string[];
+      serialNumbers: string[] | null;
     }>,
   ): StockPerWarehouse {
-    stockPerWarehouseArraySchema.parse(stockDetails);
-    return new StockPerWarehouse(stockDetails);
+    stockDetails.forEach((detail) => stockPerWarehouseSchema.parse(detail));
+
+    // Convert array to map
+    const stockMap: StockMap = {};
+    stockDetails.forEach((detail) => {
+      const { warehouseId, ...stockEntry } = detail;
+      stockMap[warehouseId] = stockEntry;
+    });
+
+    return new StockPerWarehouse(stockMap);
   }
 
-  public getValue(): Array<{
-    warehouseId: string;
-    qtyAvailable: number;
-    qtyReserved: number;
-    productLocation: string | null;
-    estimatedReplenishmentDate: Date | null;
-    lotNumber: string | null;
-    serialNumbers: string[];
-  }> {
-    return this.stockDetails;
+  public getValue(): StockMap {
+    return { ...this.stockMap };
+  }
+
+  public getStockForWarehouse(warehouseId: number): StockEntry | undefined {
+    return this.stockMap[warehouseId];
+  }
+
+  public getAllWarehouses(): number[] {
+    return Object.keys(this.stockMap).map(Number);
   }
 
   public equals(otherStock: StockPerWarehouse): boolean {
     return (
-      JSON.stringify(this.stockDetails) ===
-      JSON.stringify(otherStock.stockDetails)
+      JSON.stringify(this.stockMap) === JSON.stringify(otherStock.stockMap)
     );
   }
 }

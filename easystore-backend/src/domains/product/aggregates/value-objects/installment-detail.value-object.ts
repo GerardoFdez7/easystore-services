@@ -27,7 +27,7 @@ export class InstallmentDetail {
     return new InstallmentDetail(detail.months, detail.interestRate);
   }
 
-  public getDetail(): { months: number; interestRate: number } {
+  public getValue(): { months: number; interestRate: number } {
     return {
       months: this.months,
       interestRate: this.interestRate,
