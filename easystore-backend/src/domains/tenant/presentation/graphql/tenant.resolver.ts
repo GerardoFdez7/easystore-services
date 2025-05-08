@@ -1,9 +1,9 @@
 import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { FindTenantByBusinessNameDTO } from '../../aplication/queries/get-businessname/businessname.dto';
-import { FindTenantByEmailDTO } from '../../aplication/queries/get-email/email.dto';
-import { TenantLoginDTO } from '../../aplication/queries/login/login.dto';
-import { TenantSingUpDTO } from '../../aplication/commands/create/sing-up.dto';
+import { FindTenantByBusinessNameDTO } from '../../application/queries/get-businessname/businessname.dto';
+import { FindTenantByEmailDTO } from '../../application/queries/get-email/email.dto';
+import { TenantLoginDTO } from '../../application/queries/login/login.dto';
+import { TenantSingUpDTO } from '../../application/commands/create/sing-up.dto';
 import { TenantType } from './tenant.type';
 import { AuthTokenType } from './auth-token.type';
 import {

@@ -43,6 +43,7 @@ model Product {
   brand                    String?
   manufacturer             String?
   warranty                 WarrantyDetail?
+  metadata                 Metadata
   createdAt                DateTime                   @default(now())
   updatedAt                DateTime                   @updatedAt
 
@@ -288,4 +289,10 @@ type WarrantyDetail {
   duration     String
   coverage     String
   instructions String
+}
+
+type Metadata {
+  deleted                  Boolean   @default(false)
+  deletedAt                DateTime?
+  scheduledForHardDeleteAt DateTime?
 }

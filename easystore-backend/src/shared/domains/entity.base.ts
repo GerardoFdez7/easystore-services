@@ -71,6 +71,21 @@ export abstract class Entity<T extends EntityProps>
   }
 
   /**
+   * Maps a DTO to a domain entity
+   * @param EntityClass The entity class constructor
+   * @param dto The DTO to map from
+   * @param mappingFn Mapping function to convert DTO to entity props
+   * @returns The mapped domain entity
+   */
+  static fromDTO<D, T extends EntityProps, E extends Entity<T>>(
+    EntityClass: EntityConstructor<T, E>,
+    dto: D,
+    mappingFn: (dto: D) => T,
+  ): E {
+    return Mapper.fromDTO(EntityClass, dto, mappingFn);
+  }
+
+  /**
    * Implementation of Record<string, unknown> interface
    * Allows the entity to be treated as a key-value object
    */

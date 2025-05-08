@@ -16,7 +16,7 @@ export class Media {
     return new Media(url);
   }
 
-  public getValues(): string {
+  public getValue(): string {
     return this.values;
   }
 

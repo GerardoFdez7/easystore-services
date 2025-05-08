@@ -171,18 +171,20 @@ enum ProductCurrency {
 const currencySchema = z.nativeEnum(ProductCurrency);
 
 export class Currency {
-  private readonly value: Currency;
+  private readonly value: ProductCurrency;
 
-  private constructor(value: Currency) {
+  private constructor(value: ProductCurrency) {
     this.value = value;
   }
 
   public static create(type: string): Currency {
-    const validatedType = currencySchema.parse(type as unknown as Currency);
-    return new Currency(validatedType as unknown as Currency);
+    const validatedType = currencySchema.parse(
+      type as unknown as ProductCurrency,
+    );
+    return new Currency(validatedType);
   }
 
-  public getValue(): Currency {
+  public getValue(): ProductCurrency {
     return this.value;
   }
 
