@@ -1,6 +1,8 @@
 import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
+import { LoggerService } from '@shared/winston/winston.service';
 import { IProductRepository } from '../../../../aggregates/repositories/product.interface';
-import { Product } from '../../../../aggregates/entities/product.entity';
+import { ProductMapper } from '../../../mappers/product.mapper';
+import { ProductDTO } from '../../../mappers/product.dto';
 import { UpdateVariantDTO } from './update-variant.dto';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { Id } from '../../../../aggregates/value-objects/id.value-object';
@@ -11,11 +13,21 @@ export class UpdateVariantHandler implements ICommandHandler<UpdateVariantDTO> {
     @Inject('ProductRepository')
     private readonly productRepository: IProductRepository,
     private readonly eventPublisher: EventPublisher,
+    private readonly logger: LoggerService,
   ) {}
 
-  async execute(command: UpdateVariantDTO): Promise<void> {
+  async execute(command: UpdateVariantDTO): Promise<ProductDTO> {
     const { productId, identifier, identifierType, variant, attributeKey } =
       command;
+
+    this.logger.debug(
+      'Updating product variant with identifier:',
+      identifier,
+      'identifierType:',
+      identifierType,
+      'attributeKey:',
+      attributeKey,
+    );
 
     // Find the product by ID
     const product = await this.productRepository.findById(Id.create(productId));
@@ -62,13 +74,7 @@ export class UpdateVariantHandler implements ICommandHandler<UpdateVariantDTO> {
 
     // Update the variant in the product using the domain method
     const updatedProduct = this.eventPublisher.mergeObjectContext(
-      Product.updateVariant(
-        product,
-        identifier,
-        identifierType,
-        processedVariant,
-        attributeKey,
-      ),
+      ProductMapper.updateVariantOfProduct(product, command),
     );
 
     // Persist through repository
@@ -76,5 +82,8 @@ export class UpdateVariantHandler implements ICommandHandler<UpdateVariantDTO> {
 
     // Commit events to event bus
     updatedProduct.commit();
+
+    // Return the updated product
+    return ProductMapper.toDto(updatedProduct) as ProductDTO;
   }
 }

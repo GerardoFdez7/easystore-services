@@ -29,19 +29,16 @@ import { CreateProductDTO } from '../commands/create/product/create-product.dto'
 import { CreateVariantDTO } from '../commands/create/product-variant/create-variant.dto';
 import { UpdateProductDTO } from '../commands/update/product/update-product.dto';
 import { UpdateVariantDTO } from '../commands/update/product-variant/update-variant.dto';
-import { SoftDeleteProductDTO } from '../commands/delete/product/soft/soft-delete-product.dto';
-import { HardDeleteProductDTO } from '../commands/delete/product/hard/hard-delete-product.dto';
 import { DeleteVariantDTO } from '../commands/delete/product-variant/delete-variant.dto';
-import { RestoreProductDTO } from '../commands/restore/restore-product.dto';
 
 /**
  * Centralized mapper for Product domain entity to DTO conversion for queries and vice versa for commands.
- *
+ * Handles mapping between persistence layer models to domain entities.
  */
 export class ProductMapper {
   /**
-   * Maps a Prisma Product model to a domain Product entity
-   * @param persistenceProduct The Prisma Product model
+   * Maps a persistence Product moodel to a domain Product entity
+   * @param persistenceProduct The Persistence Product model
    * @returns The mapped Product domain entity
    */
   static fromPersistence(persistenceProduct: {
@@ -496,8 +493,8 @@ export class ProductMapper {
   }
 
   static fromUpdateDto(
-    dto: UpdateProductDTO,
     existingProduct: Product,
+    dto: UpdateProductDTO,
   ): Product {
     return Product.update(existingProduct, {
       name: dto.name,
@@ -522,55 +519,45 @@ export class ProductMapper {
 
   /**
    * Maps a SoftDeleteProductDTO to soft delete a Product
-   * @param dto The soft delete product DTO
    * @param existingProduct The existing product to soft delete
    * @returns The soft deleted Product domain entity
    */
-  static fromSoftDeleteDto(
-    dto: SoftDeleteProductDTO,
-    existingProduct: Product,
-  ): Product {
+  static fromSoftDeleteDto(existingProduct: Product): Product {
     return Product.softDelete(existingProduct);
   }
 
   /**
    * Maps a HardDeleteProductDTO to hard delete a Product
-   * @param dto The hard delete product DTO
    * @param existingProduct The existing product to hard delete
    * @returns The hard deleted Product domain entity
    */
-  static fromHardDeleteDto(
-    dto: HardDeleteProductDTO,
-    existingProduct: Product,
-  ): Product {
-    const hardDeletedProduct = Product.hardDelete(existingProduct);
-    return hardDeletedProduct.product;
+  static fromHardDeleteDto(existingProduct: Product): {
+    shouldRemove: true;
+    product: Product;
+  } {
+    return Product.hardDelete(existingProduct);
   }
 
   /**
    * Maps a RestoreProductDTO to restore a soft-deleted Product
-   * @param dto The restore product DTO
    * @param existingProduct The existing product to restore
    * @returns The restored Product domain entity
    */
-  static fromRestoreDto(
-    dto: RestoreProductDTO,
-    existingProduct: Product,
-  ): Product {
+  static fromRestoreDto(existingProduct: Product): Product {
     return Product.restore(existingProduct);
   }
 
   /**
    * Maps a CreateVariantDTO to add a variant to an existing Product
-   * @param dto The create variant DTO
    * @param existingProduct The existing product to add the variant to
+   * @param variant The processed variant object
    * @returns The updated Product domain entity with the new variant
    */
-  static fromCreateVariantDto(
-    dto: CreateVariantDTO,
+  static addVariantToProduct(
     existingProduct: Product,
+    variant: CreateVariantDTO['variant'],
   ): Product {
-    return Product.addVariant(existingProduct, dto.variant);
+    return Product.addVariant(existingProduct, variant);
   }
 
   /**
@@ -579,9 +566,9 @@ export class ProductMapper {
    * @param existingProduct The existing product containing the variant to update
    * @returns The updated Product domain entity with the updated variant
    */
-  static fromUpdateVariantDto(
-    dto: UpdateVariantDTO,
+  static updateVariantOfProduct(
     existingProduct: Product,
+    dto: UpdateVariantDTO,
   ): Product {
     return Product.updateVariant(
       existingProduct,
@@ -598,9 +585,9 @@ export class ProductMapper {
    * @param existingProduct The existing product containing the variant to delete
    * @returns The updated Product domain entity with the variant removed
    */
-  static fromDeleteVariantDto(
-    dto: DeleteVariantDTO,
+  static deleteVariantOfProduct(
     existingProduct: Product,
+    dto: DeleteVariantDTO,
   ): Product {
     return Product.removeVariant(
       existingProduct,
