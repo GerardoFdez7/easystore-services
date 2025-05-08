@@ -1,6 +1,7 @@
 import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
 import { IProductRepository } from '../../../../aggregates/repositories/product.interface';
-import { Product } from '../../../../aggregates/entities/product.entity';
+import { ProductMapper } from '../../../mappers/product.mapper';
+import { ProductDTO } from '../../../mappers/product.dto';
 import { CreateVariantDTO } from './create-variant.dto';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { Id } from '../../../../aggregates/value-objects/id.value-object';
@@ -13,7 +14,7 @@ export class CreateVariantHandler implements ICommandHandler<CreateVariantDTO> {
     private readonly eventPublisher: EventPublisher,
   ) {}
 
-  async execute(command: CreateVariantDTO): Promise<void> {
+  async execute(command: CreateVariantDTO): Promise<ProductDTO> {
     const { productId, variant } = command;
 
     // Find the product by ID
@@ -59,9 +60,9 @@ export class CreateVariantHandler implements ICommandHandler<CreateVariantDTO> {
       }
     }
 
-    // Add the variant to the product using the domain method
+    // Use the mapper to create the variant
     const updatedProduct = this.eventPublisher.mergeObjectContext(
-      Product.addVariant(product, processedVariant),
+      ProductMapper.addVariantToProduct(product, processedVariant),
     );
 
     // Persist through repository
@@ -69,5 +70,8 @@ export class CreateVariantHandler implements ICommandHandler<CreateVariantDTO> {
 
     // Commit events to event bus
     updatedProduct.commit();
+
+    // Return the product as DTO
+    return ProductMapper.toDto(updatedProduct) as ProductDTO;
   }
 }

@@ -2,7 +2,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { IProductRepository } from '../../../../../aggregates/repositories/product.interface';
 import { Id } from '../../../../../aggregates/value-objects';
-import { Product } from '../../../../../aggregates/entities/product.entity';
+import { ProductMapper } from '../../../../mappers/product.mapper';
+import { ProductDTO } from '../../../../mappers/product.dto';
 import { HardDeleteProductDTO } from './hard-delete-product.dto';
 
 export class HardDeleteProductCommand {
@@ -18,7 +19,7 @@ export class HardDeleteProductHandler
     private readonly productRepository: IProductRepository,
   ) {}
 
-  async execute(command: HardDeleteProductCommand): Promise<void> {
+  async execute(command: HardDeleteProductCommand): Promise<ProductDTO> {
     const { id } = command.dto;
 
     // Create ID value object
@@ -30,12 +31,18 @@ export class HardDeleteProductHandler
       throw new NotFoundException(`Product with ID ${id} not found`);
     }
 
-    // Call the domain entity method to hard delete the product
-    const { shouldRemove } = Product.hardDelete(product);
+    // Use the mapper to delete the domain entity
+    const { shouldRemove, product: deletedProduct } =
+      ProductMapper.fromHardDeleteDto(product);
 
     if (shouldRemove) {
       // Permanently remove the product from the database
       await this.productRepository.hardDelete(productId);
+      // return null or the deleted product's DTO
+      return ProductMapper.toDto(deletedProduct) as ProductDTO;
     }
+
+    // Return the product as DTO
+    return ProductMapper.toDto(product) as ProductDTO;
   }
 }

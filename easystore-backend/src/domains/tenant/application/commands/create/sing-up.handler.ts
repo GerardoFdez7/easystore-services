@@ -1,6 +1,7 @@
 import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
 import { ITenantRepository } from '../../../aggregates/repositories/tenant.interface';
-import { Tenant } from '../../../aggregates/entities/tenant.entity';
+import { TenantMapper } from '../../mappers/tenant.mapper';
+import { TenantDTO } from '../../mappers/tenant.dto';
 import { TenantSingUpDTO } from './sing-up.dto';
 import { Inject } from '@nestjs/common';
 
@@ -12,12 +13,10 @@ export class TenantSingUpHandler implements ICommandHandler<TenantSingUpDTO> {
     private readonly eventPublisher: EventPublisher,
   ) {}
 
-  async execute(command: TenantSingUpDTO): Promise<void> {
-    const { businessName, ownerName, email, password } = command;
-
+  async execute(command: TenantSingUpDTO): Promise<TenantDTO> {
     // Create domain entity using factory method
     const tenant = this.eventPublisher.mergeObjectContext(
-      Tenant.create(businessName, ownerName, email, password),
+      TenantMapper.fromCreateDto(command),
     );
 
     // Persist through repository
@@ -25,5 +24,8 @@ export class TenantSingUpHandler implements ICommandHandler<TenantSingUpDTO> {
 
     // Commit events to event bus
     tenant.commit();
+
+    // Return the tenant DTO
+    return TenantMapper.toDto(tenant);
   }
 }
