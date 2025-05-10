@@ -20,6 +20,7 @@ import {
   WarrantyDetail,
   Metadata,
 } from '../value-objects/index';
+import { IProductType, IVariantType } from './product.types';
 import { ProductCreatedEvent } from '../events/product/product-created.event';
 import { ProductUpdatedEvent } from '../events/product/product-updated.event';
 import { ProductSoftDeletedEvent } from '../events/product/product-soft-deleted.event';
@@ -32,7 +33,7 @@ import { VariantDeletedEvent } from '../events/product-variant/variant-deleted.e
 export interface ProductProps extends EntityProps {
   id: Id;
   name: Name;
-  categories: CategoryId[];
+  categoryId: CategoryId[];
   shortDescription: ShortDescription;
   longDescription?: LongDescription;
   variants: Variant[];
@@ -62,129 +63,55 @@ export class Product extends Entity<ProductProps> {
    * Factory method to create a new Product
    * @returns The created Product domain entity
    */
-  static create(
-    nameStr: string,
-    categoryIds: string[],
-    shortDescriptionStr: string,
-    longDescriptionStr?: string,
-    variantsData?: {
-      attributes: Array<{ key: string; value: string }>;
-      stockPerWarehouse: Array<{
-        warehouseId: string;
-        qtyAvailable: number;
-        qtyReserved: number;
-        productLocation: string | null;
-        estimatedReplenishmentDate: Date | null;
-        lotNumber: string | null;
-        serialNumbers: string[];
-      }>;
-      price: number;
-      currency: string;
-      variantMedia?: string[];
-      personalizationOptions?: string[];
-      weight?: number;
-      dimensions?: { height: number; width: number; depth: number };
-      condition: string;
-      sku?: string;
-      upc?: string;
-      ean?: string;
-      isbn?: string;
-      barcode?: string;
-    }[],
-    typeStr: 'PHYSICAL' | 'DIGITAL' = 'PHYSICAL',
-    coverStr?: string,
-    mediaArr: string[] = [],
-    availableShippingMethodsArr: string[] = [],
-    shippingRestrictionsArr: string[] = [],
-    tagsArr: string[] = [],
-    installmentPaymentsArr: {
-      months: number;
-      interestRate: number;
-    }[] = [],
-    acceptedPaymentMethodsArr: string[] = [],
-    sustainabilityArr: {
-      certification: string;
-      recycledPercentage: number;
-    }[] = [],
-    brandStr?: string,
-    manufacturerStr?: string,
-    warrantyData?: {
-      duration: string;
-      coverage: string;
-      instructions: string;
-    },
-  ): Product {
-    const name = Name.create(nameStr);
-    const categories = categoryIds.map((id) => CategoryId.create(id));
-    const shortDescription = ShortDescription.create(shortDescriptionStr);
-    const longDescription = longDescriptionStr
-      ? LongDescription.create(longDescriptionStr)
-      : undefined;
-    const variants = variantsData
-      ? variantsData.map((variant) => Variant.create(variant))
-      : [];
-    const type = Type.create(typeStr);
-    const cover = coverStr
-      ? Cover.create(coverStr)
-      : Cover.create('default-cover.jpg');
-    const media = mediaArr.map((item) => Media.create(item));
-    const availableShippingMethods = availableShippingMethodsArr.map((method) =>
-      ShippingMethod.create(method),
-    );
-    const shippingRestrictions = shippingRestrictionsArr.map((restriction) =>
-      ShippingRestriction.create(restriction),
-    );
-    const tags = tagsArr.map((tag) => Tags.create([tag]));
-    const installmentPayments = installmentPaymentsArr.map((payment) =>
-      InstallmentDetail.create(
-        payment as { months: number; interestRate: number },
+  static create(props: IProductType): Product {
+    // Transform all value objects first
+    const transformedProps = {
+      name: Name.create(props.name),
+      categoryId: props.categoryId.map((id) => CategoryId.create(id)),
+      shortDescription: ShortDescription.create(props.shortDescription),
+      longDescription: props.longDescription
+        ? LongDescription.create(props.longDescription)
+        : undefined,
+      variants: props.variants
+        ? props.variants.map((variant) => Variant.create(variant))
+        : [],
+      type: Type.create(props.type || 'PHYSICAL'),
+      cover: props.cover
+        ? Cover.create(props.cover)
+        : Cover.create('default-cover.jpg'),
+      media: (props.media || []).map((item) => Media.create(item)),
+      availableShippingMethods: (props.availableShippingMethods || []).map(
+        (method) => ShippingMethod.create(method),
       ),
-    );
-    const acceptedPaymentMethods = acceptedPaymentMethodsArr.map((method) =>
-      AcceptedPaymentMethods.create([method]),
-    );
-    const sustainability = sustainabilityArr.map((item) =>
-      SustainabilityAttribute.create(
-        item as { certification: string; recycledPercentage: number },
+      shippingRestrictions: (props.shippingRestrictions || []).map(
+        (restriction) => ShippingRestriction.create(restriction),
       ),
-    );
-    const brand = brandStr ? Brand.create(brandStr) : undefined;
-    const manufacturer = manufacturerStr
-      ? Manufacturer.create(manufacturerStr)
-      : undefined;
-    const warranty = warrantyData
-      ? WarrantyDetail.create(
-          warrantyData as {
-            duration: string;
-            coverage: string;
-            instructions: string;
-          },
-        )
-      : undefined;
-    const metadata = Metadata.create({
-      deleted: false,
-    });
+      tags: (props.tags || []).map((tag) => Tags.create([tag])),
+      installmentPayments: (props.installmentPayments || []).map((payment) =>
+        InstallmentDetail.create(payment),
+      ),
+      acceptedPaymentMethods: (props.acceptedPaymentMethods || []).map(
+        (method) => AcceptedPaymentMethods.create([method]),
+      ),
+      sustainability: (props.sustainability || []).map((item) =>
+        SustainabilityAttribute.create(item),
+      ),
+      brand: props.brand ? Brand.create(props.brand) : undefined,
+      manufacturer: props.manufacturer
+        ? Manufacturer.create(props.manufacturer)
+        : undefined,
+      warranty: props.warranty
+        ? WarrantyDetail.create(props.warranty)
+        : undefined,
+      metadata: Metadata.create({
+        deleted: false,
+      }),
+    };
 
+    // Create the product with spread operator
     const product = new Product({
+      ...transformedProps,
       id: null,
-      name,
-      categories,
-      shortDescription,
-      longDescription,
-      variants,
-      type,
-      cover,
-      media,
-      availableShippingMethods,
-      shippingRestrictions,
-      tags,
-      installmentPayments,
-      acceptedPaymentMethods,
-      sustainability,
-      brand,
-      manufacturer,
-      warranty,
-      metadata,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -201,61 +128,7 @@ export class Product extends Entity<ProductProps> {
    * @param updates The properties to update
    * @returns The updated Product domain entity
    */
-  static update(
-    product: Product,
-    updates: {
-      name?: string;
-      categoryIds?: string[];
-      shortDescription?: string;
-      longDescription?: string | null;
-      variants?: {
-        attributes: Array<{ key: string; value: string }>;
-        stockPerWarehouse: Array<{
-          warehouseId: string;
-          qtyAvailable: number;
-          qtyReserved: number;
-          productLocation: string | null;
-          estimatedReplenishmentDate: Date | null;
-          lotNumber: string | null;
-          serialNumbers: string[];
-        }>;
-        price: number;
-        currency: string;
-        variantMedia?: string[];
-        personalizationOptions?: string[];
-        weight?: number;
-        dimensions?: { height: number; width: number; depth: number };
-        condition: string;
-        sku?: string;
-        upc?: string;
-        ean?: string;
-        isbn?: string;
-        barcode?: string;
-      }[];
-      type?: 'PHYSICAL' | 'DIGITAL';
-      cover?: string;
-      media?: string[];
-      availableShippingMethods?: string[];
-      shippingRestrictions?: string[];
-      tags?: string[];
-      installmentPayments?: {
-        months: number;
-        interestRate: number;
-      }[];
-      acceptedPaymentMethods?: string[];
-      sustainability?: {
-        certification: string;
-        recycledPercentage: number;
-      }[];
-      brand?: string | null;
-      manufacturer?: string | null;
-      warranty?: {
-        duration: string;
-        coverage: string;
-        instructions: string;
-      };
-    },
-  ): Product {
+  static update(product: Product, updates: Partial<IProductType>): Product {
     const props = { ...product.props };
 
     // Update each property if provided in updates
@@ -263,8 +136,8 @@ export class Product extends Entity<ProductProps> {
       props.name = Name.create(updates.name);
     }
 
-    if (updates.categoryIds !== undefined) {
-      props.categories = updates.categoryIds.map((id) => CategoryId.create(id));
+    if (updates.categoryId !== undefined) {
+      props.categoryId = updates.categoryId.map((id) => CategoryId.create(id));
     }
 
     if (updates.shortDescription !== undefined) {
@@ -315,9 +188,7 @@ export class Product extends Entity<ProductProps> {
 
     if (updates.installmentPayments !== undefined) {
       props.installmentPayments = updates.installmentPayments.map((payment) =>
-        InstallmentDetail.create(
-          payment as { months: number; interestRate: number },
-        ),
+        InstallmentDetail.create(payment),
       );
     }
 
@@ -329,9 +200,7 @@ export class Product extends Entity<ProductProps> {
 
     if (updates.sustainability !== undefined) {
       props.sustainability = updates.sustainability.map((item) =>
-        SustainabilityAttribute.create(
-          item as { certification: string; recycledPercentage: number },
-        ),
+        SustainabilityAttribute.create(item),
       );
     }
 
@@ -347,13 +216,7 @@ export class Product extends Entity<ProductProps> {
 
     if (updates.warranty !== undefined) {
       props.warranty = updates.warranty
-        ? WarrantyDetail.create(
-            updates.warranty as {
-              duration: string;
-              coverage: string;
-              instructions: string;
-            },
-          )
+        ? WarrantyDetail.create(updates.warranty)
         : undefined;
     }
 
@@ -445,33 +308,7 @@ export class Product extends Entity<ProductProps> {
    * @param variantData The variant data to add
    * @returns The updated Product with the new variant
    */
-  static addVariant(
-    product: Product,
-    variantData: {
-      attributes: Array<{ key: string; value: string }>;
-      stockPerWarehouse: Array<{
-        warehouseId: string;
-        qtyAvailable: number;
-        qtyReserved: number;
-        productLocation: string | null;
-        estimatedReplenishmentDate: Date | null;
-        lotNumber: string | null;
-        serialNumbers: string[];
-      }>;
-      price: number;
-      currency: string;
-      variantMedia?: string[];
-      personalizationOptions?: string[];
-      weight?: number;
-      dimensions?: { height: number; width: number; depth: number };
-      condition: string;
-      sku?: string;
-      upc?: string;
-      ean?: string;
-      isbn?: string;
-      barcode?: string;
-    },
-  ): Product {
+  static addVariant(product: Product, variantData: IVariantType): Product {
     const props = { ...product.props };
     const newVariant = Variant.create(variantData);
     props.variants = [...props.variants, newVariant];
@@ -495,30 +332,7 @@ export class Product extends Entity<ProductProps> {
     product: Product,
     identifier: string,
     identifierType: 'sku' | 'upc' | 'ean' | 'isbn' | 'barcode' | 'attribute',
-    updatedVariantData: {
-      attributes: Array<{ key: string; value: string }>;
-      stockPerWarehouse: Array<{
-        warehouseId: string;
-        qtyAvailable: number;
-        qtyReserved: number;
-        productLocation: string | null;
-        estimatedReplenishmentDate: Date | null;
-        lotNumber: string | null;
-        serialNumbers: string[];
-      }>;
-      price: number;
-      currency: string;
-      variantMedia?: string[];
-      personalizationOptions?: string[];
-      weight?: number;
-      dimensions?: { height: number; width: number; depth: number };
-      condition: string;
-      sku?: string;
-      upc?: string;
-      ean?: string;
-      isbn?: string;
-      barcode?: string;
-    },
+    updatedVariantData: IVariantType,
     attributeKey?: string,
   ): Product {
     const props = { ...product.props };

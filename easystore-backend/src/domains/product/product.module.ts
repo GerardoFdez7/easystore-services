@@ -1,7 +1,10 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
+import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerService } from '@shared/winston/winston.service';
 import { MongoService } from '@database/mongo/mongo.service';
+import { ProductRepository } from './infrastructure/persistence/mongo/product.repository';
+import { ScheduleDeleteProductsJob } from './infrastructure/jobs/schedule-delete.job';
 // Command Handlers
 import { CreateProductHandler } from './application/commands/create/product/create-product.handler';
 import { CreateVariantHandler } from './application/commands/create/product-variant/create-variant.handler';
@@ -52,7 +55,14 @@ const EventHandlers = [
 ];
 
 @Module({
-  imports: [CqrsModule, MongoService, LoggerService],
-  providers: [...CommandHandlers, ...EventHandlers, ...QueryHandlers],
+  imports: [CqrsModule, MongoService, LoggerService, ScheduleModule.forRoot()],
+  providers: [
+    ProductRepository,
+    ScheduleDeleteProductsJob,
+    { provide: 'ProductRepository', useClass: ProductRepository },
+    ...CommandHandlers,
+    ...EventHandlers,
+    ...QueryHandlers,
+  ],
 })
 export class ProductModule {}

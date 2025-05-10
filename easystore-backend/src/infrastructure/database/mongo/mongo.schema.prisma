@@ -53,13 +53,13 @@ model Product {
   @@index([variants.ean])
   @@index([variants.isbn])
   @@index([variants.barcode])
-  @@index([variants.atributes.key, variants.atributes.value])
+  @@index([variants.attributes.key, variants.attributes.value])
 }
 
 // Types for Products
 type Variant {
-  atributes              Atribute[]
-  stock_per_warehouse    StockPerWarehouse[]
+  attributes             Attribute[]
+  stockPerWarehouse      StockPerWarehouse[]
   price                  Float               @default(0)
   currency               Currency
   variantMedia           String[]
@@ -74,7 +74,7 @@ type Variant {
   barcode                String?
 }
 
-type Atribute {
+type Attribute {
   key   String
   value String
 }

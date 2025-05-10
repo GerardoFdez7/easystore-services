@@ -6,23 +6,25 @@ const dimensionSchema = z.object({
   depth: z.number().positive({ message: 'Depth must be a positive number' }),
 });
 
-export class Dimension {
-  private readonly value: { height: number; width: number; depth: number };
+export type DimensionProps = {
+  height: number;
+  width: number;
+  depth: number;
+};
 
-  private constructor(value: { height: number; width: number; depth: number }) {
+export class Dimension {
+  private readonly value: DimensionProps;
+
+  private constructor(value: DimensionProps) {
     this.value = value;
   }
 
-  public static create(value: {
-    height: number;
-    width: number;
-    depth: number;
-  }): Dimension {
+  public static create(value: DimensionProps): Dimension {
     dimensionSchema.parse(value);
     return new Dimension(value);
   }
 
-  public getValue(): { height: number; width: number; depth: number } {
+  public getValue(): DimensionProps {
     return this.value;
   }
 
