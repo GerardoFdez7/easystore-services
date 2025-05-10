@@ -1,14 +1,8 @@
 import { Entity, EntityProps } from '@shared/domains/entity.base';
-import {
-  BusinessName,
-  Email,
-  Id,
-  OwnerName,
-  Password,
-} from '../value-objects/index';
+import { BusinessName, Email, Id, OwnerName, Password } from '../value-objects';
 import { TenantCreatedEvent } from '../events/tenant-created.event';
 
-interface TenantProps extends EntityProps {
+export interface TenantProps extends EntityProps {
   id: Id;
   businessName: BusinessName;
   ownerName: OwnerName;
@@ -21,35 +15,6 @@ interface TenantProps extends EntityProps {
 export class Tenant extends Entity<TenantProps> {
   constructor(props: TenantProps) {
     super(props);
-  }
-
-  /**
-   * Maps a Prisma Tenant model to a domain Tenant entity
-   * @param prismaTenant The Prisma Tenant model
-   * @returns The mapped Tenant domain entity
-   */
-  static fromPrisma(prismaTenant: {
-    id: number;
-    businessName: string;
-    ownerName: string;
-    email: string;
-    password: string;
-    createdAt: Date;
-    updatedAt: Date;
-  }): Tenant {
-    return Entity.fromPersistence<typeof prismaTenant, TenantProps, Tenant>(
-      Tenant,
-      prismaTenant,
-      (model) => ({
-        id: Id.create(model.id),
-        businessName: BusinessName.create(model.businessName),
-        ownerName: OwnerName.create(model.ownerName),
-        email: Email.create(model.email),
-        password: Password.createHashed(model.password),
-        createdAt: model.createdAt,
-        updatedAt: model.updatedAt,
-      }),
-    );
   }
 
   // Factory method to create a new Tenant

@@ -25,16 +25,15 @@ model Category {
 
 model Product {
   id                       String                     @id @default(auto()) @map("_id") @mongodb.ObjectId
-  productName              String                     @unique
+  name                     String                     @unique
   categoryId               String[]                   @mongodb.ObjectId
   category                 Category                   @relation(fields: [categoryId], references: [id])
   shortDescription         String
   longDescription          String?
   variants                 Variant[]
   type                     Type
-  productCover             String
-  productMedia             String[]
-  taxes                    TaxDetail[]
+  cover                    String
+  media                    String[]
   availableShippingMethods String[]
   shippingRestrictions     String[]
   tags                     String[]
@@ -44,6 +43,7 @@ model Product {
   brand                    String?
   manufacturer             String?
   warranty                 WarrantyDetail?
+  metadata                 Metadata
   createdAt                DateTime                   @default(now())
   updatedAt                DateTime                   @updatedAt
 
@@ -53,16 +53,16 @@ model Product {
   @@index([variants.ean])
   @@index([variants.isbn])
   @@index([variants.barcode])
-  @@index([variants.atributes.key, variants.atributes.value])
+  @@index([variants.attributes.key, variants.attributes.value])
 }
 
 // Types for Products
 type Variant {
-  atributes              Atribute[]
-  stock_per_warehouse    StockPerWarehouse[]
+  attributes             Attribute[]
+  stockPerWarehouse      StockPerWarehouse[]
   price                  Float               @default(0)
   currency               Currency
-  productMedia           String[]
+  variantMedia           String[]
   personalizationOptions String[]
   weight                 Float?
   dimensions             Dimension?
@@ -74,7 +74,7 @@ type Variant {
   barcode                String?
 }
 
-type Atribute {
+type Attribute {
   key   String
   value String
 }
@@ -157,6 +157,7 @@ enum Currency {
   GHS
   GIP
   GNF
+  GTQ
   GYD
   HTG
   HNL
@@ -268,12 +269,6 @@ enum ProductCondition {
   REFURBISHED
 }
 
-type TaxDetail {
-  type    String
-  rate    Float
-  country String?
-}
-
 type Dimension {
   height Float
   width  Float
@@ -294,4 +289,10 @@ type WarrantyDetail {
   duration     String
   coverage     String
   instructions String
+}
+
+type Metadata {
+  deleted                  Boolean   @default(false)
+  deletedAt                DateTime?
+  scheduledForHardDeleteAt DateTime?
 }

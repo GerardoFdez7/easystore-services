@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PostgreService } from '@infrastructure/database/postgre/postgre.service';
+import { TenantMapper } from '../../../application/mappers/tenant.mapper';
 import { Tenant } from '../../../aggregates/entities/tenant.entity';
 import { Tenant as PrismaTenant } from '.prisma/postgres';
 import { ITenantRepository } from '../../../aggregates/repositories/tenant.interface';
@@ -95,6 +96,6 @@ export class TenantRepository implements ITenantRepository {
 
   // Map from database model to domain entity using the centralized mapping approach
   private mapToDomain(clientPrisma: PrismaTenant): Tenant {
-    return Tenant.fromPrisma(clientPrisma);
+    return TenantMapper.fromPersistence(clientPrisma);
   }
 }
