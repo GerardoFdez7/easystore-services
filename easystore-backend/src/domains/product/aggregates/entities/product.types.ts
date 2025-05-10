@@ -1,24 +1,20 @@
 import {
+  AttributeProps,
   InstallmentDetailProps,
   SustainabilityAttributesProps,
   WarrantyDetailProps,
+  DimensionProps,
+  StockPerWarehouseProps,
   MetadataProps,
-} from '../../../../aggregates/value-objects';
-import { IProductType } from '../../../../aggregates/entities';
-import { VariantDTO } from '../../../mappers/product.dto';
+} from '../value-objects';
 
-/**
- * Data Transfer Object for creating a new Product
- * Extends from IProductType but omits fields that are generated during creation
- */
-export class CreateProductDTO
-  implements Omit<IProductType, 'id' | 'createdAt' | 'updatedAt' | 'variants'>
-{
+export interface IProductType {
+  id: string;
   name: string;
   categoryId: string[];
   shortDescription: string;
   longDescription?: string | null;
-  variants?: VariantDTO[];
+  variants?: IVariantType[];
   type: 'PHYSICAL' | 'DIGITAL';
   cover: string;
   media?: string[] | null;
@@ -32,4 +28,23 @@ export class CreateProductDTO
   manufacturer?: string | null;
   warranty?: WarrantyDetailProps | null;
   metadata: MetadataProps;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IVariantType {
+  attributes: Array<AttributeProps>;
+  stockPerWarehouse: Array<StockPerWarehouseProps>;
+  price: number;
+  currency: string;
+  variantMedia?: string[];
+  personalizationOptions?: string[];
+  weight?: number;
+  dimensions?: DimensionProps;
+  condition: string;
+  sku?: string;
+  upc?: string;
+  ean?: string;
+  isbn?: string;
+  barcode?: string;
 }

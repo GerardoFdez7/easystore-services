@@ -5,7 +5,7 @@ const attributeSchema = z.object({
   value: z.string().min(1, { message: 'Value must be at least 1 character' }),
 });
 
-type AttributeProps = {
+export type AttributeProps = {
   key: string;
   value: string;
 };

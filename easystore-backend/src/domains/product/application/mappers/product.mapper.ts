@@ -1,8 +1,5 @@
 import { Entity } from '@shared/domains/entity.base';
-import {
-  Product,
-  ProductProps,
-} from '../../aggregates/entities/product.entity';
+import { Product, ProductProps, IProductType } from '../../aggregates/entities';
 import {
   Id,
   Name,
@@ -24,7 +21,7 @@ import {
   WarrantyDetail,
   Metadata,
 } from '../../aggregates/value-objects/index';
-import { ProductDTO } from './product.dto';
+import { ProductDTO, PaginatedProductsDTO } from './product.dto';
 import { CreateProductDTO } from '../commands/create/product/create-product.dto';
 import { CreateVariantDTO } from '../commands/create/product-variant/create-variant.dto';
 import { UpdateProductDTO } from '../commands/update/product/update-product.dto';
@@ -41,66 +38,7 @@ export class ProductMapper {
    * @param persistenceProduct The Persistence Product model
    * @returns The mapped Product domain entity
    */
-  static fromPersistence(persistenceProduct: {
-    id: string;
-    name: string;
-    categoryId: string[];
-    shortDescription: string;
-    longDescription?: string;
-    variants?: {
-      attributes: Array<{ key: string; value: string }>;
-      stockPerWarehouse: Array<{
-        warehouseId: string;
-        qtyAvailable: number;
-        qtyReserved: number;
-        productLocation: string | null;
-        estimatedReplenishmentDate: Date | null;
-        lotNumber: string | null;
-        serialNumbers: string[];
-      }>;
-      price: number;
-      currency: string;
-      variantMedia?: string[];
-      personalizationOptions?: string[];
-      weight?: number;
-      dimensions?: { height: number; width: number; depth: number };
-      condition: string;
-      sku?: string;
-      upc?: string;
-      ean?: string;
-      isbn?: string;
-      barcode?: string;
-    }[];
-    type: string;
-    cover: string;
-    media: string[];
-    availableShippingMethods: string[];
-    shippingRestrictions: string[];
-    tags: string[];
-    installmentPayments?: {
-      months: number;
-      interestRate: number;
-    }[];
-    acceptedPaymentMethods: string[];
-    sustainability?: {
-      certification: string;
-      recycledPercentage: number;
-    }[];
-    brand?: string;
-    manufacturer?: string;
-    warranty?: {
-      duration: string;
-      coverage: string;
-      instructions: string;
-    };
-    metadata?: {
-      deleted: boolean;
-      deletedAt?: Date;
-      scheduledForHardDeleteAt?: Date;
-    };
-    createdAt: Date;
-    updatedAt: Date;
-  }): Product {
+  static fromPersistence(persistenceProduct: IProductType): Product {
     return Entity.fromPersistence<
       typeof persistenceProduct,
       ProductProps,
@@ -108,7 +46,7 @@ export class ProductMapper {
     >(Product, persistenceProduct, (model) => ({
       id: Id.create(model.id),
       name: Name.create(model.name),
-      categories: model.categoryId.map((id) => CategoryId.create(id)),
+      categoryId: model.categoryId.map((id) => CategoryId.create(id)),
       shortDescription: ShortDescription.create(model.shortDescription),
       longDescription: model.longDescription
         ? LongDescription.create(model.longDescription)
@@ -125,40 +63,22 @@ export class ProductMapper {
       ),
       tags: model.tags.map((tag) => Tags.create([tag])),
       installmentPayments: model.installmentPayments.map((payment) =>
-        InstallmentDetail.create(
-          payment as { months: number; interestRate: number },
-        ),
+        InstallmentDetail.create(payment),
       ),
       acceptedPaymentMethods: model.acceptedPaymentMethods.map((method) =>
         AcceptedPaymentMethods.create([method]),
       ),
       sustainability: model.sustainability.map((item) =>
-        SustainabilityAttribute.create(
-          item as { certification: string; recycledPercentage: number },
-        ),
+        SustainabilityAttribute.create(item),
       ),
       brand: model.brand ? Brand.create(model.brand) : undefined,
       manufacturer: model.manufacturer
         ? Manufacturer.create(model.manufacturer)
         : undefined,
       warranty: model.warranty
-        ? WarrantyDetail.create(
-            model.warranty as {
-              duration: string;
-              coverage: string;
-              instructions: string;
-            },
-          )
+        ? WarrantyDetail.create(model.warranty)
         : undefined,
-      metadata: model.metadata
-        ? Metadata.create(
-            model.metadata as {
-              deleted: boolean;
-              deletedAt?: Date;
-              scheduledForHardDeleteAt?: Date;
-            },
-          )
-        : undefined,
+      metadata: model.metadata ? Metadata.create(model.metadata) : undefined,
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
     }));
@@ -171,18 +91,23 @@ export class ProductMapper {
    * @returns The product DTO
    */
   static toDto(
-    data: Product | { products: Product[]; total: number },
+    data: Product | PaginatedProductsDTO | ProductDTO,
     fields?: string[],
-  ): ProductDTO | { products: ProductDTO[]; total: number } {
+  ): ProductDTO | PaginatedProductsDTO {
+    // If data is already a ProductDTO, return it directly
+    if (!('products' in data) && !('props' in data)) {
+      return data;
+    }
+
     // Handle pagination result
     if ('products' in data && 'total' in data) {
-      const paginatedData = data as { products: Product[]; total: number };
+      const paginatedData = data as PaginatedProductsDTO;
       return {
         products: paginatedData.products.map(
           (product) => this.toDto(product, fields) as ProductDTO,
         ),
         total: paginatedData.total,
-      };
+      } as PaginatedProductsDTO;
     }
 
     // Handle single product
@@ -193,8 +118,8 @@ export class ProductMapper {
       return product.toDTO<ProductDTO>((entity) => ({
         id: entity.get('id').getValue(),
         name: entity.get('name').getValue(),
-        categories: entity
-          .get('categories')
+        categoryId: entity
+          .get('categoryId')
           .map((category) => category.getValue()),
         shortDescription: entity.get('shortDescription').getValue(),
         longDescription: entity.get('longDescription')?.getValue(),
@@ -309,9 +234,9 @@ export class ProductMapper {
         case 'name':
           dto.name = product.get('name').getValue();
           break;
-        case 'categories':
-          dto.categories = product
-            .get('categories')
+        case 'categoryId':
+          dto.categoryId = product
+            .get('categoryId')
             .map((category) => category.getValue());
           break;
         case 'shortDescription':
@@ -471,50 +396,14 @@ export class ProductMapper {
    */
   static fromCreateDto(dto: CreateProductDTO): Product {
     // Create a new product using the factory method
-    return Product.create(
-      dto.name,
-      dto.categories,
-      dto.shortDescription,
-      dto.longDescription,
-      dto.variants,
-      dto.type as 'PHYSICAL' | 'DIGITAL',
-      dto.cover,
-      dto.media,
-      dto.availableShippingMethods,
-      dto.shippingRestrictions,
-      dto.tags,
-      dto.installmentPayments,
-      dto.acceptedPaymentMethods,
-      dto.sustainability,
-      dto.brand,
-      dto.manufacturer,
-      dto.warranty,
-    );
+    return Product.create({ ...(dto as IProductType) });
   }
 
   static fromUpdateDto(
     existingProduct: Product,
     dto: UpdateProductDTO,
   ): Product {
-    return Product.update(existingProduct, {
-      name: dto.name,
-      categoryIds: dto.categoryIds,
-      shortDescription: dto.shortDescription,
-      longDescription: dto.longDescription,
-      variants: dto.variants,
-      type: dto.type,
-      cover: dto.cover,
-      media: dto.media,
-      availableShippingMethods: dto.availableShippingMethods,
-      shippingRestrictions: dto.shippingRestrictions,
-      tags: dto.tags,
-      installmentPayments: dto.installmentPayments,
-      acceptedPaymentMethods: dto.acceptedPaymentMethods,
-      sustainability: dto.sustainability,
-      brand: dto.brand,
-      manufacturer: dto.manufacturer,
-      warranty: dto.warranty,
-    });
+    return Product.update(existingProduct, { ...dto });
   }
 
   /**

@@ -10,34 +10,28 @@ const installmentDetailSchema = z.object({
     .nonnegative({ message: 'Interest rate must be a non-negative number' }),
 });
 
+export type InstallmentDetailProps = {
+  months: number;
+  interestRate: number;
+};
+
 export class InstallmentDetail {
-  private readonly months: number;
-  private readonly interestRate: number;
+  private readonly value: InstallmentDetailProps;
 
-  private constructor(months: number, interestRate: number) {
-    this.months = months;
-    this.interestRate = interestRate;
+  private constructor(value: InstallmentDetailProps) {
+    this.value = value;
   }
 
-  public static create(detail: {
-    months: number;
-    interestRate: number;
-  }): InstallmentDetail {
-    installmentDetailSchema.parse(detail);
-    return new InstallmentDetail(detail.months, detail.interestRate);
+  public static create(value: InstallmentDetailProps): InstallmentDetail {
+    installmentDetailSchema.parse(value);
+    return new InstallmentDetail(value);
   }
 
-  public getValue(): { months: number; interestRate: number } {
-    return {
-      months: this.months,
-      interestRate: this.interestRate,
-    };
+  public getValue(): InstallmentDetailProps {
+    return this.value;
   }
 
   public equals(otherDetail: InstallmentDetail): boolean {
-    return (
-      this.months === otherDetail.months &&
-      this.interestRate === otherDetail.interestRate
-    );
+    return JSON.stringify(this.value) === JSON.stringify(otherDetail.value);
   }
 }

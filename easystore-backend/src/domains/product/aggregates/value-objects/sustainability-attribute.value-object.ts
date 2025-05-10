@@ -9,40 +9,30 @@ const sustainabilityAttributesSchema = z.object({
   }),
 });
 
+export type SustainabilityAttributesProps = {
+  certification: string;
+  recycledPercentage: number;
+};
+
 export class SustainabilityAttribute {
-  private readonly certification: string;
-  private readonly recycledPercentage: number;
+  private readonly value: SustainabilityAttributesProps;
 
-  private constructor(certification: string, recycledPercentage: number) {
-    this.certification = certification;
-    this.recycledPercentage = recycledPercentage;
+  private constructor(value: SustainabilityAttributesProps) {
+    this.value = value;
   }
 
-  public static create(attributes: {
-    certification: string;
-    recycledPercentage: number;
-  }): SustainabilityAttribute {
-    sustainabilityAttributesSchema.parse(attributes);
-    return new SustainabilityAttribute(
-      attributes.certification,
-      attributes.recycledPercentage,
-    );
+  public static create(
+    value: SustainabilityAttributesProps,
+  ): SustainabilityAttribute {
+    sustainabilityAttributesSchema.parse(value);
+    return new SustainabilityAttribute(value);
   }
 
-  public getValue(): {
-    certification: string;
-    recycledPercentage: number;
-  } {
-    return {
-      certification: this.certification,
-      recycledPercentage: this.recycledPercentage,
-    };
+  public getValue(): SustainabilityAttributesProps {
+    return this.value;
   }
 
   public equals(otherAttributes: SustainabilityAttribute): boolean {
-    return (
-      this.certification === otherAttributes.certification &&
-      this.recycledPercentage === otherAttributes.recycledPercentage
-    );
+    return JSON.stringify(this.value) === JSON.stringify(otherAttributes.value);
   }
 }
