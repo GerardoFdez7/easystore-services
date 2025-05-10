@@ -10,22 +10,34 @@ export { Media } from './media.value-object';
 export { ShippingMethod } from './shipping-method.value-object';
 export { ShippingRestriction } from './shipping-restriction.value-object';
 export { Tags } from './tags.value-object';
-export { InstallmentDetail } from './installment-detail.value-object';
+export {
+  InstallmentDetail,
+  InstallmentDetailProps,
+} from './installment-detail.value-object';
 export { AcceptedPaymentMethods } from './accepted-payment-methods.value-object';
-export { SustainabilityAttribute } from './sustainability-attribute.value-object';
+export {
+  SustainabilityAttribute,
+  SustainabilityAttributesProps,
+} from './sustainability-attribute.value-object';
 export { Brand } from './brand.value-object';
 export { Manufacturer } from './manufacturer.value-object';
-export { WarrantyDetail } from './warranty-detail.value-object';
-export { Metadata } from './metadata.value-object';
+export {
+  WarrantyDetail,
+  WarrantyDetailProps,
+} from './warranty-detail.value-object';
+export { Metadata, MetadataProps } from './metadata.value-object';
 // Product variant value objects
-export { Attribute } from './attribute.value-object';
-export { StockPerWarehouse } from './stock-per-warehouse.value-object';
+export { Attribute, AttributeProps } from './attribute.value-object';
+export {
+  StockPerWarehouse,
+  StockPerWarehouseProps,
+} from './stock-per-warehouse.value-object';
 export { Price } from './price.value-object';
 export { Currency } from './currency.value-object';
 export { VariantMedia } from './variant-media.value-object';
 export { PersonalizationOptions } from './personalization-option.value-object';
 export { Weight } from './weight.value-object';
-export { Dimension } from './dimension.value-object';
+export { Dimension, DimensionProps } from './dimension.value-object';
 export { Condition } from './condition.value-object';
 export { SKU } from './sku.value-object';
 export { UPC } from './upc.value-object';

@@ -23,7 +23,7 @@ const stockPerWarehouseSchema = z.object({
     .nullable(),
 });
 
-type StockEntry = {
+export type StockPerWarehouseProps = {
   qtyAvailable: number;
   qtyReserved: number;
   productLocation: string | null;
@@ -33,7 +33,7 @@ type StockEntry = {
 };
 
 // Define the type for the stock map
-type StockMap = Record<number, StockEntry>;
+type StockMap = Record<number, StockPerWarehouseProps>;
 
 export class StockPerWarehouse {
   private readonly stockMap: StockMap;
@@ -69,7 +69,9 @@ export class StockPerWarehouse {
     return { ...this.stockMap };
   }
 
-  public getStockForWarehouse(warehouseId: number): StockEntry | undefined {
+  public getStockForWarehouse(
+    warehouseId: number,
+  ): StockPerWarehouseProps | undefined {
     return this.stockMap[warehouseId];
   }
 

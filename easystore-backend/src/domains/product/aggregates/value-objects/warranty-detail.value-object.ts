@@ -14,39 +14,29 @@ const warrantyDetailSchema = z
   })
   .nullable();
 
+export type WarrantyDetailProps = {
+  duration: string;
+  coverage: string;
+  instructions: string;
+};
+
 export class WarrantyDetail {
-  private readonly detail: {
-    duration: string;
-    coverage: string;
-    instructions: string;
-  };
+  private readonly value: WarrantyDetailProps;
 
-  private constructor(detail: {
-    duration: string;
-    coverage: string;
-    instructions: string;
-  }) {
-    this.detail = detail;
+  private constructor(value: WarrantyDetailProps) {
+    this.value = value;
   }
 
-  public static create(detail: {
-    duration: string;
-    coverage: string;
-    instructions: string;
-  }): WarrantyDetail {
-    warrantyDetailSchema.parse(detail);
-    return new WarrantyDetail(detail);
+  public static create(value: WarrantyDetailProps): WarrantyDetail {
+    warrantyDetailSchema.parse(value);
+    return new WarrantyDetail(value);
   }
 
-  public getValue(): {
-    duration: string;
-    coverage: string;
-    instructions: string;
-  } {
-    return this.detail;
+  public getValue(): WarrantyDetailProps {
+    return this.value;
   }
 
   public equals(otherDetail: WarrantyDetail): boolean {
-    return JSON.stringify(this.detail) === JSON.stringify(otherDetail.detail);
+    return JSON.stringify(this.value) === JSON.stringify(otherDetail.value);
   }
 }
