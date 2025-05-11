@@ -1,7 +1,7 @@
 // src/shared/jwt-handler.ts
 import jwt from 'jsonwebtoken';
 
-const jwtSecret = process.env.jwtSecret || 'yourSecretKey';
+const jwtSecret = process.env.JWT_SECRET;
 const jwtExpiration = '1h';
 const refreshTokenExpiration = '7d';
 
