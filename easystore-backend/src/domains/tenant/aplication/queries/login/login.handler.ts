@@ -8,11 +8,11 @@ import { LoggerService } from '@shared/winston/winston.service';
 import {
   ExceptionHandler,
   DomainErrorCode,
-} from '../../../../../shared/domains/auth/exception-handler';
+} from '@shared/domains/auth/exception-handler';
 import {
   generateToken,
   generateRefreshToken,
-} from '../../../../../shared/domains/auth/jwt-handler';
+} from '@shared/domains/auth/jwt-handler';
 
 @QueryHandler(TenantLoginDTO)
 export class LoginTenantHandler implements IQueryHandler<TenantLoginDTO> {
