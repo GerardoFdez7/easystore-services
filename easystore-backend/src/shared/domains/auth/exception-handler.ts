@@ -1,4 +1,3 @@
-// src/domain/tenant/utils/exception-handler.ts
 import { LoggerService } from '@shared/winston/winston.service';
 
 export enum DomainErrorCode {
