@@ -12,7 +12,7 @@ export class ProductSoftDeletedHandler
 
   handle(event: ProductSoftDeletedEvent): void {
     this.logger.log(
-      `Product soft deleted: ${event.product.get('name').getValue()}`,
+      `Product soft deleted: ${event.product.get('name').getValue()}, with id: ${event.product.get('id').getValue()}`,
     );
   }
 }

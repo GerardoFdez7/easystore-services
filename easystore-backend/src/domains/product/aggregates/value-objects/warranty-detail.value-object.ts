@@ -2,9 +2,7 @@ import { z } from 'zod';
 
 const warrantyDetailSchema = z
   .object({
-    duration: z
-      .string()
-      .min(1, { message: 'Duration must be a non-empty string' }),
+    months: z.number(),
     coverage: z
       .string()
       .min(1, { message: 'Coverage must be a non-empty string' }),
@@ -12,10 +10,10 @@ const warrantyDetailSchema = z
       .string()
       .min(1, { message: 'Instructions must be a non-empty string' }),
   })
-  .nullable();
+  .optional();
 
 export type WarrantyDetailProps = {
-  duration: string;
+  months: number;
   coverage: string;
   instructions: string;
 };

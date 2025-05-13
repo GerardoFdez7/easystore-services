@@ -1,15 +1,15 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { LoggerService } from '@shared/winston/winston.service';
 import { Inject } from '@nestjs/common';
 import { IProductRepository } from '../../aggregates/repositories/product.interface';
 
 @Injectable()
 export class ScheduleDeleteProductsJob {
-  private readonly logger = new Logger(ScheduleDeleteProductsJob.name);
-
   constructor(
     @Inject('IProductRepository')
     private readonly productRepository: IProductRepository,
+    private readonly logger: LoggerService,
   ) {}
 
   /**

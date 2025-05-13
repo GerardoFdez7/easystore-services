@@ -1,14 +1,16 @@
 import { z } from 'zod';
 
-const installmentDetailSchema = z.object({
-  months: z
-    .number()
-    .int()
-    .positive({ message: 'Months must be a positive integer' }),
-  interestRate: z
-    .number()
-    .nonnegative({ message: 'Interest rate must be a non-negative number' }),
-});
+const installmentDetailSchema = z
+  .object({
+    months: z
+      .number()
+      .int()
+      .positive({ message: 'Months must be a positive integer' }),
+    interestRate: z
+      .number()
+      .nonnegative({ message: 'Interest rate must be a non-negative number' }),
+  })
+  .optional();
 
 export type InstallmentDetailProps = {
   months: number;

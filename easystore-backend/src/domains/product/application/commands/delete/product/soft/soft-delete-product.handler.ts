@@ -1,26 +1,22 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { IProductRepository } from '../../../../../aggregates/repositories/product.interface';
 import { Id } from '../../../../../aggregates/value-objects';
-import { ProductMapper } from '../../../../mappers/product.mapper';
-import { ProductDTO } from '../../../../mappers/product.dto';
+import { ProductMapper, ProductDTO } from '../../../../mappers';
 import { SoftDeleteProductDTO } from './soft-delete-product.dto';
 
-export class SoftDeleteProductCommand {
-  constructor(public readonly dto: SoftDeleteProductDTO) {}
-}
-
-@CommandHandler(SoftDeleteProductCommand)
+@CommandHandler(SoftDeleteProductDTO)
 export class SoftDeleteProductHandler
-  implements ICommandHandler<SoftDeleteProductCommand>
+  implements ICommandHandler<SoftDeleteProductDTO>
 {
   constructor(
     @Inject('IProductRepository')
     private readonly productRepository: IProductRepository,
+    private readonly eventPublisher: EventPublisher,
   ) {}
 
-  async execute(command: SoftDeleteProductCommand): Promise<ProductDTO> {
-    const { id } = command.dto;
+  async execute(command: SoftDeleteProductDTO): Promise<ProductDTO> {
+    const { id } = command;
 
     // Create ID value object
     const productId = Id.create(id);
@@ -32,10 +28,15 @@ export class SoftDeleteProductHandler
     }
 
     // Call the domain entity method to soft delete the product
-    const deletedProduct = ProductMapper.fromSoftDeleteDto(product);
+    const deletedProduct = this.eventPublisher.mergeObjectContext(
+      ProductMapper.fromSoftDeleteDto(product),
+    );
 
     // Save the updated product with soft delete metadata
     await this.productRepository.save(deletedProduct);
+
+    // Commit events to event bus
+    deletedProduct.commit();
 
     // Return the product as DTO
     return ProductMapper.toDto(product) as ProductDTO;

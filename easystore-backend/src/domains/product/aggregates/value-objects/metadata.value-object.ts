@@ -2,8 +2,8 @@ import { z } from 'zod';
 
 const metadataSchema = z.object({
   deleted: z.boolean().default(false),
-  deletedAt: z.date().nullable().optional(),
-  scheduledForHardDeleteAt: z.date().nullable().optional(),
+  deletedAt: z.date().nullish(),
+  scheduledForHardDeleteAt: z.date().nullish(),
 });
 
 export type MetadataProps = {

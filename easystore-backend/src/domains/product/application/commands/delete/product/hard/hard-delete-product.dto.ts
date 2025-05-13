@@ -1,3 +1,3 @@
 export class HardDeleteProductDTO {
-  id: string;
+  constructor(public readonly id: string) {}
 }

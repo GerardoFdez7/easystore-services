@@ -3,7 +3,6 @@ import { z } from 'zod';
 const shippingRestrictionSchema = z
   .string()
   .min(1, { message: 'Each restriction must be a non-empty string' });
-
 export class ShippingRestriction {
   private readonly restriction: string;
 

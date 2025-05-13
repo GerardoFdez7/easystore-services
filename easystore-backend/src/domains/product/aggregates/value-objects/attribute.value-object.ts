@@ -6,8 +6,8 @@ const attributeSchema = z.object({
 });
 
 export type AttributeProps = {
-  key: string;
-  value: string;
+  key?: string | null;
+  value?: string | null;
 };
 
 export class Attribute {

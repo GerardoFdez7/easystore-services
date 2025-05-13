@@ -4,7 +4,7 @@ const manufacturerSchema = z
   .string()
   .min(1, { message: 'Manufacturer must be a non-empty string' })
   .max(100, { message: 'Manufacturer must not exceed 100 characters' })
-  .nullable();
+  .optional();
 
 export class Manufacturer {
   private readonly value: string | null;

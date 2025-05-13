@@ -11,6 +11,8 @@ export class ProductUpdatedHandler
   constructor(private readonly logger: LoggerService) {}
 
   handle(event: ProductUpdatedEvent): void {
-    this.logger.log(`Product updated: ${event.product.get('name').getValue()}`);
+    this.logger.log(
+      `Product updated: ${event.product.get('name').getValue()}, with id: ${event.product.get('id').getValue()}`,
+    );
   }
 }

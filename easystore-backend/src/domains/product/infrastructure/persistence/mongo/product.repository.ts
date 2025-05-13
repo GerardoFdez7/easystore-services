@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { Product as PrismaProduct, Prisma } from '.prisma/mongodb';
 import { MongoService } from '@infrastructure/database/mongo/mongo.service';
-import { Product } from '../../../aggregates/entities/product.entity';
+import { Product } from '../../../aggregates/entities';
 import { IProductRepository } from '../../../aggregates/repositories/product.interface';
-import { ProductMapper } from '../../../application/mappers/product.mapper';
+import { ProductMapper } from '../../../application/mappers';
 import { Id, Name, CategoryId } from '../../../aggregates/value-objects';
 
 @Injectable()
@@ -13,7 +13,93 @@ export class ProductRepository implements IProductRepository {
   // Save (create or update) a product
   async save(product: Product): Promise<Product> {
     const id = product.get('id')?.getValue?.();
-    const data: Prisma.ProductCreateInput = product.toDTO();
+    const data: Prisma.ProductCreateInput = {
+      name: product.get('name').getValue(),
+      Category: {
+        connect: (product.get('categoryId') || [])?.map((category) => ({
+          id: category?.getValue(),
+        })),
+      },
+      shortDescription: product.get('shortDescription').getValue(),
+      longDescription: product.get('longDescription')?.getValue() || null,
+      variants: (product.get('variants') || [])?.map((variant) => {
+        const variantValue = variant?.getValue();
+        return {
+          attributes:
+            variantValue?.attributes?.map((attr) => ({
+              key: attr.getKey(),
+              value: attr.getValue(),
+            })) || [],
+          stockPerWarehouse:
+            variantValue.stockPerWarehouse?.map((stock) => stock.getValue()) ||
+            [],
+          price: variantValue.price.getValue(),
+          currency: variantValue.currency.getValue(),
+          variantMedia:
+            variantValue.variantMedia?.map((media) => media.getValue()) || [],
+          personalizationOptions:
+            variantValue.personalizationOptions?.map((option) =>
+              option.getValue(),
+            ) || [],
+          weight: variantValue.weight?.getValue() || null,
+          dimensions: variantValue.dimensions?.getValue() || null,
+          condition: variantValue.condition?.getValue() || null,
+          sku: variantValue.sku?.getValue() || null,
+          upc: variantValue.upc?.getValue() || null,
+          ean: variantValue.ean?.getValue() || null,
+          isbn: variantValue.isbn?.getValue() || null,
+          barcode: variantValue.barcode?.getValue() || null,
+        };
+      }),
+      type: product.get('type').getValue(),
+      cover: product.get('cover').getValue(),
+      media: (product.get('media') || [])?.map((item) => item.getValue()),
+      availableShippingMethods: (
+        product.get('availableShippingMethods') || []
+      )?.map((method) => method.getValue()),
+      shippingRestrictions: (product.get('shippingRestrictions') || [])?.map(
+        (restriction) => restriction.getValue(),
+      ),
+      tags: (product.get('tags') || []).map((tag) => tag.getValue()).flat(),
+      installmentPayments: (product.get('installmentPayments') || [])?.map(
+        (payment) => {
+          const paymentValue = payment.getValue();
+          return {
+            months: paymentValue.months,
+            interestRate: paymentValue.interestRate,
+          };
+        },
+      ),
+      acceptedPaymentMethods: (
+        product.get('acceptedPaymentMethods') || []
+      )?.map((method) => method.getValue()[0]),
+      sustainability: (product.get('sustainability') || null)?.map((item) => {
+        const sustainabilityValue = item.getValue();
+        return {
+          certification: sustainabilityValue.certification,
+          recycledPercentage: sustainabilityValue.recycledPercentage,
+        };
+      }),
+      brand: product.get('brand')?.getValue() || null,
+      manufacturer: product.get('manufacturer')?.getValue() || null,
+      warranty: product.get('warranty')
+        ? {
+            months: product.get('warranty').getValue().months,
+            coverage: product.get('warranty').getValue().coverage,
+            instructions: product.get('warranty').getValue().instructions,
+          }
+        : null,
+      metadata: product.get('metadata')
+        ? {
+            deleted: product.get('metadata').getDeleted(),
+            deletedAt: product.get('metadata')?.getDeletedAt() || null,
+            scheduledForHardDeleteAt:
+              product.get('metadata')?.getScheduledForHardDeleteAt() || null,
+          }
+        : null,
+      createdAt: product.get('createdAt'),
+      updatedAt: product.get('updatedAt'),
+    };
     let prismaProduct: PrismaProduct;
 
     if (id) {
@@ -79,22 +165,26 @@ export class ProductRepository implements IProductRepository {
   }
 
   // Find a product by its ID
-  async findById(id: Id, includeSoftDeleted = false): Promise<Product | null> {
+  async findById(id: Id): Promise<Product | null> {
     const prismaProduct = await this.prisma.product.findUnique({
       where: { id: id.getValue() },
     });
     if (!prismaProduct) return null;
-    if (!includeSoftDeleted && prismaProduct.metadata?.deleted) return null;
     return this.mapToDomain(prismaProduct);
   }
 
   // Find products by name (partial match)
   async findByName(name: Name, includeSoftDeleted = false): Promise<Product[]> {
+    const whereConditions: Prisma.ProductWhereInput[] = [
+      { name: { contains: name.getValue(), mode: 'insensitive' } },
+    ];
+
+    if (!includeSoftDeleted) {
+      whereConditions.push({ NOT: { metadata: { deleted: true } } });
+    }
+
     const products = await this.prisma.product.findMany({
-      where: {
-        name: { contains: name.getValue(), mode: 'insensitive' },
-        ...(includeSoftDeleted ? {} : { 'metadata.deleted': false }),
-      },
+      where: { AND: whereConditions },
     });
     return products.map((product) => this.mapToDomain(product));
   }
@@ -106,18 +196,27 @@ export class ProductRepository implements IProductRepository {
     categoryId?: CategoryId,
     includeSoftDeleted = false,
   ): Promise<{ products: Product[]; total: number }> {
-    const where: unknown = {
-      ...(categoryId ? { categoryId: { has: categoryId.getValue() } } : {}),
-      ...(includeSoftDeleted ? {} : { 'metadata.deleted': false }),
-    };
+    const conditions: Prisma.ProductWhereInput[] = [];
+
+    if (categoryId) {
+      conditions.push({ categoryId: { has: categoryId.getValue() } });
+    }
+
+    if (!includeSoftDeleted) {
+      conditions.push({ NOT: { metadata: { deleted: true } } });
+    }
+
+    const whereClause: Prisma.ProductWhereInput =
+      conditions.length > 0 ? { AND: conditions } : {};
+
     const [products, total] = await Promise.all([
       this.prisma.product.findMany({
-        where,
+        where: whereClause,
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { createdAt: 'desc' },
       }),
-      this.prisma.product.count({ where }),
+      this.prisma.product.count({ where: whereClause }),
     ]);
     return {
       products: products.map((product) => this.mapToDomain(product)),
@@ -125,7 +224,7 @@ export class ProductRepository implements IProductRepository {
     };
   }
 
-  // Map from database model to domain entity using the centralized mapping approach
+  // Map from database product to domain product using the centralized mapping approach
   private mapToDomain(clientPrisma: PrismaProduct): Product {
     return ProductMapper.fromPersistence(clientPrisma);
   }

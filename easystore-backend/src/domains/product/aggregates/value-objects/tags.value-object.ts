@@ -7,7 +7,8 @@ const tagsSchema = z
       .min(1, { message: 'Each tag must be a non-empty string' })
       .max(50, { message: 'Each tag must be at most 50 characters long' }),
   )
-  .max(15, { message: 'You can have a maximum of 15 tags' });
+  .max(15, { message: 'You can have a maximum of 15 tags' })
+  .optional();
 
 export class Tags {
   private readonly tags: string[];

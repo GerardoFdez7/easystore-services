@@ -12,7 +12,7 @@ export class ProductRestoredHandler
 
   handle(event: ProductRestoredEvent): void {
     this.logger.log(
-      `Product restored: ${event.product.get('name').getValue()}`,
+      `Product restored: ${event.product.get('name').getValue()}, with id: ${event.product.get('id').getValue()}`,
     );
   }
 }

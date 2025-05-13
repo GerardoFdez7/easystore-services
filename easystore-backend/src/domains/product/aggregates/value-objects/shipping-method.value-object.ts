@@ -3,7 +3,6 @@ import { z } from 'zod';
 const shippingMethodSchema = z
   .string()
   .min(1, { message: 'Shipping method must be a non-empty string' });
-
 export class ShippingMethod {
   private readonly method: string;
 

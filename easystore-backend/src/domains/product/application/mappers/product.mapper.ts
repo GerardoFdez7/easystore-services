@@ -1,5 +1,10 @@
 import { Entity } from '@shared/domains/entity.base';
-import { Product, ProductProps, IProductType } from '../../aggregates/entities';
+import {
+  Product,
+  ProductProps,
+  IProductType,
+  IProductBaseType,
+} from '../../aggregates/entities';
 import {
   Id,
   Name,
@@ -21,8 +26,7 @@ import {
   WarrantyDetail,
   Metadata,
 } from '../../aggregates/value-objects/index';
-import { ProductDTO, PaginatedProductsDTO } from './product.dto';
-import { CreateProductDTO } from '../commands/create/product/create-product.dto';
+import { ProductDTO, PaginatedProductsDTO, VariantDTO } from './product.dto';
 import { CreateVariantDTO } from '../commands/create/product-variant/create-variant.dto';
 import { UpdateProductDTO } from '../commands/update/product/update-product.dto';
 import { UpdateVariantDTO } from '../commands/update/product-variant/update-variant.dto';
@@ -46,7 +50,7 @@ export class ProductMapper {
     >(Product, persistenceProduct, (model) => ({
       id: Id.create(model.id),
       name: Name.create(model.name),
-      categoryId: model.categoryId.map((id) => CategoryId.create(id)),
+      categoryId: model.categoryId?.map((id) => CategoryId.create(id)),
       shortDescription: ShortDescription.create(model.shortDescription),
       longDescription: model.longDescription
         ? LongDescription.create(model.longDescription)
@@ -54,7 +58,7 @@ export class ProductMapper {
       variants: model.variants.map((variant) => Variant.create(variant)),
       type: Type.create(model.type),
       cover: Cover.create(model.cover),
-      media: model.media.map((item) => Media.create(item)),
+      media: model.media?.map((item) => Media.create(item)),
       availableShippingMethods: model.availableShippingMethods.map((method) =>
         ShippingMethod.create(method),
       ),
@@ -127,39 +131,22 @@ export class ProductMapper {
           const variantValue = variant.getValue();
           return {
             attributes:
-              variantValue.attributes
-                ?.map((attr) => ({
-                  key: attr.getKey(),
-                  value: attr.getValue(),
-                }))
-                .flat() || [],
+              variantValue?.attributes?.map((attr) => ({
+                key: attr.getKey(),
+                value: attr.getValue(),
+              })) || [],
             stockPerWarehouse:
-              variantValue.stockPerWarehouse
-                ?.map((stock) => {
-                  const stockMap = stock.getValue();
-                  const entries = Object.entries(stockMap).map(
-                    ([warehouseId, entry]) => ({
-                      warehouseId: String(warehouseId),
-                      qtyAvailable: entry.qtyAvailable,
-                      qtyReserved: entry.qtyReserved,
-                      productLocation: entry.productLocation,
-                      estimatedReplenishmentDate:
-                        entry.estimatedReplenishmentDate,
-                      lotNumber: entry.lotNumber,
-                      serialNumbers: entry.serialNumbers || [],
-                    }),
-                  );
-                  return entries;
-                })
-                .flat() || [],
+              variantValue.stockPerWarehouse?.map((stock) =>
+                stock.getValue(),
+              ) || [],
             price: variantValue.price.getValue(),
-            currency: String(variantValue.currency.getValue()),
-            variantMedia: variantValue.variantMedia
-              ?.map((media) => media.getValue())
-              .flat(),
-            personalizationOptions: variantValue.personalizationOptions
-              ?.map((option) => option.getValue())
-              .flat(),
+            currency: variantValue.currency.getValue(),
+            variantMedia:
+              variantValue.variantMedia?.map((media) => media.getValue()) || [],
+            personalizationOptions:
+              variantValue.personalizationOptions?.map((option) =>
+                option.getValue(),
+              ) || [],
             weight: variantValue.weight?.getValue(),
             dimensions: variantValue.dimensions?.getValue(),
             condition: variantValue.condition.getValue(),
@@ -179,7 +166,10 @@ export class ProductMapper {
         shippingRestrictions: entity
           .get('shippingRestrictions')
           .map((restriction) => restriction.getValue()),
-        tags: entity.get('tags').map((tag) => tag.getValue()[0]),
+        tags: entity
+          .get('tags')
+          .map((tag) => tag.getValue())
+          .flat(),
         installmentPayments: entity
           .get('installmentPayments')
           .map((payment) => {
@@ -203,7 +193,7 @@ export class ProductMapper {
         manufacturer: entity.get('manufacturer')?.getValue(),
         warranty: entity.get('warranty')
           ? {
-              duration: entity.get('warranty').getValue().duration,
+              months: entity.get('warranty').getValue().months,
               coverage: entity.get('warranty').getValue().coverage,
               instructions: entity.get('warranty').getValue().instructions,
             }
@@ -237,7 +227,7 @@ export class ProductMapper {
         case 'categoryId':
           dto.categoryId = product
             .get('categoryId')
-            .map((category) => category.getValue());
+            ?.map((category) => category.getValue());
           break;
         case 'shortDescription':
           dto.shortDescription = product.get('shortDescription').getValue();
@@ -257,24 +247,19 @@ export class ProductMapper {
                   }))
                   .flat() || [],
               stockPerWarehouse:
-                variantValue.stockPerWarehouse
-                  ?.map((stock) => {
-                    const stockMap = stock.getValue();
-                    const entries = Object.entries(stockMap).map(
-                      ([warehouseId, entry]) => ({
-                        warehouseId: String(warehouseId),
-                        qtyAvailable: entry.qtyAvailable,
-                        qtyReserved: entry.qtyReserved,
-                        productLocation: entry.productLocation,
-                        estimatedReplenishmentDate:
-                          entry.estimatedReplenishmentDate,
-                        lotNumber: entry.lotNumber,
-                        serialNumbers: entry.serialNumbers || [],
-                      }),
-                    );
-                    return entries;
-                  })
-                  .flat() || [],
+                variantValue.stockPerWarehouse?.map((stock) => {
+                  const stockMap = stock.getValue();
+                  return {
+                    warehouseId: stockMap.warehouseId,
+                    qtyAvailable: stockMap.qtyAvailable,
+                    qtyReserved: stockMap.qtyReserved,
+                    productLocation: stockMap.productLocation,
+                    estimatedReplenishmentDate:
+                      stockMap.estimatedReplenishmentDate,
+                    lotNumber: stockMap.lotNumber,
+                    serialNumbers: stockMap.serialNumbers || [],
+                  };
+                }) || [],
               price: variantValue.price.getValue(),
               currency: String(variantValue.currency.getValue()),
               variantMedia: variantValue.variantMedia
@@ -350,28 +335,11 @@ export class ProductMapper {
         case 'warranty':
           dto.warranty = product.get('warranty')
             ? {
-                duration: product.get('warranty').getValue().duration,
+                months: product.get('warranty').getValue().months,
                 coverage: product.get('warranty').getValue().coverage,
                 instructions: product.get('warranty').getValue().instructions,
               }
             : undefined;
-          break;
-        case 'metadata':
-          dto.metadata = product.get('metadata')
-            ? {
-                deleted: product.get('metadata').getDeleted(),
-                deletedAt: product.get('metadata').getDeletedAt(),
-                scheduledForHardDeleteAt: product
-                  .get('metadata')
-                  .getScheduledForHardDeleteAt(),
-              }
-            : undefined;
-          break;
-        case 'createdAt':
-          dto.createdAt = product.get('createdAt');
-          break;
-        case 'updatedAt':
-          dto.updatedAt = product.get('updatedAt');
           break;
       }
     });
@@ -394,8 +362,9 @@ export class ProductMapper {
    * @param dto The product DTO
    * @returns The mapped Product domain entity
    */
-  static fromCreateDto(dto: CreateProductDTO): Product {
-    // Create a new product using the factory method
+  static fromCreateDto(
+    dto: IProductBaseType & { variants?: VariantDTO[] },
+  ): Product {
     return Product.create({ ...(dto as IProductType) });
   }
 

@@ -1,4 +1,6 @@
 export class GetProductsByNameDTO {
-  name: string;
-  includeSoftDeleted?: boolean;
+  constructor(
+    public readonly name: string,
+    public readonly includeSoftDeleted?: boolean,
+  ) {}
 }

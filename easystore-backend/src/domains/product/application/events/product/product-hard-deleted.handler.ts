@@ -12,7 +12,7 @@ export class ProductHardDeletedHandler
 
   handle(event: ProductHardDeletedEvent): void {
     this.logger.warn(
-      `Product hard deleted: ${event.product.get('name').getValue()}`,
+      `Product hard deleted: ${event.product.get('name').getValue()}, with id: ${event.product.get('id').getValue()}`,
     );
   }
 }

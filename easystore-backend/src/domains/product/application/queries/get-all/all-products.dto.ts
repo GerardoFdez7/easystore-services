@@ -1,6 +1,8 @@
 export class GetAllProductsDTO {
-  page: number;
-  limit: number;
-  categoryId?: string;
-  includeSoftDeleted?: boolean;
+  constructor(
+    public readonly page: number,
+    public readonly limit: number,
+    public readonly categoryId?: string,
+    public readonly includeSoftDeleted?: boolean,
+  ) {}
 }

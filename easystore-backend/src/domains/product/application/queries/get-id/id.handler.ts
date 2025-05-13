@@ -6,30 +6,21 @@ import { ProductDTO } from '../../mappers/product.dto';
 import { ProductMapper } from '../../mappers/product.mapper';
 import { GetProductByIdDTO } from './id.dto';
 
-export class GetProductByIdQuery {
-  constructor(public readonly dto: GetProductByIdDTO) {}
-}
-
-@QueryHandler(GetProductByIdQuery)
-export class GetProductByIdHandler
-  implements IQueryHandler<GetProductByIdQuery>
-{
+@QueryHandler(GetProductByIdDTO)
+export class GetProductByIdHandler implements IQueryHandler<GetProductByIdDTO> {
   constructor(
     @Inject('IProductRepository')
     private readonly productRepository: IProductRepository,
   ) {}
 
-  async execute(query: GetProductByIdQuery): Promise<ProductDTO> {
-    const { id, includeSoftDeleted } = query.dto;
+  async execute(query: GetProductByIdDTO): Promise<ProductDTO> {
+    const { id } = query;
 
     // Create ID value object
     const productId = Id.create(id);
 
     // Find the product by ID
-    const product = await this.productRepository.findById(
-      productId,
-      includeSoftDeleted,
-    );
+    const product = await this.productRepository.findById(productId);
     if (!product) {
       throw new NotFoundException(`Product with ID ${id} not found`);
     }

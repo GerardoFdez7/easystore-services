@@ -1,10 +1,18 @@
 import { z } from 'zod';
 
-const dimensionSchema = z.object({
-  height: z.number().positive({ message: 'Height must be a positive number' }),
-  width: z.number().positive({ message: 'Width must be a positive number' }),
-  depth: z.number().positive({ message: 'Depth must be a positive number' }),
-});
+const dimensionSchema = z
+  .object({
+    height: z
+      .number()
+      .nonnegative({ message: 'Height must be a non-negative number' }),
+    width: z
+      .number()
+      .nonnegative({ message: 'Width must be a non-negative number' }),
+    depth: z
+      .number()
+      .nonnegative({ message: 'Depth must be a non-negative number' }),
+  })
+  .optional();
 
 export type DimensionProps = {
   height: number;

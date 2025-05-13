@@ -6,21 +6,17 @@ import { ProductDTO } from '../../mappers/product.dto';
 import { ProductMapper } from '../../mappers/product.mapper';
 import { GetProductsByNameDTO } from './name.dto';
 
-export class GetProductsByNameQuery {
-  constructor(public readonly dto: GetProductsByNameDTO) {}
-}
-
-@QueryHandler(GetProductsByNameQuery)
+@QueryHandler(GetProductsByNameDTO)
 export class GetProductsByNameHandler
-  implements IQueryHandler<GetProductsByNameQuery>
+  implements IQueryHandler<GetProductsByNameDTO>
 {
   constructor(
     @Inject('IProductRepository')
     private readonly productRepository: IProductRepository,
   ) {}
 
-  async execute(query: GetProductsByNameQuery): Promise<ProductDTO[]> {
-    const { name, includeSoftDeleted } = query.dto;
+  async execute(query: GetProductsByNameDTO): Promise<ProductDTO[]> {
+    const { name, includeSoftDeleted } = query;
 
     // Create Name value object
     const productName = Name.create(name);
@@ -30,8 +26,11 @@ export class GetProductsByNameHandler
       productName,
       includeSoftDeleted,
     );
-    if (!products) {
-      throw new NotFoundException(`Products with names ${name} not found`);
+
+    if (!products || products.length === 0) {
+      throw new NotFoundException(
+        `Products with name containing "${name}" not found`,
+      );
     }
 
     return products.map(

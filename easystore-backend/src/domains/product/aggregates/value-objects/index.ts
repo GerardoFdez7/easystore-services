@@ -26,6 +26,7 @@ export {
   WarrantyDetailProps,
 } from './warranty-detail.value-object';
 export { Metadata, MetadataProps } from './metadata.value-object';
+
 // Product variant value objects
 export { Attribute, AttributeProps } from './attribute.value-object';
 export {

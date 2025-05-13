@@ -3,7 +3,7 @@ import { z } from 'zod';
 const eanSchema = z
   .string()
   .min(1, { message: 'EAN must be a non-empty string' })
-  .nullable();
+  .optional();
 
 export class EAN {
   private readonly value: string | null;
