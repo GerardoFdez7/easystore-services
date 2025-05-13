@@ -1,6 +1,8 @@
 import { VariantDTO } from '../../../mappers/product.dto';
 
 export class CreateVariantDTO {
-  productId: string;
-  variant: VariantDTO;
+  constructor(
+    public readonly productId: string,
+    public readonly variant: VariantDTO,
+  ) {}
 }

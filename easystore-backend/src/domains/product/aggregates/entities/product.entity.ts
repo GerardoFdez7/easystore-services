@@ -33,22 +33,22 @@ import { VariantDeletedEvent } from '../events/product-variant/variant-deleted.e
 export interface ProductProps extends EntityProps {
   id: Id;
   name: Name;
-  categoryId: CategoryId[];
+  categoryId?: CategoryId[];
   shortDescription: ShortDescription;
-  longDescription?: LongDescription;
+  longDescription?: LongDescription | null;
   variants: Variant[];
   type: Type;
-  cover: Cover;
-  media: Media[];
-  availableShippingMethods: ShippingMethod[];
-  shippingRestrictions: ShippingRestriction[];
-  tags: Tags[];
-  installmentPayments: InstallmentDetail[];
-  acceptedPaymentMethods: AcceptedPaymentMethods[];
-  sustainability: SustainabilityAttribute[];
-  brand?: Brand;
-  manufacturer?: Manufacturer;
-  warranty?: WarrantyDetail;
+  cover?: Cover | null;
+  media?: Media[];
+  availableShippingMethods?: ShippingMethod[];
+  shippingRestrictions?: ShippingRestriction[];
+  tags?: Tags[];
+  installmentPayments?: InstallmentDetail[];
+  acceptedPaymentMethods?: AcceptedPaymentMethods[];
+  sustainability?: SustainabilityAttribute[];
+  brand?: Brand | null;
+  manufacturer?: Manufacturer | null;
+  warranty?: WarrantyDetail | null;
   metadata: Metadata;
   createdAt: Date;
   updatedAt: Date;
@@ -64,21 +64,20 @@ export class Product extends Entity<ProductProps> {
    * @returns The created Product domain entity
    */
   static create(props: IProductType): Product {
-    // Transform all value objects first
     const transformedProps = {
       name: Name.create(props.name),
-      categoryId: props.categoryId.map((id) => CategoryId.create(id)),
+      categoryId: props.categoryId?.map((id) => CategoryId.create(id)),
       shortDescription: ShortDescription.create(props.shortDescription),
       longDescription: props.longDescription
         ? LongDescription.create(props.longDescription)
-        : undefined,
+        : null,
       variants: props.variants
         ? props.variants.map((variant) => Variant.create(variant))
         : [],
       type: Type.create(props.type || 'PHYSICAL'),
       cover: props.cover
         ? Cover.create(props.cover)
-        : Cover.create('default-cover.jpg'),
+        : Cover.create('https://easystore.com/default-cover.jpg'),
       media: (props.media || []).map((item) => Media.create(item)),
       availableShippingMethods: (props.availableShippingMethods || []).map(
         (method) => ShippingMethod.create(method),
@@ -96,22 +95,17 @@ export class Product extends Entity<ProductProps> {
       sustainability: (props.sustainability || []).map((item) =>
         SustainabilityAttribute.create(item),
       ),
-      brand: props.brand ? Brand.create(props.brand) : undefined,
+      brand: props.brand ? Brand.create(props.brand) : null,
       manufacturer: props.manufacturer
         ? Manufacturer.create(props.manufacturer)
-        : undefined,
-      warranty: props.warranty
-        ? WarrantyDetail.create(props.warranty)
-        : undefined,
-      metadata: Metadata.create({
-        deleted: false,
-      }),
+        : null,
+      warranty: props.warranty ? WarrantyDetail.create(props.warranty) : null,
     };
 
-    // Create the product with spread operator
     const product = new Product({
-      ...transformedProps,
       id: null,
+      ...transformedProps,
+      metadata: Metadata.create({ deleted: false }),
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -136,88 +130,109 @@ export class Product extends Entity<ProductProps> {
       props.name = Name.create(updates.name);
     }
 
-    if (updates.categoryId !== undefined) {
+    if (updates.categoryId !== undefined && updates.categoryId !== null) {
       props.categoryId = updates.categoryId.map((id) => CategoryId.create(id));
     }
 
-    if (updates.shortDescription !== undefined) {
+    if (
+      updates.shortDescription !== undefined &&
+      updates.shortDescription !== null
+    ) {
       props.shortDescription = ShortDescription.create(
         updates.shortDescription,
       );
     }
 
-    if (updates.longDescription !== undefined) {
+    if (
+      updates.longDescription !== undefined &&
+      updates.longDescription !== null
+    ) {
       props.longDescription = updates.longDescription
         ? LongDescription.create(updates.longDescription)
-        : undefined;
+        : null;
     }
 
-    if (updates.variants !== undefined) {
+    if (updates.variants !== undefined && updates.variants !== null) {
       props.variants = updates.variants.map((variant) =>
         Variant.create(variant),
       );
     }
 
-    if (updates.type !== undefined) {
+    if (updates.type !== undefined && updates.type !== null) {
       props.type = Type.create(updates.type);
     }
 
-    if (updates.cover !== undefined) {
+    if (updates.cover !== undefined && updates.cover !== null) {
       props.cover = Cover.create(updates.cover);
     }
 
-    if (updates.media !== undefined) {
+    if (updates.media !== undefined && updates.media !== null) {
       props.media = updates.media.map((item) => Media.create(item));
     }
 
-    if (updates.availableShippingMethods !== undefined) {
+    if (
+      updates.availableShippingMethods !== undefined &&
+      updates.availableShippingMethods !== null
+    ) {
       props.availableShippingMethods = updates.availableShippingMethods.map(
         (method) => ShippingMethod.create(method),
       );
     }
 
-    if (updates.shippingRestrictions !== undefined) {
+    if (
+      updates.shippingRestrictions !== undefined &&
+      updates.shippingRestrictions !== null
+    ) {
       props.shippingRestrictions = updates.shippingRestrictions.map(
         (restriction) => ShippingRestriction.create(restriction),
       );
     }
 
-    if (updates.tags !== undefined) {
+    if (updates.tags !== undefined && updates.tags !== null) {
       props.tags = updates.tags.map((tag) => Tags.create([tag]));
     }
 
-    if (updates.installmentPayments !== undefined) {
+    if (
+      updates.installmentPayments !== undefined &&
+      updates.installmentPayments !== null
+    ) {
       props.installmentPayments = updates.installmentPayments.map((payment) =>
         InstallmentDetail.create(payment),
       );
     }
 
-    if (updates.acceptedPaymentMethods !== undefined) {
+    if (
+      updates.acceptedPaymentMethods !== undefined &&
+      updates.acceptedPaymentMethods !== null
+    ) {
       props.acceptedPaymentMethods = updates.acceptedPaymentMethods.map(
         (method) => AcceptedPaymentMethods.create([method]),
       );
     }
 
-    if (updates.sustainability !== undefined) {
+    if (
+      updates.sustainability !== undefined &&
+      updates.sustainability !== null
+    ) {
       props.sustainability = updates.sustainability.map((item) =>
         SustainabilityAttribute.create(item),
       );
     }
 
-    if (updates.brand !== undefined) {
-      props.brand = updates.brand ? Brand.create(updates.brand) : undefined;
+    if (updates.brand !== undefined && updates.brand !== null) {
+      props.brand = updates.brand ? Brand.create(updates.brand) : null;
     }
 
-    if (updates.manufacturer !== undefined) {
+    if (updates.manufacturer !== undefined && updates.manufacturer !== null) {
       props.manufacturer = updates.manufacturer
         ? Manufacturer.create(updates.manufacturer)
-        : undefined;
+        : null;
     }
 
-    if (updates.warranty !== undefined) {
+    if (updates.warranty !== undefined && updates.warranty !== null) {
       props.warranty = updates.warranty
         ? WarrantyDetail.create(updates.warranty)
-        : undefined;
+        : null;
     }
 
     // Update the updatedAt timestamp
@@ -350,7 +365,7 @@ export class Product extends Entity<ProductProps> {
           'barcode',
         ].some(
           (idType) =>
-            variantValue[idType] !== undefined && variantValue[idType] !== null,
+            variantValue[idType] !== null && variantValue[idType] !== null,
         );
 
         // Only use attribute-based identification if no standard identifiers exist
@@ -421,7 +436,7 @@ export class Product extends Entity<ProductProps> {
           'barcode',
         ].some(
           (idType) =>
-            variantValue[idType] !== undefined && variantValue[idType] !== null,
+            variantValue[idType] !== null && variantValue[idType] !== null,
         );
 
         // Only use attribute-based identification if no standard identifiers exist

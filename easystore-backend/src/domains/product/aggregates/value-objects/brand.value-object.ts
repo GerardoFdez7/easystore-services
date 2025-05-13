@@ -4,7 +4,7 @@ const brandSchema = z
   .string()
   .min(1, { message: 'Brand must be a non-empty string' })
   .max(100, { message: 'Brand must not exceed 100 characters' })
-  .nullable();
+  .optional();
 
 export class Brand {
   private readonly value: string | null;

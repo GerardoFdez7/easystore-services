@@ -2,7 +2,8 @@ import { z } from 'zod';
 
 const mediaUrlSchema = z
   .string()
-  .url({ message: 'Product Media must be a valid URL' });
+  .url({ message: 'Product Media must be a valid URL' })
+  .optional();
 
 export class Media {
   private readonly values: string;

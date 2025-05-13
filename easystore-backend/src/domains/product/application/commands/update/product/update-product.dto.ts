@@ -2,29 +2,25 @@ import {
   InstallmentDetailProps,
   SustainabilityAttributesProps,
   WarrantyDetailProps,
-  MetadataProps,
 } from '../../../../aggregates/value-objects';
-import { IProductType } from '../../../../aggregates/entities';
+import { IProductBaseType } from '../../../../aggregates/entities';
 import { VariantDTO } from '../../../mappers/product.dto';
 
 /**
  * Data Transfer Object for updating a Product
- * Extends from IProductType but makes all fields optional except id
- * and omits fields that should not be updated directly
+ * Makes all fields from IProductBaseType optional except id
  */
-export class UpdateProductDTO
-  implements Partial<Omit<IProductType, 'createdAt' | 'updatedAt' | 'variants'>>
-{
+export class UpdateProductDTO {
   id: string;
-  name?: string;
+  name?: string | null;
   categoryId?: string[];
   shortDescription?: string;
   longDescription?: string | null;
   variants?: VariantDTO[];
   type?: 'PHYSICAL' | 'DIGITAL';
-  cover?: string;
+  cover?: string | null;
   media?: string[] | null;
-  availableShippingMethods?: string[] | null;
+  availableShippingMethods?: string[];
   shippingRestrictions?: string[] | null;
   tags?: string[] | null;
   installmentPayments?: InstallmentDetailProps[] | null;
@@ -33,5 +29,12 @@ export class UpdateProductDTO
   brand?: string | null;
   manufacturer?: string | null;
   warranty?: WarrantyDetailProps | null;
-  metadata?: MetadataProps;
+
+  constructor(
+    data: { id: string } & Partial<IProductBaseType> & {
+        variants?: VariantDTO[];
+      },
+  ) {
+    Object.assign(this, data);
+  }
 }

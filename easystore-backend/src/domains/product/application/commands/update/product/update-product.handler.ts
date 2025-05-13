@@ -1,15 +1,14 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { NotFoundException, Inject } from '@nestjs/common';
 import { UpdateProductDTO } from './update-product.dto';
 import { IProductRepository } from '../../../../aggregates/repositories/product.interface';
-import { ProductMapper } from '../../../mappers/product.mapper';
-import { ProductDTO } from '../../../mappers/product.dto';
+import { ProductMapper, ProductDTO } from '../../../mappers';
 import { Id } from '../../../../aggregates/value-objects/id.value-object';
 
-@Injectable()
 @CommandHandler(UpdateProductDTO)
 export class UpdateProductHandler implements ICommandHandler<UpdateProductDTO> {
   constructor(
+    @Inject('IProductRepository')
     private readonly productRepository: IProductRepository,
     private readonly eventPublisher: EventPublisher,
   ) {}

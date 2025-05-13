@@ -12,13 +12,14 @@ model Category {
   id            String     @id @default(auto()) @map("_id") @mongodb.ObjectId
   name          String     @unique
   description   String?
-  tenantId      String
+  tenantId      Int
   subcategories Category[] @relation("Subcategory")
   parent        Category?  @relation("Subcategory", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   parentId      String?    @mongodb.ObjectId
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
-  product       Product[]
+  Products      Product[]  @relation(fields: [productId], references: [id])
+  productId     String[]   @mongodb.ObjectId
 
   @@index([parentId])
 }
@@ -26,8 +27,9 @@ model Category {
 model Product {
   id                       String                     @id @default(auto()) @map("_id") @mongodb.ObjectId
   name                     String                     @unique
+  tenantId                 Int
   categoryId               String[]                   @mongodb.ObjectId
-  category                 Category                   @relation(fields: [categoryId], references: [id])
+  Category                 Category[]                 @relation(fields: [categoryId], references: [id])
   shortDescription         String
   longDescription          String?
   variants                 Variant[]
@@ -47,13 +49,13 @@ model Product {
   createdAt                DateTime                   @default(now())
   updatedAt                DateTime                   @updatedAt
 
+  @@unique([variants.sku])
+  @@unique([variants.upc])
+  @@unique([variants.ean])
+  @@unique([variants.isbn])
+  @@unique([variants.barcode])
+  @@unique([variants.attributes.key, variants.attributes.value])
   @@index([categoryId])
-  @@index([variants.sku])
-  @@index([variants.upc])
-  @@index([variants.ean])
-  @@index([variants.isbn])
-  @@index([variants.barcode])
-  @@index([variants.attributes.key, variants.attributes.value])
 }
 
 // Types for Products
@@ -85,9 +87,9 @@ enum Type {
 }
 
 type StockPerWarehouse {
-  warehouseId                String
+  warehouseId                Int
   qtyAvailable               Int       @default(0)
-  qtyReserved                Int       @default(0)
+  qtyReserved                Int?      @default(0)
   productLocation            String?
   estimatedReplenishmentDate DateTime?
   lotNumber                  String?
@@ -281,12 +283,12 @@ type InstallmentDetail {
 }
 
 type SustainabilityAttributes {
-  certification      String
+  certification      String?
   recycledPercentage Float
 }
 
 type WarrantyDetail {
-  duration     String
+  months       Int
   coverage     String
   instructions String
 }

@@ -29,9 +29,8 @@ export interface IProductRepository {
   /**
    * Find a product by its ID
    * @param id The product ID
-   * @param includeSoftDeleted Whether to include soft-deleted products (default: false)
    */
-  findById(id: Id, includeSoftDeleted?: boolean): Promise<Product | null>;
+  findById(id: Id): Promise<Product | null>;
 
   /**
    * Find products by name (partial match)

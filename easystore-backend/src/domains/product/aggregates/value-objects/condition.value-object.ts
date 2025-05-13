@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const conditionSchema = z.enum(['NEW', 'USED', 'REFURBISHED']);
+const conditionSchema = z.enum(['NEW', 'USED', 'REFURBISHED']).nullish();
 
 export class Condition {
   private readonly value: 'NEW' | 'USED' | 'REFURBISHED';

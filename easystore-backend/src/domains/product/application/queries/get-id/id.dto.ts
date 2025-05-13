@@ -1,4 +1,3 @@
 export class GetProductByIdDTO {
-  id: string;
-  includeSoftDeleted?: boolean;
+  constructor(public readonly id: string) {}
 }

@@ -2,8 +2,7 @@ import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { LoggerService } from '@shared/winston/winston.service';
 import { IProductRepository } from '../../../../aggregates/repositories/product.interface';
-import { ProductMapper } from '../../../mappers/product.mapper';
-import { ProductDTO } from '../../../mappers/product.dto';
+import { ProductMapper, ProductDTO } from '../../../mappers';
 import { Id } from '../../../../aggregates/value-objects';
 import { DeleteVariantDTO } from './delete-variant.dto';
 

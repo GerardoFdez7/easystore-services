@@ -3,7 +3,7 @@ import { z } from 'zod';
 const barcodeSchema = z
   .string()
   .min(1, { message: 'Barcode must be a non-empty string' })
-  .nullable();
+  .optional();
 
 export class Barcode {
   private readonly value: string | null;

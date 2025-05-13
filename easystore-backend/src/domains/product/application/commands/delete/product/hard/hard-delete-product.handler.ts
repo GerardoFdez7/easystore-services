@@ -1,48 +1,48 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { IProductRepository } from '../../../../../aggregates/repositories/product.interface';
 import { Id } from '../../../../../aggregates/value-objects';
-import { ProductMapper } from '../../../../mappers/product.mapper';
-import { ProductDTO } from '../../../../mappers/product.dto';
+import { ProductMapper, ProductDTO } from '../../../../mappers';
 import { HardDeleteProductDTO } from './hard-delete-product.dto';
 
-export class HardDeleteProductCommand {
-  constructor(public readonly dto: HardDeleteProductDTO) {}
-}
-
-@CommandHandler(HardDeleteProductCommand)
+@CommandHandler(HardDeleteProductDTO)
 export class HardDeleteProductHandler
-  implements ICommandHandler<HardDeleteProductCommand>
+  implements ICommandHandler<HardDeleteProductDTO>
 {
   constructor(
     @Inject('IProductRepository')
     private readonly productRepository: IProductRepository,
+    private readonly eventPublisher: EventPublisher,
   ) {}
 
-  async execute(command: HardDeleteProductCommand): Promise<ProductDTO> {
-    const { id } = command.dto;
+  async execute(command: HardDeleteProductDTO): Promise<ProductDTO> {
+    const { id } = command;
 
     // Create ID value object
     const productId = Id.create(id);
 
     // Find the product by ID
-    const product = await this.productRepository.findById(productId);
-    if (!product) {
+    const productFromRepo = await this.productRepository.findById(productId);
+    if (!productFromRepo) {
       throw new NotFoundException(`Product with ID ${id} not found`);
     }
 
-    // Use the mapper to delete the domain entity
+    // Mapper to delete the domain entity
     const { shouldRemove, product: deletedProduct } =
-      ProductMapper.fromHardDeleteDto(product);
+      ProductMapper.fromHardDeleteDto(productFromRepo);
+
+    const productToProcess =
+      this.eventPublisher.mergeObjectContext(deletedProduct);
 
     if (shouldRemove) {
       // Permanently remove the product from the database
       await this.productRepository.hardDelete(productId);
-      // return null or the deleted product's DTO
-      return ProductMapper.toDto(deletedProduct) as ProductDTO;
     }
 
+    // Commit events to event bus
+    productToProcess.commit();
+
     // Return the product as DTO
-    return ProductMapper.toDto(product) as ProductDTO;
+    return ProductMapper.toDto(productToProcess) as ProductDTO;
   }
 }

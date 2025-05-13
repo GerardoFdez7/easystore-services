@@ -1,3 +1,3 @@
 export class RestoreProductDTO {
-  id: string;
+  constructor(public readonly id: string) {}
 }

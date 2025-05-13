@@ -3,7 +3,7 @@ import { z } from 'zod';
 const skuSchema = z
   .string()
   .min(1, { message: 'SKU must be a non-empty string' })
-  .nullable();
+  .optional();
 
 export class SKU {
   private readonly value: string | null;

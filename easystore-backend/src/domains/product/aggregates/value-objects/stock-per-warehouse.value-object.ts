@@ -5,83 +5,64 @@ const stockPerWarehouseSchema = z.object({
     .number()
     .int()
     .positive({ message: 'warehouseId must be a positive integer' }),
-  qtyAvailable: z.number().int().nonnegative({
-    message: 'Quantity available must be a non-negative integer',
-  }),
-  qtyReserved: z.number().int().nonnegative({
-    message: 'Quantity reserved must be a non-negative integer',
-  }),
-  productLocation: z.string().nullable(),
-  estimatedReplenishmentDate: z.date().nullable(),
-  lotNumber: z.string().nullable(),
+  qtyAvailable: z
+    .number()
+    .int()
+    .nonnegative({
+      message: 'Quantity available must be a non-negative integer',
+    })
+    .optional()
+    .default(0),
+  qtyReserved: z
+    .number()
+    .int()
+    .nonnegative({
+      message: 'Quantity reserved must be a non-negative integer',
+    })
+    .nullish(),
+  productLocation: z.string().nullish(),
+  estimatedReplenishmentDate: z.date().nullish(),
+  lotNumber: z.string().nullish(),
   serialNumbers: z
     .array(
       z
         .string()
         .min(1, { message: 'Serial number must be a non-empty string' }),
     )
-    .nullable(),
+    .nullish(),
 });
 
 export type StockPerWarehouseProps = {
-  qtyAvailable: number;
-  qtyReserved: number;
-  productLocation: string | null;
-  estimatedReplenishmentDate: Date | null;
-  lotNumber: string | null;
-  serialNumbers: string[] | null;
+  warehouseId: number;
+  qtyAvailable?: number;
+  qtyReserved?: number | null;
+  productLocation?: string | null;
+  estimatedReplenishmentDate?: Date | null;
+  lotNumber?: string | null;
+  serialNumbers?: string[] | [];
 };
 
-// Define the type for the stock map
-type StockMap = Record<number, StockPerWarehouseProps>;
-
 export class StockPerWarehouse {
-  private readonly stockMap: StockMap;
+  private readonly props: StockPerWarehouseProps;
 
-  private constructor(stockMap: StockMap) {
-    this.stockMap = stockMap;
+  private constructor(props: StockPerWarehouseProps) {
+    this.props = props;
   }
 
-  public static create(
-    stockDetails: Array<{
-      warehouseId: number;
-      qtyAvailable: number;
-      qtyReserved: number;
-      productLocation: string | null;
-      estimatedReplenishmentDate: Date | null;
-      lotNumber: string | null;
-      serialNumbers: string[] | null;
-    }>,
-  ): StockPerWarehouse {
-    stockDetails.forEach((detail) => stockPerWarehouseSchema.parse(detail));
-
-    // Convert array to map
-    const stockMap: StockMap = {};
-    stockDetails.forEach((detail) => {
-      const { warehouseId, ...stockEntry } = detail;
-      stockMap[warehouseId] = stockEntry;
-    });
-
-    return new StockPerWarehouse(stockMap);
+  public static create(stockDetail: StockPerWarehouseProps): StockPerWarehouse {
+    stockPerWarehouseSchema.parse(stockDetail);
+    return new StockPerWarehouse(stockDetail);
   }
 
-  public getValue(): StockMap {
-    return { ...this.stockMap };
+  public getValue(): StockPerWarehouseProps {
+    return { ...this.props };
   }
 
-  public getStockForWarehouse(
-    warehouseId: number,
-  ): StockPerWarehouseProps | undefined {
-    return this.stockMap[warehouseId];
-  }
-
-  public getAllWarehouses(): number[] {
-    return Object.keys(this.stockMap).map(Number);
+  public getWarehouseId(): number {
+    return this.props.warehouseId;
   }
 
   public equals(otherStock: StockPerWarehouse): boolean {
-    return (
-      JSON.stringify(this.stockMap) === JSON.stringify(otherStock.stockMap)
-    );
+    return JSON.stringify(this.props) === JSON.stringify(otherStock.props);
   }
 }

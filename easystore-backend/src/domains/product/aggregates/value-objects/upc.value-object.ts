@@ -3,7 +3,7 @@ import { z } from 'zod';
 const upcSchema = z
   .string()
   .min(1, { message: 'UPC must be a non-empty string' })
-  .nullable();
+  .optional();
 
 export class UPC {
   private readonly value: string | null;

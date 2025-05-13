@@ -14,7 +14,11 @@ async function bootstrap(): Promise<void> {
   await app.listen(process.env.PORT ?? 3000);
 }
 
-bootstrap().catch((_error) => {});
+bootstrap().catch((error) => {
+  const logger = new LoggerService();
+  logger.error('NestJS failed to start:', error);
+  process.exit(1);
+});
 
 // async function bootstrap(): Promise<void> {
 //   const app = await NestFactory.create(AppModule, {

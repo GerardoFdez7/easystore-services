@@ -1,16 +1,19 @@
 import { z } from 'zod';
 
-const sustainabilityAttributesSchema = z.object({
-  certification: z
-    .string()
-    .min(1, { message: 'Certification must be a non-empty string' }),
-  recycledPercentage: z.number().nonnegative({
-    message: 'Recycled percentage must be a non-negative number',
-  }),
-});
+const sustainabilityAttributesSchema = z
+  .object({
+    certification: z
+      .string()
+      .min(1, { message: 'Certification must be a non-empty string' })
+      .optional(),
+    recycledPercentage: z.number().nonnegative({
+      message: 'Recycled percentage must be a non-negative number',
+    }),
+  })
+  .optional();
 
 export type SustainabilityAttributesProps = {
-  certification: string;
+  certification?: string | null;
   recycledPercentage: number;
 };
 

@@ -2,8 +2,8 @@ import { z } from 'zod';
 
 const weightSchema = z
   .number()
-  .positive({ message: 'Weight must be a positive number' })
-  .nullable();
+  .nonnegative({ message: 'Weight must be a non-negative number' })
+  .optional();
 
 export class Weight {
   private readonly value: number | null;

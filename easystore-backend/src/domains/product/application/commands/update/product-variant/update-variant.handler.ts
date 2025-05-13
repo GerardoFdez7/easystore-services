@@ -1,16 +1,15 @@
 import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
+import { Inject, NotFoundException } from '@nestjs/common';
 import { LoggerService } from '@shared/winston/winston.service';
 import { IProductRepository } from '../../../../aggregates/repositories/product.interface';
-import { ProductMapper } from '../../../mappers/product.mapper';
-import { ProductDTO } from '../../../mappers/product.dto';
+import { ProductMapper, ProductDTO } from '../../../mappers';
 import { UpdateVariantDTO } from './update-variant.dto';
-import { Inject, NotFoundException } from '@nestjs/common';
 import { Id } from '../../../../aggregates/value-objects/id.value-object';
 
 @CommandHandler(UpdateVariantDTO)
 export class UpdateVariantHandler implements ICommandHandler<UpdateVariantDTO> {
   constructor(
-    @Inject('ProductRepository')
+    @Inject('IProductRepository')
     private readonly productRepository: IProductRepository,
     private readonly eventPublisher: EventPublisher,
     private readonly logger: LoggerService,

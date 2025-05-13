@@ -1,3 +1,3 @@
 export class SoftDeleteProductDTO {
-  id: string;
+  constructor(public readonly id: string) {}
 }

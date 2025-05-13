@@ -5,7 +5,8 @@ const categoryIdSchema = z
   .length(24, { message: 'CategoryId must be 24 hex characters' })
   .regex(/^[0-9a-fA-F]+$/, {
     message: 'CategoryId must be a valid hex string',
-  });
+  })
+  .optional();
 
 export class CategoryId {
   private readonly categoryId: string;
