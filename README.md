@@ -94,7 +94,7 @@ Follow these instructions to set up and run the EasyStore backend application:
 4. Run database migrations to create PostgreSQL models:
 
    ```bash
-   npm run postgre
+   npm run database
    ```
 
 5. Start the development server:
@@ -291,9 +291,7 @@ EasyStore backend is built using the following clean architecture and technologi
 - Design Pattern: Command Query Responsibility Segregation ( CQRS ) pattern
 - Programming Language: TypeScript
 - Framework: NestJS
-- Databases:
-  - PostgreSQL: Core transactional data and user management
-  - MongoDB: Flexible product catalog storage with nested categories
+- Database: PostgreSQL
 - ORM: Prisma
 - Testing: Jest
 - Message Broker: Kafka
