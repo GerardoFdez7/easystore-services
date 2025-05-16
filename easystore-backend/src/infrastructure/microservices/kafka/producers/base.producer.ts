@@ -8,8 +8,8 @@ import {
   Kafka,
 } from 'kafkajs';
 import { ConfigService } from '@nestjs/config';
-import { EventSerializer } from '@shared/kafka/serializers/event-serializer';
-import { CircuitBreaker } from '@shared/redis/circuit-breaker';
+import { EventSerializer } from '@kafka/serializers/event-serializer';
+import { CircuitBreaker } from '@redis/circuit-breaker';
 
 export abstract class BaseProducer
   implements MessageProducerPort, OnModuleInit, OnModuleDestroy

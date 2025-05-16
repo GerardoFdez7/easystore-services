@@ -1,14 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { PostgreService } from '@infrastructure/database/postgre/postgre.service';
-import { TenantMapper } from '../../../application/mappers/tenant.mapper';
-import { Tenant } from '../../../aggregates/entities/tenant.entity';
+import { PostgreService } from '@database/postgres.service';
+import { TenantMapper } from '../../../application/mappers';
+import { Tenant } from '../../../aggregates/entities';
 import { Tenant as PrismaTenant } from '.prisma/postgres';
 import { ITenantRepository } from '../../../aggregates/repositories/tenant.interface';
-import {
-  Id,
-  BusinessName,
-  Email,
-} from '../../../aggregates/value-objects/index';
+import { Id, BusinessName } from '../../../aggregates/value-objects';
 
 @Injectable()
 export class TenantRepository implements ITenantRepository {
@@ -16,12 +12,8 @@ export class TenantRepository implements ITenantRepository {
 
   // Save (create or update) a tenant
   async save(tenant: Tenant): Promise<Tenant> {
-    const id = tenant.get('id')?.getValue?.();
-    const email = tenant.get('email').getValue();
-    const businessName = tenant.get('businessName').getValue();
-    const ownerName = tenant.get('ownerName').getValue();
-    const hashedPassword = await tenant.get('password').getHashedValue();
-    const now = new Date();
+    const id = tenant.get('id')?.getValue();
+    const data = TenantMapper.toDto(tenant) as PrismaTenant;
 
     try {
       let prismaTenant: PrismaTenant;
@@ -29,25 +21,12 @@ export class TenantRepository implements ITenantRepository {
         // Try to update existing tenant
         prismaTenant = await this.prisma.tenant.update({
           where: { id },
-          data: {
-            businessName,
-            ownerName,
-            email,
-            password: hashedPassword,
-            updatedAt: now,
-          },
+          data,
         });
       } else {
         // Create new tenant
         prismaTenant = await this.prisma.tenant.create({
-          data: {
-            businessName,
-            ownerName,
-            email,
-            password: hashedPassword,
-            createdAt: now,
-            updatedAt: now,
-          },
+          data,
         });
       }
       return this.mapToDomain(prismaTenant);
@@ -55,12 +34,30 @@ export class TenantRepository implements ITenantRepository {
       // Translate ORM exceptions to domain exceptions with Prisma error codes
       if ((error as { code?: string }).code === 'P2002') {
         const prismaError = error as { meta?: { target?: string[] } };
+        const target = prismaError.meta?.target?.[0];
 
-        if (prismaError.meta?.target?.includes('email')) {
-          throw new Error('Email is already in use');
-        }
-        if (prismaError.meta?.target?.includes('businessName')) {
-          throw new Error('Business name is already in use');
+        switch (target) {
+          case 'businessName':
+            throw new Error('Business name is already in use');
+          case 'domain':
+            throw new Error('Domain is already in use');
+          case 'authIdentityId':
+            throw new Error('Auth identity is already linked to a tenant');
+          case 'defaultPhoneNumberId':
+            throw new Error(
+              'Default phone number is already linked to a tenant',
+            );
+          case 'defaultShippingAddressId':
+            throw new Error(
+              'Default shipping address is already linked to a tenant',
+            );
+          case 'defaultBillingAddressId':
+            throw new Error(
+              'Default billing address is already linked to a tenant',
+            );
+          default:
+            // Handle other potential unique constraints if any
+            throw new Error(`Unique constraint failed on field: ${target}`);
         }
       }
       throw error;
@@ -72,15 +69,6 @@ export class TenantRepository implements ITenantRepository {
     await this.prisma.tenant.delete({
       where: { id: Number(id) },
     });
-  }
-
-  // Find a tenant by Email
-  async findByEmail(emailObj: Email): Promise<Tenant | null> {
-    const email = emailObj.getValue();
-    const tenant = await this.prisma.tenant.findUnique({
-      where: { email },
-    });
-    return tenant ? this.mapToDomain(tenant) : null;
   }
 
   // Find a tenant by Business Name

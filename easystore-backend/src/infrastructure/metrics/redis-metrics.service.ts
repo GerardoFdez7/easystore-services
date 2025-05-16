@@ -2,7 +2,7 @@ import { Injectable, OnModuleInit, Inject } from '@nestjs/common';
 import { Gauge } from 'prom-client';
 import Redis from 'ioredis';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import { PrometheusService } from '@metrics/prometheus.service';
+import { PrometheusService } from './prometheus.service';
 
 @Injectable()
 export class RedisMetricsService implements OnModuleInit {

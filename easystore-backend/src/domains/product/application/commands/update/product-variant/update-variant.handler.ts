@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
 import { Inject, NotFoundException } from '@nestjs/common';
-import { LoggerService } from '@shared/winston/winston.service';
+import { LoggerService } from '@winston/winston.service';
 import { IProductRepository } from '../../../../aggregates/repositories/product.interface';
 import { ProductMapper, ProductDTO } from '../../../mappers';
 import { UpdateVariantDTO } from './update-variant.dto';

@@ -4,7 +4,7 @@ import { NestFactory } from '@nestjs/core';
 // import helmet, { HelmetOptions } from 'helmet';
 // import * as compression from 'compression';
 // //import { KafkaConfigService } from '@shared/kafka/config/kafka-config.service';
-import { LoggerService } from '@shared/winston/winston.service';
+import { LoggerService } from '@winston/winston.service';
 import { AppModule } from './app.module';
 // //import { MicroserviceOptions } from '@nestjs/microservices';
 

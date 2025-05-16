@@ -1,6 +1,6 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
-import { LoggerService } from '@shared/winston/winston.service';
+import { LoggerService } from '@winston/winston.service';
 import { VariantDeletedEvent } from '../../../aggregates/events/product-variant/variant-deleted.event';
 
 @Injectable()

@@ -1,6 +1,3 @@
-export class TenantDTO {
-  id: number;
-  email: string;
-  businessName: string;
-  ownerName: string;
-}
+import { ITenantType } from '../../aggregates/entities/tenant/tenant.attributes';
+
+export type TenantDTO = ITenantType;

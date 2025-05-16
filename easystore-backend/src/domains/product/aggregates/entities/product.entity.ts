@@ -1,4 +1,4 @@
-import { Entity, EntityProps } from '@shared/domains/entity.base';
+import { Entity, EntityProps } from '@domains/entity.base';
 import {
   Id,
   Name,
@@ -77,7 +77,7 @@ export class Product extends Entity<ProductProps> {
       type: Type.create(props.type || 'PHYSICAL'),
       cover: props.cover
         ? Cover.create(props.cover)
-        : Cover.create('https://easystore.com/default-cover.jpg'),
+        : Cover.create('https://easystore.com/default-product-cover.jpg'),
       media: (props.media || []).map((item) => Media.create(item)),
       availableShippingMethods: (props.availableShippingMethods || []).map(
         (method) => ShippingMethod.create(method),
