@@ -7,7 +7,7 @@ generator postgresClient {
 datasource postgres {
   provider = "postgresql"
   url      = env("DATABASE_URL_POSTGRES")
-  schemas  = ["tenant", "inventory", "product", "pricing", "sales", "customer", "common", "geography"]
+  schemas  = ["tenant", "inventory", "product", "shipping", "pricing", "sales", "customer", "common", "geography"]
 }
 
 generator erd {
@@ -16,7 +16,7 @@ generator erd {
   theme                     = "default"
   ignoreEnums               = true
   includeRelationFromFields = true
-  disabled                  = false
+  disabled                  = true
   tableOnly                 = false
 }
 
@@ -45,6 +45,10 @@ model Tenant {
   products                 Product[]
   variants                 Variant[]
   categories               Category[]
+  taxRates                 TaxRate[]
+  shippingRules            ShippingRule[]
+  shippmentRates           ShipmentRate[]
+  coupons                  Coupon[]
   subscription             Subscription?
   authIdentity             AuthIdentity    @relation("TenantAuth", fields: [authIdentityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   defaultPhoneNumber       PhoneNumber?    @relation("TenantDefaultPhone", fields: [defaultPhoneNumberId], references: [id], onDelete: SetNull, onUpdate: Cascade)
@@ -106,8 +110,8 @@ model EmployeeRole {
   id           Int            @id @default(autoincrement())
   role         String
   tenantId     Int
-  employees    Employee[]
   tenant       Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  employees    Employee[]
   roleFeatures RoleFeatures[]
 
   @@schema("tenant")
@@ -137,58 +141,137 @@ model Feature {
 
 // Inventory schema models
 model Warehouse {
-  id                Int                 @id @default(autoincrement())
-  name              String
-  addressId         Int
-  tenantId          Int
-  stockMovements    StockMovement[]
-  tenant            Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  address           Address             @relation(fields: [addressId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  StockPerWarehouse StockPerWarehouse[]
+  id                 Int                 @id @default(autoincrement())
+  name               String
+  addressId          Int
+  tenantId           Int
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  tenant             Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  address            Address             @relation(fields: [addressId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  stockMovements     StockMovement[]
+  stockPerWarehouses StockPerWarehouse[]
 
+  @@unique([tenantId, name])
   @@schema("inventory")
 }
 
-// Pending
 model StockMovement {
-  id          Int       @id @default(autoincrement())
-  variantId   Int
-  warehouseId Int
-  deltaQty    Int
-  reason      String    @postgres.Text
-  createdById Int?
-  ocurredAt   DateTime  @default(now())
-  warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  createdBy   Employee? @relation(fields: [createdById], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  id                  Int               @id @default(autoincrement())
+  deltaQty            Int
+  reason              String            @postgres.Text
+  createdById         Int?
+  warehouseId         Int
+  stockPerWarehouseId Int
+  ocurredAt           DateTime          @default(now())
+  warehouse           Warehouse         @relation(fields: [warehouseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdBy           Employee?         @relation(fields: [createdById], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  StockPerWarehouse   StockPerWarehouse @relation(fields: [stockPerWarehouseId], references: [id])
 
   @@schema("inventory")
 }
 
 model StockPerWarehouse {
-  id                         Int       @id @default(autoincrement())
-  qtyAvailable               Int       @default(0)
-  qtyReserved                Int?      @default(0)
+  id                         Int             @id @default(autoincrement())
+  qtyAvailable               Int             @default(0)
+  qtyReserved                Int             @default(0)
   productLocation            String?
   estimatedReplenishmentDate DateTime?
   lotNumber                  String?
   serialNumbers              String[]
   variantId                  Int
   warehouseId                Int
-  variant                    Variant   @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  warehouse                  Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  stockMovements             StockMovement[]
+  variant                    Variant         @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  warehouse                  Warehouse       @relation(fields: [warehouseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@schema("inventory")
 }
 
+// Shipping schema models
+model ShippingRule {
+  id             Int              @id @default(autoincrement())
+  type           ShippingRuleType
+  slug           String
+  description    String
+  isEnabled      Boolean          @default(true)
+  priority       Int?
+  conditions     Json?
+  tenantId       Int
+  productId      Int?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  shippmentRates ShipmentRate[]
+  tenant         Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  product        Product?         @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([tenantId, slug])
+  @@index([tenantId, type])
+  @@schema("shipping")
+}
+
+enum ShippingRuleType {
+  METHOD
+  RESTRICTION
+
+  @@schema("shipping")
+}
+
+model ShipmentRate {
+  id                Int               @id @default(autoincrement())
+  fixedRate         Float
+  description       String?
+  calculationMethod CalculationMethod
+  data              Json?
+  shippingRuleId    Int
+  countryId         Int
+  stateId           Int?
+  tenantId          Int
+  country           Country           @relation(fields: [countryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  state             State?            @relation(fields: [stateId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  shippingRule      ShippingRule      @relation(fields: [shippingRuleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tenant            Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([tenantId, shippingRuleId, countryId, stateId], name: "unique_tenant_method_rate")
+  @@index([tenantId, shippingRuleId])
+  @@schema("shipping")
+}
+
+enum CalculationMethod {
+  FIXED
+  WEIGHT
+  VOLUME
+  WEIGHT_AND_VOLUME
+
+  @@schema("shipping")
+}
+
 // Product schema models
+model TaxRate {
+  id         Int       @id @default(autoincrement())
+  rate       Float
+  countryId  Int
+  stateId    Int?
+  categoryId Int?
+  tenantId   Int
+  tenant     Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  country    Country   @relation(fields: [countryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  state      State?    @relation(fields: [stateId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([tenantId, countryId, stateId, categoryId], name: "tenant_cannot_have_the_same_tax_rate_config")
+  @@schema("product")
+}
+
 model Category {
   id                Int                 @id @default(autoincrement())
   name              String
   description       String?
+  parentId          Int?
   tenantId          Int
-  parentId          Int?                @default(autoincrement())
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
+  taxRate           TaxRate[]
   productCategories ProductCategories[]
   subcategories     Category[]          @relation("Subcategory")
   parent            Category?           @relation("Subcategory", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
@@ -210,29 +293,32 @@ model ProductCategories {
 }
 
 model Product {
-  id                       Int                   @id @default(autoincrement())
-  name                     String                @unique
+  id                       Int                     @id @default(autoincrement())
+  name                     String                  @unique
   shortDescription         String
-  longDescription          String?               @postgres.Text
+  longDescription          String?                 @postgres.Text
   productType              ProductType
   cover                    String
-  media                    Media[]
-  variants                 Variant[]
-  productCategories        ProductCategories[]
-  availableShippingMethods String[]
-  shippingRestrictions     String[]
-  tags                     String[]
-  acceptedPaymentMethods   String[]
-  installmentPayments      InstallmentPayments[]
-  sustainabilityAttributes Sustainability[]
   brand                    String?
   manufacturer             String?
   warranty                 Warranty?
+  tags                     String[]
   metadata                 Json
   tenantId                 Int
-  createdAt                DateTime              @default(now())
-  updatedAt                DateTime              @updatedAt
-  tenant                   Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  updatedAt                DateTime                @updatedAt
+  createdAt                DateTime                @default(now())
+  media                    Media[]
+  variants                 Variant[]
+  productCategories        ProductCategories[]
+  installmentPayments      InstallmentPayment[]
+  sustainabilityAttributes Sustainability[]
+  specificShippingRules    ShippingRule[]
+  wishList                 WishList[]
+  returns                  Return[]
+  ordersDetails            OrderDetail[]
+  customersReviews         CustomerReviewProduct[]
+  cartItems                CartItem[]
+  tenant                   Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@unique([tenantId, name])
   @@schema("product")
@@ -264,7 +350,7 @@ enum MediaType {
   @@schema("product")
 }
 
-model InstallmentPayments {
+model InstallmentPayment {
   id           Int     @id @default(autoincrement())
   months       Int
   interestRate Float
@@ -300,8 +386,6 @@ model Variant {
   price                  Decimal             @default(0)
   currency               Currency
   variantCover           String
-  attributes             Attribute[]
-  stockPerWarehouses     StockPerWarehouse[]
   personalizationOptions String[]
   weight                 Float?
   dimension              Dimension?
@@ -313,6 +397,8 @@ model Variant {
   sku                    String?
   productId              Int
   tenantId               Int
+  attributes             Attribute[]
+  stockPerWarehouses     StockPerWarehouse[]
   product                Product             @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   tenant                 Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
@@ -521,150 +607,113 @@ enum ProductCondition {
   @@schema("product")
 }
 
-//attributes             Attribute[]
-//stockPerWarehouse      StockPerWarehouse[]
-
 // Pricing schema models
 model Promotion {
-  id                        Int                       @id @default(autoincrement())
-  tenantId                  Int
-  name                      String
-  description               String
-  type                      PromotionType
-  params                    Json
-  startDate                 DateTime
-  endDate                   DateTime
-  createdAt                 DateTime                  @default(now())
-  updatedAt                 DateTime                  @updatedAt
-  promotionProducts         PromotionProduct[]
-  promotionCategories       PromotionCategory[]
-  promotionBuyGets          PromotionBuyGet[]
-  promotionBuyGetCategories PromotionBuyGetCategory[]
-  scheduleTasks             ScheduleTask[]
-  coupons                   Coupon[]
-  carts                     Cart[]
-  cartItems                 CartItem[]
-  tenant                    Tenant                    @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id              Int                  @id @default(autoincrement())
+  name            String
+  description     String
+  type            PromotionType
+  actionType      PromotionActionType?
+  actionValue     Decimal?
+  isStackable     Boolean              @default(false)
+  params          Json
+  priority        Int
+  startDate       DateTime
+  endDate         DateTime
+  isArchived      Boolean              @default(false)
+  updatedAt       DateTime             @updatedAt
+  createdAt       DateTime             @default(now())
+  tenantId        Int
+  coupons         Coupon[]
+  cartItems       CartItem[]
+  orderPromotions OrderPromotions[]
+  cartPromotions  CartPromotions[]
+  tenant          Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+  @@unique([tenantId, name])
+  @@unique([tenantId, priority])
   @@schema("pricing")
 }
 
 enum PromotionType {
-  PERCENTAGE
-  FIXEDGROUP
-  BUNDLE
+  BUY_X_GET_DISCOUNT_ON_Y
+  STORE_ATTRIBUTE
+  PRODUCT_ATTRIBUTE
   BUY_X_GET_Y
+  FIXED_GROUP
+  COUPON
+  BUNDLE
 
   @@schema("pricing")
 }
 
-model PromotionProduct {
-  promotion   Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  promotionId Int
-  productId   String
-  bundleQty   Int
-
-  @@id([promotionId, productId])
-  @@schema("pricing")
-}
-
-model PromotionCategory {
-  promotion   Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  promotionId Int
-  categoryId  String
-
-  @@id([promotionId, categoryId])
-  @@schema("pricing")
-}
-
-model PromotionBuyGet {
-  promotion    Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  promotionId  Int
-  buyProductId String
-  getProductId String
-
-  @@id([promotionId, buyProductId, getProductId])
-  @@schema("pricing")
-}
-
-model PromotionBuyGetCategory {
-  promotion     Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  promotionId   Int
-  buyCategoryId String
-  getCategoryId String
-
-  @@id([promotionId, buyCategoryId, getCategoryId])
-  @@schema("pricing")
-}
-
-model ScheduleTask {
-  id          Int        @id @default(autoincrement())
-  promotion   Promotion  @relation(fields: [promotionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  promotionId Int
-  type        Action
-  payload     Json
-  runAt       DateTime
-  status      TaskStatus
-  createdAt   DateTime   @default(now())
-
-  @@schema("pricing")
-}
-
-enum Action {
-  APPLY_PROMO
-  REVERT_PROMO
-
-  @@schema("pricing")
-}
-
-enum TaskStatus {
-  PENDING
-  DONE
-  FAILED
+enum PromotionActionType {
+  PERCENTAGE
+  FIXED
 
   @@schema("pricing")
 }
 
 model Coupon {
   id               Int           @id @default(autoincrement())
-  promotion        Promotion     @relation(fields: [promotionId], references: [id])
-  promotionId      Int
-  code             String        @unique
-  customer         Customer?     @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  customerId       Int?
+  code             String
   usageLimit       Int?
   perCustomerLimit Int           @default(1)
   usedCount        Int           @default(0)
-  createdAt        DateTime      @default(now())
+  promotionId      Int
+  customerId       Int?
+  tenantId         Int
   updatedAt        DateTime      @updatedAt
+  createdAt        DateTime      @default(now())
   couponUsages     CouponUsage[]
-  carts            Cart[]
+  promotion        Promotion     @relation(fields: [promotionId], references: [id])
+  customer         Customer?     @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  tenant           Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+  @@unique([tenantId, code])
   @@schema("pricing")
 }
 
 model CouponUsage {
   id       Int      @id @default(autoincrement())
-  coupon   Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   couponId Int
-  order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   orderId  Int
   usedAt   DateTime @default(now())
+  coupon   Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([orderId, couponId])
+  @@schema("pricing")
+}
+
+model CartPromotions {
+  id          Int       @id @default(autoincrement())
+  cartId      Int
+  promotionId Int
+  cart        Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  promotion   Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@schema("pricing")
+}
+
+model OrderPromotions {
+  id          Int       @id @default(autoincrement())
+  orderId     Int
+  promotionId Int
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  promotion   Promotion @relation(fields: [promotionId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
   @@schema("pricing")
 }
 
 // Sales schema models
 model Cart {
-  id          Int        @id @default(autoincrement())
-  customerId  Int
-  couponId    Int?
-  promotionId Int?
-  cartItems   CartItem[]
-  orders      Order[]
-  coupon      Coupon?    @relation(fields: [couponId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  customer    Customer   @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  promotion   Promotion? @relation(fields: [promotionId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  id             Int              @id @default(autoincrement())
+  customerId     Int
+  cartItems      CartItem[]
+  orders         Order[]
+  customer       Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  CartPromotions CartPromotions[]
 
   @@schema("sales")
 }
@@ -672,35 +721,37 @@ model Cart {
 model CartItem {
   id          Int        @id @default(autoincrement())
   qty         Int
-  productId   String
+  productId   Int
   cartId      Int
   promotionId Int?
   updatedAt   DateTime   @updatedAt
   cart        Cart       @relation(fields: [cartId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   promotion   Promotion? @relation(fields: [promotionId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  product     Product    @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@schema("sales")
 }
 
 model Order {
-  id           Int           @id @default(autoincrement())
-  orderNumber  String
-  status       OrderStatus
-  totalAmount  Decimal
-  customerId   Int
-  cartId       Int
-  addressId    Int
-  tenantId     Int
-  updatedAt    DateTime      @updatedAt
-  createdAt    DateTime      @default(now())
-  orderDetails OrderDetail[]
-  returns      Return[]
-  payments     Payment[]
-  couponUsages CouponUsage[]
-  customer     Customer      @relation(fields: [customerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  cart         Cart          @relation(fields: [cartId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  address      Address       @relation(fields: [addressId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  id              Int               @id @default(autoincrement())
+  orderNumber     String
+  status          OrderStatus
+  totalAmount     Decimal
+  customerId      Int
+  cartId          Int
+  addressId       Int
+  tenantId        Int
+  updatedAt       DateTime          @updatedAt
+  createdAt       DateTime          @default(now())
+  orderDetails    OrderDetail[]
+  returns         Return[]
+  payments        Payment[]
+  orderPromotions OrderPromotions[]
+  couponUsages    CouponUsage[]
+  customer        Customer          @relation(fields: [customerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  cart            Cart              @relation(fields: [cartId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  address         Address           @relation(fields: [addressId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  tenant          Tenant            @relation(fields: [tenantId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
   @@unique([tenantId, orderNumber])
   @@schema("sales")
@@ -723,10 +774,11 @@ model OrderDetail {
   unitPrice   Decimal
   subtotal    Decimal
   orderId     Int
-  productId   String
+  productId   Int? // enforce obligation through value object
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 
   @@schema("sales")
 }
@@ -735,11 +787,12 @@ model Return {
   id           Int      @id @default(autoincrement())
   returnReason String   @postgres.Text
   refundAmount Decimal
-  productId    String
+  productId    Int? // enforce obligation through value object
   orderId      Int
   updatedAt    DateTime @updatedAt
   createdAt    DateTime @default(now())
   order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  product      Product? @relation(fields: [productId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 
   @@schema("sales")
 }
@@ -772,15 +825,27 @@ enum Status {
 }
 
 model PaymentMethod {
-  id         Int       @id @default(autoincrement())
-  name       String
-  tenantId   Int?
-  customerId Int?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  tenant     Tenant?   @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  payments   Payment[]
+  id                     Int                     @id @default(autoincrement())
+  acceptedPaymentMethods AcceptedPaymentMethod[]
+  tenantId               Int?
+  customerId             Int?
+  updatedAt              DateTime                @updatedAt
+  createdAt              DateTime                @default(now())
+  tenant                 Tenant?                 @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  customer               Customer?               @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  payments               Payment[]
+
+  @@schema("sales")
+}
+
+enum AcceptedPaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  CASH
+  BANK_TRANSFER
+  PAYPAL
+  PAYMENT_ON_DELIVERY
+  INSTALLMENTS
 
   @@schema("sales")
 }
@@ -815,10 +880,11 @@ model Customer {
 
 model WishList {
   id         Int      @id @default(autoincrement())
+  productId  Int
   customerId Int
-  productId  String
   updatedAt  DateTime @updatedAt
   customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@schema("customer")
 }
@@ -828,10 +894,11 @@ model CustomerReviewProduct {
   ratingCount Float
   comment     String   @postgres.Text
   customerId  Int
-  productId   String
-  createdDate DateTime @default(now())
+  productId   Int
   updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
   customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@schema("customer")
 }
@@ -899,6 +966,7 @@ model AuthIdentity {
   customer       Customer?   @relation("CustomerAuth")
   employee       Employee?   @relation("EmployeeAuth")
 
+  @@index([email, accountType])
   @@schema("common")
 }
 
@@ -912,21 +980,25 @@ enum AccountType {
 
 // Geography schema models
 model Country {
-  id        Int       @id @default(autoincrement())
-  name      String
-  code      String
-  states    State[]
-  addresses Address[]
+  id             Int            @id @default(autoincrement())
+  name           String
+  code           String
+  states         State[]
+  addresses      Address[]
+  taxRates       TaxRate[]
+  shippmentRates ShipmentRate[]
 
   @@schema("geography")
 }
 
 model State {
-  id        Int     @id @default(autoincrement())
-  name      String
-  code      String
-  countryId Int
-  country   Country @relation(fields: [countryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id             Int            @id @default(autoincrement())
+  name           String
+  code           String
+  countryId      Int
+  taxRates       TaxRate[]
+  shippmentRates ShipmentRate[]
+  country        Country        @relation(fields: [countryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@schema("geography")
 }
