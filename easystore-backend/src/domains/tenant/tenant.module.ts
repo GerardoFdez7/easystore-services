@@ -1,12 +1,10 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { PostgreModule } from '@database/postgre/postgre.module';
-import { LoggerModule } from '@shared/winston/winston.module';
+import { PostgresModule } from '@database/postgres.module';
+import { LoggerModule } from '@winston/winston.module';
 import { TenantResolver } from './presentation/graphql/tenant.resolver';
-import { TenantRepository } from './infrastructure/persistence/postgre/tenant.repository';
+import { TenantRepository } from './infrastructure/persistence/postgres/tenant.repository';
 import { FindTenantByBusinessNameHandler } from './application/queries/get-businessname/businessname.handler';
-import { FindTenantByEmailHandler } from './application/queries/get-email/email.handler';
-import { LoginTenantHandler } from './application/queries/login/login.handler';
 import { TenantSingUpHandler } from './application/commands/create/sing-up.handler';
 import { TenantCreatedHandler } from './application/events/tenant-created.handler';
 
@@ -14,17 +12,13 @@ import { TenantCreatedHandler } from './application/events/tenant-created.handle
 const CommandHandlers = [TenantSingUpHandler];
 
 // Query handlers
-const QueryHandlers = [
-  FindTenantByEmailHandler,
-  FindTenantByBusinessNameHandler,
-  LoginTenantHandler,
-];
+const QueryHandlers = [FindTenantByBusinessNameHandler];
 
 // Event handlers
 const EventHandlers = [TenantCreatedHandler];
 
 @Module({
-  imports: [CqrsModule, PostgreModule, LoggerModule],
+  imports: [CqrsModule, PostgresModule, LoggerModule],
   providers: [
     TenantResolver,
     TenantRepository,
@@ -37,4 +31,4 @@ const EventHandlers = [TenantCreatedHandler];
     ...EventHandlers,
   ],
 })
-export class TenantModule {}
+export class TenantDomain {}

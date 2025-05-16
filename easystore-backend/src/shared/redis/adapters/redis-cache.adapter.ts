@@ -5,9 +5,9 @@ import {
   OnModuleDestroy,
 } from '@nestjs/common';
 import Redis from 'ioredis';
-import { CircuitBreaker } from '@shared/redis/circuit-breaker';
-import { LoggerService } from '@shared/winston/winston.service';
-import { CacheInvalidationService } from '../../../infrastructure/microservices/redis/pubsub/cache-invalidation.service';
+import { CircuitBreaker } from '@redis/circuit-breaker';
+import { LoggerService } from '@winston/winston.service';
+import { CacheInvalidationService } from '@microservices/redis/pubsub/cache-invalidation.service';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()

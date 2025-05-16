@@ -1,7 +1,6 @@
 import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
 import { ITenantRepository } from '../../../aggregates/repositories/tenant.interface';
-import { TenantMapper } from '../../mappers/tenant.mapper';
-import { TenantDTO } from '../../mappers/tenant.dto';
+import { TenantMapper, TenantDTO } from '../../mappers';
 import { TenantSingUpDTO } from './sing-up.dto';
 import { Inject } from '@nestjs/common';
 
@@ -14,6 +13,8 @@ export class TenantSingUpHandler implements ICommandHandler<TenantSingUpDTO> {
   ) {}
 
   async execute(command: TenantSingUpDTO): Promise<TenantDTO> {
+    // TO DO: add get authIdentityId from auth model when event CreatedTenantIdentity is commited
+
     // Create domain entity using factory method
     const tenant = this.eventPublisher.mergeObjectContext(
       TenantMapper.fromCreateDto(command),

@@ -1,4 +1,4 @@
-import { LoggerService } from '@shared/winston/winston.service';
+import { LoggerService } from '@winston/winston.service';
 
 export enum DomainErrorCode {
   TENANT_NOT_FOUND = 'TENANT_NOT_FOUND',

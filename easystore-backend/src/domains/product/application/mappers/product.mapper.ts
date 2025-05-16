@@ -1,4 +1,4 @@
-import { Entity } from '@shared/domains/entity.base';
+import { Entity } from '@domains/entity.base';
 import {
   Product,
   ProductProps,

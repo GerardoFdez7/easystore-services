@@ -1,8 +1,13 @@
-export class TenantSingUpDTO {
-  constructor(
-    public readonly businessName: string,
-    public readonly ownerName: string,
-    public readonly email: string,
-    public readonly password: string,
-  ) {}
+import { ITenantBase } from '../../../aggregates/entities';
+
+export class TenantSingUpDTO implements ITenantBase {
+  businessName: string;
+  ownerName: string;
+  domain: string;
+  logo?: string | null;
+  description?: string | null;
+  authIdentityId: number;
+  constructor(public readonly data: ITenantBase) {
+    Object.assign(this, data);
+  }
 }

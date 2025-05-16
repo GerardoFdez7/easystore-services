@@ -22,18 +22,17 @@
       "@test/*": ["src/test/*"],
       "@config/*": ["src/config/*"],
       "@common/*": ["src/common/*"],
-      "@domains/*": ["src/domains/*"],
-      "@infrastructure/*": ["src/infrastructure/*"],
       "@database/*": ["src/infrastructure/database/*"],
       "@graphql/*": ["src/infrastructure/graphql/*"],
       "@logging/*": ["src/infrastructure/logging/*"],
       "@metrics/*": ["src/infrastructure/metrics/*"],
       "@microservices/*": ["src/infrastructure/microservices/*"],
-      "@shared/*": ["src/shared/*"],
+      "@domains/*": ["src/shared/domains/*"],
       "@elastic/*": ["src/shared/elastic/*"],
       "@event-store/*": ["src/shared/event-store/*"],
       "@kafka/*": ["src/shared/kafka/*"],
-      "@redis/*": ["src/shared/redis/*"]
+      "@redis/*": ["src/shared/redis/*"],
+      "@winston/*": ["src/shared/winston/*"]
     }
   }
 }

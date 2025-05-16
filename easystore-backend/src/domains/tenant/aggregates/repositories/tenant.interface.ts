@@ -1,5 +1,5 @@
-import { Tenant } from '../entities/tenant.entity';
-import { Id, Email, BusinessName } from '../value-objects/index';
+import { Tenant } from '../entities/tenant/tenant.entity';
+import { Id, BusinessName } from '../value-objects/index';
 
 /**
  * Repository interface for Tenant aggregate.
@@ -18,13 +18,6 @@ export interface ITenantRepository {
    * @param id The unique identifier of the tenant.
    */
   delete(id: Id): Promise<void>;
-
-  /**
-   * Finds a tenant by email address.
-   * @param email The email address of the tenant.
-   * @returns The tenant entity or null if not found.
-   */
-  findByEmail(email: Email): Promise<Tenant | null>;
 
   /**
    * Finds a tenant by business name.

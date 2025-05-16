@@ -1,0 +1,1004 @@
+generator postgresClient {
+  provider        = "prisma-client-js"
+  output          = "../../../node_modules/.prisma/postgres"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource postgres {
+  provider = "postgresql"
+  url      = env("DATABASE_URL_POSTGRES")
+  schemas  = ["tenant", "inventory", "product", "shipping", "pricing", "sales", "customer", "common", "geography"]
+}
+
+generator erd {
+  provider                  = "prisma-erd-generator"
+  output                    = "./erd.svg"
+  theme                     = "default"
+  ignoreEnums               = true
+  includeRelationFromFields = true
+  disabled                  = true
+  tableOnly                 = false
+}
+
+// Tenant schema models
+model Tenant {
+  id                       Int             @id @default(autoincrement())
+  businessName             String          @unique
+  ownerName                String
+  domain                   String          @unique
+  logo                     String?
+  description              String?         @postgres.Text
+  authIdentityId           Int             @unique
+  defaultPhoneNumberId     Int?            @unique
+  defaultShippingAddressId Int?            @unique
+  defaultBillingAddressId  Int?            @unique
+  updatedAt                DateTime        @updatedAt
+  createdAt                DateTime        @default(now())
+  roles                    EmployeeRole[]
+  warehouses               Warehouse[]
+  promotions               Promotion[]
+  customers                Customer[]
+  addresses                Address[]
+  phoneNumbers             PhoneNumber[]
+  orders                   Order[]
+  paymentMethods           PaymentMethod[]
+  products                 Product[]
+  variants                 Variant[]
+  categories               Category[]
+  taxRates                 TaxRate[]
+  shippingRules            ShippingRule[]
+  shippmentRates           ShipmentRate[]
+  coupons                  Coupon[]
+  subscription             Subscription?
+  authIdentity             AuthIdentity    @relation("TenantAuth", fields: [authIdentityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  defaultPhoneNumber       PhoneNumber?    @relation("TenantDefaultPhone", fields: [defaultPhoneNumberId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  defaultShippingAddress   Address?        @relation("TenantDefaultShippingAddress", fields: [defaultShippingAddressId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  defaultBillingAddress    Address?        @relation("TenantDefaultBillingAddress", fields: [defaultBillingAddressId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  @@schema("tenant")
+}
+
+model Subscription {
+  id        Int                @id @default(autoincrement())
+  status    SubscriptionStatus
+  startDate DateTime
+  endDate   DateTime
+  planId    Int
+  tenantId  Int                @unique
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  tenant    Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Restrict)
+  Plan      Plan               @relation(fields: [planId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  payments  Payment[]
+
+  @@schema("tenant")
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+
+  @@schema("tenant")
+}
+
+model Plan {
+  id           Int            @id @default(autoincrement())
+  name         String         @unique
+  description  String
+  price        Decimal
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  subscription Subscription[]
+
+  @@schema("tenant")
+}
+
+model Employee {
+  id             Int             @id @default(autoincrement())
+  name           String
+  roleId         Int
+  authIdentityId Int             @unique
+  role           EmployeeRole    @relation(fields: [roleId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  authIdentity   AuthIdentity    @relation("EmployeeAuth", fields: [authIdentityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  StockMovement  StockMovement[]
+
+  @@schema("tenant")
+}
+
+model EmployeeRole {
+  id           Int            @id @default(autoincrement())
+  role         String
+  tenantId     Int
+  tenant       Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  employees    Employee[]
+  roleFeatures RoleFeatures[]
+
+  @@schema("tenant")
+}
+
+model RoleFeatures {
+  id           Int          @id @default(autoincrement())
+  roleId       Int
+  featureId    Int
+  employeeRole EmployeeRole @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  feature      Feature      @relation(fields: [featureId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@schema("tenant")
+}
+
+model Feature {
+  id           Int            @id @default(autoincrement())
+  code         String         @unique // "REPORTS", "ORDERS" 
+  name         String
+  description  String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  roleFeatures RoleFeatures[]
+
+  @@schema("tenant")
+}
+
+// Inventory schema models
+model Warehouse {
+  id                 Int                 @id @default(autoincrement())
+  name               String
+  addressId          Int
+  tenantId           Int
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  tenant             Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  address            Address             @relation(fields: [addressId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  stockMovements     StockMovement[]
+  stockPerWarehouses StockPerWarehouse[]
+
+  @@unique([tenantId, name])
+  @@schema("inventory")
+}
+
+model StockMovement {
+  id                  Int               @id @default(autoincrement())
+  deltaQty            Int
+  reason              String            @postgres.Text
+  createdById         Int?
+  warehouseId         Int
+  stockPerWarehouseId Int
+  ocurredAt           DateTime          @default(now())
+  warehouse           Warehouse         @relation(fields: [warehouseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdBy           Employee?         @relation(fields: [createdById], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  StockPerWarehouse   StockPerWarehouse @relation(fields: [stockPerWarehouseId], references: [id])
+
+  @@schema("inventory")
+}
+
+model StockPerWarehouse {
+  id                         Int             @id @default(autoincrement())
+  qtyAvailable               Int             @default(0)
+  qtyReserved                Int             @default(0)
+  productLocation            String?
+  estimatedReplenishmentDate DateTime?
+  lotNumber                  String?
+  serialNumbers              String[]
+  variantId                  Int
+  warehouseId                Int
+  stockMovements             StockMovement[]
+  variant                    Variant         @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  warehouse                  Warehouse       @relation(fields: [warehouseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@schema("inventory")
+}
+
+// Shipping schema models
+model ShippingRule {
+  id             Int              @id @default(autoincrement())
+  type           ShippingRuleType
+  slug           String
+  description    String
+  isEnabled      Boolean          @default(true)
+  priority       Int?
+  conditions     Json?
+  tenantId       Int
+  productId      Int?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  shippmentRates ShipmentRate[]
+  tenant         Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  product        Product?         @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([tenantId, slug])
+  @@index([tenantId, type])
+  @@schema("shipping")
+}
+
+enum ShippingRuleType {
+  METHOD
+  RESTRICTION
+
+  @@schema("shipping")
+}
+
+model ShipmentRate {
+  id                Int               @id @default(autoincrement())
+  fixedRate         Float
+  description       String?
+  calculationMethod CalculationMethod
+  data              Json?
+  shippingRuleId    Int
+  countryId         Int
+  stateId           Int?
+  tenantId          Int
+  country           Country           @relation(fields: [countryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  state             State?            @relation(fields: [stateId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  shippingRule      ShippingRule      @relation(fields: [shippingRuleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tenant            Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([tenantId, shippingRuleId, countryId, stateId], name: "unique_tenant_method_rate")
+  @@index([tenantId, shippingRuleId])
+  @@schema("shipping")
+}
+
+enum CalculationMethod {
+  FIXED
+  WEIGHT
+  VOLUME
+  WEIGHT_AND_VOLUME
+
+  @@schema("shipping")
+}
+
+// Product schema models
+model TaxRate {
+  id         Int       @id @default(autoincrement())
+  rate       Float
+  countryId  Int
+  stateId    Int?
+  categoryId Int?
+  tenantId   Int
+  tenant     Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  country    Country   @relation(fields: [countryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  state      State?    @relation(fields: [stateId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([tenantId, countryId, stateId, categoryId], name: "tenant_cannot_have_the_same_tax_rate_config")
+  @@schema("product")
+}
+
+model Category {
+  id                Int                 @id @default(autoincrement())
+  name              String
+  description       String?
+  parentId          Int?
+  tenantId          Int
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  taxRate           TaxRate[]
+  productCategories ProductCategories[]
+  subcategories     Category[]          @relation("Subcategory")
+  parent            Category?           @relation("Subcategory", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tenant            Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([tenantId, name])
+  @@index([parentId])
+  @@schema("product")
+}
+
+model ProductCategories {
+  id         Int      @id @default(autoincrement())
+  productId  Int
+  categoryId Int
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@schema("product")
+}
+
+model Product {
+  id                       Int                     @id @default(autoincrement())
+  name                     String                  @unique
+  shortDescription         String
+  longDescription          String?                 @postgres.Text
+  productType              ProductType
+  cover                    String
+  brand                    String?
+  manufacturer             String?
+  warranty                 Warranty?
+  tags                     String[]
+  metadata                 Json
+  tenantId                 Int
+  updatedAt                DateTime                @updatedAt
+  createdAt                DateTime                @default(now())
+  media                    Media[]
+  variants                 Variant[]
+  productCategories        ProductCategories[]
+  installmentPayments      InstallmentPayment[]
+  sustainabilityAttributes Sustainability[]
+  specificShippingRules    ShippingRule[]
+  wishList                 WishList[]
+  returns                  Return[]
+  ordersDetails            OrderDetail[]
+  customersReviews         CustomerReviewProduct[]
+  cartItems                CartItem[]
+  tenant                   Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([tenantId, name])
+  @@schema("product")
+}
+
+enum ProductType {
+  PHYSICAL
+  DIGITAL
+
+  @@schema("product")
+}
+
+model Media {
+  id        Int       @id @default(autoincrement())
+  url       String
+  position  Int
+  mediaType MediaType
+  productId Int
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([productId, position])
+  @@schema("product")
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+
+  @@schema("product")
+}
+
+model InstallmentPayment {
+  id           Int     @id @default(autoincrement())
+  months       Int
+  interestRate Float
+  productId    Int
+  product      Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@schema("product")
+}
+
+model Sustainability {
+  id                 Int     @id @default(autoincrement())
+  certification      String?
+  recycledPercentage Float
+  productId          Int
+  product            Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@schema("product")
+}
+
+model Warranty {
+  id           Int     @id @default(autoincrement())
+  months       Int
+  coverage     String
+  instructions String
+  productId    Int     @unique
+  product      Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@schema("product")
+}
+
+model Variant {
+  id                     Int                 @id @default(autoincrement())
+  price                  Decimal             @default(0)
+  currency               Currency
+  variantCover           String
+  personalizationOptions String[]
+  weight                 Float?
+  dimension              Dimension?
+  condition              ProductCondition
+  upc                    String?             @unique
+  ean                    String?             @unique
+  isbn                   String?             @unique
+  barcode                String?
+  sku                    String?
+  productId              Int
+  tenantId               Int
+  attributes             Attribute[]
+  stockPerWarehouses     StockPerWarehouse[]
+  product                Product             @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tenant                 Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([tenantId, sku])
+  @@unique([tenantId, barcode])
+  @@schema("product")
+}
+
+model Attribute {
+  id        Int     @id @default(autoincrement())
+  key       String
+  value     String
+  variantId Int
+  variant   Variant @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@schema("product")
+}
+
+enum Currency {
+  AFN
+  ALL
+  EUR
+  DZD
+  AOA
+  XCD
+  SAR
+  ARS
+  AMD
+  AWG
+  AUD
+  AZN
+  BSD
+  BDT
+  BBD
+  BHD
+  BZD
+  XOF
+  BMD
+  BYR
+  MMK
+  BOB
+  BOV
+  USD
+  BAM
+  BWP
+  BRL
+  BND
+  BGN
+  BIF
+  BTN
+  INR
+  CVE
+  KHR
+  XAF
+  CAD
+  CLF
+  CLP
+  CNY
+  COP
+  COU
+  KMF
+  CDF
+  CRC
+  HRK
+  CUC
+  CUP
+  ANG
+  DKK
+  EGP
+  SVC
+  AED
+  ERN
+  ETB
+  FJD
+  PHP
+  XDR
+  GMD
+  GEL
+  GHS
+  GIP
+  GNF
+  GTQ
+  GYD
+  HTG
+  HNL
+  HKD
+  HUF
+  IDR
+  IQD
+  NOK
+  ISK
+  KYD
+  FKP
+  SBD
+  ILS
+  JMD
+  JPY
+  GBP
+  JOD
+  KZT
+  KES
+  KGS
+  KWD
+  LSL
+  ZAR
+  LRD
+  LYD
+  CHF
+  LBP
+  MOP
+  MKD
+  MGA
+  MYR
+  MWK
+  MVR
+  MAD
+  MUR
+  MRO
+  MNT
+  MZN
+  MXN
+  MXV
+  NAD
+  NPR
+  NIO
+  NGN
+  NZD
+  XPF
+  OMR
+  XUA
+  PKR
+  PAB
+  PGK
+  PYG
+  PEN
+  PLN
+  QAR
+  LAK
+  VEF
+  CZK
+  KRW
+  MDL
+  KPW
+  DOP
+  IRR
+  TZS
+  SYP
+  RWF
+  RON
+  RUB
+  WST
+  STD
+  RSD
+  SCR
+  SLL
+  SGD
+  XSU
+  SOS
+  LKR
+  SZL
+  SDG
+  SSP
+  SEK
+  CHE
+  CHW
+  SRD
+  THB
+  TWD
+  TJS
+  TOP
+  TTD
+  TMT
+  TRY
+  TND
+  UGX
+  UAH
+  UYI
+  UYU
+  UZS
+  VUV
+  VND
+  YER
+  DJF
+  ZMW
+  ZWL
+
+  @@schema("product")
+}
+
+model Dimension {
+  id        Int     @id @default(autoincrement())
+  length    Float
+  width     Float
+  height    Float
+  variantId Int     @unique
+  variant   Variant @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@schema("product")
+}
+
+enum ProductCondition {
+  NEW
+  USED
+  REFURBISHED
+
+  @@schema("product")
+}
+
+// Pricing schema models
+model Promotion {
+  id              Int                  @id @default(autoincrement())
+  name            String
+  description     String
+  type            PromotionType
+  actionType      PromotionActionType?
+  actionValue     Decimal?
+  isStackable     Boolean              @default(false)
+  params          Json
+  priority        Int
+  startDate       DateTime
+  endDate         DateTime
+  isArchived      Boolean              @default(false)
+  updatedAt       DateTime             @updatedAt
+  createdAt       DateTime             @default(now())
+  tenantId        Int
+  coupons         Coupon[]
+  cartItems       CartItem[]
+  orderPromotions OrderPromotions[]
+  cartPromotions  CartPromotions[]
+  tenant          Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([tenantId, name])
+  @@unique([tenantId, priority])
+  @@schema("pricing")
+}
+
+enum PromotionType {
+  BUY_X_GET_DISCOUNT_ON_Y
+  STORE_ATTRIBUTE
+  PRODUCT_ATTRIBUTE
+  BUY_X_GET_Y
+  FIXED_GROUP
+  COUPON
+  BUNDLE
+
+  @@schema("pricing")
+}
+
+enum PromotionActionType {
+  PERCENTAGE
+  FIXED
+
+  @@schema("pricing")
+}
+
+model Coupon {
+  id               Int           @id @default(autoincrement())
+  code             String
+  usageLimit       Int?
+  perCustomerLimit Int           @default(1)
+  usedCount        Int           @default(0)
+  promotionId      Int
+  customerId       Int?
+  tenantId         Int
+  updatedAt        DateTime      @updatedAt
+  createdAt        DateTime      @default(now())
+  couponUsages     CouponUsage[]
+  promotion        Promotion     @relation(fields: [promotionId], references: [id])
+  customer         Customer?     @relation(fields: [customerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  tenant           Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([tenantId, code])
+  @@schema("pricing")
+}
+
+model CouponUsage {
+  id       Int      @id @default(autoincrement())
+  couponId Int
+  orderId  Int
+  usedAt   DateTime @default(now())
+  coupon   Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([orderId, couponId])
+  @@schema("pricing")
+}
+
+model CartPromotions {
+  id          Int       @id @default(autoincrement())
+  cartId      Int
+  promotionId Int
+  cart        Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  promotion   Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@schema("pricing")
+}
+
+model OrderPromotions {
+  id          Int       @id @default(autoincrement())
+  orderId     Int
+  promotionId Int
+  order       Order     @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  promotion   Promotion @relation(fields: [promotionId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@schema("pricing")
+}
+
+// Sales schema models
+model Cart {
+  id             Int              @id @default(autoincrement())
+  customerId     Int
+  cartItems      CartItem[]
+  orders         Order[]
+  customer       Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  CartPromotions CartPromotions[]
+
+  @@schema("sales")
+}
+
+model CartItem {
+  id          Int        @id @default(autoincrement())
+  qty         Int
+  productId   Int
+  cartId      Int
+  promotionId Int?
+  updatedAt   DateTime   @updatedAt
+  cart        Cart       @relation(fields: [cartId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  promotion   Promotion? @relation(fields: [promotionId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  product     Product    @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@schema("sales")
+}
+
+model Order {
+  id              Int               @id @default(autoincrement())
+  orderNumber     String
+  status          OrderStatus
+  totalAmount     Decimal
+  customerId      Int
+  cartId          Int
+  addressId       Int
+  tenantId        Int
+  updatedAt       DateTime          @updatedAt
+  createdAt       DateTime          @default(now())
+  orderDetails    OrderDetail[]
+  returns         Return[]
+  payments        Payment[]
+  orderPromotions OrderPromotions[]
+  couponUsages    CouponUsage[]
+  customer        Customer          @relation(fields: [customerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  cart            Cart              @relation(fields: [cartId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  address         Address           @relation(fields: [addressId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  tenant          Tenant            @relation(fields: [tenantId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([tenantId, orderNumber])
+  @@schema("sales")
+}
+
+enum OrderStatus {
+  PROCESSING
+  CONFIRMED
+  SHIPPED
+  COMPLETED
+  CANCELLED
+
+  @@schema("sales")
+}
+
+model OrderDetail {
+  id          Int      @id @default(autoincrement())
+  productName String
+  qty         Int
+  unitPrice   Decimal
+  subtotal    Decimal
+  orderId     Int
+  productId   Int? // enforce obligation through value object
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  @@schema("sales")
+}
+
+model Return {
+  id           Int      @id @default(autoincrement())
+  returnReason String   @postgres.Text
+  refundAmount Decimal
+  productId    Int? // enforce obligation through value object
+  orderId      Int
+  updatedAt    DateTime @updatedAt
+  createdAt    DateTime @default(now())
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  product      Product? @relation(fields: [productId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  @@schema("sales")
+}
+
+model Payment {
+  id              Int           @id @default(autoincrement())
+  amount          Decimal
+  status          Status
+  transactionId   String?
+  orderId         Int?
+  paymentMethodId Int
+  subscriptionId  Int?
+  updatedAt       DateTime      @updatedAt
+  createdAt       DateTime      @default(now())
+  order           Order?        @relation(fields: [orderId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  Subscription    Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  @@schema("sales")
+}
+
+enum Status {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+  CANCELLED
+
+  @@schema("sales")
+}
+
+model PaymentMethod {
+  id                     Int                     @id @default(autoincrement())
+  acceptedPaymentMethods AcceptedPaymentMethod[]
+  tenantId               Int?
+  customerId             Int?
+  updatedAt              DateTime                @updatedAt
+  createdAt              DateTime                @default(now())
+  tenant                 Tenant?                 @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  customer               Customer?               @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  payments               Payment[]
+
+  @@schema("sales")
+}
+
+enum AcceptedPaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  CASH
+  BANK_TRANSFER
+  PAYPAL
+  PAYMENT_ON_DELIVERY
+  INSTALLMENTS
+
+  @@schema("sales")
+}
+
+// Customer schema models
+model Customer {
+  id                       Int                     @id @default(autoincrement())
+  name                     String
+  tenantId                 Int
+  authIdentityId           Int                     @unique
+  defaultPhoneNumberId     Int?                    @unique
+  defaultShippingAddressId Int?                    @unique
+  defaultBillingAddressId  Int?                    @unique
+  updatedAt                DateTime                @updatedAt
+  createdAt                DateTime                @default(now())
+  wishLists                WishList[]
+  customerReviewProducts   CustomerReviewProduct[]
+  addresses                Address[]
+  phoneNumbers             PhoneNumber[]
+  coupons                  Coupon[]
+  carts                    Cart[]
+  orders                   Order[]
+  paymentMethods           PaymentMethod[]
+  tenant                   Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  authIdentity             AuthIdentity            @relation("CustomerAuth", fields: [authIdentityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  defaultPhoneNumber       PhoneNumber?            @relation("CustomerDefaultPhone", fields: [defaultPhoneNumberId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  defaultShippingAddress   Address?                @relation("CustomerDefaultShippingAddress", fields: [defaultShippingAddressId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  defaultBillingAddress    Address?                @relation("CustomerDefaultBillingAddress", fields: [defaultBillingAddressId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  @@schema("customer")
+}
+
+model WishList {
+  id         Int      @id @default(autoincrement())
+  productId  Int
+  customerId Int
+  updatedAt  DateTime @updatedAt
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@schema("customer")
+}
+
+model CustomerReviewProduct {
+  id          Int      @id @default(autoincrement())
+  ratingCount Float
+  comment     String   @postgres.Text
+  customerId  Int
+  productId   Int
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@schema("customer")
+}
+
+// Common schema models
+model PhoneNumber {
+  id                 Int       @id @default(autoincrement())
+  number             String
+  customerId         Int?
+  tenantId           Int?
+  defaultForTenant   Tenant?   @relation("TenantDefaultPhone")
+  defaultForCustomer Customer? @relation("CustomerDefaultPhone")
+  customer           Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tenant             Tenant?   @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@schema("common")
+}
+
+model Address {
+  id                         Int          @id @default(autoincrement())
+  name                       String
+  addressLine1               String
+  addressLine2               String?
+  postalCode                 String?
+  city                       String
+  countryId                  Int
+  addressType                AddressTypes
+  deliveryNum                String?
+  tenantId                   Int?
+  customerId                 Int?
+  warehouses                 Warehouse[]
+  orders                     Order[]
+  country                    Country      @relation(fields: [countryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  tenant                     Tenant?      @relation(fields: [tenantId], references: [id])
+  customer                   Customer?    @relation(fields: [customerId], references: [id])
+  defaultShippingForTenant   Tenant?      @relation("TenantDefaultShippingAddress")
+  defaultBillingForTenant    Tenant?      @relation("TenantDefaultBillingAddress")
+  defaultShippingForCustomer Customer?    @relation("CustomerDefaultShippingAddress")
+  defaultBillingForCustomer  Customer?    @relation("CustomerDefaultBillingAddress")
+
+  @@schema("common")
+}
+
+enum AddressTypes {
+  SHIPPING
+  BILLING
+  WAREHOUSE
+
+  @@schema("common")
+}
+
+model AuthIdentity {
+  id             Int         @id @default(autoincrement())
+  email          String
+  password       String
+  accountType    AccountType
+  isActive       Boolean     @default(true)
+  emailVerified  Boolean     @default(false)
+  lastLoginAt    DateTime?
+  failedAttempts Int         @default(0)
+  lockedUntil    DateTime?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  tenant         Tenant?     @relation("TenantAuth")
+  customer       Customer?   @relation("CustomerAuth")
+  employee       Employee?   @relation("EmployeeAuth")
+
+  @@index([email, accountType])
+  @@schema("common")
+}
+
+enum AccountType {
+  TENANT
+  CUSTOMER
+  EMPLOYEE
+
+  @@schema("common")
+}
+
+// Geography schema models
+model Country {
+  id             Int            @id @default(autoincrement())
+  name           String
+  code           String
+  states         State[]
+  addresses      Address[]
+  taxRates       TaxRate[]
+  shippmentRates ShipmentRate[]
+
+  @@schema("geography")
+}
+
+model State {
+  id             Int            @id @default(autoincrement())
+  name           String
+  code           String
+  countryId      Int
+  taxRates       TaxRate[]
+  shippmentRates ShipmentRate[]
+  country        Country        @relation(fields: [countryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@schema("geography")
+}
