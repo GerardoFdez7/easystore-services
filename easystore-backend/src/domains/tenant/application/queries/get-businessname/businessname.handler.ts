@@ -1,10 +1,9 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { Inject, NotFoundException } from '@nestjs/common';
 import { FindTenantByBusinessNameDTO } from './businessname.dto';
-import { BusinessName } from '../../../aggregates/value-objects/business-name.value-object';
+import { BusinessName } from '../../../aggregates/value-objects';
 import { ITenantRepository } from '../../../aggregates/repositories/tenant.interface';
-import { TenantDTO } from '../../mappers/tenant.dto';
-import { Inject } from '@nestjs/common';
-import { TenantMapper } from '../../mappers/tenant.mapper';
+import { TenantMapper, TenantDTO } from '../../mappers';
 
 @QueryHandler(FindTenantByBusinessNameDTO)
 export class FindTenantByBusinessNameHandler
@@ -16,11 +15,17 @@ export class FindTenantByBusinessNameHandler
   ) {}
 
   async execute(query: FindTenantByBusinessNameDTO): Promise<TenantDTO | null> {
-    const businessName = BusinessName.create(query.businessName);
-    const tenant = await this.tenantRepository.findByBusinessName(businessName);
+    const { businessName } = query;
+
+    const ecommerceName = BusinessName.create(businessName);
+
+    const tenant =
+      await this.tenantRepository.findByBusinessName(ecommerceName);
 
     if (!tenant) {
-      return null;
+      throw new NotFoundException(
+        `Tenant with business name ${businessName} not found`,
+      );
     }
 
     // Use the centralized TenantMapper to convert domain entity to DTO
