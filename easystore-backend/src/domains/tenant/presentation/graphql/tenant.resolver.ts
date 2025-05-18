@@ -2,7 +2,7 @@ import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { FindTenantByBusinessNameDTO } from '../../application/queries';
 import { TenantSingUpDTO } from '../../application/commands';
-import { TenantType, CreateTenantInput } from './tenant.type';
+import { TenantType, CreateTenantInput } from './tenant.types';
 
 @Resolver(() => TenantType)
 export class TenantResolver {

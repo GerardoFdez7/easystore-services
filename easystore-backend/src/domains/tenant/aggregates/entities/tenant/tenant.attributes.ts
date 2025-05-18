@@ -1,4 +1,5 @@
 export interface ITenantType extends ITenantBase, ITenantSystem {
+  authIdentityId: number;
   defaultPhoneNumberId?: number | null;
   defaultShippingAddressId?: number | null;
   defaultBillingAddressId?: number | null;
@@ -10,7 +11,6 @@ export interface ITenantBase {
   domain?: string;
   logo?: string | null;
   description?: string | null;
-  authIdentityId: number;
 }
 
 export interface ITenantSystem {

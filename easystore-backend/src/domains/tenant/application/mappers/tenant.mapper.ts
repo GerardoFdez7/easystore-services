@@ -59,20 +59,19 @@ export class TenantMapper {
    */
   static toDto(tenant: Tenant): TenantDTO {
     return tenant.toDTO<TenantDTO>((entity) => ({
-      id: entity.get('id').getValue(),
+      id: entity.get('id')?.getValue() || null,
       ownerName: entity.get('ownerName').getValue(),
       businessName: entity.get('businessName').getValue(),
       domain: entity.get('domain').getValue(),
-      logo: entity.get('logo')?.getValue(),
-      description: entity.get('description')?.getValue(),
+      logo: entity.get('logo')?.getValue() || null,
+      description: entity.get('description')?.getValue() || null,
       authIdentityId: entity.get('authIdentityId').getValue(),
-      defaultPhoneNumberId: entity.get('defaultPhoneNumberId')?.getValue(),
-      defaultShippingAddressId: entity
-        .get('defaultShippingAddressId')
-        ?.getValue(),
-      defaultBillingAddressId: entity
-        .get('defaultBillingAddressId')
-        ?.getValue(),
+      defaultPhoneNumberId:
+        entity.get('defaultPhoneNumberId')?.getValue() || null,
+      defaultShippingAddressId:
+        entity.get('defaultShippingAddressId')?.getValue() || null,
+      defaultBillingAddressId:
+        entity.get('defaultBillingAddressId')?.getValue() || null,
       createdAt: entity.get('createdAt'),
       updatedAt: entity.get('updatedAt'),
     }));
