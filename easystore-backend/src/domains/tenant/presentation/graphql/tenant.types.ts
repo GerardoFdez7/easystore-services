@@ -1,8 +1,8 @@
-import { Field, ID, ObjectType, InputType } from '@nestjs/graphql';
+import { Field, Int, ObjectType, InputType } from '@nestjs/graphql';
 
 @ObjectType('Tenant')
 export class TenantType {
-  @Field(() => ID)
+  @Field(() => Int)
   id: number;
 
   @Field()
@@ -20,16 +20,16 @@ export class TenantType {
   @Field()
   description: string;
 
-  @Field(() => ID)
+  @Field(() => Int)
   authIdentityId: number;
 
-  @Field(() => ID)
+  @Field(() => Int)
   defaultPhoneNumberId: number;
 
-  @Field(() => ID)
+  @Field(() => Int)
   defaultShippingAddressId: number;
 
-  @Field(() => ID)
+  @Field(() => Int)
   defaultBillingAddressId: number;
 
   @Field()
@@ -57,9 +57,6 @@ export class CreateTenantInput {
 
   @Field({ nullable: true })
   description?: string;
-
-  @Field(() => ID)
-  authIdentityId: number;
 }
 
 @InputType()
@@ -79,15 +76,15 @@ export class UpdateTenantInput {
   @Field({ nullable: true })
   description?: string;
 
-  @Field(() => ID, { nullable: true })
+  @Field(() => Int, { nullable: true })
   authIdentityId?: number;
 
-  @Field(() => ID, { nullable: true })
+  @Field(() => Int, { nullable: true })
   defaultPhoneNumberId?: number;
 
-  @Field(() => ID, { nullable: true })
+  @Field(() => Int, { nullable: true })
   defaultShippingAddressId?: number;
 
-  @Field(() => ID, { nullable: true })
+  @Field(() => Int, { nullable: true })
   defaultBillingAddressId?: number;
 }
