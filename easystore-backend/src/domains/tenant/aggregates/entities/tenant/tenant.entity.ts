@@ -1,22 +1,16 @@
 import { Entity, EntityProps } from '@domains/entity.base';
+import { Id, Name, LongDescription } from '@domains/value-objects';
 import { ITenantType } from '..';
-import {
-  Id,
-  OwnerName,
-  BusinessName,
-  Domain,
-  Logo,
-  Description,
-} from '../../value-objects';
+import { Domain, Logo } from '../../value-objects';
 import { TenantCreatedEvent } from '../../events/tenant-created.event';
 
 export interface ITenantProps extends EntityProps {
   id: Id;
-  businessName: BusinessName;
-  ownerName: OwnerName;
+  businessName: Name;
+  ownerName: Name;
   domain?: Domain | null;
   logo?: Logo | null;
-  description?: Description | null;
+  description?: LongDescription | null;
   authIdentityId: Id;
   defaultPhoneNumberId?: Id | null;
   defaultShippingAddressId?: Id | null;
@@ -33,14 +27,14 @@ export class Tenant extends Entity<ITenantProps> {
   // Factory method to create a new Tenant
   static create(props: ITenantType): Tenant {
     const transformedProps = {
-      businessName: BusinessName.create(props.businessName),
-      ownerName: OwnerName.create(props.ownerName),
+      businessName: Name.create(props.businessName),
+      ownerName: Name.create(props.ownerName),
       domain: props.domain
         ? Domain.create(props.domain)
         : Domain.createDefault(props.businessName),
       logo: props.logo ? Logo.create(props.logo) : null,
       description: props.description
-        ? Description.create(props.description)
+        ? LongDescription.create(props.description)
         : null,
       authIdentityId: Id.create(props.authIdentityId),
     };

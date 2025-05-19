@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Inject, NotFoundException } from '@nestjs/common';
+import { Name } from '@domains/value-objects';
 import { FindTenantByBusinessNameDTO } from './businessname.dto';
-import { BusinessName } from '../../../aggregates/value-objects';
 import { ITenantRepository } from '../../../aggregates/repositories/tenant.interface';
 import { TenantMapper, TenantDTO } from '../../mappers';
 
@@ -17,7 +17,7 @@ export class FindTenantByBusinessNameHandler
   async execute(query: FindTenantByBusinessNameDTO): Promise<TenantDTO | null> {
     const { businessName } = query;
 
-    const ecommerceName = BusinessName.create(businessName);
+    const ecommerceName = Name.create(businessName);
 
     const tenant =
       await this.tenantRepository.findByBusinessName(ecommerceName);

@@ -5,11 +5,11 @@ import {
   DatabaseOperationError,
   ResourceNotFoundError,
 } from '@domains/errors';
+import { Id, Name } from '@domains/value-objects';
 import { TenantMapper } from '../../../application/mappers';
 import { Tenant } from '../../../aggregates/entities';
 import { Tenant as PrismaTenant } from '.prisma/postgres';
 import { ITenantRepository } from '../../../aggregates/repositories/tenant.interface';
-import { Id, BusinessName } from '../../../aggregates/value-objects';
 
 @Injectable()
 export class TenantRepository implements ITenantRepository {
@@ -78,9 +78,7 @@ export class TenantRepository implements ITenantRepository {
   }
 
   // Find a tenant by Business Name
-  async findByBusinessName(
-    businessNameObj: BusinessName,
-  ): Promise<Tenant | null> {
+  async findByBusinessName(businessNameObj: Name): Promise<Tenant | null> {
     const businessName = businessNameObj.getValue();
     try {
       const tenant = await this.prisma.tenant.findUnique({

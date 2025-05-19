@@ -1,5 +1,5 @@
 import { Tenant } from '../entities/tenant/tenant.entity';
-import { Id, BusinessName } from '../value-objects/index';
+import { Id, Name } from '@domains/value-objects';
 
 /**
  * Repository interface for Tenant aggregate.
@@ -24,5 +24,5 @@ export interface ITenantRepository {
    * @param businessName The business name of the tenant.
    * @returns The tenant entity or null if not found.
    */
-  findByBusinessName(businessName: BusinessName): Promise<Tenant | null>;
+  findByBusinessName(businessName: Name): Promise<Tenant | null>;
 }

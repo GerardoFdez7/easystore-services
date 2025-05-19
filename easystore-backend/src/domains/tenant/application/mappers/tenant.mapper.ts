@@ -1,13 +1,7 @@
 import { Entity } from '@domains/entity.base';
+import { Id, Name, LongDescription } from '@domains/value-objects';
 import { Tenant, ITenantProps, ITenantType } from '../../aggregates/entities';
-import {
-  Id,
-  BusinessName,
-  Description,
-  Domain,
-  Logo,
-  OwnerName,
-} from '../../aggregates/value-objects';
+import { Domain, Logo } from '../../aggregates/value-objects';
 import { TenantDTO } from './';
 import { TenantSingUpDTO } from '../commands';
 
@@ -28,14 +22,14 @@ export class TenantMapper {
       Tenant
     >(Tenant, persistenceTenant, (model) => ({
       id: Id.create(model.id),
-      businessName: BusinessName.create(model.businessName),
-      ownerName: OwnerName.create(model.ownerName),
+      businessName: Name.create(model.businessName),
+      ownerName: Name.create(model.ownerName),
       domain: model.domain
         ? Domain.create(model.domain)
         : Domain.createDefault(model.businessName),
       logo: model.logo ? Logo.create(model.logo) : null,
       description: model.description
-        ? Description.create(model.description)
+        ? LongDescription.create(model.description)
         : null,
       authIdentityId: Id.create(model.authIdentityId),
       defaultPhoneNumberId: model.defaultPhoneNumberId

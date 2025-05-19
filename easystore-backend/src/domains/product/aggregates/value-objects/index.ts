@@ -1,8 +1,8 @@
 export { Id } from './id.value-object';
-export { Name } from './name.value-object';
+export { Name } from '../../../../shared/domains/value-objects/name.vo';
 export { CategoryId } from './category-id.value-object';
-export { ShortDescription } from './short-description.value-object';
-export { LongDescription } from './long-description.value-object';
+export { ShortDescription } from '../../../../shared/domains/value-objects/short-description.vo';
+export { LongDescription } from '../../../../shared/domains/value-objects/long-description.vo';
 export { Variant } from './variant.value-object';
 export { Type } from './type.value-object';
 export { Cover } from './cover.value-object';
