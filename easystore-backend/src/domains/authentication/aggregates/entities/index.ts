@@ -1,7 +1,7 @@
-export { AuthIdentity } from './authentication.entity';
+export { AuthIdentity, IAuthIdentityProps } from './auth/authentication.entity';
 
 export {
   IAuthIdentityBaseType,
   IAuthIdentitySystemProps,
   IAuthIdentityType,
-} from './authentication.types';
+} from './auth/authentication.attributes';

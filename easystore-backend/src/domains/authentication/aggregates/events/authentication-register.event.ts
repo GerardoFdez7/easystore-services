@@ -1,4 +1,4 @@
-import { AuthIdentity } from '../entities/authentication.entity';
+import { AuthIdentity } from '../entities/auth/authentication.entity';
 
 export class AuthenticationRegisterEvent {
   constructor(public readonly auth: AuthIdentity) {}
