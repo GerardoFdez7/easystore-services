@@ -4,7 +4,7 @@ import { LoggerService } from '@winston/winston.service';
 import { IProductRepository } from '../../../../aggregates/repositories/product.interface';
 import { ProductMapper, ProductDTO } from '../../../mappers';
 import { UpdateVariantDTO } from './update-variant.dto';
-import { Id } from '../../../../aggregates/value-objects/id.value-object';
+import { Id } from '../../../../aggregates/value-objects';
 
 @CommandHandler(UpdateVariantDTO)
 export class UpdateVariantHandler implements ICommandHandler<UpdateVariantDTO> {

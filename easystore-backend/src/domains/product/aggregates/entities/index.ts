@@ -1,7 +1,6 @@
-export { Product, ProductProps } from './product.entity';
+export { Product, ProductProps } from './product/product.entity';
 export {
   IProductType,
-  IProductBaseType,
-  IProductSystemProps,
-  IVariantType,
-} from './product.types';
+  IProductBase,
+  IProductSystem,
+} from './product/product.attributes';

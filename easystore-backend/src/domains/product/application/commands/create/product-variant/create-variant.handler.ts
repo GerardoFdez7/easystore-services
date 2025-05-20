@@ -3,7 +3,7 @@ import { IProductRepository } from '../../../../aggregates/repositories/product.
 import { ProductMapper, ProductDTO } from '../../../mappers';
 import { CreateVariantDTO } from './create-variant.dto';
 import { Inject, NotFoundException } from '@nestjs/common';
-import { Id } from '../../../../aggregates/value-objects/id.value-object';
+import { Id } from '../../../../aggregates/value-objects';
 
 @CommandHandler(CreateVariantDTO)
 export class CreateVariantHandler implements ICommandHandler<CreateVariantDTO> {
