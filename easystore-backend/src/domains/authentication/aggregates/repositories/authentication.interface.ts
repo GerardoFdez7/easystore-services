@@ -1,4 +1,4 @@
-import { AuthIdentity } from '../entities/authentication.entity';
+import { AuthIdentity } from '../entities/auth/authentication.entity';
 import { Email } from '../value-objects';
 
 /**

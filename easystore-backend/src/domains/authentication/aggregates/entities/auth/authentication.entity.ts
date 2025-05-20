@@ -1,14 +1,15 @@
 import { Entity, EntityProps } from '@domains/entity.base';
-import { Id } from '@domains/value-objects';
+import { IAuthIdentityBaseType } from '../';
 import {
   Email,
   Password,
   AccountType,
   IsActive,
   EmailVerified,
-} from '../value-objects';
-import { AuthenticationLoginEvent } from '../events/authentication-login.event';
-import { AuthenticationRegisterEvent } from '../events/authentication-register.event';
+  Id,
+} from '../../value-objects';
+import { AuthenticationLoginEvent } from '../../events/authentication-login.event';
+import { AuthenticationRegisterEvent } from '../../events/authentication-register.event';
 
 export interface IAuthIdentityProps extends EntityProps {
   id: Id;
@@ -24,25 +25,23 @@ export interface IAuthIdentityProps extends EntityProps {
   updatedAt: Date;
 }
 
-export interface ICreateAuthIdentity {
-  email: string;
-  password: string;
-  accountType: string;
-}
-
 export class AuthIdentity extends Entity<IAuthIdentityProps> {
   constructor(props: IAuthIdentityProps) {
     super(props);
   }
 
-  static register(input: ICreateAuthIdentity): AuthIdentity {
+  static register(input: IAuthIdentityBaseType): AuthIdentity {
     const now = new Date();
 
-    const auth = new AuthIdentity({
-      id: null,
+    const transformedProps = {
       email: Email.create(input.email),
       password: Password.create(input.password),
       accountType: AccountType.create(input.accountType),
+    };
+
+    const auth = new AuthIdentity({
+      id: null,
+      ...transformedProps,
       isActive: IsActive.create(true),
       emailVerified: EmailVerified.create(false),
       lastLoginAt: null,

@@ -1,20 +1,21 @@
 export interface IAuthIdentityBaseType {
   email: string;
   password: string;
-  accountType: 'ADMIN' | 'TENANT' | 'CUSTOMER';
+  accountType: 'EMPLOYEE' | 'TENANT' | 'CUSTOMER';
 }
 
 export interface IAuthIdentitySystemProps {
-  id: string;
-  isActive: boolean;
-  emailVerified: boolean;
-  lastLoginAt?: Date | null;
-  failedAttempts: number;
-  lockedUntil?: Date | null;
+  id: number;
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface IAuthIdentityType
   extends IAuthIdentityBaseType,
-    IAuthIdentitySystemProps {}
+    IAuthIdentitySystemProps {
+  isActive: boolean;
+  emailVerified: boolean;
+  lastLoginAt?: Date | null;
+  failedAttempts: number;
+  lockedUntil?: Date | null;
+}
