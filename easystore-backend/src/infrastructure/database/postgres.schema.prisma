@@ -301,7 +301,6 @@ model Product {
   cover                    String
   brand                    String?
   manufacturer             String?
-  warranty                 Warranty?
   tags                     String[]
   metadata                 Json
   tenantId                 Int
@@ -312,6 +311,7 @@ model Product {
   productCategories        ProductCategories[]
   installmentPayments      InstallmentPayment[]
   sustainabilityAttributes Sustainability[]
+  warranty                 Warranty[]
   specificShippingRules    ShippingRule[]
   wishList                 WishList[]
   returns                  Return[]
@@ -375,7 +375,7 @@ model Warranty {
   months       Int
   coverage     String
   instructions String
-  productId    Int     @unique
+  productId    Int
   product      Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@schema("product")

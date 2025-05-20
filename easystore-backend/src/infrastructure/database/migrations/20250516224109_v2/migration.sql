@@ -680,9 +680,6 @@ CREATE UNIQUE INDEX "Product_tenantId_name_key" ON "product"."Product"("tenantId
 CREATE UNIQUE INDEX "Media_productId_position_key" ON "product"."Media"("productId", "position");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Warranty_productId_key" ON "product"."Warranty"("productId");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Variant_upc_key" ON "product"."Variant"("upc");
 
 -- CreateIndex

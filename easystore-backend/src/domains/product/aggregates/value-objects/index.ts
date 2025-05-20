@@ -1,47 +1,43 @@
-export { Id } from './id.value-object';
-export { Name } from '../../../../shared/domains/value-objects/name.vo';
-export { CategoryId } from './category-id.value-object';
-export { ShortDescription } from '../../../../shared/domains/value-objects/short-description.vo';
-export { LongDescription } from '../../../../shared/domains/value-objects/long-description.vo';
-export { Variant } from './variant.value-object';
-export { Type } from './type.value-object';
-export { Cover } from './cover.value-object';
-export { Media } from './media.value-object';
-export { ShippingMethod } from './shipping-method.value-object';
-export { ShippingRestriction } from './shipping-restriction.value-object';
-export { Tags } from './tags.value-object';
+// Shared value objects
+export { Cover } from './shared/cover.vo';
+export { Months } from './shared/months.vo';
 export {
-  InstallmentDetail,
-  InstallmentDetailProps,
-} from './installment-detail.value-object';
-export { AcceptedPaymentMethods } from './accepted-payment-methods.value-object';
-export {
-  SustainabilityAttribute,
-  SustainabilityAttributesProps,
-} from './sustainability-attribute.value-object';
-export { Brand } from './brand.value-object';
-export { Manufacturer } from './manufacturer.value-object';
-export {
-  WarrantyDetail,
-  WarrantyDetailProps,
-} from './warranty-detail.value-object';
-export { Metadata, MetadataProps } from './metadata.value-object';
+  Id,
+  Name,
+  ShortDescription,
+  MediumDescription,
+  LongDescription,
+} from '@domains/value-objects';
 
-// Product variant value objects
-export { Attribute, AttributeProps } from './attribute.value-object';
-export {
-  StockPerWarehouse,
-  StockPerWarehouseProps,
-} from './stock-per-warehouse.value-object';
-export { Price } from './price.value-object';
-export { Currency } from './currency.value-object';
-export { VariantMedia } from './variant-media.value-object';
-export { PersonalizationOptions } from './personalization-option.value-object';
-export { Weight } from './weight.value-object';
-export { Dimension, DimensionProps } from './dimension.value-object';
-export { Condition } from './condition.value-object';
-export { SKU } from './sku.value-object';
-export { UPC } from './upc.value-object';
-export { EAN } from './ean.value-object';
-export { ISBN } from './isbn.value-object';
-export { Barcode } from './barcode.value-object';
+// Product value objects
+export { Type } from './product/type.vo';
+export { Tags } from './product/tags.vo';
+export { Brand } from './product/brand.vo';
+export { Manufacturer } from './product/manufacturer.vo';
+export { Metadata, MetadataProps } from './product/metadata.vo';
+
+// Variant value objects
+export { Price } from './variant/price.vo';
+export { Currency } from './variant/currency.vo';
+export { PersonalizationOptions } from './variant/personalization-option.vo';
+export { Weight } from './variant/weight.vo';
+export { Dimension, DimensionProps } from './variant/dimension.vo';
+export { Condition } from './variant/condition.vo';
+export { SKU } from './variant/sku.vo';
+export { UPC } from './variant/upc.vo';
+export { EAN } from './variant/ean.vo';
+export { ISBN } from './variant/isbn.vo';
+export { Barcode } from './variant/barcode.vo';
+export { Attribute, AttributeProps } from './variant/attribute.vo';
+
+// Installment payment value objects
+export { InterestRate } from './installment-payment/interest-rate.vo';
+
+// Sustainability value objects
+export { Certification } from './sustainability/certification.vo';
+export { RecycledPercentage } from './sustainability/recycled-percentage.vo';
+
+// Media value objects
+export { Url } from './media/url.vo';
+export { Position } from './media/position.vo';
+export { MediaType } from './media/media-type.vo';
