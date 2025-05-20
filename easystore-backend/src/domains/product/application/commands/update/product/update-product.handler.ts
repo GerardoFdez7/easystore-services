@@ -3,7 +3,7 @@ import { NotFoundException, Inject } from '@nestjs/common';
 import { UpdateProductDTO } from './update-product.dto';
 import { IProductRepository } from '../../../../aggregates/repositories/product.interface';
 import { ProductMapper, ProductDTO } from '../../../mappers';
-import { Id } from '../../../../aggregates/value-objects/id.value-object';
+import { Id } from '../../../../aggregates/value-objects';
 
 @CommandHandler(UpdateProductDTO)
 export class UpdateProductHandler implements ICommandHandler<UpdateProductDTO> {
