@@ -1,5 +1,5 @@
 import { Product } from '../entities';
-import { Id, Name } from '../value-objects/index';
+import { Id, Name, Type, SortBy, SortOrder } from '../value-objects/index';
 
 export interface IProductRepository {
   /**
@@ -40,14 +40,32 @@ export interface IProductRepository {
   findByName(name: Name, includeSoftDeleted?: boolean): Promise<Product[]>;
 
   /**
-   * Find all products with pagination, including option to include soft-deleted items
-   * @param page The page number
-   * @param limit The number of items per page
-   * @param includeSoftDeleted Whether to include soft-deleted products
+   * Find all products with pagination, filtering, and sorting.
+   *
+   * @param page The page number for pagination (e.g., 1 for the first page).
+   * @param limit The number of items per page.
+   * @param categoriesIds Optional. An array of category IDs (Value Object `Id`) to filter products by.
+   *                      If provided, only products belonging to at least one of these categories will be returned.
+   * @param Types Optional. A `Type` value object to filter products by its specific type (e.g., PHYSICAL or DIGITAL).
+   *                     If provided, only.
+   * @param sortBy Optional. The field to sort the products by.
+   *               Supported fields: 'createdAt', 'updatedAt', 'name'.
+   *               Defaults to a predefined order (e.g., 'createdAt') if not specified.
+   * @param sortOrder Optional. The order of sorting ('ASC' for ascending, 'DESC' for descending).
+   *                  Defaults to 'DESC' for date fields and 'ASC' for text fields like 'name' if not specified.
+   *                  This parameter is typically used in conjunction with `sortBy`.
+   * @param includeSoftDeleted Optional. Whether to include soft-deleted products in the results.
+   *                           Defaults to `false`.
+   * @returns A promise that resolves to an object containing an array of `Product` entities
+   *          for the current page and the `total` number of products matching the criteria.
    */
   findAll(
     page: number,
     limit: number,
+    categoriesIds?: Id[],
+    type?: Type,
+    sortBy?: SortBy,
+    sortOrder?: SortOrder,
     includeSoftDeleted?: boolean,
   ): Promise<{ products: Product[]; total: number }>;
 }

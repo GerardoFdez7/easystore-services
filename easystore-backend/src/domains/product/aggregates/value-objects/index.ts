@@ -7,6 +7,8 @@ export {
   ShortDescription,
   MediumDescription,
   LongDescription,
+  SortBy,
+  SortOrder,
 } from '@domains/value-objects';
 
 // Product value objects

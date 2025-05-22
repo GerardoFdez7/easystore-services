@@ -33,6 +33,9 @@ export class ScheduleDeleteProductsJob {
           page,
           pageSize,
           undefined,
+          undefined,
+          undefined,
+          undefined,
           true,
         );
 
