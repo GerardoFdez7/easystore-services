@@ -8,7 +8,6 @@ import { IMediaBase, IWarrantyBase, IInstallmentPaymentBase } from '../';
 export interface IVariantType extends IVariantBase, IVariantSystem {}
 
 export interface IVariantBase {
-  name: string;
   attributes: AttributeProps[];
   price: number;
   variantCover: string;
