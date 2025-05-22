@@ -52,7 +52,6 @@ export class AuthIdentity extends Entity<IAuthIdentityProps> {
     });
 
     auth.apply(new AuthenticationRegisterEvent(auth));
-
     return auth;
   }
 
