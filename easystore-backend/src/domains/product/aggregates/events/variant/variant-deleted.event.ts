@@ -1,5 +1,4 @@
-import { Product } from '../../entities/product.entity';
-import { Variant } from '../../value-objects/variant.value-object';
+import { Product, Variant } from '../../entities';
 
 export class VariantDeletedEvent {
   constructor(

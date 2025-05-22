@@ -11,6 +11,7 @@ export interface ITenantBase {
   domain?: string;
   logo?: string | null;
   description?: string | null;
+  currency: string;
 }
 
 export interface ITenantSystem {

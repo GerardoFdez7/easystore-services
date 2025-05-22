@@ -1,6 +1,12 @@
-import { MetadataProps } from '../../value-objects';
+import { TypeEnum, MetadataProps } from '../../value-objects';
+import {
+  IVariantBase,
+  IMediaBase,
+  IProductCategoriesBase,
+  ISustainabilityBase,
+} from '../';
 
-// Complete product type combining base properties, system properties, and variants
+// Complete product type combining base properties, and system properties
 export interface IProductType extends IProductBase, IProductSystem {}
 
 // Base product properties shared across all product-related types
@@ -8,18 +14,31 @@ export interface IProductBase {
   name: string;
   shortDescription: string;
   longDescription?: string | null;
-  type: 'PHYSICAL' | 'DIGITAL';
+  type: TypeEnum;
   cover?: string | null;
   brand?: string | null;
   manufacturer?: string | null;
   tags: string[];
   tenantId: number;
+  variants: IVariantInitData[];
+  media: IMediaInitData[];
+  categories: IProductCategoryInitData[];
+  sustainabilities: ISustainabilityInitData[];
 }
 
 // System-generated properties for a product
 export interface IProductSystem {
   id: number;
   metadata: MetadataProps;
-  createdAt: Date;
   updatedAt: Date;
+  createdAt: Date;
 }
+
+// Define InitData types for sub-entities (excluding parent IDs)
+export type IVariantInitData = Omit<IVariantBase, 'productId' | 'tenantId'>;
+export type IMediaInitData = Omit<IMediaBase, 'productId' | 'variantId'>;
+export type IProductCategoryInitData = Omit<
+  IProductCategoriesBase,
+  'productId'
+>;
+export type ISustainabilityInitData = Omit<ISustainabilityBase, 'productId'>;
