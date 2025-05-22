@@ -51,9 +51,9 @@ export class AuthenticationMapper {
    */
   static toDto(auth: AuthIdentity): AuthenticationDTO {
     return auth.toDTO<AuthenticationDTO>((entity) => ({
-      id: entity.get('id').getValue(),
+      id: entity.get('id')?.getValue() ?? null,
       email: entity.get('email').getValue(),
-      password: entity.get('password').getValue(), // optionally omit in API responses
+      password: entity.get('password').getValue(),
       accountType: entity.get('accountType').getValue(),
       isActive: entity.get('isActive').getValue(),
       emailVerified: entity.get('emailVerified').getValue(),
