@@ -42,7 +42,7 @@ export class DimensionType {
   width: number;
 
   @Field(() => Float)
-  depth: number;
+  length: number;
 }
 
 @ObjectType('Variant')
@@ -250,7 +250,7 @@ export class DimensionInput {
   width: number;
 
   @Field(() => Float)
-  depth: number;
+  length: number;
 }
 
 @InputType()
@@ -424,7 +424,7 @@ export class UpdateDimensionInput {
   width: number;
 
   @Field(() => Float)
-  depth: number;
+  length: number;
 }
 
 @InputType()

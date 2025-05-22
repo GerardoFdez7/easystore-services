@@ -2,7 +2,9 @@ import { z } from 'zod';
 
 const eanSchema = z
   .string()
-  .min(1, { message: 'EAN must be a non-empty string' })
+  .regex(/^(\d{8}|\d{13})$/, {
+    message: 'EAN must be a valid EAN-8 (8 digits) or EAN-13 (13 digits) code.',
+  })
   .nullable();
 
 export class EAN {

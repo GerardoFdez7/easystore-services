@@ -2,7 +2,10 @@ import { z } from 'zod';
 
 const isbnSchema = z
   .string()
-  .min(1, { message: 'ISBN must be a non-empty string' })
+  .regex(/^(?:(?:\d{9}[\dX])|(?:(?:978|979)\d{10}))$/, {
+    message:
+      'ISBN must be a valid ISBN-10 (e.g., 0321765723 or 032176572X) or ISBN-13 (e.g., 9780321765723) code. Do not include hyphens.',
+  })
   .nullable();
 
 export class ISBN {

@@ -6,6 +6,7 @@ export class TenantSingUpDTO implements ITenantBase {
   domain: string;
   logo?: string | null;
   description?: string | null;
+  currency: string;
   authIdentityId: number;
   constructor(public readonly data: ITenantBase) {
     Object.assign(this, data);

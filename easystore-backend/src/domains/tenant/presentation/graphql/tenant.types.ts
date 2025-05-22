@@ -1,4 +1,5 @@
 import { Field, Int, ObjectType, InputType } from '@nestjs/graphql';
+import { CurrencyCodes } from '../../aggregates/value-objects';
 
 @ObjectType('Tenant')
 export class TenantType {
@@ -19,6 +20,9 @@ export class TenantType {
 
   @Field()
   description: string;
+
+  @Field()
+  currency: CurrencyCodes;
 
   @Field(() => Int)
   authIdentityId: number;
@@ -57,6 +61,9 @@ export class CreateTenantInput {
 
   @Field({ nullable: true })
   description?: string;
+
+  @Field({ nullable: true })
+  currency: CurrencyCodes;
 }
 
 @InputType()
@@ -75,6 +82,9 @@ export class UpdateTenantInput {
 
   @Field({ nullable: true })
   description?: string;
+
+  @Field({ nullable: true })
+  currency: CurrencyCodes;
 
   @Field(() => Int, { nullable: true })
   authIdentityId?: number;
