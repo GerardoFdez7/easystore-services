@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 const upcSchema = z
   .string()
-  .min(1, { message: 'UPC must be a non-empty string' })
+  .regex(/^\d{12}$/, { message: 'UPC must be 12 digits.' })
   .nullable();
 
 export class UPC {

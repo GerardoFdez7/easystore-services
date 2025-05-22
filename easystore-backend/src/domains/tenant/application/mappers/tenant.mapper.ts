@@ -1,7 +1,13 @@
 import { Entity } from '@domains/entity.base';
-import { Id, Name, LongDescription } from '@domains/value-objects';
 import { Tenant, ITenantProps, ITenantType } from '../../aggregates/entities';
-import { Domain, Logo } from '../../aggregates/value-objects';
+import {
+  Id,
+  Name,
+  LongDescription,
+  Domain,
+  Logo,
+  Currency,
+} from '../../aggregates/value-objects';
 import { TenantDTO } from './';
 import { TenantSingUpDTO } from '../commands';
 
@@ -31,6 +37,9 @@ export class TenantMapper {
       description: model.description
         ? LongDescription.create(model.description)
         : null,
+      currency: model.currency
+        ? Currency.create(model.currency)
+        : Currency.create('GTQ'),
       authIdentityId: Id.create(model.authIdentityId),
       defaultPhoneNumberId: model.defaultPhoneNumberId
         ? Id.create(model.defaultPhoneNumberId)
@@ -59,6 +68,7 @@ export class TenantMapper {
       domain: entity.get('domain').getValue(),
       logo: entity.get('logo')?.getValue() || null,
       description: entity.get('description')?.getValue() || null,
+      currency: entity.get('currency').getValue(),
       authIdentityId: entity.get('authIdentityId').getValue(),
       defaultPhoneNumberId:
         entity.get('defaultPhoneNumberId')?.getValue() || null,

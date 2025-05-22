@@ -1,22 +1,28 @@
 import { z } from 'zod';
 
-const conditionSchema = z.enum(['NEW', 'USED', 'REFURBISHED']).nullish();
+export enum ConditionEnum {
+  NEW = 'NEW',
+  USED = 'USED',
+  REFURBISHED = 'REFURBISHED',
+}
+
+const conditionSchema = z.nativeEnum(ConditionEnum, {
+  errorMap: () => ({ message: 'Invalid condition type' }),
+});
 
 export class Condition {
-  private readonly value: 'NEW' | 'USED' | 'REFURBISHED';
+  private readonly value: ConditionEnum;
 
-  private constructor(value: 'NEW' | 'USED' | 'REFURBISHED') {
+  private constructor(value: ConditionEnum) {
     this.value = value;
   }
 
   public static create(status: string): Condition {
-    const validatedStatus = conditionSchema.parse(
-      status as 'NEW' | 'USED' | 'REFURBISHED',
-    );
+    const validatedStatus = conditionSchema.parse(status);
     return new Condition(validatedStatus);
   }
 
-  public getValue(): 'NEW' | 'USED' | 'REFURBISHED' {
+  public getValue(): ConditionEnum {
     return this.value;
   }
 

@@ -1,5 +1,6 @@
-import { Product } from '../../entities/product.entity';
+import { IEvent } from '@nestjs/cqrs';
+import { Product } from '../../entities';
 
-export class ProductUpdatedEvent {
+export class ProductUpdatedEvent implements IEvent {
   constructor(public readonly product: Product) {}
 }

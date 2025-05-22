@@ -1,5 +1,5 @@
 import { Entity, EntityProps } from '@domains/entity.base';
-import { Id, Name, LongDescription } from '@domains/value-objects';
+import { Id, Name, LongDescription, Currency } from '../../value-objects';
 import { ITenantType } from '..';
 import { Domain, Logo } from '../../value-objects';
 import { TenantCreatedEvent } from '../../events/tenant-created.event';
@@ -11,6 +11,7 @@ export interface ITenantProps extends EntityProps {
   domain?: Domain | null;
   logo?: Logo | null;
   description?: LongDescription | null;
+  currency: Currency;
   authIdentityId: Id;
   defaultPhoneNumberId?: Id | null;
   defaultShippingAddressId?: Id | null;
@@ -36,6 +37,9 @@ export class Tenant extends Entity<ITenantProps> {
       description: props.description
         ? LongDescription.create(props.description)
         : null,
+      currency: props.currency
+        ? Currency.create(props.currency)
+        : Currency.create('GTQ'),
       authIdentityId: Id.create(props.authIdentityId),
     };
 
