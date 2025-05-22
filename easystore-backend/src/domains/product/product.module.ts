@@ -33,6 +33,20 @@ import {
   VariantCreatedHandler,
   VariantUpdatedHandler,
   VariantDeletedHandler,
+  MediaCreatedHandler,
+  MediaUpdatedHandler,
+  MediaDeletedHandler,
+  WarrantyCreatedHandler,
+  WarrantyUpdatedHandler,
+  WarrantyDeletedHandler,
+  InstallmentPaymentCreatedHandler,
+  InstallmentPaymentUpdatedHandler,
+  InstallmentPaymentDeletedHandler,
+  SustainabilityCreatedHandler,
+  SustainabilityUpdatedHandler,
+  SustainabilityDeletedHandler,
+  CategoryAssignedHandler,
+  CategoryUnassignedHandler,
 } from './application/events';
 
 const CommandHandlers = [
@@ -61,6 +75,20 @@ const EventHandlers = [
   VariantCreatedHandler,
   VariantUpdatedHandler,
   VariantDeletedHandler,
+  MediaCreatedHandler,
+  MediaUpdatedHandler,
+  MediaDeletedHandler,
+  WarrantyCreatedHandler,
+  WarrantyUpdatedHandler,
+  WarrantyDeletedHandler,
+  InstallmentPaymentCreatedHandler,
+  InstallmentPaymentUpdatedHandler,
+  InstallmentPaymentDeletedHandler,
+  SustainabilityCreatedHandler,
+  SustainabilityUpdatedHandler,
+  SustainabilityDeletedHandler,
+  CategoryAssignedHandler,
+  CategoryUnassignedHandler,
 ];
 
 @Module({
