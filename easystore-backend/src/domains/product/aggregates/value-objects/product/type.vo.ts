@@ -1,20 +1,25 @@
 import { z } from 'zod';
 
-const typeSchema = z.enum(['PHYSICAL', 'DIGITAL']);
+export enum TypeEnum {
+  PHYSICAL = 'PHYSICAL',
+  DIGITAL = 'DIGITAL',
+}
+
+const typeSchema = z.nativeEnum(TypeEnum);
 
 export class Type {
-  private readonly value: 'PHYSICAL' | 'DIGITAL';
+  private readonly value: TypeEnum;
 
-  private constructor(value: 'PHYSICAL' | 'DIGITAL') {
+  private constructor(value: TypeEnum) {
     this.value = value;
   }
 
   public static create(type: string): Type {
-    const validatedType = typeSchema.parse(type as 'PHYSICAL' | 'DIGITAL');
+    const validatedType = typeSchema.parse(type);
     return new Type(validatedType);
   }
 
-  public getValue(): 'PHYSICAL' | 'DIGITAL' {
+  public getValue(): TypeEnum {
     return this.value;
   }
 
