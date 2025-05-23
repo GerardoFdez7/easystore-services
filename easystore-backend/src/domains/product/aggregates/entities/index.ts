@@ -1,5 +1,8 @@
+// Shared
+export { Entity, EntityProps } from '@domains/entity.base';
+
 // Product entity
-export { Product, ProductProps } from './product/product.entity';
+export { Product, IProductProps } from './product/product.entity';
 export {
   IProductType,
   IProductBase,
@@ -7,13 +10,11 @@ export {
   IVariantInitData,
   IMediaInitData,
   IProductCategoryInitData,
-  IWarrantyInitData,
-  IInstallmentPaymentInitData,
   ISustainabilityInitData,
 } from './product/product.attributes';
 
 // Variant entity
-export { Variant, VariantProps } from './variant/variant.entity';
+export { Variant, IVariantProps } from './variant/variant.entity';
 export {
   IVariantType,
   IVariantBase,
@@ -23,7 +24,7 @@ export {
 // Installment payment entity
 export {
   InstallmentPayment,
-  InstallmentPaymentProps,
+  IInstallmentPaymentProps,
 } from './installment-payment/installment-payment.entity';
 export {
   IInstallmentPaymentType,
@@ -32,13 +33,13 @@ export {
 } from './installment-payment/installment-payment.attributes';
 
 // Media entity
-export { Media, MediaProps } from './media/media.entity';
+export { Media, IMediaProps } from './media/media.entity';
 export { IMediaType, IMediaBase, IMediaSystem } from './media/media.attributes';
 
 // Sustainability entity
 export {
   Sustainability,
-  SustainabilityProps,
+  ISustainabilityProps,
 } from './sustainability/sustainability.entity';
 export {
   ISustainabilityType,
@@ -47,7 +48,7 @@ export {
 } from './sustainability/sustainability.attributes';
 
 // Warranty entity
-export { Warranty, WarrantyProps } from './warranty/warranty.entity';
+export { Warranty, IWarrantyProps } from './warranty/warranty.entity';
 export {
   IWarrantyType,
   IWarrantyBase,
@@ -57,7 +58,7 @@ export {
 // ProductCategories entity
 export {
   ProductCategories,
-  ProductCategoriesProps,
+  IProductCategoriesProps,
   IProductCategoriesType,
   IProductCategoriesBase,
   IProductCategoriesSystem,

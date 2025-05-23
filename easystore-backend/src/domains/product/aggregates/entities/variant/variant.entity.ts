@@ -1,5 +1,4 @@
 import { NotFoundException } from '@nestjs/common';
-import { Entity, EntityProps } from '@domains/entity.base';
 import {
   Id,
   Attribute,
@@ -23,6 +22,8 @@ import {
   IInstallmentPaymentBase,
   Warranty,
   IWarrantyBase,
+  Entity,
+  EntityProps,
 } from '../';
 import {
   MediaCreatedEvent,
@@ -37,7 +38,7 @@ import {
 } from '../../events';
 
 // Props for the Variant entity, using Value Objects
-export interface VariantProps extends EntityProps {
+export interface IVariantProps extends EntityProps {
   id: Id;
   attributes: Attribute[];
   price: Price;
@@ -53,15 +54,15 @@ export interface VariantProps extends EntityProps {
   isbn?: ISBN | null;
   productId: Id;
   tenantId: Id;
-  createdAt: Date;
   updatedAt: Date;
+  createdAt: Date;
   media: Media[];
   installmentPayments: InstallmentPayment[];
   warranties: Warranty[];
 }
 
-export class Variant extends Entity<VariantProps> {
-  constructor(props: VariantProps) {
+export class Variant extends Entity<IVariantProps> {
+  constructor(props: IVariantProps) {
     super(props);
   }
 

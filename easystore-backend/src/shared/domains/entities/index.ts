@@ -1,7 +1,7 @@
 // ProductCategories entity
 export {
   ProductCategories,
-  ProductCategoriesProps,
+  IProductCategoriesProps,
 } from './product-category/product-category.entity';
 export {
   IProductCategoriesType,

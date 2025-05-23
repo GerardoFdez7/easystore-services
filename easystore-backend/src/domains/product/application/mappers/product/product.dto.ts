@@ -1,4 +1,4 @@
-import { IProductBase, IProductSystem } from '../../aggregates/entities';
+import { IProductBase, IProductSystem } from '../../../aggregates/entities';
 
 /**
  * Data Transfer Object for Product entity
