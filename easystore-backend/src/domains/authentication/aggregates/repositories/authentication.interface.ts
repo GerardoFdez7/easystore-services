@@ -1,5 +1,6 @@
 import { AuthIdentity } from '../entities/auth/authentication.entity';
 import { Email } from '../value-objects';
+import { AccountType } from '.prisma/postgres';
 
 /**
  * Interface for the authentication repository.
@@ -27,4 +28,17 @@ export interface IAuthRepository {
    * @returns True if credentials are valid, otherwise false.
    */
   validateCredentials(email: Email, password: string): Promise<boolean>;
+
+  /**
+   * Logs in a user by validating credentials and generating tokens.
+   * @param email The user's email.
+   * @param password The user's password.
+   * @param accountType The type of account (e.g., 'admin', 'user').
+   * @returns An object containing access and refresh tokens.
+   */
+  login(
+    email: Email,
+    password: string,
+    accountType: AccountType,
+  ): Promise<{ accessToken: string; refreshToken: string }>;
 }
