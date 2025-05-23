@@ -11,6 +11,11 @@ import { IAuthRepository } from '../../../aggregates/repositories/authentication
 import { Email } from '../../../aggregates/value-objects';
 import { AccountType } from '.prisma/postgres';
 import * as bcrypt from 'bcrypt';
+import {
+  generateToken,
+  generateRefreshToken,
+  JwtPayload,
+} from '../../../../../shared/domains/auth/jwt-handler';
 
 @Injectable()
 export class AuthenticationRepository implements IAuthRepository {
@@ -127,7 +132,6 @@ export class AuthenticationRepository implements IAuthRepository {
 
       const storedPassword = user.get('password').getValue();
 
-      // 🔐 Validar contraseña encriptada
       return await bcrypt.compare(password, storedPassword);
     } catch (error) {
       throw new DatabaseOperationError(
@@ -136,5 +140,34 @@ export class AuthenticationRepository implements IAuthRepository {
         error as Error,
       );
     }
+  }
+
+  async login(
+    email: Email,
+    password: string,
+    accountType: AccountType,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const user = await this.findByEmailAndAccountType(email, accountType);
+    if (!user) {
+      throw new Error('User not found or incorrect account type');
+    }
+
+    const isValidPassword = await this.validateCredentials(email, password);
+    if (!isValidPassword) {
+      throw new Error('Invalid credentials');
+    }
+
+    const payload: JwtPayload = {
+      email: email.getValue(),
+      id: user.get('id').getValue().toString(),
+    };
+
+    const accessToken = generateToken(payload);
+    const refreshToken = generateRefreshToken(payload);
+
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 }

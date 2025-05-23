@@ -18,18 +18,11 @@ export class AuthenticationRegisterHandler
   async execute(
     command: AuthenticationRegisterDTO,
   ): Promise<AuthenticationDTO> {
-    // Crear entidad de dominio a partir del DTO
     const auth = this.eventPublisher.mergeObjectContext(
       AuthenticationMapper.fromRegisterDto(command),
     );
-
-    // Guardar en el repositorio
     await this.authRepository.save(auth);
-
-    // Disparar eventos de dominio (si hay)
     auth.commit();
-
-    // Retornar el DTO para la respuesta
     return AuthenticationMapper.toDto(auth);
   }
 }

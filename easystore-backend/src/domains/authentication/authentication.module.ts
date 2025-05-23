@@ -16,8 +16,13 @@ import { AuthenticationResolver } from './presentation/graphql/authentication.re
 
 import { AuthenticationRegisterEvent } from './aggregates/events/authentication-register.event';
 
+import { AuthenticationLoginHandler } from './application/queries/select/sign-in.handler';
+
 // Agrupación de handlers
-const CommandHandlers = [AuthenticationRegisterHandler];
+const CommandHandlers = [
+  AuthenticationRegisterHandler,
+  AuthenticationLoginHandler,
+];
 const QueryHandlers: Provider[] = [];
 const EventHandlers = [AuthenticationRegisterEvent];
 
