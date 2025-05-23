@@ -12,6 +12,4 @@ export interface IMediaBase {
 
 export interface IMediaSystem {
   id: number;
-  createdAt: Date;
-  updatedAt: Date;
 }

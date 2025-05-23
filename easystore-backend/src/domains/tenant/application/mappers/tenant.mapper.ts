@@ -12,14 +12,14 @@ import { TenantDTO } from './';
 import { TenantSingUpDTO } from '../commands';
 
 /**
- * Centralized mapper for Product domain entity to DTO conversion for queries and vice versa for commands.
+ * Centralized mapper for Tenant domain entity to DTO conversion for queries and vice versa for commands.
  * Handles mapping between persistence layer models to domain entities.
  */
 export class TenantMapper {
   /**
-   * Maps a persistence Product model to a domain Product entity
-   * @param persistenceTenant The Persistence Product model
-   * @returns The mapped Product domain entity
+   * Maps a persistence Tenant model to a domain Tenant entity
+   * @param persistenceTenant The Persistence Tenant model
+   * @returns The mapped Tenant domain entity
    */
   static fromPersistence(persistenceTenant: ITenantType): Tenant {
     return Entity.fromPersistence<

@@ -6,8 +6,6 @@ export interface ISustainabilityBase {
 
 export interface ISustainabilitySystem {
   id: number;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface ISustainabilityType

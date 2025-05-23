@@ -1,19 +1,16 @@
-import { Entity, EntityProps } from '@domains/entity.base';
 import { Id, Months, MediumDescription } from '../../value-objects';
-import { IWarrantyBase } from '../';
+import { IWarrantyBase, Entity, EntityProps } from '../';
 
-export interface WarrantyProps extends EntityProps {
+export interface IWarrantyProps extends EntityProps {
   id: Id;
   months: Months;
   coverage: MediumDescription;
   instructions: MediumDescription;
   variantId: Id;
-  updatedAt: Date;
-  createdAt: Date;
 }
 
-export class Warranty extends Entity<WarrantyProps> {
-  constructor(props: WarrantyProps) {
+export class Warranty extends Entity<IWarrantyProps> {
+  constructor(props: IWarrantyProps) {
     super(props);
   }
 
@@ -28,8 +25,6 @@ export class Warranty extends Entity<WarrantyProps> {
     const warranty = new Warranty({
       id: null,
       ...transformedProps,
-      createdAt: new Date(),
-      updatedAt: new Date(),
     });
 
     return warranty;
@@ -45,6 +40,5 @@ export class Warranty extends Entity<WarrantyProps> {
     if (data.instructions !== undefined) {
       this.props.instructions = MediumDescription.create(data.instructions);
     }
-    this.props.updatedAt = new Date();
   }
 }
