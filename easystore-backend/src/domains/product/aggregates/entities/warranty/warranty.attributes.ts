@@ -9,6 +9,4 @@ export interface IWarrantyBase {
 
 export interface IWarrantySystem {
   id: number;
-  updatedAt: Date;
-  createdAt: Date;
 }

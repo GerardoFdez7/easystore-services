@@ -1,20 +1,17 @@
-import { Entity, EntityProps } from '@domains/entity.base';
 import { Id, Url, Position, MediaType } from '../../value-objects';
-import { IMediaBase } from '../';
+import { IMediaBase, Entity, EntityProps } from '../';
 
-export interface MediaProps extends EntityProps {
+export interface IMediaProps extends EntityProps {
   id: Id;
   url: Url;
   position: Position;
   mediaType: MediaType;
   productId?: Id | null;
   variantId?: Id | null;
-  updatedAt: Date;
-  createdAt: Date;
 }
 
-export class Media extends Entity<MediaProps> {
-  constructor(props: MediaProps) {
+export class Media extends Entity<IMediaProps> {
+  constructor(props: IMediaProps) {
     super(props);
   }
 
@@ -30,8 +27,6 @@ export class Media extends Entity<MediaProps> {
     const media = new Media({
       id: null,
       ...transformedProps,
-      createdAt: new Date(),
-      updatedAt: new Date(),
     });
 
     return media;
@@ -49,6 +44,5 @@ export class Media extends Entity<MediaProps> {
     if (data.mediaType !== undefined) {
       this.props.mediaType = MediaType.create(data.mediaType);
     }
-    this.props.updatedAt = new Date();
   }
 }

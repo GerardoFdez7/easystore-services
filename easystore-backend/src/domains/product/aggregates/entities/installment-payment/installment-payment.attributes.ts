@@ -6,8 +6,6 @@ export interface IInstallmentPaymentBase {
 
 export interface IInstallmentPaymentSystem {
   id: number;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface IInstallmentPaymentType
