@@ -1,10 +1,10 @@
-import { Entity } from '@domains/entity.base';
 import {
+  Entity,
   Product,
-  ProductProps,
+  IProductProps,
   IProductType,
   IProductBase,
-} from '../../aggregates/entities';
+} from '../../../aggregates/entities';
 import {
   Id,
   Name,
@@ -16,9 +16,16 @@ import {
   Brand,
   Manufacturer,
   Metadata,
-} from '../../aggregates/value-objects';
-import { ProductDTO, PaginatedProductsDTO } from './product.dto';
-import { UpdateProductDTO } from '../commands/update/product/update-product.dto';
+} from '../../../aggregates/value-objects';
+import {
+  ProductDTO,
+  PaginatedProductsDTO,
+  MediaMapper,
+  VariantMapper,
+  ProductCategoriesMapper,
+  SustainabilityMapper,
+} from '../';
+import { UpdateProductDTO } from '../../commands';
 
 /**
  * Centralized mapper for Product domain entity to DTO conversion for queries and vice versa for commands.
@@ -33,7 +40,7 @@ export class ProductMapper {
   static fromPersistence(persistenceProduct: IProductType): Product {
     return Entity.fromPersistence<
       typeof persistenceProduct,
-      ProductProps,
+      IProductProps,
       Product
     >(Product, persistenceProduct, (model) => ({
       id: Id.create(model.id),
@@ -42,16 +49,29 @@ export class ProductMapper {
       longDescription: model.longDescription
         ? LongDescription.create(model.longDescription)
         : null,
-      type: Type.create(model.type),
+      productType: Type.create(model.productType),
       cover: Cover.create(model.cover),
-      tags: model.tags.map((tag) => Tags.create([tag])),
+      tags: model.tags ? model.tags.map((tag) => Tags.create([tag])) : [],
       brand: model.brand ? Brand.create(model.brand) : null,
       manufacturer: model.manufacturer
         ? Manufacturer.create(model.manufacturer)
         : null,
-      metadata: model.metadata ? Metadata.create(model.metadata) : null,
-      createdAt: model.createdAt,
+      metadata: Metadata.create(model.metadata),
+      tenantId: Id.create(model.tenantId),
       updatedAt: model.updatedAt,
+      createdAt: model.createdAt,
+      variants: model.variants.map((variantItem) =>
+        VariantMapper.fromPersistence(variantItem),
+      ),
+      media: model.media.map((mediaItem) =>
+        MediaMapper.fromPersistence(mediaItem),
+      ),
+      categories: model.categories.map((categoryItem) =>
+        ProductCategoriesMapper.fromPersistence(categoryItem),
+      ),
+      sustainabilities: model.sustainabilities.map((sustainabilityItem) =>
+        SustainabilityMapper.fromPersistence(sustainabilityItem),
+      ),
     }));
   }
 
@@ -87,30 +107,46 @@ export class ProductMapper {
     // If no fields specified, return all fields
     if (!fields || fields.length === 0) {
       return product.toDTO<ProductDTO>((entity) => ({
-        id: entity.get('id').getValue(),
-        name: entity.get('name').getValue(),
-        shortDescription: entity.get('shortDescription').getValue(),
-        longDescription: entity.get('longDescription')?.getValue(),
-        type: entity.get('type').getValue(),
-        cover: entity.get('cover').getValue(),
-        tags: entity
-          .get('tags')
-          .map((tag) => tag.getValue())
-          .flat(),
-        brand: entity.get('brand')?.getValue(),
-        manufacturer: entity.get('manufacturer')?.getValue(),
+        id: entity.get('id')?.getValue() ?? null,
+        name: entity.get('name')?.getValue() ?? null,
+        shortDescription: entity.get('shortDescription')?.getValue() ?? null,
+        longDescription: entity.get('longDescription')?.getValue() ?? null,
+        productType: entity.get('productType')?.getValue() ?? null,
+        cover: entity.get('cover')?.getValue() ?? null,
+        tags:
+          entity
+            .get('tags')
+            .map((tag) => tag.getValue())
+            .flat() ?? [],
+        brand: entity.get('brand')?.getValue() ?? null,
+        manufacturer: entity.get('manufacturer')?.getValue() ?? null,
         metadata: entity.get('metadata')
           ? {
-              deleted: entity.get('metadata').getDeleted(),
-              deletedAt: entity.get('metadata').getDeletedAt(),
-              scheduledForHardDeleteAt: entity
-                .get('metadata')
-                .getScheduledForHardDeleteAt(),
+              deleted: entity.get('metadata')?.getDeleted() ?? null,
+              deletedAt: entity.get('metadata')?.getDeletedAt() ?? null,
+              scheduledForHardDeleteAt:
+                entity.get('metadata')?.getScheduledForHardDeleteAt() ?? null,
             }
           : null,
-        tenantId: entity.get('id').getValue(),
-        createdAt: entity.get('createdAt'),
-        updatedAt: entity.get('updatedAt'),
+        tenantId: entity.get('id')?.getValue() ?? null,
+        updatedAt: entity.get('updatedAt') ?? null,
+        createdAt: entity.get('createdAt') ?? null,
+        variants:
+          entity
+            .get('variants')
+            .map((variant) => VariantMapper.toDto(variant)) ?? [],
+        media:
+          entity.get('media').map((media) => MediaMapper.toDto(media)) ?? [],
+        categories:
+          entity
+            .get('categories')
+            .map((category) => ProductCategoriesMapper.toDto(category)) ?? [],
+        sustainabilities:
+          entity
+            .get('sustainabilities')
+            .map((sustainability) =>
+              SustainabilityMapper.toDto(sustainability),
+            ) ?? [],
       }));
     }
 
@@ -118,34 +154,36 @@ export class ProductMapper {
     const dto: Partial<ProductDTO> = {};
 
     // Always include ID
-    dto.id = product.get('id').getValue();
+    dto.id = product.get('id')?.getValue() ?? null;
 
     // Map only requested fields
     fields.forEach((field) => {
       switch (field) {
         case 'name':
-          dto.name = product.get('name').getValue();
+          dto.name = product.get('name')?.getValue() ?? null;
           break;
         case 'shortDescription':
-          dto.shortDescription = product.get('shortDescription').getValue();
+          dto.shortDescription =
+            product.get('shortDescription')?.getValue() ?? null;
           break;
         case 'longDescription':
-          dto.longDescription = product.get('longDescription')?.getValue();
+          dto.longDescription =
+            product.get('longDescription')?.getValue() ?? null;
           break;
-        case 'type':
-          dto.type = product.get('type').getValue();
+        case 'productType':
+          dto.productType = product.get('productType')?.getValue() ?? null;
           break;
         case 'cover':
-          dto.cover = product.get('cover').getValue();
+          dto.cover = product.get('cover')?.getValue() ?? null;
           break;
         case 'tags':
-          dto.tags = product.get('tags').map((tag) => tag.getValue()[0]);
+          dto.tags = product.get('tags').map((tag) => tag.getValue()[0]) ?? [];
           break;
         case 'brand':
-          dto.brand = product.get('brand')?.getValue();
+          dto.brand = product.get('brand')?.getValue() ?? null;
           break;
         case 'manufacturer':
-          dto.manufacturer = product.get('manufacturer')?.getValue();
+          dto.manufacturer = product.get('manufacturer')?.getValue() ?? null;
           break;
       }
     });

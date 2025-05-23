@@ -1,5 +1,4 @@
 import { NotFoundException } from '@nestjs/common';
-import { Entity, EntityProps } from '@domains/entity.base';
 import {
   Id,
   Name,
@@ -22,6 +21,8 @@ import {
   IMediaBase,
   Sustainability,
   ISustainabilityBase,
+  Entity,
+  EntityProps,
 } from '../';
 import {
   ProductCreatedEvent,
@@ -42,12 +43,12 @@ import {
   CategoryUnassignedEvent,
 } from '../../events';
 
-export interface ProductProps extends EntityProps {
+export interface IProductProps extends EntityProps {
   id: Id;
   name: Name;
   shortDescription: ShortDescription;
   longDescription?: LongDescription | null;
-  type: Type;
+  productType: Type;
   cover?: Cover | null;
   tags?: Tags[];
   brand?: Brand | null;
@@ -62,8 +63,8 @@ export interface ProductProps extends EntityProps {
   sustainabilities: Sustainability[];
 }
 
-export class Product extends Entity<ProductProps> {
-  constructor(props: ProductProps) {
+export class Product extends Entity<IProductProps> {
+  constructor(props: IProductProps) {
     super(props);
   }
 
@@ -78,7 +79,7 @@ export class Product extends Entity<ProductProps> {
       longDescription: props.longDescription
         ? LongDescription.create(props.longDescription)
         : null,
-      type: Type.create(props.type || 'PHYSICAL'),
+      productType: Type.create(props.productType || 'PHYSICAL'),
       cover: props.cover
         ? Cover.create(props.cover)
         : Cover.create('https://easystore.com/default-cover.jpg'),
@@ -178,8 +179,8 @@ export class Product extends Entity<ProductProps> {
         : null;
     }
 
-    if (updates.type !== undefined && updates.type !== null) {
-      props.type = Type.create(updates.type);
+    if (updates.productType !== undefined && updates.productType !== null) {
+      props.productType = Type.create(updates.productType);
     }
 
     if (updates.cover !== undefined && updates.cover !== null) {

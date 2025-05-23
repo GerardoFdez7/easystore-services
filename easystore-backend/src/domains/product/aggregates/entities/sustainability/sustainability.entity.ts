@@ -1,18 +1,15 @@
-import { Entity, EntityProps } from '@domains/entity.base';
 import { Id, Certification, RecycledPercentage } from '../../value-objects';
-import { ISustainabilityBase } from '..';
+import { ISustainabilityBase, Entity, EntityProps } from '..';
 
-export interface SustainabilityProps extends EntityProps {
+export interface ISustainabilityProps extends EntityProps {
   id: Id;
   certification: Certification;
   recycledPercentage: RecycledPercentage;
   productId: Id;
-  updatedAt: Date;
-  createdAt: Date;
 }
 
-export class Sustainability extends Entity<SustainabilityProps> {
-  constructor(props: SustainabilityProps) {
+export class Sustainability extends Entity<ISustainabilityProps> {
+  constructor(props: ISustainabilityProps) {
     super(props);
   }
 
@@ -32,8 +29,6 @@ export class Sustainability extends Entity<SustainabilityProps> {
     const sustainability = new Sustainability({
       id: null,
       ...transformedProps,
-      createdAt: new Date(),
-      updatedAt: new Date(),
     });
 
     return sustainability;
@@ -52,6 +47,5 @@ export class Sustainability extends Entity<SustainabilityProps> {
           ? RecycledPercentage.create(data.recycledPercentage)
           : null;
     }
-    this.props.updatedAt = new Date();
   }
 }

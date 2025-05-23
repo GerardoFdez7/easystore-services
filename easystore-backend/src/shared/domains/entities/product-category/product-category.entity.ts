@@ -2,14 +2,14 @@ import { Entity, EntityProps } from '../../entity.base';
 import { Id } from '../../value-objects';
 import { IProductCategoriesBase } from '../';
 
-export interface ProductCategoriesProps extends EntityProps {
+export interface IProductCategoriesProps extends EntityProps {
   id: Id;
   productId: Id;
   categoryId: Id;
 }
 
-export class ProductCategories extends Entity<ProductCategoriesProps> {
-  constructor(props: ProductCategoriesProps) {
+export class ProductCategories extends Entity<IProductCategoriesProps> {
+  constructor(props: IProductCategoriesProps) {
     super(props);
   }
 

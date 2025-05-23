@@ -1,20 +1,38 @@
 import { TypeEnum, MetadataProps } from '../../value-objects';
 import {
   IVariantBase,
+  IVariantType,
   IMediaBase,
+  IMediaType,
   IProductCategoriesBase,
+  IProductCategoriesType,
   ISustainabilityBase,
+  ISustainabilityType,
 } from '../';
 
 // Complete product type combining base properties, and system properties
-export interface IProductType extends IProductBase, IProductSystem {}
+export interface IProductType extends IProductSystem {
+  name: string;
+  shortDescription: string;
+  longDescription?: string | null;
+  productType: TypeEnum;
+  cover?: string | null;
+  brand?: string | null;
+  manufacturer?: string | null;
+  tags: string[];
+  tenantId: number;
+  variants: IVariantType[];
+  media: IMediaType[];
+  categories: IProductCategoriesType[];
+  sustainabilities: ISustainabilityType[];
+}
 
 // Base product properties shared across all product-related types
 export interface IProductBase {
   name: string;
   shortDescription: string;
   longDescription?: string | null;
-  type: TypeEnum;
+  productType: TypeEnum;
   cover?: string | null;
   brand?: string | null;
   manufacturer?: string | null;

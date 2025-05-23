@@ -1,18 +1,15 @@
-import { Entity, EntityProps } from '@domains/entity.base';
 import { Id, Months, InterestRate } from '../../value-objects';
-import { IInstallmentPaymentBase } from '../';
+import { IInstallmentPaymentBase, Entity, EntityProps } from '../';
 
-export interface InstallmentPaymentProps extends EntityProps {
+export interface IInstallmentPaymentProps extends EntityProps {
   id: Id;
   months: Months;
   interestRate: InterestRate;
   variantId: Id;
-  updatedAt: Date;
-  createdAt: Date;
 }
 
-export class InstallmentPayment extends Entity<InstallmentPaymentProps> {
-  constructor(props: InstallmentPaymentProps) {
+export class InstallmentPayment extends Entity<IInstallmentPaymentProps> {
+  constructor(props: IInstallmentPaymentProps) {
     super(props);
   }
 
@@ -26,8 +23,6 @@ export class InstallmentPayment extends Entity<InstallmentPaymentProps> {
     const installmentPayment = new InstallmentPayment({
       id: null,
       ...transformedProps,
-      createdAt: new Date(),
-      updatedAt: new Date(),
     });
 
     return installmentPayment;
@@ -42,6 +37,5 @@ export class InstallmentPayment extends Entity<InstallmentPaymentProps> {
     if (data.interestRate !== undefined) {
       this.props.interestRate = InterestRate.create(data.interestRate);
     }
-    this.props.updatedAt = new Date();
   }
 }
