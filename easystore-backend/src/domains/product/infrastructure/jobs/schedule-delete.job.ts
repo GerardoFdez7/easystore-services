@@ -30,6 +30,7 @@ export class ScheduleDeleteProductsJob {
       while (hasMoreProducts) {
         // Get a batch of soft-deleted products
         const { products, total } = await this.productRepository.findAll(
+          undefined,
           page,
           pageSize,
           undefined,
@@ -58,8 +59,9 @@ export class ScheduleDeleteProductsJob {
         // Process each product for hard deletion
         for (const product of productsToDelete) {
           const productId = product.get('id');
+          const tenantId = product.get('tenantId');
           try {
-            await this.productRepository.hardDelete(productId);
+            await this.productRepository.hardDelete(tenantId, productId);
             totalDeleted++;
             this.logger.log(
               `Successfully hard deleted product with ID: ${productId.getValue()}`,

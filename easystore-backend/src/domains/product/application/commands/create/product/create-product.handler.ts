@@ -13,50 +13,43 @@ export class CreateProductHandler implements ICommandHandler<CreateProductDTO> {
   ) {}
 
   async execute(command: CreateProductDTO): Promise<ProductDTO> {
-    // Extract the actual product data from the command
     const productData = command.data;
-
-    const { variants = [], type } = productData;
+    const { variants = [], productType } = productData;
 
     // Apply domain logic for variants based on product type
     const processedVariants = Array.isArray(variants)
       ? variants.map((variant) => {
-          // Copy of the variant to avoid mutating the original
           const processedVariant = { ...variant };
-
-          if (type === 'DIGITAL') {
-            // For DIGITAL products, set weight and dimensions to null
+          if (productType === 'DIGITAL') {
             processedVariant.weight = null;
-            processedVariant.dimensions = null;
-          } else if (type === 'PHYSICAL') {
-            // For PHYSICAL products, ensure weight and dimensions are positive
+            processedVariant.dimension = null;
+          } else if (productType === 'PHYSICAL') {
+            // Ensure weight is a positive float
             if (!processedVariant.weight || processedVariant.weight <= 0) {
-              processedVariant.weight = 0;
+              processedVariant.weight = 0.01;
             }
-
-            if (!processedVariant.dimensions) {
-              processedVariant.dimensions = {
-                height: 0,
-                width: 0,
-                depth: 0,
+            // Ensure dimension is present and all values are positive
+            if (!processedVariant.dimension) {
+              processedVariant.dimension = {
+                height: 0.01,
+                width: 0.01,
+                length: 0.01,
               };
             } else {
-              // Ensure all dimensions are positive
-              processedVariant.dimensions.height =
-                processedVariant.dimensions.height > 0
-                  ? processedVariant.dimensions.height
-                  : 0;
-              processedVariant.dimensions.width =
-                processedVariant.dimensions.width > 0
-                  ? processedVariant.dimensions.width
-                  : 0;
-              processedVariant.dimensions.depth =
-                processedVariant.dimensions.depth > 0
-                  ? processedVariant.dimensions.depth
-                  : 0;
+              processedVariant.dimension.height =
+                processedVariant.dimension.height > 0
+                  ? processedVariant.dimension.height
+                  : 0.01;
+              processedVariant.dimension.width =
+                processedVariant.dimension.width > 0
+                  ? processedVariant.dimension.width
+                  : 0.01;
+              processedVariant.dimension.length =
+                processedVariant.dimension.length > 0
+                  ? processedVariant.dimension.length
+                  : 0.01;
             }
           }
-
           return processedVariant;
         })
       : [];

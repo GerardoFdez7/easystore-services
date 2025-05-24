@@ -8,7 +8,7 @@ import { MetricsMiddleware } from '@metrics/metrics.middleware';
 import { PrometheusModule } from '@metrics/prometheus.module';
 import { KafkaConfigModule } from '@kafka/config/kafka-config.module';
 import { TenantDomain } from './domains/tenant/tenant.module';
-//import { ProductDomain } from './domains/product/product.module';
+import { ProductDomain } from './domains/product/product.module';
 
 @Global()
 @Module({
@@ -23,7 +23,7 @@ import { TenantDomain } from './domains/tenant/tenant.module';
     KafkaConfigModule,
     RedisConfigModule,
     TenantDomain,
-    //ProductDomain,
+    ProductDomain,
   ],
   providers: [],
   controllers: [MetricsController],

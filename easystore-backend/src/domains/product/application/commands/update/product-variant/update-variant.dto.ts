@@ -1,17 +1,21 @@
-import { VariantDTO } from '../../../mappers/product.dto';
+import { IVariantBase } from '../../../../aggregates/entities';
 
+type UpdatableVariantFields = Partial<
+  Omit<
+    IVariantBase,
+    'tenantId' | 'productId' | 'media' | 'warranties' | 'installmentPayments'
+  >
+>;
+
+/**
+ * Data Transfer Object for updating a Variant
+ * Makes all fields from IVariantBase optional
+ */
 export class UpdateVariantDTO {
   constructor(
-    public readonly productId: string,
-    public readonly identifier: string,
-    public readonly identifierType:
-      | 'sku'
-      | 'upc'
-      | 'ean'
-      | 'isbn'
-      | 'barcode'
-      | 'attribute',
-    public readonly variant: VariantDTO,
-    public readonly attributeKey?: string,
+    public readonly id: number,
+    public readonly data: UpdatableVariantFields,
+    public readonly productId: number,
+    public readonly tenantId: number,
   ) {}
 }

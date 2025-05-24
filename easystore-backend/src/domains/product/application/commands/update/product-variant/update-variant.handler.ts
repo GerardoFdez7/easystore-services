@@ -1,10 +1,9 @@
 import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
 import { Inject, NotFoundException } from '@nestjs/common';
-import { LoggerService } from '@winston/winston.service';
 import { IProductRepository } from '../../../../aggregates/repositories/product.interface';
 import { ProductMapper, ProductDTO } from '../../../mappers';
 import { UpdateVariantDTO } from './update-variant.dto';
-import { Id } from '../../../../aggregates/value-objects';
+import { Id, TypeEnum } from '../../../../aggregates/value-objects';
 
 @CommandHandler(UpdateVariantDTO)
 export class UpdateVariantHandler implements ICommandHandler<UpdateVariantDTO> {
@@ -12,77 +11,92 @@ export class UpdateVariantHandler implements ICommandHandler<UpdateVariantDTO> {
     @Inject('IProductRepository')
     private readonly productRepository: IProductRepository,
     private readonly eventPublisher: EventPublisher,
-    private readonly logger: LoggerService,
   ) {}
 
   async execute(command: UpdateVariantDTO): Promise<ProductDTO> {
-    const { productId, identifier, identifierType, variant, attributeKey } =
-      command;
-
-    this.logger.debug(
-      'Updating product variant with identifier:',
-      identifier,
-      'identifierType:',
-      identifierType,
-      'attributeKey:',
-      attributeKey,
-    );
+    const {
+      id: variantId,
+      tenantId,
+      productId,
+      data: variantUpdateData,
+    } = command;
 
     // Find the product by ID
-    const product = await this.productRepository.findById(Id.create(productId));
-    if (!product) {
+    const productEntity = await this.productRepository.findById(
+      Id.create(tenantId),
+      Id.create(productId),
+    );
+    if (!productEntity) {
       throw new NotFoundException(`Product with ID ${productId} not found`);
     }
 
-    // Process variant based on product type
-    const processedVariant = { ...variant };
-    const productType = product.get('type').getValue();
+    // Process variant data based on product type
+    const productType = productEntity.get('productType').getValue();
 
-    if (productType === 'DIGITAL') {
-      // For DIGITAL products, set weight and dimensions to null
-      processedVariant.weight = null;
-      processedVariant.dimensions = null;
-    } else if (productType === 'PHYSICAL') {
-      // For PHYSICAL products, ensure weight and dimensions are positive
-      if (!processedVariant.weight || processedVariant.weight <= 0) {
-        processedVariant.weight = 0;
+    if (productType === TypeEnum.DIGITAL) {
+      variantUpdateData.weight = null;
+      variantUpdateData.dimension = null;
+    } else if (productType === TypeEnum.PHYSICAL) {
+      if (
+        !variantUpdateData.weight ||
+        variantUpdateData.weight === null ||
+        variantUpdateData.weight === undefined ||
+        variantUpdateData.weight < 0
+      ) {
+        variantUpdateData.weight = 0;
       }
 
-      if (!processedVariant.dimensions) {
-        processedVariant.dimensions = {
+      // If dimensions are present in the update or not, ensure they are valid
+      if (
+        !variantUpdateData.dimension ||
+        variantUpdateData.dimension === null ||
+        variantUpdateData.dimension === undefined
+      ) {
+        variantUpdateData.dimension = {
           height: 0,
           width: 0,
-          depth: 0,
+          length: 0,
         };
       } else {
-        // Ensure all dimensions are positive
-        processedVariant.dimensions.height =
-          processedVariant.dimensions.height > 0
-            ? processedVariant.dimensions.height
+        // Ensure all dimension components are positive or zero
+        variantUpdateData.dimension.height =
+          variantUpdateData.dimension.height !== undefined &&
+          variantUpdateData.dimension.height !== null &&
+          variantUpdateData.dimension.height > 0
+            ? variantUpdateData.dimension.height
             : 0;
-        processedVariant.dimensions.width =
-          processedVariant.dimensions.width > 0
-            ? processedVariant.dimensions.width
+        variantUpdateData.dimension.width =
+          variantUpdateData.dimension.width !== undefined &&
+          variantUpdateData.dimension.width !== null &&
+          variantUpdateData.dimension.width > 0
+            ? variantUpdateData.dimension.width
             : 0;
-        processedVariant.dimensions.depth =
-          processedVariant.dimensions.depth > 0
-            ? processedVariant.dimensions.depth
+        variantUpdateData.dimension.length =
+          variantUpdateData.dimension.length !== undefined &&
+          variantUpdateData.dimension.length !== null &&
+          variantUpdateData.dimension.length > 0
+            ? variantUpdateData.dimension.length
             : 0;
       }
     }
 
-    // Update the variant in the product using the domain method
-    const updatedProduct = this.eventPublisher.mergeObjectContext(
-      ProductMapper.updateVariantOfProduct(product, command),
+    const productWithUpdatedVariant = ProductMapper.fromUpdateVariantDto(
+      productEntity,
+      variantId,
+      command,
+    );
+
+    const updatedProductDomainEntity = this.eventPublisher.mergeObjectContext(
+      productWithUpdatedVariant,
     );
 
     // Persist through repository
-    await this.productRepository.save(updatedProduct);
+    await this.productRepository.save(updatedProductDomainEntity);
 
     // Commit events to event bus
-    updatedProduct.commit();
+    updatedProductDomainEntity.commit();
 
-    // Return the updated product
-    return ProductMapper.toDto(updatedProduct) as ProductDTO;
+    // Return the updated product DTO
+    return ProductMapper.toDto(updatedProductDomainEntity) as ProductDTO;
   }
 }
