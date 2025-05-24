@@ -14,54 +14,21 @@ export class CreateVariantHandler implements ICommandHandler<CreateVariantDTO> {
   ) {}
 
   async execute(command: CreateVariantDTO): Promise<ProductDTO> {
-    const { productId, variant } = command;
+    const { variant } = command;
+    const { productId, tenantId } = variant;
 
     // Find the product by ID
-    const product = await this.productRepository.findById(Id.create(productId));
-    if (!product) {
+    const productEntity = await this.productRepository.findById(
+      Id.create(tenantId),
+      Id.create(productId),
+    );
+    if (!productEntity) {
       throw new NotFoundException(`Product with ID ${productId} not found`);
     }
 
-    // Process variant based on product type
-    const processedVariant = { ...variant };
-    const productType = product.get('type').getValue();
-
-    if (productType === 'DIGITAL') {
-      // For DIGITAL products, set weight and dimensions to null
-      processedVariant.weight = null;
-      processedVariant.dimensions = null;
-    } else if (productType === 'PHYSICAL') {
-      // For PHYSICAL products, ensure weight and dimensions are positive
-      if (!processedVariant.weight || processedVariant.weight <= 0) {
-        processedVariant.weight = 0;
-      }
-
-      if (!processedVariant.dimensions) {
-        processedVariant.dimensions = {
-          height: 0,
-          width: 0,
-          depth: 0,
-        };
-      } else {
-        // Ensure all dimensions are positive
-        processedVariant.dimensions.height =
-          processedVariant.dimensions.height > 0
-            ? processedVariant.dimensions.height
-            : 0;
-        processedVariant.dimensions.width =
-          processedVariant.dimensions.width > 0
-            ? processedVariant.dimensions.width
-            : 0;
-        processedVariant.dimensions.depth =
-          processedVariant.dimensions.depth > 0
-            ? processedVariant.dimensions.depth
-            : 0;
-      }
-    }
-
-    // Use the mapper to create the variant
+    // Use the mapper to add the variant to the product entity
     const updatedProduct = this.eventPublisher.mergeObjectContext(
-      ProductMapper.addVariantToProduct(product, processedVariant),
+      ProductMapper.fromAddVariantDto(productEntity, variant),
     );
 
     // Persist through repository

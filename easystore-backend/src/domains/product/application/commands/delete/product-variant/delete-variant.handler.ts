@@ -22,34 +22,21 @@ export class DeleteVariantHandler
   ) {}
 
   async execute(command: DeleteVariantCommand): Promise<ProductDTO> {
-    const { productId, identifier, identifierType, attributeKey } = command.dto;
-
-    // Create ID value object
-    const productIdObj = Id.create(productId);
+    const { productId, id, tenantId } = command.dto;
 
     // Find the product by ID
-    const product = await this.productRepository.findById(productIdObj);
+    const product = await this.productRepository.findById(
+      Id.create(tenantId),
+      Id.create(productId),
+    );
     if (!product) {
-      this.logger.warn(
-        `Product with ID ${productId} not found for variant deletion`,
-      );
       throw new NotFoundException(`Product with ID ${productId} not found`);
     }
 
     // Call the domain entity method to remove the variant
     const updatedProduct = this.eventPublisher.mergeObjectContext(
-      ProductMapper.deleteVariantOfProduct(product, command.dto),
+      ProductMapper.fromRemoveMediaDto(product, id),
     );
-
-    // Check if the variant was actually removed (product reference changed)
-    if (updatedProduct === product) {
-      this.logger.warn(
-        `There was a problem trying to delete the variant with ${identifierType} ${identifier} and attributeKey ${attributeKey} not found in product ${productId}`,
-      );
-      throw new NotFoundException(
-        `Variant with ${identifierType} ${identifier} and attributeKey ${attributeKey} not found in product ${productId}`,
-      );
-    }
 
     // Save the updated product
     await this.productRepository.save(updatedProduct);

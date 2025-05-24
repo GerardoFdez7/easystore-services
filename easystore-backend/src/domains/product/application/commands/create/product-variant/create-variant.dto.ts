@@ -1,8 +1,5 @@
-import { VariantDTO } from '../../../mappers/product.dto';
+import { IVariantBase } from '../../../../aggregates/entities';
 
 export class CreateVariantDTO {
-  constructor(
-    public readonly productId: string,
-    public readonly variant: VariantDTO,
-  ) {}
+  constructor(public readonly variant: IVariantBase) {}
 }
