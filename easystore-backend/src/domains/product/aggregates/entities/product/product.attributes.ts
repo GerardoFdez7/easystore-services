@@ -1,4 +1,4 @@
-import { TypeEnum, MetadataProps } from '../../value-objects';
+import { MetadataProps } from '../../value-objects';
 import {
   IVariantBase,
   IVariantType,
@@ -15,7 +15,7 @@ export interface IProductType extends IProductSystem {
   name: string;
   shortDescription: string;
   longDescription?: string | null;
-  productType: TypeEnum;
+  productType: string;
   cover?: string | null;
   brand?: string | null;
   manufacturer?: string | null;
@@ -32,7 +32,7 @@ export interface IProductBase {
   name: string;
   shortDescription: string;
   longDescription?: string | null;
-  productType: TypeEnum;
+  productType: string;
   cover?: string | null;
   brand?: string | null;
   manufacturer?: string | null;

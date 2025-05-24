@@ -1,3 +1,6 @@
 export class SoftDeleteProductDTO {
-  constructor(public readonly id: string) {}
+  constructor(
+    public readonly id: number,
+    public readonly tenantId: number,
+  ) {}
 }

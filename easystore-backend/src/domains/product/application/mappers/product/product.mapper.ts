@@ -4,6 +4,10 @@ import {
   IProductProps,
   IProductType,
   IProductBase,
+  IVariantBase,
+  IMediaBase,
+  ISustainabilityBase,
+  IProductCategoriesBase,
 } from '../../../aggregates/entities';
 import {
   Id,
@@ -25,7 +29,7 @@ import {
   ProductCategoriesMapper,
   SustainabilityMapper,
 } from '../';
-import { UpdateProductDTO } from '../../commands';
+import { UpdateProductDTO, UpdateVariantDTO } from '../../commands';
 
 /**
  * Centralized mapper for Product domain entity to DTO conversion for queries and vice versa for commands.
@@ -207,14 +211,20 @@ export class ProductMapper {
    * @returns The mapped Product domain entity
    */
   static fromCreateDto(dto: IProductBase): Product {
-    return Product.create({ ...(dto as IProductType) });
+    return Product.create({ ...dto });
   }
 
+  /**
+   * Maps an UpdateProductDTO to update an existing Product domain entity
+   * @param existingProduct The existing product to update
+   * @param dto The DTO containing the update data
+   * @returns The updated Product domain entity
+   */
   static fromUpdateDto(
     existingProduct: Product,
     dto: UpdateProductDTO,
   ): Product {
-    return Product.update(existingProduct, { ...dto });
+    return Product.update(existingProduct, dto.data);
   }
 
   /**
@@ -245,5 +255,173 @@ export class ProductMapper {
    */
   static fromRestoreDto(existingProduct: Product): Product {
     return Product.restore(existingProduct);
+  }
+
+  // --- Variant Management ---
+
+  /**
+   * Maps an AddVariantDTO to call addVariant on Product entity
+   * @param existingProduct The existing product
+   * @param dto The DTO containing variant data
+   * @returns The product with the new variant added
+   */
+  static fromAddVariantDto(
+    existingProduct: Product,
+    dto: IVariantBase,
+  ): Product {
+    existingProduct.addVariant(dto);
+    return existingProduct;
+  }
+
+  /**
+   * Maps an UpdateVariantDTO to call updateVariant on Product entity
+   * @param existingProduct The existing product
+   * @param variantId The ID of the variant to update
+   * @param dto The DTO containing variant update data
+   * @returns The product with the variant updated
+   */
+  static fromUpdateVariantDto(
+    existingProduct: Product,
+    variantId: number,
+    dto: UpdateVariantDTO,
+  ): Product {
+    existingProduct.updateVariant(variantId, dto.data);
+    return existingProduct;
+  }
+
+  /**
+   * Maps a variant ID to call removeVariant on Product entity
+   * @param existingProduct The existing product
+   * @param variantId The ID of the variant to remove
+   * @returns The product with the variant removed
+   */
+  static fromRemoveVariantDto(
+    existingProduct: Product,
+    variantId: number,
+  ): Product {
+    existingProduct.removeVariant(variantId);
+    return existingProduct;
+  }
+
+  // --- Media Management ---
+
+  /**
+   * Maps an AddMediaDTO to call addMedia on Product entity
+   * @param existingProduct The existing product
+   * @param dto The DTO containing media data
+   * @returns The product with the new media added
+   */
+  static fromAddMediaDto(existingProduct: Product, dto: IMediaBase): Product {
+    existingProduct.addMedia(dto);
+    return existingProduct;
+  }
+
+  /**
+   * Maps an UpdateMediaDTO to call updateMedia on Product entity
+   * @param existingProduct The existing product
+   * @param mediaId The ID of the media to update
+   * @param dto The DTO containing media update data
+   * @returns The product with the media updated
+   */
+  static fromUpdateMediaDto(
+    existingProduct: Product,
+    mediaId: number,
+    dto: IMediaBase,
+  ): Product {
+    existingProduct.updateMedia(mediaId, dto as Partial<IMediaBase>);
+    return existingProduct;
+  }
+
+  /**
+   * Maps a media ID to call removeMedia on Product entity
+   * @param existingProduct The existing product
+   * @param mediaId The ID of the media to remove
+   * @returns The product with the media removed
+   */
+  static fromRemoveMediaDto(
+    existingProduct: Product,
+    mediaId: number,
+  ): Product {
+    existingProduct.removeMedia(mediaId);
+    return existingProduct;
+  }
+
+  // --- Sustainability Management ---
+
+  /**
+   * Maps an AddSustainabilityDTO to call addSustainability on Product entity
+   * @param existingProduct The existing product
+   * @param dto The DTO containing sustainability data
+   * @returns The product with the new sustainability added
+   */
+  static fromAddSustainabilityDto(
+    existingProduct: Product,
+    dto: ISustainabilityBase,
+  ): Product {
+    existingProduct.addSustainability(dto);
+    return existingProduct;
+  }
+
+  /**
+   * Maps an UpdateSustainabilityDTO to call updateSustainability on Product entity
+   * @param existingProduct The existing product
+   * @param sustainabilityId The ID of the sustainability to update
+   * @param dto The DTO containing sustainability update data
+   * @returns The product with the sustainability updated
+   */
+  static fromUpdateSustainabilityDto(
+    existingProduct: Product,
+    sustainabilityId: number,
+    dto: ISustainabilityBase,
+  ): Product {
+    existingProduct.updateSustainability(
+      sustainabilityId,
+      dto as Partial<ISustainabilityBase>,
+    );
+    return existingProduct;
+  }
+
+  /**
+   * Maps a sustainability ID to call removeSustainability on Product entity
+   * @param existingProduct The existing product
+   * @param sustainabilityId The ID of the sustainability to remove
+   * @returns The product with the sustainability removed
+   */
+  static fromRemoveSustainabilityDto(
+    existingProduct: Product,
+    sustainabilityId: number,
+  ): Product {
+    existingProduct.removeSustainability(sustainabilityId);
+    return existingProduct;
+  }
+
+  // --- Category Management ---
+
+  /**
+   * Maps an AssignCategoryDTO to call assignCategory on Product entity
+   * @param existingProduct The existing product
+   * @param dto The DTO containing category ID to assign
+   * @returns The product with the category assigned
+   */
+  static fromAssignCategoryDto(
+    existingProduct: Product,
+    dto: IProductCategoriesBase,
+  ): Product {
+    existingProduct.assignCategory(dto.categoryId);
+    return existingProduct;
+  }
+
+  /**
+   * Maps a category ID to call unassignCategory on Product entity
+   * @param existingProduct The existing product
+   * @param categoryId The ID of the category to unassign
+   * @returns The product with the category unassigned
+   */
+  static fromUnassignCategoryDto(
+    existingProduct: Product,
+    categoryId: number,
+  ): Product {
+    existingProduct.unassignCategory(categoryId);
+    return existingProduct;
   }
 }
