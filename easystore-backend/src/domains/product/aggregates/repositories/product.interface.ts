@@ -10,38 +10,48 @@ export interface IProductRepository {
 
   /**
    * Soft delete a product by its ID
+   * @param tenantId The tenant ID
    * @param id The product ID
    */
-  softDelete(id: Id): Promise<void>;
+  softDelete(tenantId: Id, id: Id): Promise<void>;
 
   /**
    * Hard delete a product by its ID (permanent deletion)
+   * @param tenantId The tenant ID
    * @param id The product ID
    */
-  hardDelete(id: Id): Promise<void>;
+  hardDelete(tenantId: Id, id: Id): Promise<void>;
 
   /**
    * Restore a soft-deleted product
+   * @param tenantId The tenant ID
    * @param id The product ID
    */
-  restore(id: Id): Promise<void>;
+  restore(tenantId: Id, id: Id): Promise<void>;
 
   /**
    * Find a product by its ID
+   * @param tenantId The tenant ID
    * @param id The product ID
    */
-  findById(id: Id): Promise<Product | null>;
+  findById(tenantId: Id, id: Id): Promise<Product | null>;
 
   /**
    * Find products by name (partial match)
    * @param name The product name to search for
+   * @param tenantId The tenant ID
    * @param includeSoftDeleted Whether to include soft-deleted products (default: false)
    */
-  findByName(name: Name, includeSoftDeleted?: boolean): Promise<Product[]>;
+  findByName(
+    name: Name,
+    tenantId: Id,
+    includeSoftDeleted?: boolean,
+  ): Promise<Product[]>;
 
   /**
    * Find all products with pagination, filtering, and sorting.
    *
+   * @param tenantId The tenant ID
    * @param page The page number for pagination (e.g., 1 for the first page).
    * @param limit The number of items per page.
    * @param categoriesIds Optional. An array of category IDs (Value Object `Id`) to filter products by.
@@ -60,6 +70,7 @@ export interface IProductRepository {
    *          for the current page and the `total` number of products matching the criteria.
    */
   findAll(
+    tenantId: Id,
     page: number,
     limit: number,
     categoriesIds?: Id[],

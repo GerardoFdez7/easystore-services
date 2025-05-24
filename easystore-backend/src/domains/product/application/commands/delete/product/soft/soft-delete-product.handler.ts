@@ -16,13 +16,13 @@ export class SoftDeleteProductHandler
   ) {}
 
   async execute(command: SoftDeleteProductDTO): Promise<ProductDTO> {
-    const { id } = command;
-
-    // Create ID value object
-    const productId = Id.create(id);
+    const { id, tenantId } = command;
 
     // Find the product by ID
-    const product = await this.productRepository.findById(productId);
+    const product = await this.productRepository.findById(
+      Id.create(tenantId),
+      Id.create(id),
+    );
     if (!product) {
       throw new NotFoundException(`Product with ID ${id} not found`);
     }
