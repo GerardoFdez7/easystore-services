@@ -6,14 +6,12 @@ import {
   registerEnumType,
 } from '@nestjs/graphql';
 
-// Define el enum AccountType que viene del esquema Prisma
 export enum AccountType {
   TENANT = 'TENANT',
   CUSTOMER = 'CUSTOMER',
   EMPLOYEE = 'EMPLOYEE',
 }
 
-// Registrar enum en GraphQL
 registerEnumType(AccountType, {
   name: 'AccountType',
 });
