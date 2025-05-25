@@ -2,8 +2,7 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { IProductRepository } from '../../../aggregates/repositories/product.interface';
 import { Id } from '../../../aggregates/value-objects';
-import { ProductDTO } from '../../mappers/product.dto';
-import { ProductMapper } from '../../mappers/product.mapper';
+import { ProductMapper, ProductDTO } from '../../mappers';
 import { GetProductByIdDTO } from './id.dto';
 
 @QueryHandler(GetProductByIdDTO)
@@ -14,13 +13,13 @@ export class GetProductByIdHandler implements IQueryHandler<GetProductByIdDTO> {
   ) {}
 
   async execute(query: GetProductByIdDTO): Promise<ProductDTO> {
-    const { id } = query;
-
-    // Create ID value object
-    const productId = Id.create(id);
+    const { tenantId, id } = query;
 
     // Find the product by ID
-    const product = await this.productRepository.findById(productId);
+    const product = await this.productRepository.findById(
+      Id.create(tenantId),
+      Id.create(id),
+    );
     if (!product) {
       throw new NotFoundException(`Product with ID ${id} not found`);
     }

@@ -1,9 +1,8 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { IProductRepository } from '../../../aggregates/repositories/product.interface';
-import { Name } from '../../../aggregates/value-objects';
-import { ProductDTO } from '../../mappers/product.dto';
-import { ProductMapper } from '../../mappers/product.mapper';
+import { Name, Id } from '../../../aggregates/value-objects';
+import { ProductMapper, ProductDTO } from '../../mappers';
 import { GetProductsByNameDTO } from './name.dto';
 
 @QueryHandler(GetProductsByNameDTO)
@@ -16,14 +15,16 @@ export class GetProductsByNameHandler
   ) {}
 
   async execute(query: GetProductsByNameDTO): Promise<ProductDTO[]> {
-    const { name, includeSoftDeleted } = query;
+    const { name, tenantId, includeSoftDeleted } = query;
 
-    // Create Name value object
+    // Create value objects
     const productName = Name.create(name);
+    const tenantIdValue = Id.create(tenantId);
 
     // Find products by name
     const products = await this.productRepository.findByName(
       productName,
+      tenantIdValue,
       includeSoftDeleted,
     );
 
