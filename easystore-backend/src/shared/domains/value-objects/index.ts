@@ -4,4 +4,4 @@ export { ShortDescription } from './short-description.vo';
 export { MediumDescription } from './medium-description.vo';
 export { LongDescription } from './long-description.vo';
 export type SortBy = 'createdAt' | 'updatedAt' | 'name';
-export type SortOrder = 'ASC' | 'DESC';
+export type SortOrder = 'asc' | 'desc';
