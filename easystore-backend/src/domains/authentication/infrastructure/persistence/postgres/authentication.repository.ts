@@ -33,7 +33,6 @@ export class AuthenticationRepository implements IAuthRepository {
       const SALT_ROUNDS = 10;
 
       if (id) {
-        // Si se proporciona nueva contraseña, encriptarla
         if (dto.password) {
           dto.password = await bcrypt.hash(dto.password, SALT_ROUNDS);
         }
@@ -46,7 +45,6 @@ export class AuthenticationRepository implements IAuthRepository {
           },
         });
       } else {
-        // Validar si ya existe un usuario con ese email y accountType
         const existing = await this.findByEmailAndAccountType(
           Email.create(dto.email),
           dto.accountType,
@@ -58,7 +56,6 @@ export class AuthenticationRepository implements IAuthRepository {
           );
         }
 
-        // 🔐 Encriptar contraseña antes de guardar
         dto.password = await bcrypt.hash(dto.password, SALT_ROUNDS);
 
         persistedAuth = await this.prisma.authIdentity.create({
