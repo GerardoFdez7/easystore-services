@@ -71,8 +71,8 @@ export interface IProductRepository {
    */
   findAll(
     tenantId: Id,
-    page: number,
-    limit: number,
+    page?: number,
+    limit?: number,
     categoriesIds?: Id[],
     type?: Type,
     sortBy?: SortBy,

@@ -1,8 +1,8 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { Inject, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Inject, BadRequestException } from '@nestjs/common';
 import { IProductRepository } from '../../../aggregates/repositories/product.interface';
-import { PaginatedProductsDTO } from '../../mappers/product.dto';
-import { ProductMapper } from '../../mappers/product.mapper';
+import { Id, Type } from '../../../aggregates/value-objects';
+import { ProductMapper, PaginatedProductsDTO } from '../../mappers';
 import { GetAllProductsDTO } from './all-products.dto';
 
 @QueryHandler(GetAllProductsDTO)
@@ -13,22 +13,47 @@ export class GetAllProductsHandler implements IQueryHandler<GetAllProductsDTO> {
   ) {}
 
   async execute(query: GetAllProductsDTO): Promise<PaginatedProductsDTO> {
-    const { page, limit, includeSoftDeleted } = query;
+    const {
+      tenantId,
+      page,
+      limit,
+      categoriesIds,
+      type,
+      sortBy,
+      sortOrder,
+      includeSoftDeleted,
+    } = query;
 
     // Validate pagination parameters
-    if (page < 1 || limit < 1) {
-      throw new BadRequestException('Page and limit must be positive numbers');
+    if (page !== undefined && page < 1) {
+      throw new BadRequestException(
+        'Page must be a positive number if provided',
+      );
     }
+    if (limit !== undefined && limit < 1) {
+      throw new BadRequestException(
+        'Limit must be a positive number if provided',
+      );
+    }
+
+    // Create value objects
+    const tenantIdVO = Id.create(tenantId);
+    const categoriesIdsVO = categoriesIds
+      ? categoriesIds.map((categoryId) => Id.create(categoryId))
+      : undefined;
+    const typeVO = type ? Type.create(type) : undefined;
 
     // Find all products with pagination and optional filtering
     const result = await this.productRepository.findAll(
+      tenantIdVO,
       page,
       limit,
+      categoriesIdsVO,
+      typeVO,
+      sortBy,
+      sortOrder,
       includeSoftDeleted,
     );
-    if (!result) {
-      throw new NotFoundException('No products found');
-    }
 
     return {
       products: ProductMapper.toDtoArray(result.products),
