@@ -30,6 +30,7 @@ import {
   GetProductsByNameDTO,
   GetAllProductsDTO,
 } from '../../application/queries';
+import { PaginatedProductsDTO } from '../../application/mappers';
 import { SortBy, SortOrder, TypeEnum } from '../../aggregates/value-objects';
 
 registerEnumType(TypeEnum, {
@@ -140,14 +141,17 @@ export class ProductResolver {
     return this.queryBus.execute(new GetProductByIdDTO(tenantId, id));
   }
 
-  @Query(() => [ProductType])
+  @Query(() => PaginatedProductsType)
   async getProductsByName(
     @Args('name') name: string,
     @Args('tenantId') tenantId: number,
-    @Args('includeSoftDeleted', { nullable: true }) includeSoftDeleted: boolean,
-  ): Promise<ProductType[]> {
+    @Args('page', { defaultValue: 1 }) page: number,
+    @Args('limit', { defaultValue: 10 }) limit: number,
+    @Args('includeSoftDeleted', { defaultValue: false, nullable: true })
+    includeSoftDeleted: boolean,
+  ): Promise<PaginatedProductsDTO> {
     return this.queryBus.execute(
-      new GetProductsByNameDTO(name, tenantId, includeSoftDeleted),
+      new GetProductsByNameDTO(name, tenantId, page, limit, includeSoftDeleted),
     );
   }
 
@@ -162,8 +166,9 @@ export class ProductResolver {
     @Args('sortBy', { nullable: true, type: () => SortBy }) sortBy: SortBy,
     @Args('sortOrder', { nullable: true, type: () => SortOrder })
     sortOrder: SortOrder,
-    @Args('includeSoftDeleted', { nullable: true }) includeSoftDeleted: boolean,
-  ): Promise<{ products: ProductType[]; total: number }> {
+    @Args('includeSoftDeleted', { defaultValue: false, nullable: true })
+    includeSoftDeleted: boolean,
+  ): Promise<PaginatedProductsDTO> {
     return this.queryBus.execute(
       new GetAllProductsDTO(
         tenantId,

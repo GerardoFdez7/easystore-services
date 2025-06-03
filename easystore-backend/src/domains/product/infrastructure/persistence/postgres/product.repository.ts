@@ -728,8 +728,10 @@ export class ProductRepository implements IProductRepository {
   async findByName(
     name: Name,
     tenantId: Id,
+    page?: number,
+    limit?: number,
     includeSoftDeleted?: boolean,
-  ): Promise<Product[]> {
+  ): Promise<{ products: Product[]; total: number }> {
     const whereConditions: Prisma.ProductWhereInput[] = [
       { tenantId: tenantId.getValue() },
       { name: { contains: name.getValue(), mode: 'insensitive' } },
@@ -752,16 +754,30 @@ export class ProductRepository implements IProductRepository {
     }
 
     try {
-      const products = await this.prisma.product.findMany({
-        where: { AND: whereConditions },
-        include: {
-          media: true,
-          variants: true,
-          categories: true,
-          sustainabilities: true,
-        },
-      });
-      return products.map((product) => this.mapToDomain(product));
+      const skip = page && limit ? (page - 1) * limit : undefined;
+      const take = limit;
+
+      const [products, total] = await Promise.all([
+        this.prisma.product.findMany({
+          where: { AND: whereConditions },
+          include: {
+            media: true,
+            variants: true,
+            categories: true,
+            sustainabilities: true,
+          },
+          skip,
+          take,
+        }),
+        this.prisma.product.count({
+          where: { AND: whereConditions },
+        }),
+      ]);
+
+      return {
+        products: products.map((product) => this.mapToDomain(product)),
+        total,
+      };
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
@@ -832,11 +848,14 @@ export class ProductRepository implements IProductRepository {
     }
 
     try {
+      const skip = page && limit ? (page - 1) * limit : undefined;
+      const take = limit;
+
       const [products, total] = await Promise.all([
         this.prisma.product.findMany({
           where: whereClause,
-          skip: (page - 1) * limit,
-          take: limit,
+          skip,
+          take,
           orderBy,
           include: {
             media: true,
