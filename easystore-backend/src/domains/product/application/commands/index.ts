@@ -15,5 +15,5 @@ export { HardDeleteProductDTO } from './delete/product/hard/hard-delete-product.
 export { DeleteVariantHandler } from './delete/product-variant/delete-variant.handler';
 export { DeleteVariantDTO } from './delete/product-variant/delete-variant.dto';
 
-export { RestoreProductHandler } from './restore/restore-product.handler';
-export { RestoreProductDTO } from './restore/restore-product.dto';
+export { RestoreProductHandler } from './restore/product/restore-product.handler';
+export { RestoreProductDTO } from './restore/product/restore-product.dto';

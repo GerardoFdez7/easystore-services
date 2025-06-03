@@ -9,24 +9,10 @@ export interface IProductRepository {
   save(product: Product): Promise<Product>;
 
   /**
-   * Soft delete a product by its ID
-   * @param tenantId The tenant ID
-   * @param id The product ID
-   */
-  softDelete(tenantId: Id, id: Id): Promise<void>;
-
-  /**
    * Hard delete a product by its ID (permanent deletion)
    * @param id The product ID
    */
-  hardDelete(id: Id): Promise<void>;
-
-  /**
-   * Restore a soft-deleted product
-   * @param tenantId The tenant ID
-   * @param id The product ID
-   */
-  restore(tenantId: Id, id: Id): Promise<void>;
+  hardDelete(tenantId: Id, id: Id): Promise<Product>;
 
   /**
    * Find a product by its ID

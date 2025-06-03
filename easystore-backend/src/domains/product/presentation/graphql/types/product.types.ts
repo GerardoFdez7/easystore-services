@@ -25,18 +25,6 @@ registerEnumType(TypeEnum, {
   name: 'TypeEnum',
 });
 
-@ObjectType('Metadata')
-export class MetadataType {
-  @Field()
-  deleted: boolean;
-
-  @Field({ nullable: true })
-  deletedAt?: Date;
-
-  @Field({ nullable: true })
-  scheduledForHardDeleteAt?: Date;
-}
-
 @ObjectType('Product')
 export class ProductType {
   @Field(() => Int)
@@ -66,8 +54,8 @@ export class ProductType {
   @Field(() => [String], { nullable: true })
   tags?: string[];
 
-  @Field(() => MetadataType)
-  metadata: MetadataType;
+  @Field(() => Boolean)
+  isArchived: boolean;
 
   @Field()
   updatedAt: Date;

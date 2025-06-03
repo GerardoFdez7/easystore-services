@@ -424,7 +424,7 @@ export class ProductRepository implements IProductRepository {
               tags: productDto.tags,
               brand: productDto.brand,
               manufacturer: productDto.manufacturer,
-              metadata: productDto.metadata as Prisma.InputJsonValue,
+              isArchived: productDto.isArchived,
             },
             include: {
               // Re-include relations after update
@@ -480,7 +480,7 @@ export class ProductRepository implements IProductRepository {
               tags: productDto.tags,
               brand: productDto.brand,
               manufacturer: productDto.manufacturer,
-              metadata: productDto.metadata as Prisma.InputJsonValue,
+              isArchived: productDto.isArchived,
               tenant: { connect: { id: productDto.tenantId } },
             },
           });
@@ -555,125 +555,32 @@ export class ProductRepository implements IProductRepository {
     }
   }
 
-  // Soft delete a product by its ID
-  async softDelete(tenantId: Id, id: Id): Promise<void> {
+  async hardDelete(tenantId: Id, id: Id): Promise<Product> {
     const tenantIdValue = tenantId.getValue();
     const idValue = id.getValue();
     try {
-      const now = new Date();
-      const scheduledForHardDeleteAt = new Date(
-        now.getTime() + 30 * 24 * 60 * 60 * 1000, // 30 days from now
-      );
-      const metadata = {
-        deleted: true,
-        deletedAt: now,
-        scheduledForHardDeleteAt,
-      };
-      await this.prisma.product.update({
+      const prismaProduct = await this.prisma.product.delete({
         where: {
           tenantId: tenantIdValue,
           id: idValue,
         },
-        data: {
-          metadata,
-        },
       });
+      return this.mapToDomain(prismaProduct);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw new ResourceNotFoundError('Product', idValue.toString());
-        }
-      }
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      throw new DatabaseOperationError(
-        'soft delete product',
-        errorMessage,
-        error instanceof Error ? error : new Error(errorMessage),
-      );
-    }
-  }
-
-  // Hard delete a product by its ID (permanent deletion)
-  async hardDelete(id: Id): Promise<void> {
-    const idValue = id.getValue();
-    try {
-      await this.prisma.product.delete({
-        where: {
-          id: idValue,
-        },
-      });
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2025') {
-          throw new ResourceNotFoundError('Product', idValue.toString());
-        }
-      }
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      throw new DatabaseOperationError(
-        'hard delete product',
-        errorMessage,
-        error instanceof Error ? error : new Error(errorMessage),
-      );
-    }
-  }
-
-  // Restore a soft-deleted product
-  async restore(tenantId: Id, id: Id): Promise<void> {
-    const tenantIdValue = tenantId.getValue();
-    const idValue = id.getValue();
-    try {
-      const productToCheck = await this.prisma.product.findUnique({
-        where: { tenantId: tenantIdValue, id: idValue },
-        select: { metadata: true },
-      });
-
-      if (!productToCheck) {
-        throw new ResourceNotFoundError('Product', idValue.toString());
-      }
-
-      if (
-        !(productToCheck.metadata as { deleted: boolean }).deleted === false
-      ) {
-        throw new DatabaseOperationError(
-          'restore product',
-          `Product ${idValue} is not soft-deleted and cannot be restored.`,
-        );
-      }
-
-      await this.prisma.product.update({
-        where: {
-          tenantId: tenantIdValue,
-          id: idValue,
-        },
-        data: {
-          metadata: {
-            deleted: false,
-            deletedAt: null,
-            scheduledForHardDeleteAt: null,
-          },
-        },
-      });
-    } catch (error) {
-      if (
-        error instanceof ResourceNotFoundError ||
-        error instanceof DatabaseOperationError
-      ) {
-        throw error;
-      }
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2025') {
-          throw new ResourceNotFoundError(
-            'Product',
-            idValue.toString() + ' not found',
+        } else if (error.code === 'P2003') {
+          throw new ForeignKeyConstraintViolationError(
+            'Product belongs to',
+            'Order or Return',
           );
         }
       }
       const errorMessage =
         error instanceof Error ? error.message : String(error);
       throw new DatabaseOperationError(
-        'restore product',
+        'hard delete product',
         errorMessage,
         error instanceof Error ? error : new Error(errorMessage),
       );
@@ -705,13 +612,6 @@ export class ProductRepository implements IProductRepository {
           sustainabilities: true,
         },
       });
-
-      if (
-        !prismaProduct ||
-        (prismaProduct.metadata as { deleted?: boolean })?.deleted === true
-      ) {
-        return null;
-      }
       return this.mapToDomain(prismaProduct);
     } catch (error) {
       const errorMessage =
@@ -739,17 +639,11 @@ export class ProductRepository implements IProductRepository {
 
     if (includeSoftDeleted === false || includeSoftDeleted === undefined) {
       whereConditions.push({
-        metadata: {
-          path: ['deleted'],
-          equals: false,
-        },
+        isArchived: false,
       });
     } else if (includeSoftDeleted === true) {
       whereConditions.push({
-        metadata: {
-          path: ['deleted'],
-          equals: true,
-        },
+        isArchived: true,
       });
     }
 
@@ -822,17 +716,11 @@ export class ProductRepository implements IProductRepository {
 
     if (includeSoftDeleted === false || includeSoftDeleted === undefined) {
       conditions.push({
-        metadata: {
-          path: ['deleted'],
-          equals: false,
-        },
+        isArchived: false,
       });
     } else if (includeSoftDeleted === true) {
       conditions.push({
-        metadata: {
-          path: ['deleted'],
-          equals: true,
-        },
+        isArchived: true,
       });
     }
 

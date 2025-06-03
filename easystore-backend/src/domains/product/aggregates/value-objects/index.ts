@@ -16,7 +16,6 @@ export { Type, TypeEnum } from './product/type.vo';
 export { Tags } from './product/tags.vo';
 export { Brand } from './product/brand.vo';
 export { Manufacturer } from './product/manufacturer.vo';
-export { Metadata, MetadataProps } from './product/metadata.vo';
 
 // Variant value objects
 export { Price } from './variant/price.vo';
