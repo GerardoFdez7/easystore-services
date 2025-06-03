@@ -1,8 +1,6 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
-const coverSchema = z
-  .string()
-  .url({ message: 'Product cover must be a valid URL' });
+const coverSchema = z.url({ message: 'Invalid cover URL' });
 
 export class Cover {
   private readonly value: string;

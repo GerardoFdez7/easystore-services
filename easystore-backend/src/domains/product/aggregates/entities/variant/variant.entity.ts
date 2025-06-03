@@ -56,7 +56,7 @@ export interface IVariantProps extends EntityProps {
   tenantId: Id;
   updatedAt: Date;
   createdAt: Date;
-  media: Media[];
+  variantMedia: Media[];
   installmentPayments: InstallmentPayment[];
   warranties: Warranty[];
 }
@@ -72,7 +72,9 @@ export class Variant extends Entity<IVariantProps> {
         Attribute.create(attr.key, attr.value),
       ),
       price: Price.create(props.price),
-      cover: props.variantCover ? Cover.create(props.variantCover) : null,
+      variantCover: props.variantCover
+        ? Cover.create(props.variantCover)
+        : Cover.create('https://easystore.com/default-variant-cover.jpg'),
       personalizationOptions: props.personalizationOptions
         ? props.personalizationOptions.map((opt) =>
             PersonalizationOptions.create(opt),
@@ -80,13 +82,15 @@ export class Variant extends Entity<IVariantProps> {
         : [],
       weight: props.weight !== undefined ? Weight.create(props.weight) : null,
       dimension: props.dimension ? Dimension.create(props.dimension) : null,
-      condition: Condition.create(props.condition),
+      condition: props.condition
+        ? Condition.create(props.condition)
+        : Condition.create('NEW'),
       upc: props.upc ? UPC.create(props.upc) : null,
       ean: props.ean ? EAN.create(props.ean) : null,
       sku: props.sku ? SKU.create(props.sku) : null,
       barcode: props.barcode ? Barcode.create(props.barcode) : null,
       isbn: props.isbn ? ISBN.create(props.isbn) : null,
-      productId: Id.create(props.productId),
+      productId: props.productId ? Id.create(props.productId) : null,
       tenantId: Id.create(props.tenantId),
     };
 
@@ -95,7 +99,7 @@ export class Variant extends Entity<IVariantProps> {
     const newVariantIdValue = null;
     const newVariantEntityId = Id.create(newVariantIdValue as number);
 
-    const media = (props.media || []).map((mediaData) =>
+    const variantMedia = (props.variantMedia || []).map((mediaData) =>
       Media.create({
         ...mediaData,
         variantId: newVariantEntityId.getValue(),
@@ -120,7 +124,7 @@ export class Variant extends Entity<IVariantProps> {
     const variant = new Variant({
       id: null,
       ...transformedProps,
-      media,
+      variantMedia,
       warranties,
       installmentPayments,
       updatedAt: new Date(),
@@ -193,7 +197,7 @@ export class Variant extends Entity<IVariantProps> {
       ...mediaData,
       variantId: this.props.id.getValue(),
     });
-    this.props.media.push(newMedia);
+    this.props.variantMedia.push(newMedia);
     this.props.updatedAt = new Date();
 
     this.apply(new MediaCreatedEvent(this, newMedia));
@@ -205,7 +209,7 @@ export class Variant extends Entity<IVariantProps> {
    * @param updateData The data to update the media item with, conforming to Partial<IMediaBase>.
    */
   public updateMedia(mediaId: number, updateData: Partial<IMediaBase>): void {
-    const media = this.props.media.find(
+    const media = this.props.variantMedia.find(
       (m) => m.get('id').getValue() === mediaId,
     );
     if (!media) {
@@ -224,7 +228,7 @@ export class Variant extends Entity<IVariantProps> {
    * @param mediaId The ID of the media item to remove.
    */
   public removeMedia(mediaId: number): void {
-    const mediaIndex = this.props.media.findIndex(
+    const mediaIndex = this.props.variantMedia.findIndex(
       (m) => m.get('id').getValue() === mediaId,
     );
     if (mediaIndex === -1) {
@@ -232,7 +236,7 @@ export class Variant extends Entity<IVariantProps> {
         `Media with ID ${mediaId} not found on variant ${this.props.id.getValue()}.`,
       );
     }
-    const removedMedia = this.props.media.splice(mediaIndex, 1)[0];
+    const removedMedia = this.props.variantMedia.splice(mediaIndex, 1)[0];
     this.props.updatedAt = new Date();
 
     this.apply(new MediaDeletedEvent(this, removedMedia));

@@ -1,28 +1,20 @@
 import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
 import { Inject, NotFoundException } from '@nestjs/common';
-import { LoggerService } from '@winston/winston.service';
 import { IProductRepository } from '../../../../aggregates/repositories/product.interface';
 import { ProductMapper, ProductDTO } from '../../../mappers';
 import { Id } from '../../../../aggregates/value-objects';
 import { DeleteVariantDTO } from './delete-variant.dto';
 
-export class DeleteVariantCommand {
-  constructor(public readonly dto: DeleteVariantDTO) {}
-}
-
-@CommandHandler(DeleteVariantCommand)
-export class DeleteVariantHandler
-  implements ICommandHandler<DeleteVariantCommand>
-{
+@CommandHandler(DeleteVariantDTO)
+export class DeleteVariantHandler implements ICommandHandler<DeleteVariantDTO> {
   constructor(
     @Inject('IProductRepository')
     private readonly productRepository: IProductRepository,
     private readonly eventPublisher: EventPublisher,
-    private readonly logger: LoggerService,
   ) {}
 
-  async execute(command: DeleteVariantCommand): Promise<ProductDTO> {
-    const { productId, id, tenantId } = command.dto;
+  async execute(command: DeleteVariantDTO): Promise<ProductDTO> {
+    const { productId, id, tenantId } = command;
 
     // Find the product by ID
     const product = await this.productRepository.findById(
@@ -35,7 +27,7 @@ export class DeleteVariantHandler
 
     // Call the domain entity method to remove the variant
     const updatedProduct = this.eventPublisher.mergeObjectContext(
-      ProductMapper.fromRemoveMediaDto(product, id),
+      ProductMapper.fromRemoveVariantDto(product, id),
     );
 
     // Save the updated product

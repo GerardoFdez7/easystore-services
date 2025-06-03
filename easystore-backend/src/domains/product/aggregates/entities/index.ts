@@ -19,6 +19,8 @@ export {
   IVariantType,
   IVariantBase,
   IVariantSystem,
+  IWarrantyInitData,
+  IInstallmentPaymentInitData,
 } from './variant/variant.attributes';
 
 // Installment payment entity

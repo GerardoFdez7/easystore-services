@@ -42,7 +42,7 @@ export class WarrantyMapper {
    */
   static toDto(warranty: Warranty): WarrantyDTO {
     return warranty.toDTO<WarrantyDTO>((entity) => ({
-      id: entity.get('id')?.getValue() || null,
+      id: entity.get('id')?.getValue() || undefined,
       months: entity.get('months')?.getValue() || null,
       coverage: entity.get('coverage')?.getValue() || null,
       instructions: entity.get('instructions')?.getValue() || null,

@@ -17,7 +17,7 @@ export class InstallmentPayment extends Entity<IInstallmentPaymentProps> {
     const transformedProps = {
       months: Months.create(props.months),
       interestRate: InterestRate.create(props.interestRate),
-      variantId: Id.create(props.variantId),
+      variantId: props.variantId ? Id.create(props.variantId) : null,
     };
 
     const installmentPayment = new InstallmentPayment({

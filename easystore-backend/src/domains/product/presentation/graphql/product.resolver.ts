@@ -1,13 +1,20 @@
-import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
+import {
+  Int,
+  Resolver,
+  Mutation,
+  Args,
+  Query,
+  registerEnumType,
+} from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   ProductType,
+  PaginatedProductsType,
   CreateProductInput,
   UpdateProductInput,
-  VariantInput,
+  CreateVariantInput,
   UpdateVariantInput,
-  PaginatedProductsType,
-} from './product.types';
+} from './types';
 import {
   CreateProductDTO,
   CreateVariantDTO,
@@ -23,6 +30,19 @@ import {
   GetProductsByNameDTO,
   GetAllProductsDTO,
 } from '../../application/queries';
+import { SortBy, SortOrder, TypeEnum } from '../../aggregates/value-objects';
+
+registerEnumType(TypeEnum, {
+  name: 'TypeEnum',
+});
+
+registerEnumType(SortBy, {
+  name: 'SortBy',
+});
+
+registerEnumType(SortOrder, {
+  name: 'SortOrder',
+});
 
 @Resolver(() => ProductType)
 export class ProductResolver {
@@ -44,66 +64,68 @@ export class ProductResolver {
 
   @Mutation(() => ProductType)
   async updateProduct(
-    @Args('id') id: string,
+    @Args('id') id: number,
+    @Args('tenantId') tenantId: number,
     @Args('input') input: UpdateProductInput,
   ): Promise<ProductType> {
-    return this.commandBus.execute(new UpdateProductDTO({ id, ...input }));
+    return this.commandBus.execute(
+      new UpdateProductDTO(id, tenantId, { ...input }),
+    );
   }
 
   @Mutation(() => ProductType)
-  async createVariant(
-    @Args('productId') productId: string,
-    @Args('input') input: VariantInput,
+  async softDeleteProduct(
+    @Args('tenantId') tenantId: number,
+    @Args('id') id: number,
   ): Promise<ProductType> {
-    return this.commandBus.execute(new CreateVariantDTO(productId, input));
+    return this.commandBus.execute(new SoftDeleteProductDTO(tenantId, id));
+  }
+
+  @Mutation(() => ProductType)
+  async hardDeleteProduct(
+    @Args('tenantId') tenantId: number,
+    @Args('id') id: number,
+  ): Promise<ProductType> {
+    return this.commandBus.execute(new HardDeleteProductDTO(tenantId, id));
+  }
+
+  @Mutation(() => ProductType)
+  async restoreProduct(
+    @Args('tenantId') tenantId: number,
+    @Args('id') id: number,
+  ): Promise<ProductType> {
+    return this.commandBus.execute(new RestoreProductDTO(tenantId, id));
+  }
+
+  // Variants mutations
+  @Mutation(() => ProductType)
+  async addVariant(
+    @Args('input') input: CreateVariantInput,
+  ): Promise<ProductType> {
+    return this.commandBus.execute(new CreateVariantDTO(input));
   }
 
   @Mutation(() => ProductType)
   async updateVariant(
-    @Args('productId') productId: string,
-    @Args('identifier') identifier: string,
-    @Args('identifierType')
-    identifierType: 'sku' | 'upc' | 'ean' | 'isbn' | 'barcode' | 'attribute',
-    @Args('attributeKey', { nullable: true }) attributeKey: string,
+    @Args('id') id: number,
+    @Args('productId') productId: number,
+    @Args('tenantId') tenantId: number,
     @Args('input') input: UpdateVariantInput,
   ): Promise<ProductType> {
     return this.commandBus.execute(
-      new UpdateVariantDTO(
-        productId,
-        identifier,
-        identifierType,
-        input,
-        attributeKey,
-      ),
+      new UpdateVariantDTO(id, productId, tenantId, { ...input }),
     );
   }
 
   @Mutation(() => ProductType)
   async deleteVariant(
-    @Args('productId') productId: string,
-    @Args('identifier') identifier: string,
-    @Args('identifierType')
-    identifierType: 'sku' | 'upc' | 'ean' | 'isbn' | 'barcode' | 'attribute',
-    @Args('attributeKey', { nullable: true }) attributeKey: string,
+    @Args('id') id: number,
+    @Args('productId') productId: number,
+    @Args('tenantId') tenantId: number,
   ): Promise<ProductType> {
     return this.commandBus.execute(
-      new DeleteVariantDTO(productId, identifier, identifierType, attributeKey),
+      new DeleteVariantDTO(id, productId, tenantId),
     );
-  }
-
-  @Mutation(() => ProductType)
-  async softDeleteProduct(@Args('id') id: string): Promise<ProductType> {
-    return this.commandBus.execute(new SoftDeleteProductDTO(id));
-  }
-
-  @Mutation(() => ProductType)
-  async hardDeleteProduct(@Args('id') id: string): Promise<ProductType> {
-    return this.commandBus.execute(new HardDeleteProductDTO(id));
-  }
-
-  @Mutation(() => ProductType)
-  async restoreProduct(@Args('id') id: string): Promise<ProductType> {
-    return this.commandBus.execute(new RestoreProductDTO(id));
   }
 
   ///////////////
@@ -111,29 +133,48 @@ export class ProductResolver {
   ///////////////
 
   @Query(() => ProductType)
-  async getProductById(@Args('id') id: string): Promise<ProductType> {
-    return this.queryBus.execute(new GetProductByIdDTO(id));
+  async getProductById(
+    @Args('tenantId') tenantId: number,
+    @Args('id') id: number,
+  ): Promise<ProductType> {
+    return this.queryBus.execute(new GetProductByIdDTO(tenantId, id));
   }
 
   @Query(() => [ProductType])
   async getProductsByName(
     @Args('name') name: string,
+    @Args('tenantId') tenantId: number,
     @Args('includeSoftDeleted', { nullable: true }) includeSoftDeleted: boolean,
   ): Promise<ProductType[]> {
     return this.queryBus.execute(
-      new GetProductsByNameDTO(name, includeSoftDeleted),
+      new GetProductsByNameDTO(name, tenantId, includeSoftDeleted),
     );
   }
 
   @Query(() => PaginatedProductsType)
   async getAllProducts(
+    @Args('tenantId') tenantId: number,
     @Args('page', { defaultValue: 1 }) page: number,
     @Args('limit', { defaultValue: 10 }) limit: number,
-    @Args('categoryId', { nullable: true }) categoryId: string,
+    @Args('categoriesIds', { nullable: true, type: () => [Int] })
+    categoriesIds: number[],
+    @Args('type', { nullable: true, type: () => TypeEnum }) type: TypeEnum,
+    @Args('sortBy', { nullable: true, type: () => SortBy }) sortBy: SortBy,
+    @Args('sortOrder', { nullable: true, type: () => SortOrder })
+    sortOrder: SortOrder,
     @Args('includeSoftDeleted', { nullable: true }) includeSoftDeleted: boolean,
   ): Promise<{ products: ProductType[]; total: number }> {
     return this.queryBus.execute(
-      new GetAllProductsDTO(page, limit, categoryId, includeSoftDeleted),
+      new GetAllProductsDTO(
+        tenantId,
+        page,
+        limit,
+        categoriesIds,
+        type,
+        sortBy,
+        sortOrder,
+        includeSoftDeleted,
+      ),
     );
   }
 }
