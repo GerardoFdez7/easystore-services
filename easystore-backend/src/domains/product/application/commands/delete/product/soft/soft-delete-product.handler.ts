@@ -27,12 +27,20 @@ export class SoftDeleteProductHandler
       throw new NotFoundException(`Product with ID ${id} not found`);
     }
 
+    // Check if the product is already soft deleted
+    const isArchived = product.get('isArchived');
+    if (isArchived === true) {
+      throw new Error(
+        `Product with ID ${id} is already soft deleted and cannot be soft deleted again`,
+      );
+    }
+
     // Call the domain entity method to soft delete the product
     const deletedProduct = this.eventPublisher.mergeObjectContext(
       ProductMapper.fromSoftDeleteDto(product),
     );
 
-    // Save the updated product with soft delete metadata
+    // Save the updated product
     await this.productRepository.save(deletedProduct);
 
     // Commit events to event bus

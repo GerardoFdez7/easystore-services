@@ -9,7 +9,6 @@ import {
   Tags,
   Brand,
   Manufacturer,
-  Metadata,
 } from '../../value-objects';
 import {
   IProductBase,
@@ -53,7 +52,7 @@ export interface IProductProps extends EntityProps {
   tags?: Tags[];
   brand?: Brand | null;
   manufacturer?: Manufacturer | null;
-  metadata: Metadata;
+  isArchived: boolean;
   tenantId: Id;
   updatedAt: Date;
   createdAt: Date;
@@ -133,11 +132,7 @@ export class Product extends Entity<IProductProps> {
       media,
       categories,
       sustainabilities,
-      metadata: Metadata.create({
-        deleted: false,
-        deletedAt: null,
-        scheduledForHardDeleteAt: null,
-      }),
+      isArchived: false,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -224,14 +219,8 @@ export class Product extends Entity<IProductProps> {
   static softDelete(product: Product): Product {
     const props = { ...product.props };
 
-    // Create new metadata with deletion information
-    const metadataProps = {
-      deleted: true,
-      deletedAt: new Date(),
-      scheduledForHardDeleteAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-    };
-
-    props.metadata = Metadata.create(metadataProps);
+    // Change isArchived to true
+    props.isArchived = true;
 
     // Update the updatedAt timestamp
     props.updatedAt = new Date();
@@ -252,12 +241,8 @@ export class Product extends Entity<IProductProps> {
   static restore(product: Product): Product {
     const props = { ...product.props };
 
-    // Create new metadata with deletion flags removed
-    props.metadata = Metadata.create({
-      deleted: false,
-      deletedAt: null,
-      scheduledForHardDeleteAt: null,
-    });
+    // Change isArchived to false
+    props.isArchived = false;
 
     // Update the updatedAt timestamp
     props.updatedAt = new Date();
@@ -272,19 +257,14 @@ export class Product extends Entity<IProductProps> {
 
   /**
    * Permanently deletes a Product from the system (hard delete)
-   * This should be called by a scheduled job or when a user explicitly empties the trash
    * @param product The Product to permanently delete
-   * @returns A flag indicating the product should be removed from the database
+   * @returns Deleted product
    */
-  static hardDelete(product: Product): {
-    shouldRemove: true;
-    product: Product;
-  } {
+  static hardDelete(product: Product): Product {
     // Apply domain event before returning
     product.apply(new ProductHardDeletedEvent(product));
 
-    // Return an object with a flag indicating this product should be removed from the database
-    return { shouldRemove: true, product };
+    return product;
   }
 
   // --- Variant Management ---
