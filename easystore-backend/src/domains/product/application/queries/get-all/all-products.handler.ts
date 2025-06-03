@@ -1,5 +1,5 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { Inject, BadRequestException } from '@nestjs/common';
+import { Inject, BadRequestException, NotFoundException } from '@nestjs/common';
 import { IProductRepository } from '../../../aggregates/repositories/product.interface';
 import { Id, Type } from '../../../aggregates/value-objects';
 import { ProductMapper, PaginatedProductsDTO } from '../../mappers';
@@ -54,6 +54,9 @@ export class GetAllProductsHandler implements IQueryHandler<GetAllProductsDTO> {
       sortOrder,
       includeSoftDeleted,
     );
+    if (!result || result.total === 0) {
+      throw new NotFoundException(`No products found`);
+    }
 
     return {
       products: ProductMapper.toDtoArray(result.products),

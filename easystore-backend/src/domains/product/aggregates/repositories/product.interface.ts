@@ -39,13 +39,17 @@ export interface IProductRepository {
    * Find products by name (partial match)
    * @param name The product name to search for
    * @param tenantId The tenant ID
+   * @param page The page number for pagination (e.g., 1 for the first page).
+   * @param limit The number of items per page.
    * @param includeSoftDeleted Whether to include soft-deleted products (default: false)
    */
   findByName(
     name: Name,
     tenantId: Id,
+    page?: number,
+    limit?: number,
     includeSoftDeleted?: boolean,
-  ): Promise<Product[]>;
+  ): Promise<{ products: Product[]; total: number }>;
 
   /**
    * Find all products with pagination, filtering, and sorting.
