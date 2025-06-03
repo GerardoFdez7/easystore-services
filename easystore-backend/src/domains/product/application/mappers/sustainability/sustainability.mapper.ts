@@ -45,7 +45,7 @@ export class SustainabilityMapper {
    */
   static toDto(sustainability: Sustainability): SustainabilityDTO {
     return sustainability.toDTO<SustainabilityDTO>((entity) => ({
-      id: entity.get('id')?.getValue() || null,
+      id: entity.get('id')?.getValue() || undefined,
       certification: entity.get('certification')?.getValue() || null,
       recycledPercentage: entity.get('recycledPercentage')?.getValue() || null,
       productId: entity.get('productId')?.getValue() || null,

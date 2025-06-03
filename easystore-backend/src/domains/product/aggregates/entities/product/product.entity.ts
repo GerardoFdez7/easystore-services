@@ -127,13 +127,17 @@ export class Product extends Entity<IProductProps> {
     );
 
     const product = new Product({
-      id: newProductEntityId,
+      id: null,
       ...transformedProps,
       variants,
       media,
       categories,
       sustainabilities,
-      metadata: Metadata.create({ deleted: false }),
+      metadata: Metadata.create({
+        deleted: false,
+        deletedAt: null,
+        scheduledForHardDeleteAt: null,
+      }),
       createdAt: new Date(),
       updatedAt: new Date(),
     });

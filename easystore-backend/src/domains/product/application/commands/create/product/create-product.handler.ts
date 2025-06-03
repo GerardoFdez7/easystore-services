@@ -3,6 +3,7 @@ import { Inject } from '@nestjs/common';
 import { IProductRepository } from '../../../../aggregates/repositories/product.interface';
 import { CreateProductDTO } from './create-product.dto';
 import { ProductMapper, ProductDTO } from '../../../mappers';
+import { TypeEnum } from '../../../../aggregates/value-objects';
 
 @CommandHandler(CreateProductDTO)
 export class CreateProductHandler implements ICommandHandler<CreateProductDTO> {
@@ -20,10 +21,10 @@ export class CreateProductHandler implements ICommandHandler<CreateProductDTO> {
     const processedVariants = Array.isArray(variants)
       ? variants.map((variant) => {
           const processedVariant = { ...variant };
-          if (productType === 'DIGITAL') {
+          if (productType === TypeEnum.DIGITAL) {
             processedVariant.weight = null;
             processedVariant.dimension = null;
-          } else if (productType === 'PHYSICAL') {
+          } else if (productType === TypeEnum.PHYSICAL) {
             // Ensure weight is a positive float
             if (!processedVariant.weight || processedVariant.weight <= 0) {
               processedVariant.weight = 0.01;

@@ -64,17 +64,18 @@ export class ProductMapper {
       tenantId: Id.create(model.tenantId),
       updatedAt: model.updatedAt,
       createdAt: model.createdAt,
-      variants: model.variants.map((variantItem) =>
+      variants: (model.variants || []).map((variantItem) =>
         VariantMapper.fromPersistence(variantItem),
       ),
-      media: model.media.map((mediaItem) =>
+      media: (model.media || []).map((mediaItem) =>
         MediaMapper.fromPersistence(mediaItem),
       ),
-      categories: model.categories.map((categoryItem) =>
+      categories: (model.categories || []).map((categoryItem) =>
         ProductCategoriesMapper.fromPersistence(categoryItem),
       ),
-      sustainabilities: model.sustainabilities.map((sustainabilityItem) =>
-        SustainabilityMapper.fromPersistence(sustainabilityItem),
+      sustainabilities: (model.sustainabilities || []).map(
+        (sustainabilityItem) =>
+          SustainabilityMapper.fromPersistence(sustainabilityItem),
       ),
     }));
   }
@@ -111,7 +112,7 @@ export class ProductMapper {
     // If no fields specified, return all fields
     if (!fields || fields.length === 0) {
       return product.toDTO<ProductDTO>((entity) => ({
-        id: entity.get('id')?.getValue() ?? null,
+        id: entity.get('id')?.getValue() ?? undefined,
         name: entity.get('name')?.getValue() ?? null,
         shortDescription: entity.get('shortDescription')?.getValue() ?? null,
         longDescription: entity.get('longDescription')?.getValue() ?? null,
@@ -132,7 +133,7 @@ export class ProductMapper {
                 entity.get('metadata')?.getScheduledForHardDeleteAt() ?? null,
             }
           : null,
-        tenantId: entity.get('id')?.getValue() ?? null,
+        tenantId: entity.get('tenantId')?.getValue() ?? null,
         updatedAt: entity.get('updatedAt') ?? null,
         createdAt: entity.get('createdAt') ?? null,
         variants:
@@ -158,7 +159,7 @@ export class ProductMapper {
     const dto: Partial<ProductDTO> = {};
 
     // Always include ID
-    dto.id = product.get('id')?.getValue() ?? null;
+    dto.id = product.get('id')?.getValue() ?? undefined;
 
     // Map only requested fields
     fields.forEach((field) => {
@@ -188,6 +189,9 @@ export class ProductMapper {
           break;
         case 'manufacturer':
           dto.manufacturer = product.get('manufacturer')?.getValue() ?? null;
+          break;
+        case 'tenantId':
+          dto.tenantId = product.get('tenantId')?.getValue() ?? null;
           break;
       }
     });
@@ -285,7 +289,39 @@ export class ProductMapper {
     variantId: number,
     dto: UpdateVariantDTO,
   ): Product {
-    existingProduct.updateVariant(variantId, dto.data);
+    const fullData: Partial<IVariantBase> = {
+      ...dto.data,
+      attributes: dto.data.attributes?.map((attr) => ({
+        key: attr.key ?? 'default_key',
+        value: attr.value ?? 'default_value',
+      })),
+      dimension: dto.data.dimension
+        ? {
+            height: dto.data.dimension.height ?? 0,
+            width: dto.data.dimension.width ?? 0,
+            length: dto.data.dimension.length ?? 0,
+          }
+        : null,
+      variantMedia: dto.data.variantMedia?.map((media) => ({
+        ...media,
+        url: media.url ?? '',
+        mediaType: media.mediaType,
+        position: media.position ?? 0,
+      })),
+      warranties: dto.data.warranties?.map((warranty) => ({
+        ...warranty,
+        months: warranty.months ?? 0,
+        coverage: warranty.coverage ?? '',
+        instructions: warranty.instructions ?? '',
+      })),
+      installmentPayments: dto.data.installmentPayments?.map((payment) => ({
+        ...payment,
+        months: payment.months ?? 0,
+        interestRate: payment.interestRate ?? 0,
+      })),
+    };
+
+    existingProduct.updateVariant(variantId, fullData);
     return existingProduct;
   }
 

@@ -1,6 +1,6 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
-const urlSchema = z.string().url({ message: 'Invalid URL format' });
+const urlSchema = z.url({ message: 'Invalid media URL format' });
 
 export class Url {
   private readonly value: string;

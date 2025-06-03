@@ -1,4 +1,4 @@
-import { SortBy, SortOrder } from '../../../aggregates/value-objects';
+import { SortBy, SortOrder, TypeEnum } from '../../../aggregates/value-objects';
 
 export class GetAllProductsDTO {
   constructor(
@@ -6,7 +6,7 @@ export class GetAllProductsDTO {
     public readonly page?: number,
     public readonly limit?: number,
     public readonly categoriesIds?: number[],
-    public readonly type?: string,
+    public readonly type?: TypeEnum,
     public readonly sortBy?: SortBy,
     public readonly sortOrder?: SortOrder,
     public readonly includeSoftDeleted?: boolean,

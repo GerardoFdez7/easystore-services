@@ -1,8 +1,7 @@
 import { IProductBase } from '../../../../aggregates/entities';
 
 /**
- * Data Transfer Object for creating a new Product
- * Reuses the IProductBase and adds variants as VariantDTO
+ * Data Transfer Object for creating a new Product reuses the IProductBase
  */
 export class CreateProductDTO {
   constructor(public readonly data: IProductBase) {}

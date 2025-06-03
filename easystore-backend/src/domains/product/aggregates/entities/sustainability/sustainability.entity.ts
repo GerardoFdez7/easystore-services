@@ -23,7 +23,7 @@ export class Sustainability extends Entity<ISustainabilityProps> {
         props.recycledPercentage !== undefined
           ? RecycledPercentage.create(props.recycledPercentage)
           : null,
-      productId: Id.create(props.productId),
+      productId: props.productId ? Id.create(props.productId) : null,
     };
 
     const sustainability = new Sustainability({
