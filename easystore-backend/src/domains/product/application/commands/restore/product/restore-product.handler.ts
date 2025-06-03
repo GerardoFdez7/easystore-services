@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
 import { Inject, NotFoundException } from '@nestjs/common';
-import { IProductRepository } from '../../../aggregates/repositories/product.interface';
-import { Id } from '../../../aggregates/value-objects';
-import { ProductMapper, ProductDTO } from '../../mappers';
+import { IProductRepository } from '../../../../aggregates/repositories/product.interface';
+import { Id } from '../../../../aggregates/value-objects';
+import { ProductMapper, ProductDTO } from '../../../mappers';
 import { RestoreProductDTO } from './restore-product.dto';
 
 @CommandHandler(RestoreProductDTO)
@@ -28,8 +28,8 @@ export class RestoreProductHandler
     }
 
     // Check if the product is actually deleted
-    const metadata = product.get('metadata');
-    if (!metadata.getDeleted()) {
+    const isArchived = product.get('isArchived');
+    if (isArchived === false) {
       throw new Error(
         `Product with ID ${id} is not in a deleted state and cannot be restored`,
       );
@@ -40,7 +40,7 @@ export class RestoreProductHandler
       ProductMapper.fromRestoreDto(product),
     );
 
-    // Save the updated product with restored metadata
+    // Save the updated product
     await this.productRepository.save(restoredProduct);
 
     // Commit events to event bus

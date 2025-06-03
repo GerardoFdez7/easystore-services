@@ -19,7 +19,6 @@ import {
   Tags,
   Brand,
   Manufacturer,
-  Metadata,
 } from '../../../aggregates/value-objects';
 import {
   ProductDTO,
@@ -60,7 +59,7 @@ export class ProductMapper {
       manufacturer: model.manufacturer
         ? Manufacturer.create(model.manufacturer)
         : null,
-      metadata: Metadata.create(model.metadata),
+      isArchived: model.isArchived,
       tenantId: Id.create(model.tenantId),
       updatedAt: model.updatedAt,
       createdAt: model.createdAt,
@@ -125,14 +124,7 @@ export class ProductMapper {
             .flat() ?? [],
         brand: entity.get('brand')?.getValue() ?? null,
         manufacturer: entity.get('manufacturer')?.getValue() ?? null,
-        metadata: entity.get('metadata')
-          ? {
-              deleted: entity.get('metadata')?.getDeleted() ?? null,
-              deletedAt: entity.get('metadata')?.getDeletedAt() ?? null,
-              scheduledForHardDeleteAt:
-                entity.get('metadata')?.getScheduledForHardDeleteAt() ?? null,
-            }
-          : null,
+        isArchived: entity.get('isArchived') ?? null,
         tenantId: entity.get('tenantId')?.getValue() ?? null,
         updatedAt: entity.get('updatedAt') ?? null,
         createdAt: entity.get('createdAt') ?? null,
@@ -245,10 +237,7 @@ export class ProductMapper {
    * @param existingProduct The existing product to hard delete
    * @returns The hard deleted Product domain entity
    */
-  static fromHardDeleteDto(existingProduct: Product): {
-    shouldRemove: true;
-    product: Product;
-  } {
+  static fromHardDeleteDto(existingProduct: Product): Product {
     return Product.hardDelete(existingProduct);
   }
 

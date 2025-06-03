@@ -1,11 +1,9 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerModule } from '@winston/winston.module';
 import { PostgresModule } from '@database/postgres.module';
 import { ProductRepository } from './infrastructure/persistence/postgres/product.repository';
 import { ProductResolver } from './presentation/graphql/product.resolver';
-import { ScheduleDeleteProductsJob } from './infrastructure/jobs/schedule-delete.job';
 // Command Handlers
 import {
   CreateProductHandler,
@@ -92,10 +90,9 @@ const EventHandlers = [
 ];
 
 @Module({
-  imports: [CqrsModule, PostgresModule, LoggerModule, ScheduleModule.forRoot()],
+  imports: [CqrsModule, PostgresModule, LoggerModule],
   providers: [
     ProductResolver,
-    ScheduleDeleteProductsJob,
     { provide: 'IProductRepository', useClass: ProductRepository },
     ...CommandHandlers,
     ...EventHandlers,

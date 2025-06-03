@@ -1,4 +1,4 @@
-import { MetadataProps, TypeEnum } from '../../value-objects';
+import { TypeEnum } from '../../value-objects';
 import {
   IVariantBase,
   IVariantType,
@@ -47,7 +47,7 @@ export interface IProductBase {
 // System-generated properties for a product
 export interface IProductSystem {
   id: number;
-  metadata: MetadataProps;
+  isArchived: boolean;
   updatedAt: Date;
   createdAt: Date;
 }
