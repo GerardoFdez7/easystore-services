@@ -1,10 +1,10 @@
-import { IProductBase, IProductSystem } from '../../../aggregates/entities';
+import { IProductType } from '../../../aggregates/entities';
 
 /**
  * Data Transfer Object for Product entity
- * Follows the same structure as IProductType but uses VariantDTO for variants
+ * Follows the same structure as IProductType
  */
-export interface ProductDTO extends IProductBase, IProductSystem {}
+export type ProductDTO = IProductType;
 
 /**
  * Interface for paginated product results

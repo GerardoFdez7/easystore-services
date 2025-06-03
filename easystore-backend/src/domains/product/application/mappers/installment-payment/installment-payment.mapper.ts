@@ -39,7 +39,7 @@ export class InstallmentPaymentMapper {
    */
   static toDto(installmentPayment: InstallmentPayment): InstallmentPaymentDTO {
     return installmentPayment.toDTO<InstallmentPaymentDTO>((entity) => ({
-      id: entity.get('id')?.getValue() || null,
+      id: entity.get('id')?.getValue() || undefined,
       months: entity.get('months')?.getValue() || null,
       interestRate: entity.get('interestRate')?.getValue() || null,
       variantId: entity.get('variantId')?.getValue() || null,

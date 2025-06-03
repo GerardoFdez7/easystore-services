@@ -15,8 +15,8 @@ import {
 export interface IVariantBase {
   attributes: AttributeProps[];
   price: number;
-  variantCover: string;
-  personalizationOptions: string[];
+  variantCover?: string;
+  personalizationOptions?: string[];
   weight?: number | null;
   dimension?: DimensionProps | null;
   condition: ConditionEnum;
@@ -27,9 +27,9 @@ export interface IVariantBase {
   isbn?: string | null;
   productId: number;
   tenantId: number;
-  media: IMediaInitData[];
-  warranties: IWarrantyInitData[];
-  installmentPayments: IInstallmentPaymentInitData[];
+  variantMedia?: IMediaInitData[];
+  warranties?: IWarrantyInitData[];
+  installmentPayments?: IInstallmentPaymentInitData[];
 }
 
 export interface IVariantSystem {
@@ -41,7 +41,7 @@ export interface IVariantSystem {
 export interface IVariantType extends IVariantSystem {
   attributes: AttributeProps[];
   price: number;
-  variantCover: string;
+  variantCover?: string;
   personalizationOptions: string[];
   weight?: number | null;
   dimension?: DimensionProps | null;
@@ -53,7 +53,7 @@ export interface IVariantType extends IVariantSystem {
   isbn?: string | null;
   productId: number;
   tenantId: number;
-  media: IMediaType[];
+  variantMedia: IMediaType[];
   warranties: IWarrantyType[];
   installmentPayments: IInstallmentPaymentType[];
 }

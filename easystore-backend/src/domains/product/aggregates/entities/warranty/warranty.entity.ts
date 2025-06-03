@@ -19,7 +19,7 @@ export class Warranty extends Entity<IWarrantyProps> {
       months: Months.create(props.months),
       coverage: MediumDescription.create(props.coverage),
       instructions: MediumDescription.create(props.instructions),
-      variantId: Id.create(props.variantId),
+      variantId: props.variantId ? Id.create(props.variantId) : null,
     };
 
     const warranty = new Warranty({

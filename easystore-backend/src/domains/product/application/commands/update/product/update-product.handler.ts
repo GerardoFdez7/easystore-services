@@ -3,7 +3,7 @@ import { NotFoundException, Inject } from '@nestjs/common';
 import { UpdateProductDTO } from './update-product.dto';
 import { IProductRepository } from '../../../../aggregates/repositories/product.interface';
 import { ProductMapper, ProductDTO } from '../../../mappers';
-import { Id } from '../../../../aggregates/value-objects';
+import { Id, TypeEnum } from '../../../../aggregates/value-objects';
 import { Variant } from '../../../../aggregates/entities';
 
 @CommandHandler(UpdateProductDTO)
@@ -31,11 +31,11 @@ export class UpdateProductHandler implements ICommandHandler<UpdateProductDTO> {
     // Ensure variants is an array
     const variants = Array.isArray(product.variants) ? product.variants : [];
 
-    if (productType === 'DIGITAL') {
+    if (productType === TypeEnum.DIGITAL) {
       variants.forEach((variant: Variant) => {
         variant.update({ weight: null, dimension: null });
       });
-    } else if (productType === 'PHYSICAL') {
+    } else if (productType === TypeEnum.PHYSICAL) {
       variants.forEach((variant: Variant) => {
         let weight = variant.get('weight')?.getValue() || null;
         if (weight === undefined || weight <= 0) {

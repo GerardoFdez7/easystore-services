@@ -1,6 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { Product as PrismaProduct, Prisma } from '.prisma/postgres';
 import { PostgreService } from '@database/postgres.service';
+import {
+  Product as PrismaProduct,
+  Variant as PrismaVariant,
+  Media as PrismaMedia,
+  ProductCategories as PrismaProductCategory,
+  Sustainability as PrismaSustainability,
+  Attribute as PrismaAttribute,
+  Dimension as PrismaDimension,
+  Warranty as PrismaWarranty,
+  InstallmentPayment as PrismaInstallmentPayment,
+  Prisma,
+} from '.prisma/postgres';
 import {
   ResourceNotFoundError,
   UniqueConstraintViolationError,
@@ -9,7 +20,16 @@ import {
 } from '@domains/errors';
 import { Product, IProductType } from '../../../aggregates/entities';
 import { IProductRepository } from '../../../aggregates/repositories/product.interface';
-import { ProductMapper } from '../../../application/mappers';
+import {
+  ProductMapper,
+  ProductDTO,
+  VariantDTO,
+  MediaDTO,
+  ProductCategoriesDTO,
+  SustainabilityDTO,
+  WarrantyDTO,
+  InstallmentPaymentDTO,
+} from '../../../application/mappers';
 import {
   Id,
   Name,
@@ -22,35 +42,486 @@ import {
 export class ProductRepository implements IProductRepository {
   constructor(private readonly prisma: PostgreService) {}
 
-  // Save (create or update) a product
-  async save(product: Product): Promise<Product> {
-    const id = product.get('id')?.getValue?.();
-    const productDto = ProductMapper.toDto(product);
-    let prismaProduct: PrismaProduct;
+  private async manageAttributes(
+    tx: Prisma.TransactionClient,
+    variantId: number,
+    attributesData: Array<{ key: string; value: string; id?: number }> = [],
+    existingAttributes: PrismaAttribute[] = [],
+  ): Promise<void> {
+    const dtoAttributeIds = attributesData
+      .map((a) => a.id)
+      .filter((id) => id !== undefined && id !== null);
+    const existingAttributeIds = existingAttributes.map((a) => a.id);
 
-    try {
-      if (id) {
-        prismaProduct = await this.prisma.product.update({
-          where: { id },
-          data: productDto as Prisma.ProductUpdateInput,
+    const attributesToDelete = existingAttributeIds.filter(
+      (id) => !dtoAttributeIds.includes(id),
+    );
+    if (attributesToDelete.length > 0) {
+      await tx.attribute.deleteMany({
+        where: { id: { in: attributesToDelete }, variantId },
+      });
+    }
+
+    for (const attrData of attributesData) {
+      const data = { key: attrData.key, value: attrData.value, variantId };
+      if (attrData.id && existingAttributeIds.includes(attrData.id)) {
+        await tx.attribute.update({ where: { id: attrData.id }, data });
+      } else {
+        const createData = {
+          key: attrData.key,
+          value: attrData.value,
+          variantId,
+        };
+        await tx.attribute.create({ data: createData });
+      }
+    }
+  }
+
+  private async manageDimension(
+    tx: Prisma.TransactionClient,
+    variantId: number,
+    dimensionData?: {
+      height: number;
+      width: number;
+      length: number;
+      id?: number;
+    } | null,
+    existingDimension?: PrismaDimension | null,
+  ): Promise<void> {
+    if (!dimensionData) {
+      if (existingDimension) {
+        await tx.dimension.delete({
+          where: { id: existingDimension.id, variantId },
+        });
+      }
+      return;
+    }
+
+    const data = { ...dimensionData, variantId };
+    if (existingDimension) {
+      await tx.dimension.update({ where: { id: existingDimension.id }, data });
+    } else {
+      await tx.dimension.create({ data });
+    }
+  }
+
+  private async manageWarranties(
+    tx: Prisma.TransactionClient,
+    variantId: number,
+    warrantyDtos: WarrantyDTO[] = [],
+    existingWarranties: PrismaWarranty[] = [],
+  ): Promise<void> {
+    const dtoWarrantyIds = warrantyDtos
+      .map((w) => w.id)
+      .filter((id) => id !== undefined && id !== null);
+    const existingWarrantyIds = existingWarranties.map((w) => w.id);
+
+    const warrantiesToDelete = existingWarrantyIds.filter(
+      (id) => !dtoWarrantyIds.includes(id),
+    );
+    if (warrantiesToDelete.length > 0) {
+      await tx.warranty.deleteMany({
+        where: { id: { in: warrantiesToDelete }, variantId },
+      });
+    }
+
+    for (const warrantyDto of warrantyDtos) {
+      const data = { ...warrantyDto, variantId };
+      if (warrantyDto.id && existingWarrantyIds.includes(warrantyDto.id)) {
+        await tx.warranty.update({ where: { id: warrantyDto.id }, data });
+      } else {
+        await tx.warranty.create({ data });
+      }
+    }
+  }
+
+  private async manageInstallmentPayments(
+    tx: Prisma.TransactionClient,
+    variantId: number,
+    paymentDtos: InstallmentPaymentDTO[] = [],
+    existingPayments: PrismaInstallmentPayment[] = [],
+  ): Promise<void> {
+    const dtoPaymentIds = paymentDtos
+      .map((p) => p.id)
+      .filter((id) => id !== undefined && id !== null);
+    const existingPaymentIds = existingPayments.map((p) => p.id);
+
+    const paymentsToDelete = existingPaymentIds.filter(
+      (id) => !dtoPaymentIds.includes(id),
+    );
+    if (paymentsToDelete.length > 0) {
+      await tx.installmentPayment.deleteMany({
+        where: { id: { in: paymentsToDelete }, variantId },
+      });
+    }
+
+    for (const paymentDto of paymentDtos) {
+      const data = { ...paymentDto, variantId };
+      if (paymentDto.id && existingPaymentIds.includes(paymentDto.id)) {
+        await tx.installmentPayment.update({
+          where: { id: paymentDto.id },
+          data,
+        });
+      } else {
+        await tx.installmentPayment.create({ data });
+      }
+    }
+  }
+
+  private async manageMedia(
+    tx: Prisma.TransactionClient,
+    entityId: number, // productId or variantId
+    entityType: 'product' | 'variant',
+    mediaDtos: MediaDTO[] = [],
+    existingMedia: PrismaMedia[] = [],
+  ): Promise<void> {
+    const dtoMediaIds = mediaDtos
+      .map((m) => m.id)
+      .filter((id) => id !== undefined && id !== null);
+    const existingMediaIds = existingMedia.map((m) => m.id);
+
+    const mediaToDelete = existingMediaIds.filter(
+      (id) => !dtoMediaIds.includes(id),
+    );
+    if (mediaToDelete.length > 0) {
+      const deleteWhere: Prisma.MediaWhereInput = { id: { in: mediaToDelete } };
+      if (entityType === 'product') deleteWhere.productId = entityId;
+      else deleteWhere.variantId = entityId;
+      await tx.media.deleteMany({ where: deleteWhere });
+    }
+
+    for (const mediaDto of mediaDtos) {
+      const data: Prisma.MediaUncheckedCreateInput = {
+        url: mediaDto.url,
+        position: mediaDto.position,
+        mediaType: mediaDto.mediaType,
+      };
+      if (entityType === 'product') data.productId = entityId;
+      else data.variantId = entityId;
+
+      if (mediaDto.id && existingMediaIds.includes(mediaDto.id)) {
+        await tx.media.update({ where: { id: mediaDto.id }, data });
+      } else {
+        await tx.media.create({ data });
+      }
+    }
+  }
+
+  private async manageVariants(
+    tx: Prisma.TransactionClient,
+    productId: number,
+    tenantId: number,
+    variantDtos: VariantDTO[] = [],
+    existingVariantsFull: (PrismaVariant & {
+      attributes?: PrismaAttribute[];
+      dimension?: PrismaDimension | null;
+      variantMedia?: PrismaMedia[];
+      warranties?: PrismaWarranty[];
+      installmentPayments?: PrismaInstallmentPayment[];
+    })[] = [],
+  ): Promise<void> {
+    const dtoVariantIds = variantDtos
+      .map((v) => v.id)
+      .filter((id) => id !== undefined && id !== null);
+    const existingVariantIds = existingVariantsFull.map((v) => v.id);
+
+    const variantsToDelete = existingVariantIds.filter(
+      (id) => !dtoVariantIds.includes(id),
+    );
+    if (variantsToDelete.length > 0) {
+      await tx.variant.deleteMany({
+        where: { id: { in: variantsToDelete }, productId },
+      });
+    }
+
+    for (const variantDto of variantDtos) {
+      const variantData = {
+        price: variantDto.price,
+        variantCover: variantDto.variantCover,
+        personalizationOptions: variantDto.personalizationOptions || [],
+        weight: variantDto.weight,
+        condition: variantDto.condition,
+        upc: variantDto.upc,
+        ean: variantDto.ean,
+        isbn: variantDto.isbn,
+        barcode: variantDto.barcode,
+        sku: variantDto.sku,
+        productId,
+        tenantId,
+      };
+
+      let currentVariant: PrismaVariant & {
+        attributes?: PrismaAttribute[];
+        dimension?: PrismaDimension | null;
+        variantMedia?: PrismaMedia[];
+        warranties?: PrismaWarranty[];
+        installmentPayments?: PrismaInstallmentPayment[];
+      };
+
+      if (variantDto.id && existingVariantIds.includes(variantDto.id)) {
+        currentVariant = await tx.variant.update({
+          where: { id: variantDto.id },
+          data: variantData,
           include: {
-            media: true,
-            variants: true,
-            categories: true,
-            sustainabilities: true,
+            attributes: true,
+            dimension: true,
+            variantMedia: true,
+            warranties: true,
+            installmentPayments: true,
           },
         });
       } else {
-        prismaProduct = await this.prisma.product.create({
-          data: productDto as unknown as Prisma.ProductCreateInput,
+        currentVariant = await tx.variant.create({
+          data: variantData,
+          include: {
+            attributes: true,
+            dimension: true,
+            variantMedia: true,
+            warranties: true,
+            installmentPayments: true,
+          },
+        });
+      }
+
+      await this.manageAttributes(
+        tx,
+        currentVariant.id,
+        variantDto.attributes,
+        currentVariant.attributes,
+      );
+      await this.manageDimension(
+        tx,
+        currentVariant.id,
+        variantDto.dimension,
+        currentVariant.dimension,
+      );
+      await this.manageMedia(
+        tx,
+        currentVariant.id,
+        'variant',
+        variantDto.variantMedia,
+        currentVariant.variantMedia,
+      );
+      await this.manageWarranties(
+        tx,
+        currentVariant.id,
+        variantDto.warranties,
+        currentVariant.warranties,
+      );
+      await this.manageInstallmentPayments(
+        tx,
+        currentVariant.id,
+        variantDto.installmentPayments,
+        currentVariant.installmentPayments,
+      );
+    }
+  }
+
+  private async manageCategories(
+    tx: Prisma.TransactionClient,
+    productId: number,
+    categoryDtos: ProductCategoriesDTO[] = [],
+  ): Promise<void> {
+    // Delete all existing and create new ones
+    await tx.productCategories.deleteMany({ where: { productId } });
+    if (categoryDtos.length > 0) {
+      await tx.productCategories.createMany({
+        data: categoryDtos.map((cat) => ({
+          productId,
+          categoryId: cat.categoryId,
+        })),
+      });
+    }
+  }
+
+  private async manageSustainabilities(
+    tx: Prisma.TransactionClient,
+    productId: number,
+    sustainabilityDtos: SustainabilityDTO[] = [],
+    existingSustainabilities: PrismaSustainability[] = [],
+  ): Promise<void> {
+    const dtoSustainabilityIds = sustainabilityDtos
+      .map((s) => s.id)
+      .filter((id) => id !== undefined && id !== null);
+    const existingSustainabilityIds = existingSustainabilities.map((s) => s.id);
+
+    const sustainabilitiesToDelete = existingSustainabilityIds.filter(
+      (id) => !dtoSustainabilityIds.includes(id),
+    );
+    if (sustainabilitiesToDelete.length > 0) {
+      await tx.sustainability.deleteMany({
+        where: { id: { in: sustainabilitiesToDelete }, productId },
+      });
+    }
+
+    for (const susDto of sustainabilityDtos) {
+      const data = { ...susDto, productId };
+      delete data.id;
+      if (susDto.id && existingSustainabilityIds.includes(susDto.id)) {
+        await tx.sustainability.update({
+          where: { id: susDto.id },
+          data: data as Prisma.SustainabilityUpdateInput,
+        });
+      } else {
+        await tx.sustainability.create({
+          data: data as unknown as Prisma.SustainabilityCreateInput,
+        });
+      }
+    }
+  }
+
+  async save(product: Product): Promise<Product> {
+    const id = product.get('id')?.getValue?.();
+    const productDto = ProductMapper.toDto(product) as ProductDTO;
+
+    try {
+      const prismaProduct = await this.prisma.$transaction(async (tx) => {
+        let currentProductWithRelations: PrismaProduct & {
+          media?: PrismaMedia[];
+          variants?: (PrismaVariant & {
+            attributes?: PrismaAttribute[];
+            dimension?: PrismaDimension | null;
+            variantMedia?: PrismaMedia[];
+            warranties?: PrismaWarranty[];
+            installmentPayments?: PrismaInstallmentPayment[];
+          })[];
+          categories?: PrismaProductCategory[];
+          sustainabilities?: PrismaSustainability[];
+        };
+
+        if (id) {
+          // Fetch existing product with all relations for update comparison
+          const existingProduct = await tx.product.findUnique({
+            where: { id },
+            include: {
+              media: true,
+              variants: {
+                include: {
+                  attributes: true,
+                  dimension: true,
+                  variantMedia: true,
+                  warranties: true,
+                  installmentPayments: true,
+                },
+              },
+              categories: true,
+              sustainabilities: true,
+            },
+          });
+          if (!existingProduct)
+            throw new ResourceNotFoundError('Product', id.toString());
+          currentProductWithRelations = existingProduct;
+
+          // Update product base fields
+          currentProductWithRelations = await tx.product.update({
+            where: { id },
+            data: {
+              name: productDto.name,
+              shortDescription: productDto.shortDescription,
+              longDescription: productDto.longDescription,
+              productType: productDto.productType,
+              cover: productDto.cover,
+              tags: productDto.tags,
+              brand: productDto.brand,
+              manufacturer: productDto.manufacturer,
+              metadata: productDto.metadata as Prisma.InputJsonValue,
+            },
+            include: {
+              // Re-include relations after update
+              media: true,
+              variants: {
+                include: {
+                  attributes: true,
+                  dimension: true,
+                  variantMedia: true,
+                  warranties: true,
+                  installmentPayments: true,
+                },
+              },
+              categories: true,
+              sustainabilities: true,
+            },
+          });
+
+          await this.manageMedia(
+            tx,
+            currentProductWithRelations.id,
+            'product',
+            productDto.media,
+            currentProductWithRelations.media,
+          );
+          await this.manageVariants(
+            tx,
+            currentProductWithRelations.id,
+            currentProductWithRelations.tenantId,
+            productDto.variants,
+            currentProductWithRelations.variants,
+          );
+          await this.manageCategories(
+            tx,
+            currentProductWithRelations.id,
+            productDto.categories,
+          );
+          await this.manageSustainabilities(
+            tx,
+            currentProductWithRelations.id,
+            productDto.sustainabilities,
+            currentProductWithRelations.sustainabilities,
+          );
+        } else {
+          // Create new product
+          currentProductWithRelations = await tx.product.create({
+            data: {
+              name: productDto.name,
+              shortDescription: productDto.shortDescription,
+              longDescription: productDto.longDescription,
+              productType: productDto.productType,
+              cover: productDto.cover,
+              tags: productDto.tags,
+              brand: productDto.brand,
+              manufacturer: productDto.manufacturer,
+              metadata: productDto.metadata as Prisma.InputJsonValue,
+              tenant: { connect: { id: productDto.tenantId } },
+            },
+          });
+
+          const newProductId = currentProductWithRelations.id;
+          const tenantId = productDto.tenantId;
+
+          await this.manageMedia(tx, newProductId, 'product', productDto.media);
+          await this.manageVariants(
+            tx,
+            newProductId,
+            tenantId,
+            productDto.variants,
+          );
+          await this.manageCategories(tx, newProductId, productDto.categories);
+          await this.manageSustainabilities(
+            tx,
+            newProductId,
+            productDto.sustainabilities,
+          );
+        }
+
+        // Re-fetch the product with all its relations after all operations
+        return tx.product.findUniqueOrThrow({
+          where: { id: currentProductWithRelations.id },
           include: {
             media: true,
-            variants: true,
+            variants: {
+              include: {
+                attributes: true,
+                dimension: true,
+                variantMedia: true,
+                warranties: true,
+                installmentPayments: true,
+              },
+            },
             categories: true,
             sustainabilities: true,
           },
         });
-      }
+      });
       return this.mapToDomain(prismaProduct);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -67,11 +538,9 @@ export class ProductRepository implements IProductRepository {
             field = 'tenantId';
             relatedEntity = 'Tenant';
           }
-          // Add more specific inferences if Product DTO can update other direct FKs
           throw new ForeignKeyConstraintViolationError(field, relatedEntity);
         }
         if (error.code === 'P2025' && id) {
-          // P2025 for update means record to update not found
           throw new ResourceNotFoundError('Product', id.toString());
         }
       }
@@ -126,13 +595,11 @@ export class ProductRepository implements IProductRepository {
   }
 
   // Hard delete a product by its ID (permanent deletion)
-  async hardDelete(tenantId: Id, id: Id): Promise<void> {
-    const tenantIdValue = tenantId.getValue();
+  async hardDelete(id: Id): Promise<void> {
     const idValue = id.getValue();
     try {
       await this.prisma.product.delete({
         where: {
-          tenantId: tenantIdValue,
           id: idValue,
         },
       });
@@ -225,7 +692,15 @@ export class ProductRepository implements IProductRepository {
         },
         include: {
           media: true,
-          variants: true,
+          variants: {
+            include: {
+              attributes: true,
+              dimension: true,
+              variantMedia: true,
+              warranties: true,
+              installmentPayments: true,
+            },
+          },
           categories: true,
           sustainabilities: true,
         },
@@ -350,9 +825,10 @@ export class ProductRepository implements IProductRepository {
 
     const orderBy: Prisma.ProductOrderByWithRelationInput = {};
     if (sortBy) {
-      orderBy[sortBy] = sortOrder || (sortBy === 'name' ? 'asc' : 'desc');
+      orderBy[sortBy] =
+        sortOrder || (sortBy === SortBy.NAME ? SortOrder.ASC : SortOrder.DESC);
     } else {
-      orderBy.createdAt = 'desc';
+      orderBy.createdAt = SortOrder.DESC;
     }
 
     try {

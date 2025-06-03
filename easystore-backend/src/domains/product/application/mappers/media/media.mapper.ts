@@ -40,7 +40,7 @@ export class MediaMapper {
    */
   static toDto(media: Media): MediaDTO {
     return media.toDTO<MediaDTO>((entity) => ({
-      id: entity.get('id')?.getValue() || null,
+      id: entity.get('id')?.getValue() || undefined,
       url: entity.get('url')?.getValue() || null,
       position: entity.get('position')?.getValue() || null,
       mediaType: entity.get('mediaType')?.getValue() || null,

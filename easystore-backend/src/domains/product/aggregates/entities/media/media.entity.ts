@@ -20,8 +20,8 @@ export class Media extends Entity<IMediaProps> {
       url: Url.create(props.url),
       position: Position.create(props.position),
       mediaType: MediaType.create(props.mediaType),
-      productId: Id.create(props.productId),
-      variantId: Id.create(props.variantId),
+      productId: props.productId ? Id.create(props.productId) : null,
+      variantId: props.variantId ? Id.create(props.variantId) : null,
     };
 
     const media = new Media({

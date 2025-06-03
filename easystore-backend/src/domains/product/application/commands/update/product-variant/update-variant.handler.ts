@@ -16,8 +16,8 @@ export class UpdateVariantHandler implements ICommandHandler<UpdateVariantDTO> {
   async execute(command: UpdateVariantDTO): Promise<ProductDTO> {
     const {
       id: variantId,
-      tenantId,
       productId,
+      tenantId,
       data: variantUpdateData,
     } = command;
 

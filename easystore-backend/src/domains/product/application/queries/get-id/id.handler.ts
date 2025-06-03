@@ -13,15 +13,13 @@ export class GetProductByIdHandler implements IQueryHandler<GetProductByIdDTO> {
   ) {}
 
   async execute(query: GetProductByIdDTO): Promise<ProductDTO> {
-    const { tenantId, id } = query;
-
     // Find the product by ID
     const product = await this.productRepository.findById(
-      Id.create(tenantId),
-      Id.create(id),
+      Id.create(query.tenantId),
+      Id.create(query.id),
     );
     if (!product) {
-      throw new NotFoundException(`Product with ID ${id} not found`);
+      throw new NotFoundException(`Product with ID ${query.id} not found`);
     }
 
     return {

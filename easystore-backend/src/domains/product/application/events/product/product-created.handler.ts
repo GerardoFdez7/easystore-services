@@ -11,8 +11,6 @@ export class ProductCreatedHandler
   constructor(private readonly logger: LoggerService) {}
 
   handle(event: ProductCreatedEvent): void {
-    this.logger.log(
-      `Product created: ${event.product.get('name').getValue()}, with id: ${event.product.get('id').getValue()}`,
-    );
+    this.logger.log(`Product created: ${event.product.get('name').getValue()}`);
   }
 }

@@ -16,30 +16,27 @@ export class HardDeleteProductHandler
   ) {}
 
   async execute(command: HardDeleteProductDTO): Promise<ProductDTO> {
-    const { id, tenantId } = command;
+    const productId = Id.create(command.id);
 
     // Find the product by ID
-    const productId = await this.productRepository.findById(
-      Id.create(tenantId),
-      Id.create(id),
+    const product = await this.productRepository.findById(
+      Id.create(command.tenantId),
+      productId,
     );
-    if (!productId) {
-      throw new NotFoundException(`Product with ID ${id} not found`);
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${command.id} not found`);
     }
 
     // Mapper to delete the domain entity
     const { shouldRemove, product: deletedProduct } =
-      ProductMapper.fromHardDeleteDto(productId);
+      ProductMapper.fromHardDeleteDto(product);
 
     const productToProcess =
       this.eventPublisher.mergeObjectContext(deletedProduct);
 
     if (shouldRemove) {
       // Permanently remove the product from the database
-      await this.productRepository.hardDelete(
-        Id.create(tenantId),
-        Id.create(id),
-      );
+      await this.productRepository.hardDelete(productId);
     }
 
     // Commit events to event bus

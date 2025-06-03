@@ -46,18 +46,26 @@ export class VariantMapper {
       Variant
     >(Variant, persistenceVariant, (model) => ({
       id: Id.create(model.id),
-      attributes: model.attributes.map((attr) =>
+      attributes: (model.attributes || []).map((attr) =>
         Attribute.create(attr.key, attr.value),
       ),
-      price: Price.create(model.price),
-      variantCover: Cover.create(model.variantCover),
+      price: Price.create(Number(model.price)),
+      variantCover: model.variantCover
+        ? Cover.create(model.variantCover)
+        : null,
       personalizationOptions: model.personalizationOptions
         ? model.personalizationOptions.map((opt) =>
             PersonalizationOptions.create(opt),
           )
         : [],
       weight: model.weight ? Weight.create(model.weight) : null,
-      dimension: model.dimension ? Dimension.create(model.dimension) : null,
+      dimension: model.dimension
+        ? Dimension.create({
+            height: Number(model.dimension.height),
+            width: Number(model.dimension.width),
+            length: Number(model.dimension.length),
+          })
+        : null,
       condition: Condition.create(model.condition),
       upc: model.upc ? UPC.create(model.upc) : null,
       ean: model.ean ? EAN.create(model.ean) : null,
@@ -68,14 +76,14 @@ export class VariantMapper {
       tenantId: Id.create(model.tenantId),
       updatedAt: model.updatedAt,
       createdAt: model.createdAt,
-      media: model.media.map((mediaItem) =>
+      variantMedia: (model.variantMedia || []).map((mediaItem) =>
         MediaMapper.fromPersistence(mediaItem),
       ),
-      warranties: model.warranties.map((warrantyItem) =>
+      warranties: (model.warranties || []).map((warrantyItem) =>
         WarrantyMapper.fromPersistence(warrantyItem),
       ),
-      installmentPayments: model.installmentPayments.map((paymentItem) =>
-        InstallmentPaymentMapper.fromPersistence(paymentItem),
+      installmentPayments: (model.installmentPayments || []).map(
+        (paymentItem) => InstallmentPaymentMapper.fromPersistence(paymentItem),
       ),
     }));
   }
@@ -87,7 +95,7 @@ export class VariantMapper {
    */
   static toDto(variant: Variant): VariantDTO {
     return variant.toDTO<VariantDTO>((entity) => ({
-      id: entity.get('id')?.getValue() || null,
+      id: entity.get('id')?.getValue() || undefined,
       attributes:
         entity.get('attributes')?.map((attr) => attr.getAttribute()) || [],
       price: entity.get('price')?.getValue() || null,
@@ -108,9 +116,10 @@ export class VariantMapper {
       tenantId: entity.get('tenantId')?.getValue() || null,
       updatedAt: entity.get('updatedAt'),
       createdAt: entity.get('createdAt'),
-      media:
-        entity.get('media').map((mediaItem) => MediaMapper.toDto(mediaItem)) ??
-        [],
+      variantMedia:
+        entity
+          .get('variantMedia')
+          .map((mediaItem) => MediaMapper.toDto(mediaItem)) ?? [],
       warranties:
         entity
           .get('warranties')
