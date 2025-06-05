@@ -68,6 +68,7 @@ Welcome to the backend repository of EasyStore, the web application that empower
 - [Architecture and Patterns](#architecture-and-patterns)
   - [Core Architecture](#core-architecture)
   - [Key Patterns](#key-patterns)
+  - [Database ERD](#database-entity-relationship-diagram-erd)
 
 ## Getting Started
 
@@ -295,6 +296,7 @@ Supported types :
     - Domain layer (business logic)
     - Application layer (use cases/coordination)
     - Infrastructure layer (technical implementations)
+    - Presentation layer (graphql resolvers and types)
 
 ### Key Patterns
 1. **Command Query Responsibility Segregation (CQRS)**
@@ -316,6 +318,7 @@ Supported types :
      - Static factory methods for simple objects
      - Builder pattern for complex aggregates
 
+### Database Entity-Relationship Diagram (ERD)
 <div align="center">
   <img src="easystore-backend/src/infrastructure/database/erd.svg" alt="Database ERD"/>
 </div>
