@@ -86,6 +86,9 @@ export class VariantType {
   @Field({ nullable: true })
   barcode?: string;
 
+  @Field(() => Boolean, { nullable: true })
+  isArchived?: boolean;
+
   @Field(() => [MediaType], { nullable: true })
   variantMedia?: MediaType[];
 

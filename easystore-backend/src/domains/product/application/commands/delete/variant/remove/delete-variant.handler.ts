@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
 import { Inject, NotFoundException } from '@nestjs/common';
-import { IProductRepository } from '../../../../aggregates/repositories/product.interface';
-import { ProductMapper, ProductDTO } from '../../../mappers';
-import { Id } from '../../../../aggregates/value-objects';
+import { IProductRepository } from '../../../../../aggregates/repositories/product.interface';
+import { ProductMapper, ProductDTO } from '../../../../mappers';
+import { Id } from '../../../../../aggregates/value-objects';
 import { DeleteVariantDTO } from './delete-variant.dto';
 
 @CommandHandler(DeleteVariantDTO)

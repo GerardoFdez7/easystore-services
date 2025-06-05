@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
-import { Inject, NotFoundException } from '@nestjs/common';
+import { Inject, NotFoundException, BadRequestException } from '@nestjs/common';
 import { IProductRepository } from '../../../../../aggregates/repositories/product.interface';
 import { Id } from '../../../../../aggregates/value-objects';
 import { ProductMapper, ProductDTO } from '../../../../mappers';
@@ -30,7 +30,7 @@ export class SoftDeleteProductHandler
     // Check if the product is already soft deleted
     const isArchived = product.get('isArchived');
     if (isArchived === true) {
-      throw new Error(
+      throw new BadRequestException(
         `Product with ID ${id} is already soft deleted and cannot be soft deleted again`,
       );
     }

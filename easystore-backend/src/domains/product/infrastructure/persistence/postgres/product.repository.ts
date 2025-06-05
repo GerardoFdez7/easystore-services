@@ -188,6 +188,7 @@ export class ProductRepository implements IProductRepository {
         isbn: variantDto.isbn,
         barcode: variantDto.barcode,
         sku: variantDto.sku,
+        isArchived: variantDto.isArchived,
         productId,
         tenantId,
       };

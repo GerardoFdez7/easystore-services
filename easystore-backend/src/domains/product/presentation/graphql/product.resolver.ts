@@ -9,6 +9,7 @@ import {
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   ProductType,
+  VariantType,
   PaginatedProductsType,
   CreateProductInput,
   UpdateProductInput,
@@ -24,6 +25,8 @@ import {
   SoftDeleteProductDTO,
   HardDeleteProductDTO,
   DeleteVariantDTO,
+  ArchiveVariantDTO,
+  RestoreVariantDTO,
 } from '../../application/commands';
 import {
   GetProductByIdDTO,
@@ -76,54 +79,76 @@ export class ProductResolver {
 
   @Mutation(() => ProductType)
   async softDeleteProduct(
-    @Args('tenantId') tenantId: number,
     @Args('id') id: number,
+    @Args('tenantId') tenantId: number,
   ): Promise<ProductType> {
-    return this.commandBus.execute(new SoftDeleteProductDTO(tenantId, id));
+    return this.commandBus.execute(new SoftDeleteProductDTO(id, tenantId));
   }
 
   @Mutation(() => ProductType)
   async hardDeleteProduct(
-    @Args('tenantId') tenantId: number,
     @Args('id') id: number,
+    @Args('tenantId') tenantId: number,
   ): Promise<ProductType> {
-    return this.commandBus.execute(new HardDeleteProductDTO(tenantId, id));
+    return this.commandBus.execute(new HardDeleteProductDTO(id, tenantId));
   }
 
   @Mutation(() => ProductType)
   async restoreProduct(
-    @Args('tenantId') tenantId: number,
     @Args('id') id: number,
+    @Args('tenantId') tenantId: number,
   ): Promise<ProductType> {
-    return this.commandBus.execute(new RestoreProductDTO(tenantId, id));
+    return this.commandBus.execute(new RestoreProductDTO(id, tenantId));
   }
 
   // Variants mutations
-  @Mutation(() => ProductType)
+  @Mutation(() => VariantType)
   async addVariant(
     @Args('input') input: CreateVariantInput,
-  ): Promise<ProductType> {
+  ): Promise<VariantType> {
     return this.commandBus.execute(new CreateVariantDTO(input));
   }
 
-  @Mutation(() => ProductType)
+  @Mutation(() => VariantType)
   async updateVariant(
     @Args('id') id: number,
     @Args('productId') productId: number,
     @Args('tenantId') tenantId: number,
     @Args('input') input: UpdateVariantInput,
-  ): Promise<ProductType> {
+  ): Promise<VariantType> {
     return this.commandBus.execute(
       new UpdateVariantDTO(id, productId, tenantId, { ...input }),
     );
   }
 
-  @Mutation(() => ProductType)
-  async deleteVariant(
+  @Mutation(() => VariantType)
+  async archiveVariant(
     @Args('id') id: number,
     @Args('productId') productId: number,
     @Args('tenantId') tenantId: number,
-  ): Promise<ProductType> {
+  ): Promise<VariantType> {
+    return this.commandBus.execute(
+      new ArchiveVariantDTO(id, productId, tenantId),
+    );
+  }
+
+  @Mutation(() => VariantType)
+  async restoreVariant(
+    @Args('id') id: number,
+    @Args('productId') productId: number,
+    @Args('tenantId') tenantId: number,
+  ): Promise<VariantType> {
+    return this.commandBus.execute(
+      new RestoreVariantDTO(id, productId, tenantId),
+    );
+  }
+
+  @Mutation(() => VariantType)
+  async removeVariant(
+    @Args('id') id: number,
+    @Args('productId') productId: number,
+    @Args('tenantId') tenantId: number,
+  ): Promise<VariantType> {
     return this.commandBus.execute(
       new DeleteVariantDTO(id, productId, tenantId),
     );
@@ -135,10 +160,10 @@ export class ProductResolver {
 
   @Query(() => ProductType)
   async getProductById(
-    @Args('tenantId') tenantId: number,
     @Args('id') id: number,
+    @Args('tenantId') tenantId: number,
   ): Promise<ProductType> {
-    return this.queryBus.execute(new GetProductByIdDTO(tenantId, id));
+    return this.queryBus.execute(new GetProductByIdDTO(id, tenantId));
   }
 
   @Query(() => PaginatedProductsType)
