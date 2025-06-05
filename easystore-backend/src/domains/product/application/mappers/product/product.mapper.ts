@@ -312,6 +312,34 @@ export class ProductMapper {
   }
 
   /**
+   * Maps a variant ID to call archiveVariant on Product entity
+   * @param existingProduct The existing product
+   * @param variantId The ID of the variant to archive
+   * @returns The product with the variant archived
+   */
+  static fromArchiveVariantDto(
+    existingProduct: Product,
+    variantId: number,
+  ): Product {
+    existingProduct.archiveVariant(variantId);
+    return existingProduct;
+  }
+
+  /**
+   * Maps a variant ID to call restoreVariant on Product entity
+   * @param existingProduct The existing product
+   * @param variantId The ID of the variant to restore
+   * @returns The product with the variant restored
+   */
+  static fromRestoreVariantDto(
+    existingProduct: Product,
+    variantId: number,
+  ): Product {
+    existingProduct.restoreVariant(variantId);
+    return existingProduct;
+  }
+
+  /**
    * Maps a variant ID to call removeVariant on Product entity
    * @param existingProduct The existing product
    * @param variantId The ID of the variant to remove

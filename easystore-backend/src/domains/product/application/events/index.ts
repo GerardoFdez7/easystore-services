@@ -9,3 +9,5 @@ export { ProductHardDeletedHandler } from './product/product-hard-deleted.handle
 export { VariantCreatedHandler } from './variant/variant-created.handler';
 export { VariantUpdatedHandler } from './variant/variant-updated.handler';
 export { VariantDeletedHandler } from './variant/variant-deleted.handler';
+export { VariantArchivedHandler } from './variant/variant-archived.handler';
+export { VariantRestoredHandler } from './variant/variant-restored.handler';

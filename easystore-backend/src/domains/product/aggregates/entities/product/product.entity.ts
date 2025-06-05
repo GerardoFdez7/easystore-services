@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import {
   Id,
   Name,
@@ -28,6 +28,8 @@ import {
   ProductRestoredEvent,
   VariantCreatedEvent,
   VariantUpdatedEvent,
+  VariantArchivedEvent,
+  VariantRestoredEvent,
   VariantDeletedEvent,
 } from '../../events';
 
@@ -326,6 +328,60 @@ export class Product extends Entity<IProductProps> {
     this.props.updatedAt = new Date();
 
     this.apply(new VariantUpdatedEvent(this, variant));
+  }
+
+  /**
+   * Soft deletes a variant from the product.
+   * @param variantId The ID of the variant to soft delete.
+   */
+  public archiveVariant(variantId: number): void {
+    const variant = this.props.variants.find(
+      (v) => v.get('id').getValue() === variantId,
+    );
+    if (!variant) {
+      throw new NotFoundException(
+        `Variant with ID ${variantId} not found on product ${this.props.id.getValue()}.`,
+      );
+    }
+
+    // Check if the product is already archived
+    const isArchived = variant.get('isArchived');
+    if (isArchived === true) {
+      throw new BadRequestException(
+        `Variant with ID ${variantId} is already archived and cannot be archived again`,
+      );
+    }
+
+    variant.archive();
+
+    this.apply(new VariantArchivedEvent(this, variant));
+  }
+
+  /**
+   * Restores a previously soft-deleted variant.
+   * @param variantId The ID of the variant to restore.
+   */
+  public restoreVariant(variantId: number): void {
+    const variant = this.props.variants.find(
+      (v) => v.get('id').getValue() === variantId,
+    );
+    if (!variant) {
+      throw new NotFoundException(
+        `Variant with ID ${variantId} not found on product ${this.props.id.getValue()}.`,
+      );
+    }
+
+    // Check if the variant is actually deleted
+    const isArchived = variant.get('isArchived');
+    if (isArchived === false) {
+      throw new BadRequestException(
+        `Variant with ID ${variantId} is not in a deleted state and cannot be restored`,
+      );
+    }
+
+    variant.restore();
+
+    this.apply(new VariantRestoredEvent(this, variant));
   }
 
   /**

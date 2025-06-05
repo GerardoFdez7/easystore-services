@@ -9,3 +9,5 @@ export { ProductHardDeletedEvent } from './product/product-hard-deleted.event';
 export { VariantCreatedEvent } from './variant/variant-created.event';
 export { VariantUpdatedEvent } from './variant/variant-updated.event';
 export { VariantDeletedEvent } from './variant/variant-deleted.event';
+export { VariantArchivedEvent } from './variant/variant-archived.event';
+export { VariantRestoredEvent } from './variant/variant-restored.event';
