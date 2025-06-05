@@ -23,5 +23,5 @@ export { WarrantyDTO } from './warranty/warranty.dto';
 export { WarrantyMapper } from './warranty/warranty.mapper';
 
 // ProductCategories mapper
-export { ProductCategoriesDTO } from './category/product-category.dto';
-export { ProductCategoriesMapper } from './category/product-category.mapper';
+export { ProductCategoriesDTO } from './categories/categories.dto';
+export { ProductCategoriesMapper } from './categories/categories.mapper';
