@@ -65,7 +65,9 @@ Welcome to the backend repository of EasyStore, the web application that empower
     - [Hotfixes](#hotfixes)
   - [Commit Rules](#commit-rules)
   - [Branch Rules](#branch-rules)
-- [Architecture](#architecture)
+- [Architecture and Patterns](#architecture-and-patterns)
+  - [Core Architecture](#core-architecture)
+  - [Key Patterns](#key-patterns)
 
 ## Getting Started
 
@@ -283,45 +285,37 @@ Supported types :
 > [!TIP]
 > To rename a branch, use: git branch -m <type/new-name>
 
-## Architecture
+## Architecture and Patterns
 
-EasyStore backend is built using the following clean architecture and technologies:
+### Core Architecture
+- **Domain-Driven Design (DDD)**
+  - Strategic patterns: Bounded Contexts, Ubiquitous Language
+  - Tactical patterns: Aggregates, Entities, Value Objects
+  - Layered architecture with clear separation between:
+    - Domain layer (business logic)
+    - Application layer (use cases/coordination)
+    - Infrastructure layer (technical implementations)
 
-- Architectural Approach: Domain-Driven Design (DDD)
-- Design Pattern: Command Query Responsibility Segregation ( CQRS ) pattern
-- Programming Language: TypeScript
-- Framework: NestJS
-- Database: PostgreSQL
-- ORM: Prisma
-- Testing: Jest
-- Message Broker: Kafka
-- Search Engine: ElasticSearch
-- Log Management: LogStash and Kibana
-- Cache: Redis
-- Containerization: Docker
+### Key Patterns
+1. **Command Query Responsibility Segregation (CQRS)**
+   - Separate models for:
+     - Commands (write operations with business validation)
+     - Queries (read operations with optimized projections)
+   - Event sourcing for critical domain operations
 
-  > [!TIP]
-  > **Domain-Driven Design (DDD):**
-  >
-  > EasyStore backend applies DDD principles to model complex business logic and ensure maintainability:
-  > - **Domains**: The codebase is organized by business domains (e.g., Tenant, Product), each encapsulating its logic.
-  > - **Aggregates & Entities**: Core business objects are represented as entities and aggregates, enforcing invariants and encapsulating state.
-  > - **Value Objects**: Immutable objects that represent descriptive aspects of the domain (e.g., Email, BusinessName).
-  > - **Repositories**: Abstractions for data access, allowing domain logic to remain persistence-agnostic.
-  > - **Application Layer**: Coordinates use cases via commands, queries, and handlers, orchestrating domain logic.
-  > - **Infrastructure Layer**: Implements technical details (e.g., database, messaging) and integrates with external systems.
-  >
-  > This DDD approach, combined with CQRS, ensures that business rules are explicit, code is modular, and the system is adaptable to evolving requirements.
+2. **Repository Pattern**
+   - Abstract data access through `IRepository` interfaces
+   - Database-agnostic domain layer
+   - Concrete implementations in infrastructure layer
 
-  > [!NOTE]
-  > The CQRS (Command Query Responsibility Segregation) pattern separates read and write operations
-  > into distinct models:
-  >
-  > - **Commands**: Handle write operations, business logic, and data mutations through dedicated handlers
-  > - **Queries**: Optimized read operations returning DTOs specifically tailored for client needs
-  > - **Domain Events**: Capture state changes through events that trigger downstream processes
-  >   This architecture enables:
-  >   - Independent scaling of read/write workloads
-  >   - Optimized data models for each operation type
-  >   - Improved audit capabilities through event sourcing
-  >   - Reduced concurrency conflicts in complex domains
+3. **Factory Pattern**
+   - Domain object creation through dedicated factories
+   - Complex aggregate construction
+   - Validation during object creation
+   - Pattern implementations:
+     - Static factory methods for simple objects
+     - Builder pattern for complex aggregates
+
+<div align="center">
+  <img src="easystore-backend/src/infrastructure/database/erd.svg" alt="Database ERD"/>
+</div>
