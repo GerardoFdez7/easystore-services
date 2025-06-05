@@ -275,39 +275,7 @@ export class ProductMapper {
     variantId: number,
     dto: UpdateVariantDTO,
   ): Product {
-    const fullData: Partial<IVariantBase> = {
-      ...dto.data,
-      attributes: dto.data.attributes?.map((attr) => ({
-        key: attr.key,
-        value: attr.value,
-      })),
-      dimension: dto.data.dimension
-        ? {
-            height: dto.data.dimension?.height,
-            length: dto.data.dimension?.length,
-            width: dto.data.dimension?.width,
-          }
-        : null,
-      variantMedia: dto.data.variantMedia?.map((media) => ({
-        ...media,
-        url: media.url ?? '',
-        mediaType: media.mediaType,
-        position: media.position ?? 0,
-      })),
-      warranties: dto.data.warranties?.map((warranty) => ({
-        ...warranty,
-        months: warranty.months ?? 0,
-        coverage: warranty.coverage ?? '',
-        instructions: warranty.instructions ?? '',
-      })),
-      installmentPayments: dto.data.installmentPayments?.map((payment) => ({
-        ...payment,
-        months: payment.months ?? 0,
-        interestRate: payment.interestRate ?? 0,
-      })),
-    };
-
-    existingProduct.updateVariant(variantId, fullData);
+    existingProduct.updateVariant(variantId, dto.data as Partial<IVariantBase>);
     return existingProduct;
   }
 

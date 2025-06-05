@@ -30,13 +30,7 @@ import {
   WarrantyDTO,
   InstallmentPaymentDTO,
 } from '../../../application/mappers';
-import {
-  Id,
-  Name,
-  Type,
-  SortBy,
-  SortOrder,
-} from '../../../aggregates/value-objects';
+import { Id, Type, SortBy, SortOrder } from '../../../aggregates/value-objects';
 
 @Injectable()
 export class ProductRepository implements IProductRepository {
@@ -532,7 +526,7 @@ export class ProductRepository implements IProductRepository {
 
   // Find products by name (partial match)
   async findByName(
-    name: Name,
+    name: string,
     tenantId: Id,
     page?: number,
     limit?: number,
@@ -540,7 +534,7 @@ export class ProductRepository implements IProductRepository {
   ): Promise<{ products: Product[]; total: number }> {
     const whereConditions: Prisma.ProductWhereInput[] = [
       { tenantId: tenantId.getValue() },
-      { name: { contains: name.getValue(), mode: 'insensitive' } },
+      { name: { contains: name, mode: 'insensitive' } },
     ];
 
     if (includeSoftDeleted === false || includeSoftDeleted === undefined) {

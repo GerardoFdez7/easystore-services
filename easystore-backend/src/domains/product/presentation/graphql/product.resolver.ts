@@ -9,7 +9,6 @@ import {
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   ProductType,
-  VariantType,
   PaginatedProductsType,
   CreateProductInput,
   UpdateProductInput,
@@ -102,53 +101,53 @@ export class ProductResolver {
   }
 
   // Variants mutations
-  @Mutation(() => VariantType)
+  @Mutation(() => ProductType)
   async addVariant(
     @Args('input') input: CreateVariantInput,
-  ): Promise<VariantType> {
+  ): Promise<ProductType> {
     return this.commandBus.execute(new CreateVariantDTO(input));
   }
 
-  @Mutation(() => VariantType)
+  @Mutation(() => ProductType)
   async updateVariant(
     @Args('id') id: number,
     @Args('productId') productId: number,
     @Args('tenantId') tenantId: number,
     @Args('input') input: UpdateVariantInput,
-  ): Promise<VariantType> {
+  ): Promise<ProductType> {
     return this.commandBus.execute(
       new UpdateVariantDTO(id, productId, tenantId, { ...input }),
     );
   }
 
-  @Mutation(() => VariantType)
+  @Mutation(() => ProductType)
   async archiveVariant(
     @Args('id') id: number,
     @Args('productId') productId: number,
     @Args('tenantId') tenantId: number,
-  ): Promise<VariantType> {
+  ): Promise<ProductType> {
     return this.commandBus.execute(
       new ArchiveVariantDTO(id, productId, tenantId),
     );
   }
 
-  @Mutation(() => VariantType)
+  @Mutation(() => ProductType)
   async restoreVariant(
     @Args('id') id: number,
     @Args('productId') productId: number,
     @Args('tenantId') tenantId: number,
-  ): Promise<VariantType> {
+  ): Promise<ProductType> {
     return this.commandBus.execute(
       new RestoreVariantDTO(id, productId, tenantId),
     );
   }
 
-  @Mutation(() => VariantType)
+  @Mutation(() => ProductType)
   async removeVariant(
     @Args('id') id: number,
     @Args('productId') productId: number,
     @Args('tenantId') tenantId: number,
-  ): Promise<VariantType> {
+  ): Promise<ProductType> {
     return this.commandBus.execute(
       new DeleteVariantDTO(id, productId, tenantId),
     );

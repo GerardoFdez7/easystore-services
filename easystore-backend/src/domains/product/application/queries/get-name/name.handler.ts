@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { IProductRepository } from '../../../aggregates/repositories/product.interface';
-import { Name, Id } from '../../../aggregates/value-objects';
+import { Id } from '../../../aggregates/value-objects';
 import { ProductMapper, PaginatedProductsDTO } from '../../mappers';
 import { GetProductsByNameDTO } from './name.dto';
 
@@ -18,12 +18,11 @@ export class GetProductsByNameHandler
     const { name, tenantId, page, limit, includeSoftDeleted } = query;
 
     // Create value objects
-    const productName = Name.create(name);
     const tenantIdValue = Id.create(tenantId);
 
     // Find products by name
     const { products, total } = await this.productRepository.findByName(
-      productName,
+      name,
       tenantIdValue,
       page,
       limit,
