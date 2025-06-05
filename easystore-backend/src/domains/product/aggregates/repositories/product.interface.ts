@@ -1,5 +1,5 @@
 import { Product } from '../entities';
-import { Id, Name, Type, SortBy, SortOrder } from '../value-objects/index';
+import { Id, Type, SortBy, SortOrder } from '../value-objects/index';
 
 export interface IProductRepository {
   /**
@@ -30,7 +30,7 @@ export interface IProductRepository {
    * @param includeSoftDeleted Whether to include soft-deleted products (default: false)
    */
   findByName(
-    name: Name,
+    name: string,
     tenantId: Id,
     page?: number,
     limit?: number,
