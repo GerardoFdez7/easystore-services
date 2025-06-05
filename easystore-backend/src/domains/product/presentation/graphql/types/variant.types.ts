@@ -69,7 +69,7 @@ export class VariantType {
   weight?: number;
 
   @Field(() => DimensionType, { nullable: true })
-  dimensions?: DimensionType;
+  dimension?: DimensionType;
 
   @Field({ nullable: true })
   sku?: string;
@@ -136,7 +136,7 @@ export class AddVariantToProductInput {
   weight?: number;
 
   @Field(() => CreateDimensionInput, { nullable: true })
-  dimensions?: CreateDimensionInput;
+  dimension?: CreateDimensionInput;
 
   @Field(() => ConditionEnum, {
     defaultValue: ConditionEnum.NEW,
@@ -187,7 +187,7 @@ export class CreateVariantInput {
   weight?: number;
 
   @Field(() => CreateDimensionInput, { nullable: true })
-  dimensions?: CreateDimensionInput;
+  dimension?: CreateDimensionInput;
 
   @Field(() => ConditionEnum, {
     defaultValue: ConditionEnum.NEW,
@@ -266,7 +266,7 @@ export class UpdateVariantInput {
   weight?: number;
 
   @Field(() => UpdateDimensionInput, { nullable: true })
-  dimensions?: UpdateDimensionInput;
+  dimension?: UpdateDimensionInput;
 
   @Field(() => ConditionEnum, { nullable: true })
   condition?: ConditionEnum;

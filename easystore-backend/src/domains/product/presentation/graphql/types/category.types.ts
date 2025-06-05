@@ -17,18 +17,12 @@ export class ProductCategoryType {
 @InputType()
 export class CreateProductCategoryInput {
   @Field(() => Int)
-  productId: number;
-
-  @Field(() => Int)
   categoryId: number;
 }
 
 // Input types for updating product categories
 @InputType()
 export class UpdateProductCategoryInput {
-  @Field(() => Int, { nullable: true })
-  productId?: number;
-
   @Field(() => Int, { nullable: true })
   categoryId?: number;
 }

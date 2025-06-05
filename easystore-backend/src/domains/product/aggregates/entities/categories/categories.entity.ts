@@ -1,6 +1,5 @@
-import { Entity, EntityProps } from '../../entity.base';
+import { Entity, EntityProps, IProductCategoriesBase } from '../';
 import { Id } from '../../value-objects';
-import { IProductCategoriesBase } from '../';
 
 export interface IProductCategoriesProps extends EntityProps {
   id: Id;
@@ -24,12 +23,5 @@ export class ProductCategories extends Entity<IProductCategoriesProps> {
     });
 
     return productCategories;
-  }
-
-  public update(data: Partial<{ categoryId: number }>): void {
-    if (data.categoryId !== undefined) {
-      this.props.categoryId = Id.create(data.categoryId);
-    }
-    this.props.updatedAt = new Date();
   }
 }

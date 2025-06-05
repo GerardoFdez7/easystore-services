@@ -61,7 +61,9 @@ export {
 export {
   ProductCategories,
   IProductCategoriesProps,
+} from './categories/categories.entity';
+export {
   IProductCategoriesType,
   IProductCategoriesBase,
   IProductCategoriesSystem,
-} from '@domains/entities';
+} from './categories/categories.attributes';

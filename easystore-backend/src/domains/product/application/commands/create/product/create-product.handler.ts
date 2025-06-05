@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
-import { Inject } from '@nestjs/common';
+import { Inject, BadRequestException } from '@nestjs/common';
 import { IProductRepository } from '../../../../aggregates/repositories/product.interface';
 import { CreateProductDTO } from './create-product.dto';
 import { ProductMapper, ProductDTO } from '../../../mappers';
@@ -25,32 +25,26 @@ export class CreateProductHandler implements ICommandHandler<CreateProductDTO> {
             processedVariant.weight = null;
             processedVariant.dimension = null;
           } else if (productType === TypeEnum.PHYSICAL) {
-            // Ensure weight is a positive float
-            if (!processedVariant.weight || processedVariant.weight <= 0) {
-              processedVariant.weight = 0.01;
+            // Check if weight and dimension exists for physical products
+            if (
+              processedVariant.dimension === null ||
+              processedVariant.dimension === undefined
+            ) {
+              throw new BadRequestException(
+                'Dimension property is required for physical products',
+              );
             }
-            // Ensure dimension is present and all values are positive
-            if (!processedVariant.dimension) {
-              processedVariant.dimension = {
-                height: 0.01,
-                width: 0.01,
-                length: 0.01,
-              };
-            } else {
-              processedVariant.dimension.height =
-                processedVariant.dimension.height > 0
-                  ? processedVariant.dimension.height
-                  : 0.01;
-              processedVariant.dimension.width =
-                processedVariant.dimension.width > 0
-                  ? processedVariant.dimension.width
-                  : 0.01;
-              processedVariant.dimension.length =
-                processedVariant.dimension.length > 0
-                  ? processedVariant.dimension.length
-                  : 0.01;
+
+            if (
+              processedVariant.weight === null ||
+              processedVariant.weight === undefined
+            ) {
+              throw new BadRequestException(
+                'Weight property is required for physical products',
+              );
             }
           }
+
           return processedVariant;
         })
       : [];

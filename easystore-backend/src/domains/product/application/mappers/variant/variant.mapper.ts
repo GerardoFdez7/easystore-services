@@ -3,9 +3,6 @@ import {
   Variant,
   IVariantProps,
   IVariantType,
-  IMediaBase,
-  IInstallmentPaymentBase,
-  IWarrantyBase,
 } from '../../../aggregates/entities';
 import {
   Id,
@@ -59,13 +56,7 @@ export class VariantMapper {
           )
         : [],
       weight: model.weight ? Weight.create(model.weight) : null,
-      dimension: model.dimension
-        ? Dimension.create({
-            height: Number(model.dimension.height),
-            width: Number(model.dimension.width),
-            length: Number(model.dimension.length),
-          })
-        : null,
+      dimension: model.dimension ? Dimension.create(model.dimension) : null,
       condition: Condition.create(model.condition),
       upc: model.upc ? UPC.create(model.upc) : null,
       ean: model.ean ? EAN.create(model.ean) : null,
@@ -130,143 +121,5 @@ export class VariantMapper {
           .map((paymentItem) => InstallmentPaymentMapper.toDto(paymentItem)) ??
         [],
     }));
-  }
-
-  // --- Media Management ---
-
-  /**
-   * Maps an AddMediaToVariantDTO to call addMedia on Variant entity
-   * @param existingVariant The existing variant
-   * @param dto The DTO containing media data
-   * @returns The variant with the new media added
-   */
-  static fromAddMediaDto(existingVariant: Variant, dto: IMediaBase): Variant {
-    existingVariant.addMedia(dto);
-    return existingVariant;
-  }
-
-  /**
-   * Maps an UpdateMediaOnVariantDTO to call updateMedia on Variant entity
-   * @param existingVariant The existing variant
-   * @param mediaId The ID of the media to update
-   * @param dto The DTO containing media update data
-   * @returns The variant with the media updated
-   */
-  static fromUpdateMediaDto(
-    existingVariant: Variant,
-    mediaId: number,
-    dto: IMediaBase,
-  ): Variant {
-    existingVariant.updateMedia(mediaId, dto as Partial<IMediaBase>);
-    return existingVariant;
-  }
-
-  /**
-   * Maps a media ID to call removeMedia on Variant entity
-   * @param existingVariant The existing variant
-   * @param mediaId The ID of the media to remove
-   * @returns The variant with the media removed
-   */
-  static fromRemoveMediaDto(
-    existingVariant: Variant,
-    mediaId: number,
-  ): Variant {
-    existingVariant.removeMedia(mediaId);
-    return existingVariant;
-  }
-
-  // --- Installment Payment Management ---
-
-  /**
-   * Maps an AddInstallmentPaymentToVariantDTO to call addInstallmentPayment on Variant entity
-   * @param existingVariant The existing variant
-   * @param dto The DTO containing installment payment data
-   * @returns The variant with the new installment payment added
-   */
-  static fromAddInstallmentPaymentDto(
-    existingVariant: Variant,
-    dto: IInstallmentPaymentBase,
-  ): Variant {
-    existingVariant.addInstallmentPayment(dto);
-    return existingVariant;
-  }
-
-  /**
-   * Maps an UpdateInstallmentPaymentOnVariantDTO to call updateInstallmentPayment on Variant entity
-   * @param existingVariant The existing variant
-   * @param paymentId The ID of the installment payment to update
-   * @param dto The DTO containing installment payment update data
-   * @returns The variant with the installment payment updated
-   */
-  static fromUpdateInstallmentPaymentDto(
-    existingVariant: Variant,
-    paymentId: number,
-    dto: IInstallmentPaymentBase,
-  ): Variant {
-    existingVariant.updateInstallmentPayment(
-      paymentId,
-      dto as Partial<IInstallmentPaymentBase>,
-    );
-    return existingVariant;
-  }
-
-  /**
-   * Maps a payment ID to call removeInstallmentPayment on Variant entity
-   * @param existingVariant The existing variant
-   * @param paymentId The ID of the installment payment to remove
-   * @returns The variant with the installment payment removed
-   */
-  static fromRemoveInstallmentPaymentDto(
-    existingVariant: Variant,
-    paymentId: number,
-  ): Variant {
-    existingVariant.removeInstallmentPayment(paymentId);
-    return existingVariant;
-  }
-
-  // --- Warranty Management ---
-
-  /**
-   * Maps an AddWarrantyToVariantDTO to call addWarranty on Variant entity
-   * @param existingVariant The existing variant
-   * @param dto The DTO containing warranty data
-   * @returns The variant with the new warranty added
-   */
-  static fromAddWarrantyDto(
-    existingVariant: Variant,
-    dto: IWarrantyBase,
-  ): Variant {
-    existingVariant.addWarranty(dto);
-    return existingVariant;
-  }
-
-  /**
-   * Maps an UpdateWarrantyOnVariantDTO to call updateWarranty on Variant entity
-   * @param existingVariant The existing variant
-   * @param warrantyId The ID of the warranty to update
-   * @param dto The DTO containing warranty update data
-   * @returns The variant with the warranty updated
-   */
-  static fromUpdateWarrantyDto(
-    existingVariant: Variant,
-    warrantyId: number,
-    dto: IWarrantyBase,
-  ): Variant {
-    existingVariant.updateWarranty(warrantyId, dto as Partial<IWarrantyBase>);
-    return existingVariant;
-  }
-
-  /**
-   * Maps a warranty ID to call removeWarranty on Variant entity
-   * @param existingVariant The existing variant
-   * @param warrantyId The ID of the warranty to remove
-   * @returns The variant with the warranty removed
-   */
-  static fromRemoveWarrantyDto(
-    existingVariant: Variant,
-    warrantyId: number,
-  ): Variant {
-    existingVariant.removeWarranty(warrantyId);
-    return existingVariant;
   }
 }

@@ -165,5 +165,5 @@ export class UpdateProductInput {
   categories?: UpdateProductCategoryInput[];
 
   @Field(() => [UpdateSustainabilityInput], { nullable: true })
-  sustainability?: UpdateSustainabilityInput[];
+  sustainabilities?: UpdateSustainabilityInput[];
 }
