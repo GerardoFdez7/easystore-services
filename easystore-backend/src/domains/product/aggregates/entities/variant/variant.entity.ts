@@ -37,6 +37,7 @@ export interface IVariantProps extends EntityProps {
   sku?: SKU | null;
   barcode?: Barcode | null;
   isbn?: ISBN | null;
+  isArchived: boolean;
   productId: Id;
   tenantId: Id;
   updatedAt: Date;
@@ -112,6 +113,7 @@ export class Variant extends Entity<IVariantProps> {
       variantMedia,
       warranties,
       installmentPayments,
+      isArchived: false,
       updatedAt: new Date(),
       createdAt: new Date(),
     });
@@ -196,6 +198,16 @@ export class Variant extends Entity<IVariantProps> {
       }
     }
 
+    this.props.updatedAt = new Date();
+  }
+
+  public archive(): void {
+    this.props.isArchived = true;
+    this.props.updatedAt = new Date();
+  }
+
+  public restore(): void {
+    this.props.isArchived = false;
     this.props.updatedAt = new Date();
   }
 }

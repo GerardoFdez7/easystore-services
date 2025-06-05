@@ -14,6 +14,8 @@ import {
   HardDeleteProductHandler,
   DeleteVariantHandler,
   RestoreProductHandler,
+  ArchiveVariantHandler,
+  RestoreVariantHandler,
 } from './application/commands';
 // Query Handlers
 import {
@@ -31,6 +33,8 @@ import {
   VariantCreatedHandler,
   VariantUpdatedHandler,
   VariantDeletedHandler,
+  VariantArchivedHandler,
+  VariantRestoredHandler,
 } from './application/events';
 
 const CommandHandlers = [
@@ -42,6 +46,8 @@ const CommandHandlers = [
   HardDeleteProductHandler,
   DeleteVariantHandler,
   RestoreProductHandler,
+  ArchiveVariantHandler,
+  RestoreVariantHandler,
 ];
 
 const QueryHandlers = [
@@ -59,6 +65,8 @@ const EventHandlers = [
   VariantCreatedHandler,
   VariantUpdatedHandler,
   VariantDeletedHandler,
+  VariantArchivedHandler,
+  VariantRestoredHandler,
 ];
 
 @Module({

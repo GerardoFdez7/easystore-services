@@ -34,6 +34,7 @@ export interface IVariantBase {
 
 export interface IVariantSystem {
   id: number;
+  isArchived: boolean;
   updatedAt: Date;
   createdAt: Date;
 }
