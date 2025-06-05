@@ -32,4 +32,4 @@ const EventHandlers = [AuthenticationRegisterEvent];
   ],
   exports: [],
 })
-export class AuthenticationModule {}
+export class AuthenticationDomain {}
