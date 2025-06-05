@@ -15,11 +15,8 @@ import {
   Variant,
   IVariantBase,
   ProductCategories,
-  IProductCategoriesBase,
   Media,
-  IMediaBase,
   Sustainability,
-  ISustainabilityBase,
   Entity,
   EntityProps,
 } from '../';
@@ -32,14 +29,6 @@ import {
   VariantCreatedEvent,
   VariantUpdatedEvent,
   VariantDeletedEvent,
-  MediaCreatedEvent,
-  MediaUpdatedEvent,
-  MediaDeletedEvent,
-  SustainabilityCreatedEvent,
-  SustainabilityUpdatedEvent,
-  SustainabilityDeletedEvent,
-  CategoryAssignedEvent,
-  CategoryUnassignedEvent,
 } from '../../events';
 
 export interface IProductProps extends EntityProps {
@@ -200,6 +189,37 @@ export class Product extends Entity<IProductProps> {
         : null;
     }
 
+    if (updates.media !== undefined && updates.media !== null) {
+      props.media = updates.media.map((mediaData) =>
+        Media.create({
+          ...mediaData,
+          productId: product.props.id.getValue(),
+        }),
+      );
+    }
+
+    if (updates.categories !== undefined && updates.categories !== null) {
+      props.categories = updates.categories.map((categoryData) =>
+        ProductCategories.create({
+          ...categoryData,
+          productId: product.props.id.getValue(),
+        }),
+      );
+    }
+
+    if (
+      updates.sustainabilities !== undefined &&
+      updates.sustainabilities !== null
+    ) {
+      props.sustainabilities = updates.sustainabilities.map(
+        (sustainabilityData) =>
+          Sustainability.create({
+            ...sustainabilityData,
+            productId: product.props.id.getValue(),
+          }),
+      );
+    }
+
     // Update the updatedAt timestamp
     props.updatedAt = new Date();
 
@@ -325,165 +345,5 @@ export class Product extends Entity<IProductProps> {
     this.props.updatedAt = new Date();
 
     this.apply(new VariantDeletedEvent(this, removedVariant));
-  }
-
-  // --- Media Management ---
-
-  /**
-   * Adds a new media item to the product.
-   * @param mediaData The data for the new media item, conforming to IMediaBase.
-   */
-  public addMedia(mediaData: IMediaBase): void {
-    const newMedia = Media.create({
-      ...mediaData,
-      productId: this.props.id.getValue(),
-    });
-    this.props.media.push(newMedia);
-    this.props.updatedAt = new Date();
-
-    this.apply(new MediaCreatedEvent(this, newMedia));
-  }
-
-  /**
-   * Updates an existing media item of the product.
-   * @param mediaId The ID of the media item to update.
-   * @param updateData The data to update the media item with, conforming to Partial<IMediaBase>.
-   */
-  public updateMedia(mediaId: number, updateData: Partial<IMediaBase>): void {
-    const media = this.props.media.find(
-      (m) => m.get('id').getValue() === mediaId,
-    );
-    if (!media) {
-      throw new NotFoundException(
-        `Media with ID ${mediaId} not found on product ${this.props.id.getValue()}.`,
-      );
-    }
-    media.update(updateData);
-    this.props.updatedAt = new Date();
-
-    this.apply(new MediaUpdatedEvent(this, media));
-  }
-
-  /**
-   * Removes a media item from the product.
-   * @param mediaId The ID of the media item to remove.
-   */
-  public removeMedia(mediaId: number): void {
-    const mediaIndex = this.props.media.findIndex(
-      (m) => m.get('id').getValue() === mediaId,
-    );
-    if (mediaIndex === -1) {
-      throw new NotFoundException(
-        `Media with ID ${mediaId} not found on product ${this.props.id.getValue()}.`,
-      );
-    }
-    const removedMedia = this.props.media.splice(mediaIndex, 1)[0];
-    this.props.updatedAt = new Date();
-
-    this.apply(new MediaDeletedEvent(this, removedMedia));
-  }
-
-  // -- Sustainability Management ---
-
-  /**
-   * Adds a new sustainability to the product.
-   * @param sustainabilityData The data for the new sustainability, conforming to ISustainabilityBase.
-   */
-  public addSustainability(sustainabilityData: ISustainabilityBase): void {
-    const newSustainability = Sustainability.create({
-      ...sustainabilityData,
-      productId: this.props.id.getValue(),
-    });
-    this.props.sustainabilities.push(newSustainability);
-    this.props.updatedAt = new Date();
-
-    this.apply(new SustainabilityCreatedEvent(this, newSustainability));
-  }
-
-  /**
-   * Updates an existing sustainability of the product.
-   * @param sustainabilityId The ID of the sustainability to update.
-   * @param updateData The data to update the sustainability with, conforming to Partial<ISustainabilityBase>.
-   */
-  public updateSustainability(
-    sustainabilityId: number,
-    updateData: Partial<ISustainabilityBase>,
-  ): void {
-    const sustainability = this.props.sustainabilities.find(
-      (s) => s.get('id').getValue() === sustainabilityId,
-    );
-    if (!sustainability) {
-      throw new NotFoundException(
-        `Sustainability with ID ${sustainabilityId} not found on product ${this.props.id.getValue()}.`,
-      );
-    }
-    sustainability.update(updateData);
-    this.props.updatedAt = new Date();
-
-    this.apply(new SustainabilityUpdatedEvent(this, sustainability));
-  }
-
-  /**
-   * Removes a sustainability from the product.
-   * @param sustainabilityId The ID of the sustainability to remove.
-   */
-  public removeSustainability(sustainabilityId: number): void {
-    const sustainabilityIndex = this.props.sustainabilities.findIndex(
-      (s) => s.get('id').getValue() === sustainabilityId,
-    );
-    if (sustainabilityIndex === -1) {
-      throw new NotFoundException(
-        `Sustainability with ID ${sustainabilityId} not found on product ${this.props.id.getValue()}.`,
-      );
-    }
-    const removedSustainability = this.props.sustainabilities.splice(
-      sustainabilityIndex,
-      1,
-    )[0];
-    this.props.updatedAt = new Date();
-
-    this.apply(new SustainabilityDeletedEvent(this, removedSustainability));
-  }
-
-  // --- Category Management ---
-  /**
-   * Assigns a category to the product.
-   * @param categoryId The ID of the category to assign.
-   */
-  public assignCategory(categoryId: number): void {
-    const productCategoryData: IProductCategoriesBase = {
-      productId: this.props.id.getValue(),
-      categoryId: categoryId,
-    };
-
-    const newProductCategory = ProductCategories.create(productCategoryData);
-    this.props.categories.push(newProductCategory);
-    this.props.updatedAt = new Date();
-
-    this.apply(new CategoryAssignedEvent(this, newProductCategory));
-  }
-
-  /**
-   * Unassigns a category from the product.
-   * @param categoryId The ID of the category to unassign.
-   */
-  public unassignCategory(categoryId: number): void {
-    const categoryIndex = this.props.categories.findIndex(
-      (pc) => pc.get('categoryId').getValue() === categoryId,
-    );
-
-    if (categoryIndex === -1) {
-      throw new NotFoundException(
-        `Category with ID ${categoryId} not found on product ${this.props.id.getValue()}.`,
-      );
-    }
-
-    const unassignedCategory = this.props.categories.splice(
-      categoryIndex,
-      1,
-    )[0];
-    this.props.updatedAt = new Date();
-
-    this.apply(new CategoryUnassignedEvent(this, unassignedCategory));
   }
 }

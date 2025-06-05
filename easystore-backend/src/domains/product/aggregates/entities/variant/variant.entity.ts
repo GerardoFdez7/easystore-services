@@ -1,4 +1,3 @@
-import { NotFoundException } from '@nestjs/common';
 import {
   Id,
   Attribute,
@@ -17,25 +16,11 @@ import {
 import {
   IVariantBase,
   Media,
-  IMediaBase,
   InstallmentPayment,
-  IInstallmentPaymentBase,
   Warranty,
-  IWarrantyBase,
   Entity,
   EntityProps,
 } from '../';
-import {
-  MediaCreatedEvent,
-  MediaUpdatedEvent,
-  MediaDeletedEvent,
-  InstallmentPaymentCreatedEvent,
-  InstallmentPaymentUpdatedEvent,
-  InstallmentPaymentDeletedEvent,
-  WarrantyCreatedEvent,
-  WarrantyUpdatedEvent,
-  WarrantyDeletedEvent,
-} from '../../events';
 
 // Props for the Variant entity, using Value Objects
 export interface IVariantProps extends EntityProps {
@@ -146,7 +131,7 @@ export class Variant extends Entity<IVariantProps> {
       this.props.price = Price.create(data.price);
     }
     if (data.variantCover !== undefined) {
-      this.props.cover = data.variantCover
+      this.props.variantCover = data.variantCover
         ? Cover.create(data.variantCover)
         : Cover.create('https://easystore.com/default-cover.jpg');
     }
@@ -183,183 +168,34 @@ export class Variant extends Entity<IVariantProps> {
       this.props.isbn = data.isbn ? ISBN.create(data.isbn) : null;
     }
 
-    this.props.updatedAt = new Date();
-  }
-
-  // --- Media Management ---
-
-  /**
-   * Adds a new media item to the variant.
-   * @param mediaData The data for the new media item, conforming to IMediaBase.
-   */
-  public addMedia(mediaData: IMediaBase): void {
-    const newMedia = Media.create({
-      ...mediaData,
-      variantId: this.props.id.getValue(),
-    });
-    this.props.variantMedia.push(newMedia);
-    this.props.updatedAt = new Date();
-
-    this.apply(new MediaCreatedEvent(this, newMedia));
-  }
-
-  /**
-   * Updates an existing media item of the variant.
-   * @param mediaId The ID of the media item to update.
-   * @param updateData The data to update the media item with, conforming to Partial<IMediaBase>.
-   */
-  public updateMedia(mediaId: number, updateData: Partial<IMediaBase>): void {
-    const media = this.props.variantMedia.find(
-      (m) => m.get('id').getValue() === mediaId,
-    );
-    if (!media) {
-      throw new NotFoundException(
-        `Media with ID ${mediaId} not found on variant ${this.props.id.getValue()}.`,
+    if (data.variantMedia !== undefined) {
+      this.props.variantMedia = (data.variantMedia || []).map((mediaData) =>
+        Media.create({
+          ...mediaData,
+          variantId: this.props.id.getValue(),
+        }),
       );
+
+      if (data.installmentPayments !== undefined) {
+        this.props.installmentPayments = (data.installmentPayments || []).map(
+          (paymentData) =>
+            InstallmentPayment.create({
+              ...paymentData,
+              variantId: this.props.id.getValue(),
+            }),
+        );
+      }
+
+      if (data.warranties !== undefined) {
+        this.props.warranties = (data.warranties || []).map((warrantyData) =>
+          Warranty.create({
+            ...warrantyData,
+            variantId: this.props.id.getValue(),
+          }),
+        );
+      }
     }
-    media.update(updateData);
+
     this.props.updatedAt = new Date();
-
-    this.apply(new MediaUpdatedEvent(this, media));
-  }
-
-  /**
-   * Removes a media item from the variant.
-   * @param mediaId The ID of the media item to remove.
-   */
-  public removeMedia(mediaId: number): void {
-    const mediaIndex = this.props.variantMedia.findIndex(
-      (m) => m.get('id').getValue() === mediaId,
-    );
-    if (mediaIndex === -1) {
-      throw new NotFoundException(
-        `Media with ID ${mediaId} not found on variant ${this.props.id.getValue()}.`,
-      );
-    }
-    const removedMedia = this.props.variantMedia.splice(mediaIndex, 1)[0];
-    this.props.updatedAt = new Date();
-
-    this.apply(new MediaDeletedEvent(this, removedMedia));
-  }
-
-  // --- Installment Payment Management ---
-
-  /**
-   * Adds a new installment payment to the variant.
-   * @param paymentData The data for the new installment payment, conforming to IInstallmentPaymentBase.
-   */
-  public addInstallmentPayment(paymentData: IInstallmentPaymentBase): void {
-    const newPayment = InstallmentPayment.create({
-      ...paymentData,
-      variantId: this.props.id.getValue(),
-    });
-    this.props.installmentPayments.push(newPayment);
-    this.props.updatedAt = new Date();
-
-    this.apply(new InstallmentPaymentCreatedEvent(this, newPayment));
-  }
-
-  /**
-   * Updates an existing installment payment of the variant.
-   * @param paymentId The ID of the installment payment to update.
-   * @param updateData The data to update the installment payment with, conforming to Partial<IInstallmentPaymentBase>.
-   */
-  public updateInstallmentPayment(
-    paymentId: number,
-    updateData: Partial<IInstallmentPaymentBase>,
-  ): void {
-    const payment = this.props.installmentPayments.find(
-      (p) => p.get('id').getValue() === paymentId,
-    );
-    if (!payment) {
-      throw new NotFoundException(
-        `Installment payment with ID ${paymentId} not found on variant ${this.props.id.getValue()}.`,
-      );
-    }
-    payment.update(updateData);
-    this.props.updatedAt = new Date();
-
-    this.apply(new InstallmentPaymentUpdatedEvent(this, payment));
-  }
-
-  /**
-   * Removes an installment payment from the variant.
-   * @param paymentId The ID of the installment payment to remove.
-   */
-  public removeInstallmentPayment(paymentId: number): void {
-    const paymentIndex = this.props.installmentPayments.findIndex(
-      (p) => p.get('id').getValue() === paymentId,
-    );
-    if (paymentIndex === -1) {
-      throw new NotFoundException(
-        `Installment payment with ID ${paymentId} not found on variant ${this.props.id.getValue()}.`,
-      );
-    }
-    const removedPayment = this.props.installmentPayments.splice(
-      paymentIndex,
-      1,
-    )[0];
-    this.props.updatedAt = new Date();
-
-    this.apply(new InstallmentPaymentDeletedEvent(this, removedPayment));
-  }
-
-  // --- Warranty Management ---
-
-  /**
-   * Adds a new warranty to the variant.
-   * @param warrantyData The data for the new warranty, conforming to IWarrantyBase.
-   */
-  public addWarranty(warrantyData: IWarrantyBase): void {
-    const newWarranty = Warranty.create({
-      ...warrantyData,
-      variantId: this.props.id.getValue(),
-    });
-    this.props.warranties.push(newWarranty);
-    this.props.updatedAt = new Date();
-
-    this.apply(new WarrantyCreatedEvent(this, newWarranty));
-  }
-
-  /**
-   * Updates an existing warranty of the variant.
-   * @param warrantyId The ID of the warranty to update.
-   * @param updateData The data to update the warranty with, conforming to Partial<IWarrantyBase>.
-   */
-  public updateWarranty(
-    warrantyId: number,
-    updateData: Partial<IWarrantyBase>,
-  ): void {
-    const warranty = this.props.warranties.find(
-      (w) => w.get('id').getValue() === warrantyId,
-    );
-    if (!warranty) {
-      throw new NotFoundException(
-        `Warranty with ID ${warrantyId} not found on variant ${this.props.id.getValue()}.`,
-      );
-    }
-    warranty.update(updateData);
-    this.props.updatedAt = new Date();
-
-    this.apply(new WarrantyUpdatedEvent(this, warranty));
-  }
-
-  /**
-   * Removes a warranty from the variant.
-   * @param warrantyId The ID of the warranty to remove.
-   */
-  public removeWarranty(warrantyId: number): void {
-    const warrantyIndex = this.props.warranties.findIndex(
-      (w) => w.get('id').getValue() === warrantyId,
-    );
-    if (warrantyIndex === -1) {
-      throw new NotFoundException(
-        `Warranty with ID ${warrantyId} not found on variant ${this.props.id.getValue()}.`,
-      );
-    }
-    const removedWarranty = this.props.warranties.splice(warrantyIndex, 1)[0];
-    this.props.updatedAt = new Date();
-
-    this.apply(new WarrantyDeletedEvent(this, removedWarranty));
   }
 }

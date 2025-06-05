@@ -5,7 +5,7 @@ import {
   IProductCategoriesType,
 } from '../../../aggregates/entities';
 import { Id } from '../../../aggregates/value-objects';
-import { ProductCategoriesDTO } from '../';
+import { ProductCategoriesDTO } from '..';
 
 /**
  * Centralized mapper for ProductCategories domain entity to DTO conversion for queries and vice versa for commands.

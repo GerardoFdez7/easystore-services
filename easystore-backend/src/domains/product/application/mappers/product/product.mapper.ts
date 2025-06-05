@@ -5,9 +5,6 @@ import {
   IProductType,
   IProductBase,
   IVariantBase,
-  IMediaBase,
-  ISustainabilityBase,
-  IProductCategoriesBase,
 } from '../../../aggregates/entities';
 import {
   Id,
@@ -281,14 +278,14 @@ export class ProductMapper {
     const fullData: Partial<IVariantBase> = {
       ...dto.data,
       attributes: dto.data.attributes?.map((attr) => ({
-        key: attr.key ?? 'default_key',
-        value: attr.value ?? 'default_value',
+        key: attr.key,
+        value: attr.value,
       })),
       dimension: dto.data.dimension
         ? {
-            height: dto.data.dimension.height ?? 0,
-            width: dto.data.dimension.width ?? 0,
-            length: dto.data.dimension.length ?? 0,
+            height: dto.data.dimension?.height,
+            length: dto.data.dimension?.length,
+            width: dto.data.dimension?.width,
           }
         : null,
       variantMedia: dto.data.variantMedia?.map((media) => ({
@@ -325,128 +322,6 @@ export class ProductMapper {
     variantId: number,
   ): Product {
     existingProduct.removeVariant(variantId);
-    return existingProduct;
-  }
-
-  // --- Media Management ---
-
-  /**
-   * Maps an AddMediaDTO to call addMedia on Product entity
-   * @param existingProduct The existing product
-   * @param dto The DTO containing media data
-   * @returns The product with the new media added
-   */
-  static fromAddMediaDto(existingProduct: Product, dto: IMediaBase): Product {
-    existingProduct.addMedia(dto);
-    return existingProduct;
-  }
-
-  /**
-   * Maps an UpdateMediaDTO to call updateMedia on Product entity
-   * @param existingProduct The existing product
-   * @param mediaId The ID of the media to update
-   * @param dto The DTO containing media update data
-   * @returns The product with the media updated
-   */
-  static fromUpdateMediaDto(
-    existingProduct: Product,
-    mediaId: number,
-    dto: IMediaBase,
-  ): Product {
-    existingProduct.updateMedia(mediaId, dto as Partial<IMediaBase>);
-    return existingProduct;
-  }
-
-  /**
-   * Maps a media ID to call removeMedia on Product entity
-   * @param existingProduct The existing product
-   * @param mediaId The ID of the media to remove
-   * @returns The product with the media removed
-   */
-  static fromRemoveMediaDto(
-    existingProduct: Product,
-    mediaId: number,
-  ): Product {
-    existingProduct.removeMedia(mediaId);
-    return existingProduct;
-  }
-
-  // --- Sustainability Management ---
-
-  /**
-   * Maps an AddSustainabilityDTO to call addSustainability on Product entity
-   * @param existingProduct The existing product
-   * @param dto The DTO containing sustainability data
-   * @returns The product with the new sustainability added
-   */
-  static fromAddSustainabilityDto(
-    existingProduct: Product,
-    dto: ISustainabilityBase,
-  ): Product {
-    existingProduct.addSustainability(dto);
-    return existingProduct;
-  }
-
-  /**
-   * Maps an UpdateSustainabilityDTO to call updateSustainability on Product entity
-   * @param existingProduct The existing product
-   * @param sustainabilityId The ID of the sustainability to update
-   * @param dto The DTO containing sustainability update data
-   * @returns The product with the sustainability updated
-   */
-  static fromUpdateSustainabilityDto(
-    existingProduct: Product,
-    sustainabilityId: number,
-    dto: ISustainabilityBase,
-  ): Product {
-    existingProduct.updateSustainability(
-      sustainabilityId,
-      dto as Partial<ISustainabilityBase>,
-    );
-    return existingProduct;
-  }
-
-  /**
-   * Maps a sustainability ID to call removeSustainability on Product entity
-   * @param existingProduct The existing product
-   * @param sustainabilityId The ID of the sustainability to remove
-   * @returns The product with the sustainability removed
-   */
-  static fromRemoveSustainabilityDto(
-    existingProduct: Product,
-    sustainabilityId: number,
-  ): Product {
-    existingProduct.removeSustainability(sustainabilityId);
-    return existingProduct;
-  }
-
-  // --- Category Management ---
-
-  /**
-   * Maps an AssignCategoryDTO to call assignCategory on Product entity
-   * @param existingProduct The existing product
-   * @param dto The DTO containing category ID to assign
-   * @returns The product with the category assigned
-   */
-  static fromAssignCategoryDto(
-    existingProduct: Product,
-    dto: IProductCategoriesBase,
-  ): Product {
-    existingProduct.assignCategory(dto.categoryId);
-    return existingProduct;
-  }
-
-  /**
-   * Maps a category ID to call unassignCategory on Product entity
-   * @param existingProduct The existing product
-   * @param categoryId The ID of the category to unassign
-   * @returns The product with the category unassigned
-   */
-  static fromUnassignCategoryDto(
-    existingProduct: Product,
-    categoryId: number,
-  ): Product {
-    existingProduct.unassignCategory(categoryId);
     return existingProduct;
   }
 }
