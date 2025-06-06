@@ -41,11 +41,8 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 # dotenv environment variable files
-.env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
+.env*
+!.env.example
 
 # temp directory
 .temp
@@ -62,7 +59,7 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Configuration files
 .husky/*
-.github/*
+#.github/*
 !.husky/_/*
 !.husky/_/husky.sh
 !.husky/.commit-msg
@@ -71,4 +68,3 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 lint-staged.config.js
 eslint.config.mjs
 .prettierrc
-easystore-backend/src/infrastructure/graphql/schema.gql

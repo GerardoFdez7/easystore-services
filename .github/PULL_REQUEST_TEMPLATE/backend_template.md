@@ -2,9 +2,8 @@
 name: Pull Request de Back-End
 about: Proponer cambios para la base de código del Back-End.
 title: "[FEAT/FIX/CHORE]: Breve descripción del cambio"
-labels: 'feature'
-assignees: 'lfmendoza'
-
+labels: ['feature']
+assignees: ['lfmendoza']
 ---
 
 ## ✨ Descripción

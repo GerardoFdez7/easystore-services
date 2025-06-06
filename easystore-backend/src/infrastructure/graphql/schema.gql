@@ -1,0 +1,361 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+enum AccountType {
+  CUSTOMER
+  EMPLOYEE
+  TENANT
+}
+
+input AddVariantToProductInput {
+  attributes: [CreateAttributeInput!]!
+  barcode: String
+  condition: ConditionEnum = NEW
+  dimension: CreateDimensionInput
+  ean: String
+  installmentPayments: [CreateInstallmentInput!]
+  isbn: String
+  personalizationOptions: [String!]
+  price: Float!
+  sku: String
+  upc: String
+  variantCover: String
+  variantMedia: [CreateMediaInput!]
+  warranties: [CreateWarrantyInput!]
+  weight: Float
+}
+
+type Attribute {
+  key: String!
+  value: String!
+}
+
+type AuthIdentity {
+  accountType: AccountType!
+  createdAt: DateTime!
+  email: String!
+  emailVerified: Boolean!
+  failedAttempts: Int!
+  id: Int!
+  isActive: Boolean!
+  lastLoginAt: DateTime
+  lockedUntil: DateTime
+  updatedAt: DateTime!
+}
+
+input AuthenticationLoginDTO {
+  accountType: String!
+  email: String!
+  password: String!
+}
+
+type AuthenticationLoginResponseDTO {
+  accessToken: String!
+  refreshToken: String!
+}
+
+enum ConditionEnum {
+  NEW
+  REFURBISHED
+  USED
+}
+
+input CreateAttributeInput {
+  key: String!
+  value: String!
+}
+
+input CreateDimensionInput {
+  height: Float!
+  length: Float!
+  width: Float!
+}
+
+input CreateInstallmentInput {
+  interestRate: Float!
+  months: Float!
+}
+
+input CreateMediaInput {
+  mediaType: MediaTypeEnum!
+  position: Int!
+  url: String!
+}
+
+input CreateProductCategoryInput {
+  categoryId: Int!
+}
+
+input CreateProductInput {
+  brand: String
+  categories: [CreateProductCategoryInput!]
+  cover: String
+  longDescription: String
+  manufacturer: String
+  media: [CreateMediaInput!]
+  name: String!
+  productType: TypeEnum
+  shortDescription: String!
+  sustainabilities: [CreateSustainabilityInput!]
+  tags: [String!]
+  tenantId: Int!
+  variants: [AddVariantToProductInput!]!
+}
+
+input CreateSustainabilityInput {
+  certification: String!
+  recycledPercentage: Float!
+}
+
+input CreateTenantInput {
+  businessName: String!
+  currency: String
+  description: String
+  domain: String
+  logo: String
+  ownerName: String!
+}
+
+input CreateVariantInput {
+  attributes: [CreateAttributeInput!]!
+  barcode: String
+  condition: ConditionEnum = NEW
+  dimension: CreateDimensionInput
+  ean: String
+  installmentPayments: [CreateInstallmentInput!]
+  isbn: String
+  personalizationOptions: [String!]
+  price: Float!
+  productId: Int!
+  sku: String
+  tenantId: Int!
+  upc: String
+  variantCover: String
+  variantMedia: [CreateMediaInput!]
+  warranties: [CreateWarrantyInput!]
+  weight: Float
+}
+
+input CreateWarrantyInput {
+  coverage: String!
+  instructions: String!
+  months: Float!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Dimension {
+  height: Float!
+  length: Float!
+  width: Float!
+}
+
+type Installment {
+  interestRate: Float!
+  months: Float!
+}
+
+type Media {
+  mediaType: MediaTypeEnum!
+  position: Int!
+  productId: Int
+  url: String!
+  variantId: Int
+}
+
+enum MediaTypeEnum {
+  IMAGE
+  VIDEO
+}
+
+type Mutation {
+  TenantSingUp(input: CreateTenantInput!): Boolean!
+  addVariant(input: CreateVariantInput!): Product!
+  archiveVariant(id: Float!, productId: Float!, tenantId: Float!): Product!
+  createProduct(input: CreateProductInput!): Product!
+  hardDeleteProduct(id: Float!, tenantId: Float!): Product!
+  login(input: AuthenticationLoginDTO!): AuthenticationLoginResponseDTO!
+  register(input: RegisterAuthInput!): AuthIdentity!
+  removeVariant(id: Float!, productId: Float!, tenantId: Float!): Product!
+  restoreProduct(id: Float!, tenantId: Float!): Product!
+  restoreVariant(id: Float!, productId: Float!, tenantId: Float!): Product!
+  softDeleteProduct(id: Float!, tenantId: Float!): Product!
+  updateProduct(id: Float!, input: UpdateProductInput!, tenantId: Float!): Product!
+  updateVariant(id: Float!, input: UpdateVariantInput!, productId: Float!, tenantId: Float!): Product!
+}
+
+type PaginatedProductsType {
+  products: [Product!]!
+  total: Int!
+}
+
+type Product {
+  brand: String
+  categories: [ProductCategory!]
+  cover: String!
+  createdAt: DateTime!
+  isArchived: Boolean!
+  longDescription: String
+  manufacturer: String
+  media: [Media!]
+  name: String!
+  productType: TypeEnum!
+  shortDescription: String!
+  sustainabilities: [Sustainability!]
+  tags: [String!]
+  tenantId: Int!
+  updatedAt: DateTime!
+  variants: [Variant!]
+}
+
+type ProductCategory {
+  categoryId: Int!
+}
+
+type Query {
+  findTenantByBusinessName(businessName: String!): Tenant
+  getAllProducts(categoriesIds: [Int!], includeSoftDeleted: Boolean = false, limit: Float! = 10, page: Float! = 1, sortBy: SortBy, sortOrder: SortOrder, tenantId: Float!, type: TypeEnum): PaginatedProductsType!
+  getProductById(id: Float!, tenantId: Float!): Product!
+  getProductsByName(includeSoftDeleted: Boolean = false, limit: Float! = 10, name: String!, page: Float! = 1, tenantId: Float!): PaginatedProductsType!
+}
+
+input RegisterAuthInput {
+  accountType: AccountType!
+  email: String!
+  password: String!
+}
+
+enum SortBy {
+  CREATED_AT
+  NAME
+  UPDATED_AT
+}
+
+enum SortOrder {
+  ASC
+  DESC
+}
+
+type Sustainability {
+  certification: String!
+  recycledPercentage: Float!
+}
+
+type Tenant {
+  authIdentityId: Int!
+  businessName: String!
+  createdAt: DateTime!
+  currency: String!
+  defaultBillingAddressId: Int!
+  defaultPhoneNumberId: Int!
+  defaultShippingAddressId: Int!
+  description: String!
+  domain: String!
+  id: Int!
+  logo: String!
+  ownerName: String!
+  updatedAt: DateTime!
+}
+
+enum TypeEnum {
+  DIGITAL
+  PHYSICAL
+}
+
+input UpdateAttributeInput {
+  key: String
+  value: String
+}
+
+input UpdateDimensionInput {
+  height: Float
+  length: Float
+  width: Float
+}
+
+input UpdateInstallmentInput {
+  interestRate: Float
+  months: Float
+}
+
+input UpdateMediaInput {
+  mediaType: MediaTypeEnum
+  position: Int
+  url: String
+}
+
+input UpdateProductCategoryInput {
+  categoryId: Int
+}
+
+input UpdateProductInput {
+  brand: String
+  categories: [UpdateProductCategoryInput!]
+  cover: String
+  longDescription: String
+  manufacturer: String
+  media: [UpdateMediaInput!]
+  name: String
+  productType: TypeEnum
+  shortDescription: String
+  sustainabilities: [UpdateSustainabilityInput!]
+  tags: [String!]
+}
+
+input UpdateSustainabilityInput {
+  certification: String
+  recycledPercentage: Float
+}
+
+input UpdateVariantInput {
+  attributes: [UpdateAttributeInput!]
+  barcode: String
+  condition: ConditionEnum
+  dimension: UpdateDimensionInput
+  ean: String
+  installmentPayments: [UpdateInstallmentInput!]
+  isbn: String
+  personalizationOptions: [String!]
+  price: Float
+  sku: String
+  upc: String
+  variantCover: String
+  variantMedia: [UpdateMediaInput!]
+  warranties: [UpdateWarrantyInput!]
+  weight: Float
+}
+
+input UpdateWarrantyInput {
+  coverage: String
+  instructions: String
+  months: Float
+}
+
+type Variant {
+  attributes: [Attribute!]!
+  barcode: String
+  condition: ConditionEnum!
+  dimension: Dimension
+  ean: String
+  installmentPayments: [Installment!]
+  isArchived: Boolean
+  isbn: String
+  personalizationOptions: [String!]
+  price: Float!
+  sku: String
+  upc: String
+  variantCover: String
+  variantMedia: [Media!]
+  warranties: [Warranty!]
+  weight: Float
+}
+
+type Warranty {
+  coverage: String!
+  instructions: String!
+  months: Float!
+}
