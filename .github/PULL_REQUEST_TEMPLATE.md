@@ -1,11 +1,3 @@
----
-name: Pull Request Template
-about: Proponer cambios para la base de código del Back-End.
-title: "[FEAT/FIX/CHORE]: Breve descripción del cambio"
-labels: ['feature']
-assignees: ['lfmendoza']
----
-
 ## ✨ Descripción
 
 Por favor, describe clara y concisamente los cambios introducidos en este Pull Request. Explica el "porqué" detrás de los cambios.
