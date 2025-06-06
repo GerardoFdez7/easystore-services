@@ -27,9 +27,6 @@ registerEnumType(TypeEnum, {
 
 @ObjectType('Product')
 export class ProductType {
-  @Field(() => Int)
-  id: number;
-
   @Field()
   name: string;
 

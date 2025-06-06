@@ -1,10 +1,7 @@
-import { Field, ObjectType, Float, InputType, Int } from '@nestjs/graphql';
+import { Field, ObjectType, Float, InputType } from '@nestjs/graphql';
 
 @ObjectType('Sustainability')
 export class SustainabilityType {
-  @Field(() => Int)
-  id: number;
-
   @Field()
   certification: string;
 
