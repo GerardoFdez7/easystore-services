@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
-import { VoyagerController } from './voyager.controller';
 import { join } from 'path';
 
 @Module({
@@ -24,7 +23,6 @@ import { join } from 'path';
       path: '/gql',
     }),
   ],
-  controllers: [VoyagerController],
   providers: [],
 })
 export class GraphqlModule {}

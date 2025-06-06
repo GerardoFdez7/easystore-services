@@ -1,10 +1,7 @@
-import { Field, ObjectType, InputType, Int } from '@nestjs/graphql';
+import { Field, ObjectType, InputType } from '@nestjs/graphql';
 
 @ObjectType('Warranty')
 export class WarrantyType {
-  @Field(() => Int)
-  id: number;
-
   @Field()
   months: number;
 

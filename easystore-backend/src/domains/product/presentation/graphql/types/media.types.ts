@@ -14,9 +14,6 @@ registerEnumType(MediaTypeEnum, {
 
 @ObjectType('Media')
 export class MediaType {
-  @Field(() => Int)
-  id: number;
-
   @Field()
   url: string;
 
