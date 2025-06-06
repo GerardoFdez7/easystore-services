@@ -186,3 +186,6 @@ The Apollo Playground provides an interactive environment to:
 <div align="center">
   <img src="easystore-backend/src/infrastructure/database/erd.svg" alt="Database ERD"/>
 </div>
+
+## Contributing
+We welcome contributions to the EasyStore project! Please make sure to review our [Contributing Guidelines](./CONTRIBUTING.md) before you start.
