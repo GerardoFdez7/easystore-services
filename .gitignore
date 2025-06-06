@@ -35,10 +35,6 @@ lerna-debug.log*
 .vscode
 /.vscode
 .vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
 
 # dotenv environment variable files
 .env*
@@ -59,7 +55,6 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Configuration files
 .husky/*
-.github/*
 !.husky/_/*
 !.husky/_/husky.sh
 !.husky/.commit-msg
