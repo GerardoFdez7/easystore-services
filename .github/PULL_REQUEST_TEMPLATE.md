@@ -40,7 +40,7 @@ Describe las pruebas que has realizado para asegurar la calidad y corrección de
 
 Antes de enviar este Pull Request, por favor asegúrate de lo siguiente:
 
-* [ ] He leído la guía [CONTRIBUTING.md](CONTRIBUTING.md).
+* [ ] He leído la guía [CONTRIBUTING.md](https://github.com/GerardoFdez7/easystore-services/blob/main/CONTRIBUTING.md).
 * [ ] He realizado una auto-revisión de mi propio código.
 * [ ] He comentado mi código, particularmente en áreas difíciles de entender.
 * [ ] Mis cambios no generan nuevas advertencias.
