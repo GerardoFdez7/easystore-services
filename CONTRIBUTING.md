@@ -27,8 +27,8 @@ Our codebase follows strict linting rules to ensure code quality and consistency
 - Code Organization:
   - Proper spacing between declarations, functions, and classes
   - Organized imports and exports
-    > [!IMPORTANT]
-    > All code must pass ESLint checks before being committed.
+> [!IMPORTANT]
+> All code must pass ESLint checks before being committed.
 
 > [!CAUTION]
 > The ESLint and Prettier extensions are mandatory for this project. Please ensure you have them installed in your code editor.
@@ -83,8 +83,8 @@ Supported types :
 - build: Changes affecting build system
 - ci: Changes to CI configuration
 - wip: Work in progress
-  > [!WARNING]
-  > Commit descriptions must be in lowercase. For example, use "feat: add login feature" instead of "feat: Add Login Feature".
+> [!WARNING]
+> Commit descriptions must be in lowercase. For example, use "feat: add login feature" instead of "feat: Add Login Feature".
 
 ## Branch Rules
 
@@ -107,8 +107,8 @@ Supported types :
 - perf: Performance improvement branches
 - build: Build-related branches
 - ci: CI configuration branches
-  > [!CAUTION]
-  > Branches that don't follow this convention will be rejected during push.
+> [!CAUTION]
+> Branches that don't follow this convention will be rejected during push.
 
 > [!TIP]
 > To rename a branch, use: git branch -m <type/new-name>
