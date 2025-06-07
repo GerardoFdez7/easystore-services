@@ -4,7 +4,7 @@ const longDescriptionSchema = z
   .string()
   .min(20, { message: 'Long description must be at least 20 characters' })
   .max(2000, { message: 'Long description must be at most 2000 characters' })
-  .optional();
+  .nullable();
 
 export class LongDescription {
   private readonly value: string;

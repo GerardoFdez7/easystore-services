@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
-import { Inject, NotFoundException } from '@nestjs/common';
+import { Inject, NotFoundException, BadRequestException } from '@nestjs/common';
 import { IProductRepository } from '../../../../../aggregates/repositories/product.interface';
 import { Id } from '../../../../../aggregates/value-objects';
 import { ProductMapper, ProductDTO } from '../../../../mappers';
@@ -16,15 +16,23 @@ export class SoftDeleteProductHandler
   ) {}
 
   async execute(command: SoftDeleteProductDTO): Promise<ProductDTO> {
-    const { id } = command;
-
-    // Create ID value object
-    const productId = Id.create(id);
+    const { id, tenantId } = command;
 
     // Find the product by ID
-    const product = await this.productRepository.findById(productId);
+    const product = await this.productRepository.findById(
+      Id.create(tenantId),
+      Id.create(id),
+    );
     if (!product) {
       throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+
+    // Check if the product is already soft deleted
+    const isArchived = product.get('isArchived');
+    if (isArchived === true) {
+      throw new BadRequestException(
+        `Product with ID ${id} is already soft deleted and cannot be soft deleted again`,
+      );
     }
 
     // Call the domain entity method to soft delete the product
@@ -32,7 +40,7 @@ export class SoftDeleteProductHandler
       ProductMapper.fromSoftDeleteDto(product),
     );
 
-    // Save the updated product with soft delete metadata
+    // Save the updated product
     await this.productRepository.save(deletedProduct);
 
     // Commit events to event bus

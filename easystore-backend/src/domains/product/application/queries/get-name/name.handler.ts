@@ -1,9 +1,8 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { IProductRepository } from '../../../aggregates/repositories/product.interface';
-import { Name } from '../../../aggregates/value-objects';
-import { ProductDTO } from '../../mappers/product.dto';
-import { ProductMapper } from '../../mappers/product.mapper';
+import { Id } from '../../../aggregates/value-objects';
+import { ProductMapper, PaginatedProductsDTO } from '../../mappers';
 import { GetProductsByNameDTO } from './name.dto';
 
 @QueryHandler(GetProductsByNameDTO)
@@ -15,26 +14,30 @@ export class GetProductsByNameHandler
     private readonly productRepository: IProductRepository,
   ) {}
 
-  async execute(query: GetProductsByNameDTO): Promise<ProductDTO[]> {
-    const { name, includeSoftDeleted } = query;
+  async execute(query: GetProductsByNameDTO): Promise<PaginatedProductsDTO> {
+    const { name, tenantId, page, limit, includeSoftDeleted } = query;
 
-    // Create Name value object
-    const productName = Name.create(name);
+    // Create value objects
+    const tenantIdValue = Id.create(tenantId);
 
     // Find products by name
-    const products = await this.productRepository.findByName(
-      productName,
+    const { products, total } = await this.productRepository.findByName(
+      name,
+      tenantIdValue,
+      page,
+      limit,
       includeSoftDeleted,
     );
 
-    if (!products || products.length === 0) {
+    if (!products || total === 0) {
       throw new NotFoundException(
         `Products with name containing "${name}" not found`,
       );
     }
 
-    return products.map(
-      (product) => ProductMapper.toDto(product) as ProductDTO,
-    );
+    return {
+      products: ProductMapper.toDtoArray(products),
+      total,
+    };
   }
 }

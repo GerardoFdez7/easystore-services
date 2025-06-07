@@ -7,9 +7,9 @@ import { MetricsController } from '@metrics/metrics.controller';
 import { MetricsMiddleware } from '@metrics/metrics.middleware';
 import { PrometheusModule } from '@metrics/prometheus.module';
 import { KafkaConfigModule } from '@kafka/config/kafka-config.module';
+import { AuthenticationDomain } from './domains/authentication/authentication.module';
 import { TenantDomain } from './domains/tenant/tenant.module';
-import { AuthenticationModule } from './domains/authentication/authentication.module';
-//import { ProductDomain } from './domains/product/product.module';
+import { ProductDomain } from './domains/product/product.module';
 
 @Global()
 @Module({
@@ -23,9 +23,9 @@ import { AuthenticationModule } from './domains/authentication/authentication.mo
     PrometheusModule,
     KafkaConfigModule,
     RedisConfigModule,
+    AuthenticationDomain,
     TenantDomain,
-    AuthenticationModule,
-    //ProductDomain,
+    ProductDomain,
   ],
   providers: [],
   controllers: [MetricsController],

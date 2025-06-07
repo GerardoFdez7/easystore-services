@@ -1,231 +1,678 @@
-// import { Injectable } from '@nestjs/common';
-// import { Product as PrismaProduct, Prisma } from '.prisma/mongodb';
-// import { PostgreService } from '@database/postgres.service';
-// import { Product } from '../../../aggregates/entities';
-// import { IProductRepository } from '../../../aggregates/repositories/product.interface';
-// import { ProductMapper } from '../../../application/mappers';
-// import { Id, Name, CategoryId } from '../../../aggregates/value-objects';
+import { Injectable } from '@nestjs/common';
+import { PostgreService } from '@database/postgres.service';
+import {
+  Product as PrismaProduct,
+  Variant as PrismaVariant,
+  Media as PrismaMedia,
+  ProductCategories as PrismaProductCategory,
+  Sustainability as PrismaSustainability,
+  Attribute as PrismaAttribute,
+  Dimension as PrismaDimension,
+  Warranty as PrismaWarranty,
+  InstallmentPayment as PrismaInstallmentPayment,
+  Prisma,
+} from '.prisma/postgres';
+import {
+  ResourceNotFoundError,
+  UniqueConstraintViolationError,
+  ForeignKeyConstraintViolationError,
+  DatabaseOperationError,
+} from '@domains/errors';
+import { Product, IProductType } from '../../../aggregates/entities';
+import { IProductRepository } from '../../../aggregates/repositories/product.interface';
+import {
+  ProductMapper,
+  ProductDTO,
+  VariantDTO,
+  MediaDTO,
+  ProductCategoriesDTO,
+  SustainabilityDTO,
+  WarrantyDTO,
+  InstallmentPaymentDTO,
+} from '../../../application/mappers';
+import { Id, Type, SortBy, SortOrder } from '../../../aggregates/value-objects';
 
-// @Injectable()
-// export class ProductRepository implements IProductRepository {
-//   constructor(private readonly prisma: PostgreService) {}
+@Injectable()
+export class ProductRepository implements IProductRepository {
+  constructor(private readonly prisma: PostgreService) {}
 
-//   // Save (create or update) a product
-//   async save(product: Product): Promise<Product> {
-//     const id = product.get('id')?.getValue?.();
-//     const data: Prisma.ProductCreateInput = {
-//       name: product.get('name').getValue(),
-//        Category: {
-//         connect: (product.get('categoryId') || [])?.map((category) => ({
-//           id: category?.getValue(),
-//         })),
-//       },
-//       shortDescription: product.get('shortDescription').getValue(),
-//       longDescription: product.get('longDescription')?.getValue() || null,
-//       variants: (product.get('variants') || [])?.map((variant) => {
-//         const variantValue = variant?.getValue();
-//         return {
-//           attributes:
-//             variantValue?.attributes?.map((attr) => ({
-//               key: attr.getKey(),
-//               value: attr.getValue(),
-//             })) || [],
-//           stockPerWarehouse:
-//             variantValue.stockPerWarehouse?.map((stock) => stock.getValue()) ||
-//             [],
-//           price: variantValue.price.getValue(),
-//           currency: variantValue.currency.getValue(),
-//           variantMedia:
-//             variantValue.variantMedia?.map((media) => media.getValue()) || [],
-//           personalizationOptions:
-//             variantValue.personalizationOptions?.map((option) =>
-//               option.getValue(),
-//             ) || [],
-//           weight: variantValue.weight?.getValue() || null,
-//           dimensions: variantValue.dimensions?.getValue() || null,
-//           condition: variantValue.condition?.getValue() || null,
-//           sku: variantValue.sku?.getValue() || null,
-//           upc: variantValue.upc?.getValue() || null,
-//           ean: variantValue.ean?.getValue() || null,
-//           isbn: variantValue.isbn?.getValue() || null,
-//           barcode: variantValue.barcode?.getValue() || null,
-//         };
-//       }),
-//       type: product.get('type').getValue(),
-//       cover: product.get('cover').getValue(),
-//       media: (product.get('media') || [])?.map((item) => item.getValue()),
-//       availableShippingMethods: (
-//         product.get('availableShippingMethods') || []
-//       )?.map((method) => method.getValue()),
-//       shippingRestrictions: (product.get('shippingRestrictions') || [])?.map(
-//         (restriction) => restriction.getValue(),
-//       ),
-//       tags: (product.get('tags') || []).map((tag) => tag.getValue()).flat(),
-//       installmentPayments: (product.get('installmentPayments') || [])?.map(
-//         (payment) => {
-//           const paymentValue = payment.getValue();
-//           return {
-//             months: paymentValue.months,
-//             interestRate: paymentValue.interestRate,
-//           };
-//         },
-//       ),
-//       acceptedPaymentMethods: (
-//         product.get('acceptedPaymentMethods') || []
-//       )?.map((method) => method.getValue()[0]),
-//       sustainability: (product.get('sustainability') || null)?.map((item) => {
-//         const sustainabilityValue = item.getValue();
-//         return {
-//           certification: sustainabilityValue.certification,
-//           recycledPercentage: sustainabilityValue.recycledPercentage,
-//         };
-//       }),
-//       brand: product.get('brand')?.getValue() || null,
-//       manufacturer: product.get('manufacturer')?.getValue() || null,
-//       warranty: product.get('warranty')
-//         ? {
-//             months: product.get('warranty').getValue().months,
-//             coverage: product.get('warranty').getValue().coverage,
-//             instructions: product.get('warranty').getValue().instructions,
-//           }
-//         : null,
-//       metadata: product.get('metadata')
-//         ? {
-//             deleted: product.get('metadata').getDeleted(),
-//             deletedAt: product.get('metadata')?.getDeletedAt() || null,
-//             scheduledForHardDeleteAt:
-//               product.get('metadata')?.getScheduledForHardDeleteAt() || null,
-//           }
-//         : null,
-//       createdAt: product.get('createdAt'),
-//       updatedAt: product.get('updatedAt'),
-//     };
-//     let prismaProduct: PrismaProduct;
+  private async manageAttributes(
+    tx: Prisma.TransactionClient,
+    variantId: number,
+    attributesData: Array<{ key: string; value: string }> = [],
+  ): Promise<void> {
+    await tx.attribute.deleteMany({
+      where: { variantId },
+    });
 
-//     if (id) {
-//       prismaProduct = await this.prisma.product.update({
-//         where: { id },
-//         data,
-//       });
-//     } else {
-//       prismaProduct = await this.prisma.product.create({
-//         data,
-//       });
-//     }
-//     return this.mapToDomain(prismaProduct);
-//   }
+    // Create new attributes from the DTO
+    if (attributesData.length > 0) {
+      const createData = attributesData.map((attr) => ({
+        key: attr.key,
+        value: attr.value,
+        variantId,
+      }));
+      await tx.attribute.createMany({ data: createData });
+    }
+  }
 
-//   // Soft delete a product by its ID
-//   async softDelete(id: Id): Promise<void> {
-//     const product: PrismaProduct | null = await this.prisma.product.findUnique({
-//       where: { id: id.getValue() },
-//     });
-//     if (!product) return;
-//     const now = new Date();
-//     const scheduledForHardDeleteAt = new Date(
-//       now.getTime() + 30 * 24 * 60 * 60 * 1000,
-//     ); // 30 days from now
-//     const metadata = {
-//       ...product.metadata,
-//       deleted: true,
-//       deletedAt: now,
-//       scheduledForHardDeleteAt,
-//     };
-//     await this.prisma.product.update({
-//       where: { id: id.getValue() },
-//       data: {
-//         metadata,
-//       },
-//     });
-//   }
+  private async manageDimension(
+    tx: Prisma.TransactionClient,
+    variantId: number,
+    dimensionData?: {
+      height: number;
+      width: number;
+      length: number;
+    } | null,
+  ): Promise<void> {
+    await tx.dimension.deleteMany({
+      where: { variantId },
+    });
 
-//   // Hard delete a product by its ID (permanent deletion)
-//   async hardDelete(id: Id): Promise<void> {
-//     await this.prisma.product.delete({
-//       where: { id: id.getValue() },
-//     });
-//   }
+    // Create a new dimension if data is provided
+    if (dimensionData) {
+      await tx.dimension.create({
+        data: { ...dimensionData, variantId },
+      });
+    }
+  }
 
-//   // Restore a soft-deleted product
-//   async restore(id: Id): Promise<void> {
-//     const product = await this.prisma.product.findUnique({
-//       where: { id: id.getValue() },
-//     });
-//     if (!product) return;
-//     await this.prisma.product.update({
-//       where: { id: id.getValue() },
-//       data: {
-//         metadata: {
-//           ...product.metadata,
-//           deleted: false,
-//           deletedAt: null,
-//         },
-//       },
-//     });
-//   }
+  private async manageWarranties(
+    tx: Prisma.TransactionClient,
+    variantId: number,
+    warrantyDtos: Omit<WarrantyDTO, 'id' | 'variantId'>[] = [],
+  ): Promise<void> {
+    await tx.warranty.deleteMany({
+      where: { variantId },
+    });
 
-//   // Find a product by its ID
-//   async findById(id: Id): Promise<Product | null> {
-//     const prismaProduct = await this.prisma.product.findUnique({
-//       where: { id: id.getValue() },
-//     });
-//     if (!prismaProduct) return null;
-//     return this.mapToDomain(prismaProduct);
-//   }
+    // Create new warranties from the DTOs
+    if (warrantyDtos.length > 0) {
+      const createData = warrantyDtos.map((warrantyDto) => ({
+        ...warrantyDto,
+        variantId,
+      }));
+      await tx.warranty.createMany({ data: createData });
+    }
+  }
 
-//   // Find products by name (partial match)
-//   async findByName(name: Name, includeSoftDeleted = false): Promise<Product[]> {
-//     const whereConditions: Prisma.ProductWhereInput[] = [
-//       { name: { contains: name.getValue(), mode: 'insensitive' } },
-//     ];
+  private async manageInstallmentPayments(
+    tx: Prisma.TransactionClient,
+    variantId: number,
+    paymentDtos: Omit<InstallmentPaymentDTO, 'id' | 'variantId'>[] = [],
+  ): Promise<void> {
+    await tx.installmentPayment.deleteMany({
+      where: { variantId },
+    });
 
-//     if (!includeSoftDeleted) {
-//       whereConditions.push({ NOT: { metadata: { deleted: true } } });
-//     }
+    // Create new installment payments from the DTOs
+    if (paymentDtos.length > 0) {
+      const createData = paymentDtos.map((paymentDto) => ({
+        ...paymentDto,
+        variantId,
+      }));
+      await tx.installmentPayment.createMany({ data: createData });
+    }
+  }
 
-//     const products = await this.prisma.product.findMany({
-//       where: { AND: whereConditions },
-//     });
-//     return products.map((product) => this.mapToDomain(product));
-//   }
+  private async manageMedia(
+    tx: Prisma.TransactionClient,
+    entityId: number, // productId or variantId
+    entityType: 'product' | 'variant',
+    mediaDtos: Omit<MediaDTO, 'id' | 'productId' | 'variantId'>[] = [],
+  ): Promise<void> {
+    const deleteWhere: Prisma.MediaWhereInput = {};
+    if (entityType === 'product') deleteWhere.productId = entityId;
+    else deleteWhere.variantId = entityId;
 
-//   // Find all products with pagination, including option to include soft-deleted items
-//   async findAll(
-//     page: number,
-//     limit: number,
-//     categoryId?: CategoryId,
-//     includeSoftDeleted = false,
-//   ): Promise<{ products: Product[]; total: number }> {
-//     const conditions: Prisma.ProductWhereInput[] = [];
+    await tx.media.deleteMany({ where: deleteWhere });
 
-//     if (categoryId) {
-//       conditions.push({ categoryId: { has: categoryId.getValue() } });
-//     }
+    // Create new media from the DTOs
+    if (mediaDtos.length > 0) {
+      const createData = mediaDtos.map((mediaDto) => {
+        const data: Prisma.MediaUncheckedCreateInput = {
+          url: mediaDto.url,
+          position: mediaDto.position,
+          mediaType: mediaDto.mediaType,
+        };
+        if (entityType === 'product') data.productId = entityId;
+        else data.variantId = entityId;
+        return data;
+      });
+      await tx.media.createMany({ data: createData });
+    }
+  }
 
-//     if (!includeSoftDeleted) {
-//       conditions.push({ NOT: { metadata: { deleted: true } } });
-//     }
+  private async manageVariants(
+    tx: Prisma.TransactionClient,
+    productId: number,
+    tenantId: number,
+    variantDtos: VariantDTO[] = [],
+    existingVariantsFull: (PrismaVariant & {
+      attributes?: PrismaAttribute[];
+      dimension?: PrismaDimension | null;
+      variantMedia?: PrismaMedia[];
+      warranties?: PrismaWarranty[];
+      installmentPayments?: PrismaInstallmentPayment[];
+    })[] = [],
+  ): Promise<void> {
+    const dtoVariantIds = variantDtos
+      .map((v) => v.id)
+      .filter((id) => id !== undefined && id !== null);
+    const existingVariantIds = existingVariantsFull.map((v) => v.id);
 
-//     const whereClause: Prisma.ProductWhereInput =
-//       conditions.length > 0 ? { AND: conditions } : {};
+    const variantsToDelete = existingVariantIds.filter(
+      (id) => !dtoVariantIds.includes(id),
+    );
+    if (variantsToDelete.length > 0) {
+      await tx.variant.deleteMany({
+        where: { id: { in: variantsToDelete }, productId },
+      });
+    }
 
-//     const [products, total] = await Promise.all([
-//       this.prisma.product.findMany({
-//         where: whereClause,
-//         skip: (page - 1) * limit,
-//         take: limit,
-//         orderBy: { createdAt: 'desc' },
-//       }),
-//       this.prisma.product.count({ where: whereClause }),
-//     ]);
-//     return {
-//       products: products.map((product) => this.mapToDomain(product)),
-//       total,
-//     };
-//   }
+    for (const variantDto of variantDtos) {
+      const variantData = {
+        price: variantDto.price,
+        variantCover: variantDto.variantCover,
+        personalizationOptions: variantDto.personalizationOptions || [],
+        weight: variantDto.weight,
+        condition: variantDto.condition,
+        upc: variantDto.upc,
+        ean: variantDto.ean,
+        isbn: variantDto.isbn,
+        barcode: variantDto.barcode,
+        sku: variantDto.sku,
+        isArchived: variantDto.isArchived,
+        productId,
+        tenantId,
+      };
 
-//   // Map from database product to domain product using the centralized mapping approach
-//   private mapToDomain(clientPrisma: PrismaProduct): Product {
-//     return ProductMapper.fromPersistence(clientPrisma);
-//   }
-// }
+      let currentVariant: PrismaVariant & {
+        attributes?: PrismaAttribute[];
+        dimension?: PrismaDimension | null;
+        variantMedia?: PrismaMedia[];
+        warranties?: PrismaWarranty[];
+        installmentPayments?: PrismaInstallmentPayment[];
+      };
+
+      if (variantDto.id && existingVariantIds.includes(variantDto.id)) {
+        currentVariant = await tx.variant.update({
+          where: { id: variantDto.id },
+          data: variantData,
+          include: {
+            attributes: true,
+            dimension: true,
+            variantMedia: true,
+            warranties: true,
+            installmentPayments: true,
+          },
+        });
+      } else {
+        currentVariant = await tx.variant.create({
+          data: variantData,
+          include: {
+            attributes: true,
+            dimension: true,
+            variantMedia: true,
+            warranties: true,
+            installmentPayments: true,
+          },
+        });
+      }
+
+      await this.manageAttributes(tx, currentVariant.id, variantDto.attributes);
+      await this.manageDimension(tx, currentVariant.id, variantDto.dimension);
+      await this.manageMedia(
+        tx,
+        currentVariant.id,
+        'variant',
+        variantDto.variantMedia,
+      );
+      await this.manageWarranties(tx, currentVariant.id, variantDto.warranties);
+      await this.manageInstallmentPayments(
+        tx,
+        currentVariant.id,
+        variantDto.installmentPayments,
+      );
+    }
+  }
+
+  private async manageCategories(
+    tx: Prisma.TransactionClient,
+    productId: number,
+    categoryDtos: ProductCategoriesDTO[] = [],
+  ): Promise<void> {
+    await tx.productCategories.deleteMany({ where: { productId } });
+    if (categoryDtos.length > 0) {
+      await tx.productCategories.createMany({
+        data: categoryDtos.map((cat) => ({
+          productId,
+          categoryId: cat.categoryId,
+        })),
+      });
+    }
+  }
+
+  private async manageSustainabilities(
+    tx: Prisma.TransactionClient,
+    productId: number,
+    sustainabilityDtos: Omit<SustainabilityDTO, 'id' | 'productId'>[] = [],
+  ): Promise<void> {
+    await tx.sustainability.deleteMany({
+      where: { productId },
+    });
+
+    // Create new sustainabilities from the DTOs
+    if (sustainabilityDtos.length > 0) {
+      const createData = sustainabilityDtos.map((susDto) => ({
+        ...susDto,
+        productId,
+      }));
+      await tx.sustainability.createMany({ data: createData });
+    }
+  }
+
+  async save(product: Product): Promise<Product> {
+    const id = product.get('id')?.getValue?.();
+    const productDto = ProductMapper.toDto(product) as ProductDTO;
+
+    try {
+      const prismaProduct = await this.prisma.$transaction(async (tx) => {
+        let currentProductWithRelations: PrismaProduct & {
+          media?: PrismaMedia[];
+          variants?: (PrismaVariant & {
+            attributes?: PrismaAttribute[];
+            dimension?: PrismaDimension | null;
+            variantMedia?: PrismaMedia[];
+            warranties?: PrismaWarranty[];
+            installmentPayments?: PrismaInstallmentPayment[];
+          })[];
+          categories?: PrismaProductCategory[];
+          sustainabilities?: PrismaSustainability[];
+        };
+
+        if (id) {
+          // Fetch existing product with all relations for update comparison
+          const existingProduct = await tx.product.findUnique({
+            where: { id },
+            include: {
+              media: true,
+              variants: {
+                include: {
+                  attributes: true,
+                  dimension: true,
+                  variantMedia: true,
+                  warranties: true,
+                  installmentPayments: true,
+                },
+              },
+              categories: true,
+              sustainabilities: true,
+            },
+          });
+          if (!existingProduct)
+            throw new ResourceNotFoundError('Product', id.toString());
+          currentProductWithRelations = existingProduct;
+
+          // Update product base fields
+          currentProductWithRelations = await tx.product.update({
+            where: { id },
+            data: {
+              name: productDto.name,
+              shortDescription: productDto.shortDescription,
+              longDescription: productDto.longDescription,
+              productType: productDto.productType,
+              cover: productDto.cover,
+              tags: productDto.tags,
+              brand: productDto.brand,
+              manufacturer: productDto.manufacturer,
+              isArchived: productDto.isArchived,
+            },
+            include: {
+              // Re-include relations after update
+              media: true,
+              variants: {
+                include: {
+                  attributes: true,
+                  dimension: true,
+                  variantMedia: true,
+                  warranties: true,
+                  installmentPayments: true,
+                },
+              },
+              categories: true,
+              sustainabilities: true,
+            },
+          });
+
+          await this.manageMedia(
+            tx,
+            currentProductWithRelations.id,
+            'product',
+            productDto.media,
+          );
+          await this.manageVariants(
+            tx,
+            currentProductWithRelations.id,
+            currentProductWithRelations.tenantId,
+            productDto.variants,
+            currentProductWithRelations.variants,
+          );
+          await this.manageCategories(
+            tx,
+            currentProductWithRelations.id,
+            productDto.categories,
+          );
+          await this.manageSustainabilities(
+            tx,
+            currentProductWithRelations.id,
+            productDto.sustainabilities,
+          );
+        } else {
+          // Create new product
+          currentProductWithRelations = await tx.product.create({
+            data: {
+              name: productDto.name,
+              shortDescription: productDto.shortDescription,
+              longDescription: productDto.longDescription,
+              productType: productDto.productType,
+              cover: productDto.cover,
+              tags: productDto.tags,
+              brand: productDto.brand,
+              manufacturer: productDto.manufacturer,
+              isArchived: productDto.isArchived,
+              tenant: { connect: { id: productDto.tenantId } },
+            },
+          });
+
+          const newProductId = currentProductWithRelations.id;
+          const tenantId = productDto.tenantId;
+
+          await this.manageMedia(tx, newProductId, 'product', productDto.media);
+          await this.manageVariants(
+            tx,
+            newProductId,
+            tenantId,
+            productDto.variants,
+          );
+          await this.manageCategories(tx, newProductId, productDto.categories);
+          await this.manageSustainabilities(
+            tx,
+            newProductId,
+            productDto.sustainabilities,
+          );
+        }
+
+        // Re-fetch the product with all its relations after all operations
+        return tx.product.findUniqueOrThrow({
+          where: { id: currentProductWithRelations.id },
+          include: {
+            media: true,
+            variants: {
+              include: {
+                attributes: true,
+                dimension: true,
+                variantMedia: true,
+                warranties: true,
+                installmentPayments: true,
+              },
+            },
+            categories: true,
+            sustainabilities: true,
+          },
+        });
+      });
+      return this.mapToDomain(prismaProduct);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          const target = error.meta?.target as string[] | undefined;
+          const field = target ? target.join(', ') : 'unknown field';
+          throw new UniqueConstraintViolationError(field);
+        }
+        if (error.code === 'P2003') {
+          const rawFieldName = error.meta?.field_name as string | undefined;
+          let field = rawFieldName || 'unknown field';
+          let relatedEntity = 'related entity';
+          if (rawFieldName?.toLowerCase().includes('tenantid')) {
+            field = 'tenantId';
+            relatedEntity = 'Tenant';
+          }
+          throw new ForeignKeyConstraintViolationError(field, relatedEntity);
+        }
+        if (error.code === 'P2025' && id) {
+          throw new ResourceNotFoundError('Product', id.toString());
+        }
+      }
+      const operation = id ? 'update product' : 'create product';
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      throw new DatabaseOperationError(
+        operation,
+        errorMessage,
+        error instanceof Error ? error : new Error(errorMessage),
+      );
+    }
+  }
+
+  async hardDelete(tenantId: Id, id: Id): Promise<Product> {
+    const tenantIdValue = tenantId.getValue();
+    const idValue = id.getValue();
+    try {
+      const prismaProduct = await this.prisma.product.delete({
+        where: {
+          tenantId: tenantIdValue,
+          id: idValue,
+        },
+      });
+      return this.mapToDomain(prismaProduct);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new ResourceNotFoundError('Product', idValue.toString());
+        } else if (error.code === 'P2003') {
+          throw new ForeignKeyConstraintViolationError(
+            'Product belongs to',
+            'Order or Return',
+          );
+        }
+      }
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      throw new DatabaseOperationError(
+        'hard delete product',
+        errorMessage,
+        error instanceof Error ? error : new Error(errorMessage),
+      );
+    }
+  }
+
+  // Find a product by its ID
+  async findById(tenantId: Id, id: Id): Promise<Product | null> {
+    const tenantIdValue = tenantId.getValue();
+    const idValue = id.getValue();
+    try {
+      const prismaProduct = await this.prisma.product.findUnique({
+        where: {
+          tenantId: tenantIdValue,
+          id: idValue,
+        },
+        include: {
+          media: true,
+          variants: {
+            include: {
+              attributes: true,
+              dimension: true,
+              variantMedia: true,
+              warranties: true,
+              installmentPayments: true,
+            },
+          },
+          categories: true,
+          sustainabilities: true,
+        },
+      });
+      return this.mapToDomain(prismaProduct);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      throw new DatabaseOperationError(
+        `find product by id ${idValue}`,
+        errorMessage,
+        error instanceof Error ? error : new Error(errorMessage),
+      );
+    }
+  }
+
+  // Find products by name (partial match)
+  async findByName(
+    name: string,
+    tenantId: Id,
+    page?: number,
+    limit?: number,
+    includeSoftDeleted?: boolean,
+  ): Promise<{ products: Product[]; total: number }> {
+    const whereConditions: Prisma.ProductWhereInput[] = [
+      { tenantId: tenantId.getValue() },
+      { name: { contains: name, mode: 'insensitive' } },
+    ];
+
+    if (includeSoftDeleted === false || includeSoftDeleted === undefined) {
+      whereConditions.push({
+        isArchived: false,
+      });
+    } else if (includeSoftDeleted === true) {
+      whereConditions.push({
+        isArchived: true,
+      });
+    }
+
+    try {
+      const skip = page && limit ? (page - 1) * limit : undefined;
+      const take = limit;
+
+      const [products, total] = await Promise.all([
+        this.prisma.product.findMany({
+          where: { AND: whereConditions },
+          include: {
+            media: true,
+            variants: true,
+            categories: true,
+            sustainabilities: true,
+          },
+          skip,
+          take,
+        }),
+        this.prisma.product.count({
+          where: { AND: whereConditions },
+        }),
+      ]);
+
+      return {
+        products: products.map((product) => this.mapToDomain(product)),
+        total,
+      };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      throw new DatabaseOperationError(
+        'find products by name',
+        errorMessage,
+        error instanceof Error ? error : new Error(errorMessage),
+      );
+    }
+  }
+
+  // Find all products with pagination and optional filtering
+  async findAll(
+    tenantId: Id,
+    page: number,
+    limit: number,
+    categoriesIds?: Id[],
+    type?: Type,
+    sortBy?: SortBy,
+    sortOrder?: SortOrder,
+    includeSoftDeleted?: boolean,
+  ): Promise<{ products: Product[]; total: number }> {
+    const conditions: Prisma.ProductWhereInput[] = [
+      { tenantId: tenantId.getValue() },
+    ];
+
+    if (categoriesIds && categoriesIds.length > 0) {
+      conditions.push({
+        categories: {
+          some: {
+            categoryId: {
+              in: categoriesIds.map((id) => id.getValue()),
+            },
+          },
+        },
+      });
+    }
+
+    if (type) {
+      conditions.push({ productType: type.getValue() });
+    }
+
+    if (includeSoftDeleted === false || includeSoftDeleted === undefined) {
+      conditions.push({
+        isArchived: false,
+      });
+    } else if (includeSoftDeleted === true) {
+      conditions.push({
+        isArchived: true,
+      });
+    }
+
+    const whereClause: Prisma.ProductWhereInput =
+      conditions.length > 0 ? { AND: conditions } : {};
+
+    const orderBy: Prisma.ProductOrderByWithRelationInput = {};
+    if (sortBy) {
+      orderBy[sortBy] =
+        sortOrder || (sortBy === SortBy.NAME ? SortOrder.ASC : SortOrder.DESC);
+    } else {
+      orderBy.createdAt = SortOrder.DESC;
+    }
+
+    try {
+      const skip = page && limit ? (page - 1) * limit : undefined;
+      const take = limit;
+
+      const [products, total] = await Promise.all([
+        this.prisma.product.findMany({
+          where: whereClause,
+          skip,
+          take,
+          orderBy,
+          include: {
+            media: true,
+            variants: true,
+            categories: true,
+            sustainabilities: true,
+          },
+        }),
+        this.prisma.product.count({ where: whereClause }),
+      ]);
+      return {
+        products: products.map((product) => this.mapToDomain(product)),
+        total,
+      };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      throw new DatabaseOperationError(
+        'find all products',
+        errorMessage,
+        error instanceof Error ? error : new Error(errorMessage),
+      );
+    }
+  }
+
+  // Map from database product to domain product using the centralized mapping approach
+  private mapToDomain(prismaProduct: PrismaProduct): Product {
+    return ProductMapper.fromPersistence(
+      prismaProduct as unknown as IProductType,
+    );
+  }
+}

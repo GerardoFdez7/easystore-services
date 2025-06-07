@@ -30,9 +30,6 @@
   <a href="https://www.postgresql.org/" target="_blank" rel="noreferrer">
     <img src="https://www.vectorlogo.zone/logos/postgresql/postgresql-icon.svg" alt="postgresql" width="40" height="40"/>
   </a>
-  <a href="https://www.mongodb.com/" target="_blank" rel="noreferrer">
-    <img src="https://www.vectorlogo.zone/logos/mongodb/mongodb-icon.svg" alt="mongodb" width="40" height="40"/>
-  </a>
   <a href="https://www.prisma.io/" target="_blank" rel="noreferrer">
     <img src="https://cdn.worldvectorlogo.com/logos/prisma-3.svg" alt="prisma" width="40" height="40"/>
   </a>
@@ -49,23 +46,16 @@
 
 # EasyStore Backend Repository
 
-Welcome to the backend repository of EasyStore, the web application that empowers you to build your own e-commerce platform without any programming knowledge. This user-friendly solution provides all the tools you need to create, manage, and grow your online store with ease.
-
 ## Table of Contents
 
 - [Getting Started](#getting-started)
   - [Development Environment](#development-environment)
   - [Production Environment](#production-environment)
   - [Documentation](#documentation)
-- [Repository Rules](#repository-rules)
-  - [ESLint Rules](#eslint-rules)
-  - [Gitflow](#gitflow)
-    - [Main Branches](#main-branches)
-    - [Workflow](#workflow)
-    - [Hotfixes](#hotfixes)
-  - [Commit Rules](#commit-rules)
-  - [Branch Rules](#branch-rules)
-- [Architecture](#architecture)
+- [Architecture and Patterns](#architecture-and-patterns)
+  - [Core Architecture](#core-architecture)
+  - [Key Patterns](#key-patterns)
+  - [Database ERD](#database-entity-relationship-diagram-erd)
 
 ## Getting Started
 
@@ -147,15 +137,12 @@ npm run docker
 ```
 
 > [!NOTE]
-> Prisma schemas are located at src/infrastructure/database containing both PostgreSQL and MongoDB models.
+> Prisma schemas are located at src/infrastructure/database containing PostgreSQL models.
 
 ### Documentation
+The following endpoint will be available for API exploration:
 
-> [!NOTE]
-> The following endpoints will be available for API exploration:
-
-- GraphQL Playground & Documentation: /gql
-- GraphQL Schema Visualization: /voyager
+GraphQL Playground & Documentation: /gql
 
 The Apollo Playground provides an interactive environment to:
 
@@ -163,165 +150,42 @@ The Apollo Playground provides an interactive environment to:
 - Test queries and mutations
 - View documentation for all types and fields
 
-The Voyager interface offers:
+## Architecture and Patterns
 
-- Visual representation of your GraphQL schema
-- Interactive graph of type relationships
-- Easy navigation through schema connections
+### Core Architecture
+- **Domain-Driven Design (DDD)**
+  - Strategic patterns: Bounded Contexts, Ubiquitous Language
+  - Tactical patterns: Aggregates, Entities, Value Objects
+  - Layered architecture with clear separation between:
+    - Domain layer (business logic)
+    - Application layer (use cases/coordination)
+    - Infrastructure layer (technical implementations)
+    - Presentation layer (graphql resolvers and types)
 
-## Repository Rules
+### Key Patterns
+1. **Command Query Responsibility Segregation (CQRS)**
+   - Separate models for:
+     - Commands (write operations with business validation)
+     - Queries (read operations with optimized projections)
+   - Event sourcing for critical domain operations
 
-### ESLint Rules
+2. **Repository Pattern**
+   - Abstract data access through `IRepository` interfaces
+   - Database-agnostic domain layer
+   - Concrete implementations in infrastructure layer
 
-Our codebase follows strict linting rules to ensure code quality and consistency:
+3. **Factory Pattern**
+   - Domain object creation through dedicated factories
+   - Complex aggregate construction
+   - Validation during object creation
+   - Pattern implementations:
+     - Static factory methods for simple objects
+     - Builder pattern for complex aggregates
 
-- Base Rules:
+### Database Entity-Relationship Diagram (ERD)
+<div align="center">
+  <img src="easystore-backend/src/infrastructure/database/erd.svg" alt="Database ERD"/>
+</div>
 
-  - No console logs in production code
-  - Curly braces required for all control statements
-  - Strict equality checks ( === and !== )
-
-- TypeScript Rules:
-
-  - No explicit any types
-  - No non-null assertions
-  - Proper promise handling
-  - Unused variables must be prefixed with underscore
-
-- Naming Conventions:
-
-  - Variables: camelCase or PascalCase
-  - Types/Interfaces: PascalCase
-  - Functions: camelCase or PascalCase
-
-- Code Organization:
-  - Proper spacing between declarations, functions, and classes
-  - Organized imports and exports
-    > [!IMPORTANT]
-    > All code must pass ESLint checks before being committed.
-
-> [!CAUTION]
-> The ESLint and Prettier extensions are mandatory for this project. Please ensure you have them installed in your code editor.
-
-### Gitflow
-
-We follow a Simplified Gitflow workflow:
-
-#### Main Branches
-
-- **Main**: Production-ready code
-- **Development**: Integration branch for features
-
-#### Workflow
-
-1. Each team member creates a feature branch from Development
-2. Work is completed on the feature branch following our branch naming convention
-3. When finished, the feature branch is merged into Development
-4. At the end of each sprint, Development undergoes final review
-5. After approval, Development is merged into Main for production deployment
-
-#### Hotfixes
-
-- If a bug occurs in production, a hotfix branch is created from Main
-- After the fix is implemented, it's merged into both Main and Development to keep branches synchronized
-
-> [!NOTE]
-> This workflow ensures stable production code while allowing continuous development.
-
-### Commit Rules
-
-We follow the Conventional Commits specification for commit messages:
-
-```plaintext
-<type>: <description>
-```
-
-> [!TIP]
-> For this purpose we recommend using the conventional commits extension or commitizen tool.
-
-Supported types :
-
-- feat: New features
-- fix: Bug fixes
-- docs: Documentation changes
-- style: Code style changes (formatting, etc.)
-- refactor: Code changes that neither fix bugs nor add features
-- test: Adding or modifying tests
-- chore: Changes to the build process or auxiliary tools
-- revert: Reverting previous changes
-- perf: Performance improvements
-- build: Changes affecting build system
-- ci: Changes to CI configuration
-- wip: Work in progress
-  > [!WARNING]
-  > Commit descriptions must be in lowercase. For example, use "feat: add login feature" instead of "feat: Add Login Feature".
-
-### Branch Rules
-
-Branches must follow this naming convention:
-
-```plaintext
-<type>/<kebab-case-description>
-```
-
-Supported types :
-
-- feat: Feature branches
-- fix: Bug fix branches
-- docs: Documentation branches
-- style: Style change branches
-- refactor: Refactoring branches
-- test: Test-related branches
-- chore: Maintenance branches
-- revert: Revert branches
-- perf: Performance improvement branches
-- build: Build-related branches
-- ci: CI configuration branches
-  > [!CAUTION]
-  > Branches that don't follow this convention will be rejected during push.
-
-> [!TIP]
-> To rename a branch, use: git branch -m <type/new-name>
-
-## Architecture
-
-EasyStore backend is built using the following clean architecture and technologies:
-
-- Architectural Approach: Domain-Driven Design (DDD)
-- Design Pattern: Command Query Responsibility Segregation ( CQRS ) pattern
-- Programming Language: TypeScript
-- Framework: NestJS
-- Database: PostgreSQL
-- ORM: Prisma
-- Testing: Jest
-- Message Broker: Kafka
-- Search Engine: ElasticSearch
-- Log Management: LogStash and Kibana
-- Cache: Redis
-- Containerization: Docker
-
-  > [!TIP]
-  > **Domain-Driven Design (DDD):**
-  >
-  > EasyStore backend applies DDD principles to model complex business logic and ensure maintainability:
-  > - **Domains**: The codebase is organized by business domains (e.g., Tenant, Product), each encapsulating its logic.
-  > - **Aggregates & Entities**: Core business objects are represented as entities and aggregates, enforcing invariants and encapsulating state.
-  > - **Value Objects**: Immutable objects that represent descriptive aspects of the domain (e.g., Email, BusinessName).
-  > - **Repositories**: Abstractions for data access, allowing domain logic to remain persistence-agnostic.
-  > - **Application Layer**: Coordinates use cases via commands, queries, and handlers, orchestrating domain logic.
-  > - **Infrastructure Layer**: Implements technical details (e.g., database, messaging) and integrates with external systems.
-  >
-  > This DDD approach, combined with CQRS, ensures that business rules are explicit, code is modular, and the system is adaptable to evolving requirements.
-
-  > [!NOTE]
-  > The CQRS (Command Query Responsibility Segregation) pattern separates read and write operations
-  > into distinct models:
-  >
-  > - **Commands**: Handle write operations, business logic, and data mutations through dedicated handlers
-  > - **Queries**: Optimized read operations returning DTOs specifically tailored for client needs
-  > - **Domain Events**: Capture state changes through events that trigger downstream processes
-  >   This architecture enables:
-  >   - Independent scaling of read/write workloads
-  >   - Optimized data models for each operation type
-  >   - Improved audit capabilities through event sourcing
-  >   - Reduced concurrency conflicts in complex domains
+## Contributing
+We welcome contributions to the EasyStore project! Please make sure to review our [Contributing Guidelines](./CONTRIBUTING.md) before you start.

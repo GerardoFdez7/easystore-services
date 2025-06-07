@@ -3,7 +3,8 @@ import { z } from 'zod';
 const IdSchema = z
   .number()
   .int()
-  .positive({ message: 'Id must be a positive integer' });
+  .positive({ message: 'Id must be a positive integer' })
+  .nullable();
 
 export class Id {
   private readonly value: number;

@@ -1,19 +1,25 @@
 import { Entity } from '@domains/entity.base';
-import { Id, Name, LongDescription } from '@domains/value-objects';
 import { Tenant, ITenantProps, ITenantType } from '../../aggregates/entities';
-import { Domain, Logo } from '../../aggregates/value-objects';
+import {
+  Id,
+  Name,
+  LongDescription,
+  Domain,
+  Logo,
+  Currency,
+} from '../../aggregates/value-objects';
 import { TenantDTO } from './';
 import { TenantSingUpDTO } from '../commands';
 
 /**
- * Centralized mapper for Product domain entity to DTO conversion for queries and vice versa for commands.
+ * Centralized mapper for Tenant domain entity to DTO conversion for queries and vice versa for commands.
  * Handles mapping between persistence layer models to domain entities.
  */
 export class TenantMapper {
   /**
-   * Maps a persistence Product model to a domain Product entity
-   * @param persistenceTenant The Persistence Product model
-   * @returns The mapped Product domain entity
+   * Maps a persistence Tenant model to a domain Tenant entity
+   * @param persistenceTenant The Persistence Tenant model
+   * @returns The mapped Tenant domain entity
    */
   static fromPersistence(persistenceTenant: ITenantType): Tenant {
     return Entity.fromPersistence<
@@ -31,6 +37,9 @@ export class TenantMapper {
       description: model.description
         ? LongDescription.create(model.description)
         : null,
+      currency: model.currency
+        ? Currency.create(model.currency)
+        : Currency.create('GTQ'),
       authIdentityId: Id.create(model.authIdentityId),
       defaultPhoneNumberId: model.defaultPhoneNumberId
         ? Id.create(model.defaultPhoneNumberId)
@@ -59,6 +68,7 @@ export class TenantMapper {
       domain: entity.get('domain').getValue(),
       logo: entity.get('logo')?.getValue() || null,
       description: entity.get('description')?.getValue() || null,
+      currency: entity.get('currency').getValue(),
       authIdentityId: entity.get('authIdentityId').getValue(),
       defaultPhoneNumberId:
         entity.get('defaultPhoneNumberId')?.getValue() || null,
