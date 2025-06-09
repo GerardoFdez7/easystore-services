@@ -1,5 +1,5 @@
 {
-  "name": "easystore-backend",
+  "name": "easystore-services",
   "version": "0.0.1",
   "description": "Backend project of EasyStore, the web application that empowers you to build your own e-commerce platform without any programming knowledge. This user-friendly solution provides all the tools you need to create, manage, and grow your online store with ease.",
   "author": "EasyStore Team",
@@ -30,7 +30,7 @@
     "docker:kafka:down": "docker-compose -f docker-compose.kafka.yml down",
     "docker:kafka:logs": "docker-compose -f docker-compose.kafka.yml logs -f",
     "postinstall": "npm run generate",
-    "prepare": "cd .. && husky install easystore-backend/.husky"
+    "prepare": "husky install"
   },
   "dependencies": {
     "@elastic/elasticsearch": "^8.17.1",

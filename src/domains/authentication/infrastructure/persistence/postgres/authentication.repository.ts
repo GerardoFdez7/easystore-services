@@ -15,7 +15,7 @@ import {
   generateToken,
   generateRefreshToken,
   JwtPayload,
-} from '../../../../../shared/domains/auth/jwt-handler';
+} from '@domains/auth/jwt-handler';
 
 @Injectable()
 export class AuthenticationRepository implements IAuthRepository {

@@ -24,7 +24,6 @@
       "@common/*": ["src/common/*"],
       "@database/*": ["src/infrastructure/database/*"],
       "@graphql/*": ["src/infrastructure/graphql/*"],
-      "@logging/*": ["src/infrastructure/logging/*"],
       "@metrics/*": ["src/infrastructure/metrics/*"],
       "@microservices/*": ["src/infrastructure/microservices/*"],
       "@domains/*": ["src/shared/domains/*"],

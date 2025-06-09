@@ -4,7 +4,7 @@ import { PostgresModule } from '@database/postgres.module';
 import { LoggerModule } from '@winston/winston.module';
 import { Provider } from '@nestjs/common';
 import { AuthenticationRegisterHandler } from './application/commands/create/sign-up.handler';
-import { AuthenticationRepository } from '../authentication/infrastructure/persistence/postgres/authentication.repository';
+import { AuthenticationRepository } from './infrastructure/persistence/postgres/authentication.repository';
 import { AuthenticationResolver } from './presentation/graphql/authentication.resolver';
 import { AuthenticationRegisterEvent } from './aggregates/events/authentication-register.event';
 import { AuthenticationLoginHandler } from './application/queries/select/sign-in.handler';
