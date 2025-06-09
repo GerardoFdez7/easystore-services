@@ -74,7 +74,7 @@ input CreateDimensionInput {
 
 input CreateInstallmentInput {
   interestRate: Float!
-  months: Float!
+  months: Int!
 }
 
 input CreateMediaInput {
@@ -156,7 +156,7 @@ type Dimension {
 
 type Installment {
   interestRate: Float!
-  months: Float!
+  months: Int!
 }
 
 type Media {
@@ -279,7 +279,7 @@ input UpdateDimensionInput {
 
 input UpdateInstallmentInput {
   interestRate: Float
-  months: Float
+  months: Int
 }
 
 input UpdateMediaInput {

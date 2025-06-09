@@ -1,8 +1,8 @@
-import { Field, ObjectType, Float, InputType } from '@nestjs/graphql';
+import { Field, ObjectType, Float, InputType, Int } from '@nestjs/graphql';
 
 @ObjectType('Installment')
 export class InstallmentType {
-  @Field(() => Float)
+  @Field(() => Int)
   months: number;
 
   @Field(() => Float)
@@ -11,7 +11,7 @@ export class InstallmentType {
 
 @InputType()
 export class CreateInstallmentInput {
-  @Field()
+  @Field(() => Int)
   months: number;
 
   @Field(() => Float)
@@ -20,7 +20,7 @@ export class CreateInstallmentInput {
 
 @InputType()
 export class UpdateInstallmentInput {
-  @Field({ nullable: true })
+  @Field(() => Int, { nullable: true })
   months?: number;
 
   @Field(() => Float, { nullable: true })

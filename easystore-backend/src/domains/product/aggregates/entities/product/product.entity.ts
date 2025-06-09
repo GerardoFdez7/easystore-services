@@ -54,8 +54,39 @@ export interface IProductProps extends EntityProps {
 }
 
 export class Product extends Entity<IProductProps> {
-  constructor(props: IProductProps) {
+  private variantsMap: Map<number, Variant>;
+
+  private constructor(props: IProductProps) {
     super(props);
+    this.variantsMap = new Map();
+    props.variants.forEach((variant) => {
+      const variantId = variant.get('id');
+      if (variantId && variantId.getValue() !== undefined) {
+        this.variantsMap.set(variantId.getValue(), variant);
+      }
+    });
+  }
+
+  /**
+   * Factory method to reconstitute a Product from persistence or other sources.
+   * Assumes all props, including ID and child entities, are already in domain format.
+   * @param props The complete properties of the product.
+   * @returns The reconstituted Product domain entity.
+   */
+  static reconstitute(props: IProductProps): Product {
+    const product = new Product(props);
+    product.variantsMap = new Map();
+    props.variants.forEach((variant) => {
+      const variantId = variant.get('id');
+      if (
+        variantId &&
+        variantId.getValue() !== null &&
+        variantId.getValue() !== undefined
+      ) {
+        product.variantsMap.set(variantId.getValue(), variant);
+      }
+    });
+    return product;
   }
 
   /**
@@ -146,52 +177,45 @@ export class Product extends Entity<IProductProps> {
   ): Product {
     const props = { ...product.props };
 
-    // Update each property if provided in updates
     if (updates.name !== undefined) {
       props.name = Name.create(updates.name);
     }
 
-    if (
-      updates.shortDescription !== undefined &&
-      updates.shortDescription !== null
-    ) {
+    if (updates.shortDescription !== undefined) {
       props.shortDescription = ShortDescription.create(
         updates.shortDescription,
       );
     }
 
-    if (
-      updates.longDescription !== undefined &&
-      updates.longDescription !== null
-    ) {
+    if (updates.longDescription !== undefined) {
       props.longDescription = updates.longDescription
         ? LongDescription.create(updates.longDescription)
         : null;
     }
 
-    if (updates.productType !== undefined && updates.productType !== null) {
+    if (updates.productType !== undefined) {
       props.productType = Type.create(updates.productType);
     }
 
-    if (updates.cover !== undefined && updates.cover !== null) {
+    if (updates.cover !== undefined) {
       props.cover = Cover.create(updates.cover);
     }
 
-    if (updates.tags !== undefined && updates.tags !== null) {
+    if (updates.tags !== undefined) {
       props.tags = updates.tags.map((tag) => Tags.create([tag]));
     }
 
-    if (updates.brand !== undefined && updates.brand !== null) {
+    if (updates.brand !== undefined) {
       props.brand = updates.brand ? Brand.create(updates.brand) : null;
     }
 
-    if (updates.manufacturer !== undefined && updates.manufacturer !== null) {
+    if (updates.manufacturer !== undefined) {
       props.manufacturer = updates.manufacturer
         ? Manufacturer.create(updates.manufacturer)
         : null;
     }
 
-    if (updates.media !== undefined && updates.media !== null) {
+    if (updates.media !== undefined) {
       props.media = updates.media.map((mediaData) =>
         Media.create({
           ...mediaData,
@@ -200,7 +224,7 @@ export class Product extends Entity<IProductProps> {
       );
     }
 
-    if (updates.categories !== undefined && updates.categories !== null) {
+    if (updates.categories !== undefined) {
       props.categories = updates.categories.map((categoryData) =>
         ProductCategories.create({
           ...categoryData,
@@ -209,10 +233,7 @@ export class Product extends Entity<IProductProps> {
       );
     }
 
-    if (
-      updates.sustainabilities !== undefined &&
-      updates.sustainabilities !== null
-    ) {
+    if (updates.sustainabilities !== undefined) {
       props.sustainabilities = updates.sustainabilities.map(
         (sustainabilityData) =>
           Sustainability.create({
@@ -291,20 +312,41 @@ export class Product extends Entity<IProductProps> {
 
   // --- Variant Management ---
 
+  private getVariantOrThrow(variantId: number): Variant {
+    const variant = this.variantsMap.get(variantId);
+    if (!variant) {
+      throw new NotFoundException(
+        `Variant with ID ${variantId} not found on product ${this.props.id.getValue()}.`,
+      );
+    }
+    return variant;
+  }
+
   /**
    * Adds a new variant to the product.
    * @param variantData The data for the new variant, conforming to IVariantBase.
    */
-  public addVariant(variantData: IVariantBase): void {
+  public addVariant(variantData: IVariantBase): Product {
     const newVariant = Variant.create({
       ...variantData,
-      productId: this.props.id.getValue(),
+      // productId is likely null if the product itself is new and not yet persisted.
+      // This needs careful handling. For now, we assume this.props.id is available.
+      productId: this.props.id ? this.props.id.getValue() : null,
       tenantId: this.props.tenantId.getValue(),
     });
-    this.props.variants.push(newVariant);
-    this.props.updatedAt = new Date();
 
-    this.apply(new VariantCreatedEvent(this, newVariant));
+    const newVariants = [...this.props.variants, newVariant];
+    const newProps = {
+      ...this.props,
+      variants: newVariants,
+      updatedAt: new Date(),
+    };
+
+    // When a new Product is created, its variantsMap will be rebuilt by the constructor.
+    const updatedProduct = new Product(newProps);
+    // It's important that the event is applied to the *new* product instance.
+    updatedProduct.apply(new VariantCreatedEvent(updatedProduct, newVariant));
+    return updatedProduct;
   }
 
   /**
@@ -315,91 +357,113 @@ export class Product extends Entity<IProductProps> {
   public updateVariant(
     variantId: number,
     updateData: Partial<IVariantBase>,
-  ): void {
-    const variant = this.props.variants.find(
-      (v) => v.get('id').getValue() === variantId,
-    );
-    if (!variant) {
-      throw new NotFoundException(
-        `Variant with ID ${variantId} not found on product ${this.props.id.getValue()}.`,
-      );
-    }
-    variant.update(updateData);
-    this.props.updatedAt = new Date();
+  ): Product {
+    const variantToUpdate = this.getVariantOrThrow(variantId);
+    const updatedVariant = variantToUpdate.update(updateData);
 
-    this.apply(new VariantUpdatedEvent(this, variant));
+    const newVariants = this.props.variants.map((v) => {
+      const currentVariantId = v.get('id');
+      return currentVariantId && currentVariantId.getValue() === variantId
+        ? updatedVariant
+        : v;
+    });
+
+    const newProps = {
+      ...this.props,
+      variants: newVariants,
+      updatedAt: new Date(),
+    };
+    const updatedProduct = new Product(newProps);
+    updatedProduct.apply(
+      new VariantUpdatedEvent(updatedProduct, updatedVariant),
+    );
+    return updatedProduct;
   }
 
   /**
    * Soft deletes a variant from the product.
    * @param variantId The ID of the variant to soft delete.
    */
-  public archiveVariant(variantId: number): void {
-    const variant = this.props.variants.find(
-      (v) => v.get('id').getValue() === variantId,
-    );
-    if (!variant) {
-      throw new NotFoundException(
-        `Variant with ID ${variantId} not found on product ${this.props.id.getValue()}.`,
-      );
-    }
+  public archiveVariant(variantId: number): Product {
+    const variantToArchive = this.getVariantOrThrow(variantId);
 
     // Check if the product is already archived
-    const isArchived = variant.get('isArchived');
+    const isArchived = variantToArchive.get('isArchived');
     if (isArchived === true) {
       throw new BadRequestException(
         `Variant with ID ${variantId} is already archived and cannot be archived again`,
       );
     }
 
-    variant.archive();
+    const archivedVariant = variantToArchive.archive();
+    const newVariants = this.props.variants.map((v) =>
+      v.get('id').getValue() === variantId ? archivedVariant : v,
+    );
+    const newProps = {
+      ...this.props,
+      variants: newVariants,
+      updatedAt: new Date(),
+    };
 
-    this.apply(new VariantArchivedEvent(this, variant));
+    const updatedProduct = new Product(newProps);
+    updatedProduct.apply(
+      new VariantArchivedEvent(updatedProduct, archivedVariant),
+    );
+    return updatedProduct;
   }
 
   /**
    * Restores a previously soft-deleted variant.
    * @param variantId The ID of the variant to restore.
    */
-  public restoreVariant(variantId: number): void {
-    const variant = this.props.variants.find(
-      (v) => v.get('id').getValue() === variantId,
-    );
-    if (!variant) {
-      throw new NotFoundException(
-        `Variant with ID ${variantId} not found on product ${this.props.id.getValue()}.`,
-      );
-    }
+  public restoreVariant(variantId: number): Product {
+    const variantToRestore = this.getVariantOrThrow(variantId);
 
     // Check if the variant is actually deleted
-    const isArchived = variant.get('isArchived');
+    const isArchived = variantToRestore.get('isArchived');
     if (isArchived === false) {
       throw new BadRequestException(
         `Variant with ID ${variantId} is not in a deleted state and cannot be restored`,
       );
     }
 
-    variant.restore();
+    const restoredVariant = variantToRestore.restore();
+    const newVariants = this.props.variants.map((v) =>
+      v.get('id').getValue() === variantId ? restoredVariant : v,
+    );
+    const newProps = {
+      ...this.props,
+      variants: newVariants,
+      updatedAt: new Date(),
+    };
 
-    this.apply(new VariantRestoredEvent(this, variant));
+    const updatedProduct = new Product(newProps);
+    updatedProduct.apply(
+      new VariantRestoredEvent(updatedProduct, restoredVariant),
+    );
+    return updatedProduct;
   }
 
   /**
    * Removes a variant from the product.
    * @param variantId The ID of the variant to remove.
    */
-  public removeVariant(variantId: number): void {
-    const variantIndex = this.props.variants.findIndex(
-      (v) => v.get('id').getValue() === variantId,
-    );
-    if (variantIndex === -1) {
-      throw new NotFoundException(
-        `Variant with ID ${variantId} not found on product ${this.props.id.getValue()}.`,
-      );
-    }
-    const removedVariant = this.props.variants.splice(variantIndex, 1)[0];
-    this.props.updatedAt = new Date();
+  public removeVariant(variantId: number): Product {
+    const variantToRemove = this.getVariantOrThrow(variantId);
 
-    this.apply(new VariantDeletedEvent(this, removedVariant));
+    const newVariants = this.props.variants.filter(
+      (v) => v.get('id').getValue() !== variantId,
+    );
+    const newProps = {
+      ...this.props,
+      variants: newVariants,
+      updatedAt: new Date(),
+    };
+
+    const updatedProduct = new Product(newProps);
+    updatedProduct.apply(
+      new VariantDeletedEvent(updatedProduct, variantToRemove),
+    );
+    return updatedProduct;
   }
 }

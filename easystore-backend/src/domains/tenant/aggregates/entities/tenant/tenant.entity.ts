@@ -39,7 +39,7 @@ export class Tenant extends Entity<ITenantProps> {
         : null,
       currency: props.currency
         ? Currency.create(props.currency)
-        : Currency.create('GTQ'),
+        : Currency.create(process.env.DEFAULT_CURRENCY || 'GTQ'),
       authIdentityId: Id.create(props.authIdentityId),
     };
 

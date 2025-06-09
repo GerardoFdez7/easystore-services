@@ -33,19 +33,4 @@ export class Sustainability extends Entity<ISustainabilityProps> {
 
     return sustainability;
   }
-
-  public update(data: Partial<Omit<ISustainabilityBase, 'productId'>>): void {
-    if (data.certification !== undefined) {
-      this.props.certification = data.certification
-        ? Certification.create(data.certification)
-        : null;
-    }
-    if (data.recycledPercentage !== undefined) {
-      this.props.recycledPercentage =
-        data.recycledPercentage !== null &&
-        data.recycledPercentage !== undefined
-          ? RecycledPercentage.create(data.recycledPercentage)
-          : null;
-    }
-  }
 }
