@@ -12,14 +12,10 @@ services:
       - HUSKY=0
       - NODE_ENV=${NODE_ENV}
       - DATABASE_URL_POSTGRES=${DATABASE_URL_POSTGRES}
-      - DATABASE_URL_MONGO=${DATABASE_URL_MONGODB_DOCKER}
-      - LOGSTASH_HOST=${LOGSTASH_HOST}
-      - LOGSTASH_PORT=${LOGSTASH_PORT}
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
     depends_on:
       - postgres
-      - mongo
       - redis
       - zookeeper
       - kafka
@@ -42,16 +38,6 @@ services:
     networks:
       - ecommerce-network
 
-  mongo:
-    image: mongo:7
-    restart: always
-    ports:
-      - '${MONGODB_PORT}:27017'
-    volumes:
-      - mongo_data:/data/db
-    networks:
-      - ecommerce-network
-
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.14.1
     container_name: elasticsearch
@@ -62,27 +48,6 @@ services:
       - '9200:9200'
     volumes:
       - esdata:/usr/share/elasticsearch/data
-    networks:
-      - ecommerce-network
-
-  logstash:
-    image: docker.elastic.co/logstash/logstash:8.14.1
-    container_name: logstash
-    volumes:
-      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
-      - ./logs:/usr/share/logstash/logs
-    depends_on:
-      - app
-    networks:
-      - ecommerce-network
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.14.1
-    container_name: kibana
-    ports:
-      - '5601:5601'
-    depends_on:
-      - elasticsearch
     networks:
       - ecommerce-network
 
@@ -172,7 +137,6 @@ services:
 
 volumes:
   postgres_data:
-  mongo_data:
   esdata:
   redis-data:
   zookeeper-data:

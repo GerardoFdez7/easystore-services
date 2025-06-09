@@ -54,12 +54,6 @@ pids
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Configuration files
-.husky/*
-!.husky/_/*
-!.husky/_/husky.sh
-!.husky/.commit-msg
-!.husky/pre-commit
-!.husky/commit-msg
 lint-staged.config.js
 eslint.config.mjs
 .prettierrc
