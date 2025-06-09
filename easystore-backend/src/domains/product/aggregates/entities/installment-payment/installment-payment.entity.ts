@@ -27,15 +27,4 @@ export class InstallmentPayment extends Entity<IInstallmentPaymentProps> {
 
     return installmentPayment;
   }
-
-  public update(
-    data: Partial<Omit<IInstallmentPaymentBase, 'variantId'>>,
-  ): void {
-    if (data.months !== undefined) {
-      this.props.months = Months.create(data.months);
-    }
-    if (data.interestRate !== undefined) {
-      this.props.interestRate = InterestRate.create(data.interestRate);
-    }
-  }
 }

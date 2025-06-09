@@ -29,16 +29,4 @@ export class Warranty extends Entity<IWarrantyProps> {
 
     return warranty;
   }
-
-  public update(data: Partial<Omit<IWarrantyBase, 'variantId'>>): void {
-    if (data.months !== undefined) {
-      this.props.months = Months.create(data.months);
-    }
-    if (data.coverage !== undefined) {
-      this.props.coverage = MediumDescription.create(data.coverage);
-    }
-    if (data.instructions !== undefined) {
-      this.props.instructions = MediumDescription.create(data.instructions);
-    }
-  }
 }

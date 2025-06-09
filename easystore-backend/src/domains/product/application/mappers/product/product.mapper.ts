@@ -1,5 +1,4 @@
 import {
-  Entity,
   Product,
   IProductProps,
   IProductType,
@@ -38,42 +37,45 @@ export class ProductMapper {
    * @returns The mapped Product domain entity
    */
   static fromPersistence(persistenceProduct: IProductType): Product {
-    return Entity.fromPersistence<
-      typeof persistenceProduct,
-      IProductProps,
-      Product
-    >(Product, persistenceProduct, (model) => ({
-      id: Id.create(model.id),
-      name: Name.create(model.name),
-      shortDescription: ShortDescription.create(model.shortDescription),
-      longDescription: model.longDescription
-        ? LongDescription.create(model.longDescription)
+    const productProps: IProductProps = {
+      id: Id.create(persistenceProduct.id),
+      name: Name.create(persistenceProduct.name),
+      shortDescription: ShortDescription.create(
+        persistenceProduct.shortDescription,
+      ),
+      longDescription: persistenceProduct.longDescription
+        ? LongDescription.create(persistenceProduct.longDescription)
         : null,
-      productType: Type.create(model.productType),
-      cover: Cover.create(model.cover),
-      tags: model.tags ? model.tags.map((tag) => Tags.create([tag])) : [],
-      brand: model.brand ? Brand.create(model.brand) : null,
-      manufacturer: model.manufacturer
-        ? Manufacturer.create(model.manufacturer)
+      productType: Type.create(persistenceProduct.productType),
+      cover: Cover.create(persistenceProduct.cover),
+      tags: persistenceProduct.tags
+        ? persistenceProduct.tags.map((tag) => Tags.create([tag]))
+        : [],
+      brand: persistenceProduct.brand
+        ? Brand.create(persistenceProduct.brand)
         : null,
-      isArchived: model.isArchived,
-      tenantId: Id.create(model.tenantId),
-      updatedAt: model.updatedAt,
-      createdAt: model.createdAt,
-      variants: (model.variants || []).map((variantItem) =>
+      manufacturer: persistenceProduct.manufacturer
+        ? Manufacturer.create(persistenceProduct.manufacturer)
+        : null,
+      isArchived: persistenceProduct.isArchived,
+      tenantId: Id.create(persistenceProduct.tenantId),
+      updatedAt: persistenceProduct.updatedAt,
+      createdAt: persistenceProduct.createdAt,
+      variants: (persistenceProduct.variants || []).map((variantItem) =>
         VariantMapper.fromPersistence(variantItem),
       ),
-      media: (model.media || []).map((mediaItem) =>
+      media: (persistenceProduct.media || []).map((mediaItem) =>
         MediaMapper.fromPersistence(mediaItem),
       ),
-      categories: (model.categories || []).map((categoryItem) =>
+      categories: (persistenceProduct.categories || []).map((categoryItem) =>
         ProductCategoriesMapper.fromPersistence(categoryItem),
       ),
-      sustainabilities: (model.sustainabilities || []).map(
+      sustainabilities: (persistenceProduct.sustainabilities || []).map(
         (sustainabilityItem) =>
           SustainabilityMapper.fromPersistence(sustainabilityItem),
       ),
-    }));
+    };
+    return Product.reconstitute(productProps);
   }
 
   /**
@@ -259,8 +261,8 @@ export class ProductMapper {
     existingProduct: Product,
     dto: IVariantBase,
   ): Product {
-    existingProduct.addVariant(dto);
-    return existingProduct;
+    const updatedProduct = existingProduct.addVariant(dto);
+    return updatedProduct;
   }
 
   /**
@@ -275,8 +277,11 @@ export class ProductMapper {
     variantId: number,
     dto: UpdateVariantDTO,
   ): Product {
-    existingProduct.updateVariant(variantId, dto.data as Partial<IVariantBase>);
-    return existingProduct;
+    const updatedProduct = existingProduct.updateVariant(
+      variantId,
+      dto.data as Partial<IVariantBase>,
+    );
+    return updatedProduct;
   }
 
   /**
@@ -289,8 +294,8 @@ export class ProductMapper {
     existingProduct: Product,
     variantId: number,
   ): Product {
-    existingProduct.archiveVariant(variantId);
-    return existingProduct;
+    const updatedProduct = existingProduct.archiveVariant(variantId);
+    return updatedProduct;
   }
 
   /**
@@ -303,8 +308,8 @@ export class ProductMapper {
     existingProduct: Product,
     variantId: number,
   ): Product {
-    existingProduct.restoreVariant(variantId);
-    return existingProduct;
+    const updatedProduct = existingProduct.restoreVariant(variantId);
+    return updatedProduct;
   }
 
   /**
@@ -317,7 +322,7 @@ export class ProductMapper {
     existingProduct: Product,
     variantId: number,
   ): Product {
-    existingProduct.removeVariant(variantId);
-    return existingProduct;
+    const updatedProduct = existingProduct.removeVariant(variantId);
+    return updatedProduct;
   }
 }

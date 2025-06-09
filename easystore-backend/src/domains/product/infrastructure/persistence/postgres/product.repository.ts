@@ -671,8 +671,6 @@ export class ProductRepository implements IProductRepository {
 
   // Map from database product to domain product using the centralized mapping approach
   private mapToDomain(prismaProduct: PrismaProduct): Product {
-    return ProductMapper.fromPersistence(
-      prismaProduct as unknown as IProductType,
-    );
+    return ProductMapper.fromPersistence(prismaProduct as IProductType);
   }
 }

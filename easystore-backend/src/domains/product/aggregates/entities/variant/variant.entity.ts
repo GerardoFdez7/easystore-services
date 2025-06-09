@@ -123,91 +123,99 @@ export class Variant extends Entity<IVariantProps> {
 
   public update(
     data: Partial<Omit<IVariantBase, 'productId' | 'tenantId'>>,
-  ): void {
+  ): Variant {
+    const newProps = { ...this.props };
+
     if (data.attributes) {
-      this.props.attributes = data.attributes.map((attr) =>
+      newProps.attributes = data.attributes.map((attr) =>
         Attribute.create(attr.key, attr.value),
       );
     }
     if (data.price !== undefined) {
-      this.props.price = Price.create(data.price);
+      newProps.price = Price.create(data.price);
     }
     if (data.variantCover !== undefined) {
-      this.props.variantCover = data.variantCover
+      newProps.variantCover = data.variantCover
         ? Cover.create(data.variantCover)
         : Cover.create('https://easystore.com/default-cover.jpg');
     }
     if (data.personalizationOptions) {
-      this.props.personalizationOptions = data.personalizationOptions.map(
-        (opt) => PersonalizationOptions.create(opt),
+      newProps.personalizationOptions = data.personalizationOptions.map((opt) =>
+        PersonalizationOptions.create(opt),
       );
     }
     if (data.weight !== undefined) {
-      this.props.weight =
+      newProps.weight =
         data.weight !== undefined ? Weight.create(data.weight) : null;
     }
     if (data.dimension !== undefined) {
-      this.props.dimension = data.dimension
+      newProps.dimension = data.dimension
         ? Dimension.create(data.dimension)
         : null;
     }
     if (data.condition) {
-      this.props.condition = Condition.create(data.condition);
+      newProps.condition = Condition.create(data.condition);
     }
     if (data.upc !== undefined) {
-      this.props.upc = data.upc ? UPC.create(data.upc) : null;
+      newProps.upc = data.upc ? UPC.create(data.upc) : null;
     }
     if (data.ean !== undefined) {
-      this.props.ean = data.ean ? EAN.create(data.ean) : null;
+      newProps.ean = data.ean ? EAN.create(data.ean) : null;
     }
     if (data.sku !== undefined) {
-      this.props.sku = data.sku ? SKU.create(data.sku) : null;
+      newProps.sku = data.sku ? SKU.create(data.sku) : null;
     }
     if (data.barcode !== undefined) {
-      this.props.barcode = data.barcode ? Barcode.create(data.barcode) : null;
+      newProps.barcode = data.barcode ? Barcode.create(data.barcode) : null;
     }
     if (data.isbn !== undefined) {
-      this.props.isbn = data.isbn ? ISBN.create(data.isbn) : null;
+      newProps.isbn = data.isbn ? ISBN.create(data.isbn) : null;
     }
 
     if (data.variantMedia !== undefined) {
-      this.props.variantMedia = (data.variantMedia || []).map((mediaData) =>
+      newProps.variantMedia = (data.variantMedia || []).map((mediaData) =>
         Media.create({
           ...mediaData,
           variantId: this.props.id.getValue(),
         }),
       );
-
-      if (data.installmentPayments !== undefined) {
-        this.props.installmentPayments = (data.installmentPayments || []).map(
-          (paymentData) =>
-            InstallmentPayment.create({
-              ...paymentData,
-              variantId: this.props.id.getValue(),
-            }),
-        );
-      }
-
-      if (data.warranties !== undefined) {
-        this.props.warranties = (data.warranties || []).map((warrantyData) =>
-          Warranty.create({
-            ...warrantyData,
-            variantId: this.props.id.getValue(),
-          }),
-        );
-      }
     }
 
-    this.props.updatedAt = new Date();
+    if (data.installmentPayments !== undefined) {
+      newProps.installmentPayments = (data.installmentPayments || []).map(
+        (paymentData) =>
+          InstallmentPayment.create({
+            ...paymentData,
+            variantId: this.props.id.getValue(),
+          }),
+      );
+    }
+
+    if (data.warranties !== undefined) {
+      newProps.warranties = (data.warranties || []).map((warrantyData) =>
+        Warranty.create({
+          ...warrantyData,
+          variantId: this.props.id.getValue(),
+        }),
+      );
+    }
+
+    newProps.updatedAt = new Date();
+
+    return new Variant(newProps);
   }
 
-  public archive(): void {
-    this.props.isArchived = true;
-    this.props.updatedAt = new Date();
+  public archive(): Variant {
+    const newProps = { ...this.props };
+    newProps.isArchived = true;
+    newProps.updatedAt = new Date();
+    return new Variant(newProps);
   }
 
-  public restore(): void {
-    this.props.isArchived = false;
-    this.props.updatedAt = new Date();
+  public restore(): Variant {
+    const newProps = { ...this.props };
+    newProps.isArchived = false;
+    newProps.updatedAt = new Date();
+    return new Variant(newProps);
   }
 }
