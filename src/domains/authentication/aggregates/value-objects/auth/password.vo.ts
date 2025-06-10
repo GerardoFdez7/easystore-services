@@ -2,7 +2,8 @@ import { z } from 'zod';
 
 const passwordSchema = z
   .string()
-  .min(6, { message: 'Password must be at least 6 characters' });
+  .min(8, { message: 'Password must be at least 8 characters' })
+  .max(255, { message: 'Password must be at most 255 characters' });
 
 export class Password {
   private constructor(private readonly value: string) {}
