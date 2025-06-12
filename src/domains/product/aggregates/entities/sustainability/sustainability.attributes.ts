@@ -1,5 +1,5 @@
 export interface ISustainabilityBase {
-  certification?: string | null;
+  certification?: string;
   recycledPercentage: number;
   productId: number;
 }
