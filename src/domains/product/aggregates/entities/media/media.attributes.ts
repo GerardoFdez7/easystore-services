@@ -6,8 +6,8 @@ export interface IMediaBase {
   url: string;
   position: number;
   mediaType: MediaTypeEnum;
-  productId?: number | null;
-  variantId?: number | null;
+  productId?: number;
+  variantId?: number;
 }
 
 export interface IMediaSystem {

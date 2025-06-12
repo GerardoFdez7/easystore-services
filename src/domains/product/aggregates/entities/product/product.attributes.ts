@@ -14,11 +14,11 @@ import {
 export interface IProductType extends IProductSystem {
   name: string;
   shortDescription: string;
-  longDescription?: string | null;
+  longDescription?: string;
   productType: TypeEnum;
-  cover?: string | null;
-  brand?: string | null;
-  manufacturer?: string | null;
+  cover?: string;
+  brand?: string;
+  manufacturer?: string;
   tags: string[];
   tenantId: number;
   variants: IVariantType[];
@@ -31,11 +31,11 @@ export interface IProductType extends IProductSystem {
 export interface IProductBase {
   name: string;
   shortDescription: string;
-  longDescription?: string | null;
+  longDescription?: string;
   productType: TypeEnum;
-  cover?: string | null;
-  brand?: string | null;
-  manufacturer?: string | null;
+  cover?: string;
+  brand?: string;
+  manufacturer?: string;
   tags?: string[];
   tenantId: number;
   variants?: IVariantInitData[];
