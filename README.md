@@ -63,31 +63,25 @@ Follow these instructions to set up and run the EasyStore backend application:
 
 ### Development Environment
 
-1. Navigate to the application directory:
-
-   ```bash
-   cd easystore-backend
-   ```
-
-2. Install dependencies:
+1. Install dependencies:
 
    ```bash
    npm install
    ```
 
-3. Set up environment variables:
+2. Set up environment variables:
 
    ```bash
    cp .env.example .env
    ```
 
-4. Run database migrations to create PostgreSQL models:
+3. Run database migrations to create PostgreSQL models:
 
    ```bash
    npm run database
    ```
 
-5. Start the development server:
+4. Start the development server:
 
    ```bash
    npm run dev
@@ -140,6 +134,7 @@ npm run docker
 > Prisma schemas are located at src/infrastructure/database containing PostgreSQL models.
 
 ### Documentation
+
 The following endpoint will be available for API exploration:
 
 GraphQL Playground & Documentation: /gql
@@ -153,6 +148,7 @@ The Apollo Playground provides an interactive environment to:
 ## Architecture and Patterns
 
 ### Core Architecture
+
 - **Domain-Driven Design (DDD)**
   - Strategic patterns: Bounded Contexts, Ubiquitous Language
   - Tactical patterns: Aggregates, Entities, Value Objects
@@ -163,13 +159,16 @@ The Apollo Playground provides an interactive environment to:
     - Presentation layer (graphql resolvers and types)
 
 ### Key Patterns
+
 1. **Command Query Responsibility Segregation (CQRS)**
+
    - Separate models for:
      - Commands (write operations with business validation)
      - Queries (read operations with optimized projections)
    - Event sourcing for critical domain operations
 
 2. **Repository Pattern**
+
    - Abstract data access through `IRepository` interfaces
    - Database-agnostic domain layer
    - Concrete implementations in infrastructure layer
@@ -183,9 +182,11 @@ The Apollo Playground provides an interactive environment to:
      - Builder pattern for complex aggregates
 
 ### Database Entity-Relationship Diagram (ERD)
+
 <div align="center">
-  <img src="easystore-backend/src/infrastructure/database/erd.svg" alt="Database ERD"/>
+  <img src="src/infrastructure/database/erd.svg" alt="Database ERD"/>
 </div>
 
 ## Contributing
+
 We welcome contributions to the EasyStore project! Please make sure to review our [Contributing Guidelines](./CONTRIBUTING.md) before you start.
