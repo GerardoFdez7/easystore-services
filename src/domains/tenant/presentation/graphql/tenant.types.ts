@@ -1,10 +1,21 @@
-import { Field, Int, ObjectType, InputType } from '@nestjs/graphql';
+import {
+  Field,
+  Int,
+  ID,
+  ObjectType,
+  InputType,
+  registerEnumType,
+} from '@nestjs/graphql';
 import { CurrencyCodes } from '../../aggregates/value-objects';
+
+registerEnumType(CurrencyCodes, {
+  name: 'CurrencyCodes',
+});
 
 @ObjectType('Tenant')
 export class TenantType {
-  @Field(() => Int)
-  id: number;
+  @Field(() => ID)
+  id: string;
 
   @Field()
   ownerName: string;
@@ -21,7 +32,7 @@ export class TenantType {
   @Field()
   description: string;
 
-  @Field()
+  @Field(() => CurrencyCodes)
   currency: CurrencyCodes;
 
   @Field(() => Int)
@@ -62,7 +73,7 @@ export class CreateTenantInput {
   @Field({ nullable: true })
   description?: string;
 
-  @Field({ nullable: true })
+  @Field(() => CurrencyCodes, { nullable: true })
   currency: CurrencyCodes;
 }
 
@@ -83,7 +94,7 @@ export class UpdateTenantInput {
   @Field({ nullable: true })
   description?: string;
 
-  @Field({ nullable: true })
+  @Field(() => CurrencyCodes, { nullable: true })
   currency: CurrencyCodes;
 
   @Field(() => Int, { nullable: true })

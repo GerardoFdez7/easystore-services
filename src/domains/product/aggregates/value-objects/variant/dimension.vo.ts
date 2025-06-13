@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Id } from '../';
 
 const dimensionSchema = z.object({
   height: z
@@ -13,6 +14,7 @@ const dimensionSchema = z.object({
 });
 
 export type DimensionProps = {
+  id?: string;
   height: number;
   width: number;
   length: number;
@@ -26,8 +28,10 @@ export class Dimension {
   }
 
   public static create(value: DimensionProps): Dimension {
-    dimensionSchema.parse(value);
-    return new Dimension(value);
+    const dimensionId = value.id ? Id.create(value.id) : Id.generate();
+    const dimensionData = { id: dimensionId.getValue(), ...value };
+    dimensionSchema.parse(dimensionData);
+    return new Dimension(dimensionData);
   }
 
   public getValue(): DimensionProps {

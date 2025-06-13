@@ -22,17 +22,17 @@ generator erd {
 
 // Tenant schema models
 model Tenant {
-  id                       Int             @id @default(autoincrement())
+  id                       String          @id
   businessName             String          @unique
   ownerName                String
   domain                   String          @unique
   logo                     String?
   description              String?         @postgres.Text
   currency                 Currency
-  authIdentityId           Int             @unique
-  defaultPhoneNumberId     Int?            @unique
-  defaultShippingAddressId Int?            @unique
-  defaultBillingAddressId  Int?            @unique
+  authIdentityId           String          @unique
+  defaultPhoneNumberId     String?         @unique
+  defaultShippingAddressId String?         @unique
+  defaultBillingAddressId  String?         @unique
   updatedAt                DateTime        @updatedAt
   createdAt                DateTime        @default(now())
   roles                    EmployeeRole[]
@@ -231,12 +231,12 @@ enum Currency {
 }
 
 model Subscription {
-  id        Int                @id @default(autoincrement())
+  id        String             @id
   status    SubscriptionStatus
   startDate DateTime
   endDate   DateTime
-  planId    Int
-  tenantId  Int                @unique
+  planId    String
+  tenantId  String             @unique
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt
   tenant    Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Restrict)
@@ -255,7 +255,7 @@ enum SubscriptionStatus {
 }
 
 model Plan {
-  id           Int            @id @default(autoincrement())
+  id           String         @id
   name         String         @unique
   description  String
   price        Decimal
@@ -267,10 +267,10 @@ model Plan {
 }
 
 model Employee {
-  id             Int             @id @default(autoincrement())
+  id             String          @id
   name           String
-  roleId         Int
-  authIdentityId Int             @unique
+  roleId         String
+  authIdentityId String          @unique
   role           EmployeeRole    @relation(fields: [roleId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   authIdentity   AuthIdentity    @relation("EmployeeAuth", fields: [authIdentityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   StockMovement  StockMovement[]
@@ -279,9 +279,9 @@ model Employee {
 }
 
 model EmployeeRole {
-  id           Int            @id @default(autoincrement())
+  id           String         @id
   role         String
-  tenantId     Int
+  tenantId     String
   tenant       Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   employees    Employee[]
   roleFeatures RoleFeatures[]
@@ -290,9 +290,9 @@ model EmployeeRole {
 }
 
 model RoleFeatures {
-  id           Int          @id @default(autoincrement())
-  roleId       Int
-  featureId    Int
+  id           String       @id
+  roleId       String
+  featureId    String
   employeeRole EmployeeRole @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   feature      Feature      @relation(fields: [featureId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
@@ -300,7 +300,7 @@ model RoleFeatures {
 }
 
 model Feature {
-  id           Int            @id @default(autoincrement())
+  id           String         @id
   code         String         @unique // "REPORTS", "ORDERS" 
   name         String
   description  String?
@@ -313,10 +313,10 @@ model Feature {
 
 // Inventory schema models
 model Warehouse {
-  id                 Int                 @id @default(autoincrement())
+  id                 String              @id
   name               String
-  addressId          Int
-  tenantId           Int
+  addressId          String
+  tenantId           String
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   tenant             Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -329,12 +329,12 @@ model Warehouse {
 }
 
 model StockMovement {
-  id                  Int               @id @default(autoincrement())
+  id                  String            @id
   deltaQty            Int
   reason              String            @postgres.Text
-  createdById         Int?
-  warehouseId         Int
-  stockPerWarehouseId Int
+  createdById         String?
+  warehouseId         String
+  stockPerWarehouseId String
   ocurredAt           DateTime          @default(now())
   warehouse           Warehouse         @relation(fields: [warehouseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   createdBy           Employee?         @relation(fields: [createdById], references: [id], onDelete: SetNull, onUpdate: Cascade)
@@ -344,15 +344,15 @@ model StockMovement {
 }
 
 model StockPerWarehouse {
-  id                         Int             @id @default(autoincrement())
+  id                         String          @id
   qtyAvailable               Int             @default(0)
   qtyReserved                Int             @default(0)
   productLocation            String?
   estimatedReplenishmentDate DateTime?
   lotNumber                  String?
   serialNumbers              String[]
-  variantId                  Int
-  warehouseId                Int
+  variantId                  String
+  warehouseId                String
   stockMovements             StockMovement[]
   variant                    Variant         @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   warehouse                  Warehouse       @relation(fields: [warehouseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -362,15 +362,15 @@ model StockPerWarehouse {
 
 // Shipping schema models
 model ShippingRule {
-  id             Int              @id @default(autoincrement())
+  id             String           @id
   type           ShippingRuleType
   slug           String
   description    String
   isEnabled      Boolean          @default(true)
   priority       Int?
   conditions     Json?
-  tenantId       Int
-  variantId      Int?
+  tenantId       String
+  variantId      String?
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
   shippmentRates ShipmentRate[]
@@ -378,6 +378,7 @@ model ShippingRule {
   variant        Variant?         @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@unique([tenantId, slug])
+  @@unique([tenantId, priority])
   @@index([tenantId, type])
   @@schema("shipping")
 }
@@ -390,15 +391,15 @@ enum ShippingRuleType {
 }
 
 model ShipmentRate {
-  id                Int               @id @default(autoincrement())
+  id                String            @id
   fixedRate         Float
   description       String?
   calculationMethod CalculationMethod
   data              Json?
-  shippingRuleId    Int
-  countryId         Int
-  stateId           Int?
-  tenantId          Int
+  shippingRuleId    String
+  countryId         String
+  stateId           String?
+  tenantId          String
   country           Country           @relation(fields: [countryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   state             State?            @relation(fields: [stateId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   shippingRule      ShippingRule      @relation(fields: [shippingRuleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -420,12 +421,12 @@ enum CalculationMethod {
 
 // Product schema models
 model TaxRate {
-  id         Int       @id @default(autoincrement())
+  id         String    @id
   rate       Float
-  countryId  Int
-  stateId    Int?
-  categoryId Int?
-  tenantId   Int
+  countryId  String
+  stateId    String?
+  categoryId String?
+  tenantId   String
   tenant     Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   country    Country   @relation(fields: [countryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
@@ -436,11 +437,11 @@ model TaxRate {
 }
 
 model Category {
-  id            Int                 @id @default(autoincrement())
+  id            String              @id
   name          String
   description   String?
-  parentId      Int?
-  tenantId      Int
+  parentId      String?
+  tenantId      String
   createdAt     DateTime            @default(now())
   updatedAt     DateTime            @updatedAt
   taxRate       TaxRate[]
@@ -455,9 +456,9 @@ model Category {
 }
 
 model ProductCategories {
-  id         Int      @id @default(autoincrement())
-  productId  Int
-  categoryId Int
+  id         String   @id
+  productId  String
+  categoryId String
   product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
@@ -465,7 +466,7 @@ model ProductCategories {
 }
 
 model Product {
-  id               Int                 @id @default(autoincrement())
+  id               String              @id
   name             String
   shortDescription String
   longDescription  String?             @postgres.Text
@@ -475,7 +476,7 @@ model Product {
   manufacturer     String?
   tags             String[]
   isArchived       Boolean             @default(false)
-  tenantId         Int
+  tenantId         String
   updatedAt        DateTime            @updatedAt
   createdAt        DateTime            @default(now())
   media            Media[]
@@ -496,12 +497,12 @@ enum ProductType {
 }
 
 model Media {
-  id        Int       @id @default(autoincrement())
+  id        String    @id
   url       String
   position  Int
   mediaType MediaType
-  productId Int?
-  variantId Int?
+  productId String?
+  variantId String?
   product   Product?  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   Variant   Variant?  @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
@@ -518,38 +519,38 @@ enum MediaType {
 }
 
 model InstallmentPayment {
-  id           Int     @id @default(autoincrement())
+  id           String  @id
   months       Int
   interestRate Float
-  variantId    Int
+  variantId    String
   variant      Variant @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@schema("product")
 }
 
 model Sustainability {
-  id                 Int     @id @default(autoincrement())
+  id                 String  @id
   certification      String?
   recycledPercentage Float
-  productId          Int
+  productId          String
   product            Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@schema("product")
 }
 
 model Warranty {
-  id           Int     @id @default(autoincrement())
+  id           String  @id
   months       Int
   coverage     String
   instructions String
-  variantId    Int
+  variantId    String
   variant      Variant @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@schema("product")
 }
 
 model Variant {
-  id                     Int                     @id @default(autoincrement())
+  id                     String                  @id
   price                  Decimal                 @default(0)
   variantCover           String
   personalizationOptions String[]
@@ -562,8 +563,8 @@ model Variant {
   barcode                String?
   sku                    String?
   isArchived             Boolean                 @default(false)
-  productId              Int
-  tenantId               Int
+  productId              String
+  tenantId               String
   updatedAt              DateTime                @updatedAt
   createdAt              DateTime                @default(now())
   attributes             Attribute[]
@@ -586,21 +587,21 @@ model Variant {
 }
 
 model Attribute {
-  id        Int     @id @default(autoincrement())
+  id        String  @id
   key       String
   value     String
-  variantId Int
+  variantId String
   variant   Variant @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@schema("product")
 }
 
 model Dimension {
-  id        Int     @id @default(autoincrement())
+  id        String  @id
   length    Float
   width     Float
   height    Float
-  variantId Int     @unique
+  variantId String  @unique
   variant   Variant @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@schema("product")
@@ -616,7 +617,7 @@ enum ProductCondition {
 
 // Pricing schema models
 model Promotion {
-  id              Int                  @id @default(autoincrement())
+  id              String               @id
   name            String
   description     String
   type            PromotionType
@@ -630,7 +631,7 @@ model Promotion {
   isArchived      Boolean              @default(false)
   updatedAt       DateTime             @updatedAt
   createdAt       DateTime             @default(now())
-  tenantId        Int
+  tenantId        String
   coupons         Coupon[]
   cartItems       CartItem[]
   orderPromotions OrderPromotions[]
@@ -662,14 +663,14 @@ enum PromotionActionType {
 }
 
 model Coupon {
-  id               Int           @id @default(autoincrement())
+  id               String        @id
   code             String
   usageLimit       Int?
   perCustomerLimit Int           @default(1)
   usedCount        Int           @default(0)
-  promotionId      Int
-  customerId       Int?
-  tenantId         Int
+  promotionId      String
+  customerId       String?
+  tenantId         String
   updatedAt        DateTime      @updatedAt
   createdAt        DateTime      @default(now())
   couponUsages     CouponUsage[]
@@ -682,9 +683,9 @@ model Coupon {
 }
 
 model CouponUsage {
-  id       Int      @id @default(autoincrement())
-  couponId Int
-  orderId  Int
+  id       String   @id
+  couponId String
+  orderId  String
   usedAt   DateTime @default(now())
   coupon   Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -694,9 +695,9 @@ model CouponUsage {
 }
 
 model CartPromotions {
-  id          Int       @id @default(autoincrement())
-  cartId      Int
-  promotionId Int
+  id          String    @id
+  cartId      String
+  promotionId String
   cart        Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   promotion   Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
@@ -704,9 +705,9 @@ model CartPromotions {
 }
 
 model OrderPromotions {
-  id          Int       @id @default(autoincrement())
-  orderId     Int
-  promotionId Int
+  id          String    @id
+  orderId     String
+  promotionId String
   order       Order     @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   promotion   Promotion @relation(fields: [promotionId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
@@ -715,8 +716,8 @@ model OrderPromotions {
 
 // Sales schema models
 model Cart {
-  id             Int              @id @default(autoincrement())
-  customerId     Int
+  id             String           @id
+  customerId     String
   cartItems      CartItem[]
   orders         Order[]
   customer       Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -726,11 +727,11 @@ model Cart {
 }
 
 model CartItem {
-  id          Int        @id @default(autoincrement())
+  id          String     @id
   qty         Int
-  variantId   Int
-  cartId      Int
-  promotionId Int?
+  variantId   String
+  cartId      String
+  promotionId String?
   updatedAt   DateTime   @updatedAt
   cart        Cart       @relation(fields: [cartId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   promotion   Promotion? @relation(fields: [promotionId], references: [id], onDelete: SetNull, onUpdate: Cascade)
@@ -740,14 +741,14 @@ model CartItem {
 }
 
 model Order {
-  id              Int               @id @default(autoincrement())
+  id              String            @id
   orderNumber     String
   status          OrderStatus
   totalAmount     Decimal
-  customerId      Int
-  cartId          Int
-  addressId       Int
-  tenantId        Int
+  customerId      String
+  cartId          String
+  addressId       String
+  tenantId        String
   updatedAt       DateTime          @updatedAt
   createdAt       DateTime          @default(now())
   orderDetails    OrderDetail[]
@@ -775,13 +776,13 @@ enum OrderStatus {
 }
 
 model OrderDetail {
-  id          Int      @id @default(autoincrement())
+  id          String   @id
   productName String
   qty         Int
   unitPrice   Decimal
   subtotal    Decimal
-  orderId     Int
-  variantId   Int
+  orderId     String
+  variantId   String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   order       Order    @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
@@ -791,11 +792,11 @@ model OrderDetail {
 }
 
 model Return {
-  id           Int      @id @default(autoincrement())
+  id           String   @id
   returnReason String   @postgres.Text
   refundAmount Decimal
-  variantId    Int
-  orderId      Int
+  variantId    String
+  orderId      String
   updatedAt    DateTime @updatedAt
   createdAt    DateTime @default(now())
   order        Order    @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
@@ -805,13 +806,13 @@ model Return {
 }
 
 model Payment {
-  id              Int           @id @default(autoincrement())
+  id              String        @id
   amount          Decimal
   status          Status
   transactionId   String?
-  orderId         Int
-  paymentMethodId Int
-  subscriptionId  Int
+  orderId         String
+  paymentMethodId String
+  subscriptionId  String
   updatedAt       DateTime      @updatedAt
   createdAt       DateTime      @default(now())
   order           Order         @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
@@ -832,10 +833,10 @@ enum Status {
 }
 
 model PaymentMethod {
-  id                     Int                     @id @default(autoincrement())
+  id                     String                  @id
   acceptedPaymentMethods AcceptedPaymentMethod[]
-  tenantId               Int?
-  customerId             Int?
+  tenantId               String?
+  customerId             String?
   updatedAt              DateTime                @updatedAt
   createdAt              DateTime                @default(now())
   tenant                 Tenant?                 @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -859,13 +860,13 @@ enum AcceptedPaymentMethod {
 
 // Customer schema models
 model Customer {
-  id                       Int                     @id @default(autoincrement())
+  id                       String                  @id
   name                     String
-  tenantId                 Int
-  authIdentityId           Int                     @unique
-  defaultPhoneNumberId     Int?                    @unique
-  defaultShippingAddressId Int?                    @unique
-  defaultBillingAddressId  Int?                    @unique
+  tenantId                 String
+  authIdentityId           String                  @unique
+  defaultPhoneNumberId     String?                 @unique
+  defaultShippingAddressId String?                 @unique
+  defaultBillingAddressId  String?                 @unique
   updatedAt                DateTime                @updatedAt
   createdAt                DateTime                @default(now())
   wishLists                WishList[]
@@ -886,9 +887,9 @@ model Customer {
 }
 
 model WishList {
-  id         Int      @id @default(autoincrement())
-  variantId  Int
-  customerId Int
+  id         String   @id
+  variantId  String
+  customerId String
   updatedAt  DateTime @updatedAt
   customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   variant    Variant  @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -897,11 +898,11 @@ model WishList {
 }
 
 model CustomerReviewProduct {
-  id          Int      @id @default(autoincrement())
+  id          String   @id
   ratingCount Float
   comment     String   @postgres.Text
-  customerId  Int
-  variantId   Int
+  customerId  String
+  variantId   String
   updatedAt   DateTime @updatedAt
   createdAt   DateTime @default(now())
   customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -912,10 +913,10 @@ model CustomerReviewProduct {
 
 // Common schema models
 model PhoneNumber {
-  id                 Int       @id @default(autoincrement())
+  id                 String    @id
   number             String
-  customerId         Int?
-  tenantId           Int?
+  customerId         String?
+  tenantId           String?
   defaultForTenant   Tenant?   @relation("TenantDefaultPhone")
   defaultForCustomer Customer? @relation("CustomerDefaultPhone")
   customer           Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -925,17 +926,17 @@ model PhoneNumber {
 }
 
 model Address {
-  id                         Int          @id @default(autoincrement())
+  id                         String       @id
   name                       String
   addressLine1               String
   addressLine2               String?
   postalCode                 String?
   city                       String
-  countryId                  Int
+  countryId                  String
   addressType                AddressTypes
   deliveryNum                String?
-  tenantId                   Int?
-  customerId                 Int?
+  tenantId                   String?
+  customerId                 String?
   warehouses                 Warehouse[]
   orders                     Order[]
   country                    Country      @relation(fields: [countryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
@@ -958,7 +959,7 @@ enum AddressTypes {
 }
 
 model AuthIdentity {
-  id             Int         @id @default(autoincrement())
+  id             String      @id
   email          String
   password       String
   accountType    AccountType
@@ -987,7 +988,7 @@ enum AccountType {
 
 // Geography schema models
 model Country {
-  id             Int            @id @default(autoincrement())
+  id             String         @id
   name           String
   code           String
   states         State[]
@@ -999,10 +1000,10 @@ model Country {
 }
 
 model State {
-  id             Int            @id @default(autoincrement())
+  id             String         @id
   name           String
   code           String
-  countryId      Int
+  countryId      String
   taxRates       TaxRate[]
   shippmentRates ShipmentRate[]
   country        Country        @relation(fields: [countryId], references: [id], onDelete: Cascade, onUpdate: Cascade)

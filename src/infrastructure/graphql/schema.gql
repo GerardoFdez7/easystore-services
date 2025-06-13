@@ -37,7 +37,7 @@ type AuthIdentity {
   email: String!
   emailVerified: Boolean!
   failedAttempts: Int!
-  id: Int!
+  id: ID!
   isActive: Boolean!
   lastLoginAt: DateTime
   lockedUntil: DateTime
@@ -84,7 +84,7 @@ input CreateMediaInput {
 }
 
 input CreateProductCategoryInput {
-  categoryId: Int!
+  categoryId: ID!
 }
 
 input CreateProductInput {
@@ -99,7 +99,7 @@ input CreateProductInput {
   shortDescription: String!
   sustainabilities: [CreateSustainabilityInput!]
   tags: [String!]
-  tenantId: Int!
+  tenantId: ID!
   variants: [AddVariantToProductInput!]!
 }
 
@@ -127,9 +127,9 @@ input CreateVariantInput {
   isbn: String
   personalizationOptions: [String!]
   price: Float!
-  productId: Int!
+  productId: ID!
   sku: String
-  tenantId: Int!
+  tenantId: ID!
   upc: String
   variantCover: String
   variantMedia: [CreateMediaInput!]
@@ -162,9 +162,9 @@ type Installment {
 type Media {
   mediaType: MediaTypeEnum!
   position: Int!
-  productId: Int
+  productId: ID
   url: String!
-  variantId: Int
+  variantId: ID
 }
 
 enum MediaTypeEnum {
@@ -175,17 +175,17 @@ enum MediaTypeEnum {
 type Mutation {
   TenantSingUp(input: CreateTenantInput!): Boolean!
   addVariant(input: CreateVariantInput!): Product!
-  archiveVariant(id: Float!, productId: Float!, tenantId: Float!): Product!
+  archiveVariant(id: String!, productId: String!, tenantId: String!): Product!
   createProduct(input: CreateProductInput!): Product!
-  hardDeleteProduct(id: Float!, tenantId: Float!): Product!
+  hardDeleteProduct(id: String!, tenantId: String!): Product!
   login(input: AuthenticationLoginDTO!): AuthenticationLoginResponseDTO!
   register(input: RegisterAuthInput!): AuthIdentity!
-  removeVariant(id: Float!, productId: Float!, tenantId: Float!): Product!
-  restoreProduct(id: Float!, tenantId: Float!): Product!
-  restoreVariant(id: Float!, productId: Float!, tenantId: Float!): Product!
-  softDeleteProduct(id: Float!, tenantId: Float!): Product!
-  updateProduct(id: Float!, input: UpdateProductInput!, tenantId: Float!): Product!
-  updateVariant(id: Float!, input: UpdateVariantInput!, productId: Float!, tenantId: Float!): Product!
+  removeVariant(id: String!, productId: String!, tenantId: String!): Product!
+  restoreProduct(id: String!, tenantId: String!): Product!
+  restoreVariant(id: String!, productId: String!, tenantId: String!): Product!
+  softDeleteProduct(id: String!, tenantId: String!): Product!
+  updateProduct(id: String!, input: UpdateProductInput!, tenantId: String!): Product!
+  updateVariant(id: String!, input: UpdateVariantInput!, productId: String!, tenantId: String!): Product!
 }
 
 type PaginatedProductsType {
@@ -207,20 +207,20 @@ type Product {
   shortDescription: String!
   sustainabilities: [Sustainability!]
   tags: [String!]
-  tenantId: Int!
+  tenantId: ID!
   updatedAt: DateTime!
   variants: [Variant!]
 }
 
 type ProductCategory {
-  categoryId: Int!
+  categoryId: ID!
 }
 
 type Query {
   findTenantByBusinessName(businessName: String!): Tenant
-  getAllProducts(categoriesIds: [Int!], includeSoftDeleted: Boolean = false, limit: Float! = 10, page: Float! = 1, sortBy: SortBy, sortOrder: SortOrder, tenantId: Float!, type: TypeEnum): PaginatedProductsType!
-  getProductById(id: Float!, tenantId: Float!): Product!
-  getProductsByName(includeSoftDeleted: Boolean = false, limit: Float! = 10, name: String!, page: Float! = 1, tenantId: Float!): PaginatedProductsType!
+  getAllProducts(categoriesIds: [Int!], includeSoftDeleted: Boolean = false, limit: Float! = 10, page: Float! = 1, sortBy: SortBy, sortOrder: SortOrder, tenantId: String!, type: TypeEnum): PaginatedProductsType!
+  getProductById(id: String!, tenantId: String!): Product!
+  getProductsByName(includeSoftDeleted: Boolean = false, limit: Float! = 10, name: String!, page: Float! = 1, tenantId: String!): PaginatedProductsType!
 }
 
 input RegisterAuthInput {
@@ -255,7 +255,7 @@ type Tenant {
   defaultShippingAddressId: Int!
   description: String!
   domain: String!
-  id: Int!
+  id: ID!
   logo: String!
   ownerName: String!
   updatedAt: DateTime!
@@ -289,7 +289,7 @@ input UpdateMediaInput {
 }
 
 input UpdateProductCategoryInput {
-  categoryId: Int
+  categoryId: ID
 }
 
 input UpdateProductInput {

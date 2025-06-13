@@ -40,12 +40,12 @@ export class MediaMapper {
    */
   static toDto(media: Media): MediaDTO {
     return media.toDTO<MediaDTO>((entity) => ({
-      id: entity.get('id')?.getValue() || undefined,
-      url: entity.get('url')?.getValue() || null,
-      position: entity.get('position')?.getValue() || null,
-      mediaType: entity.get('mediaType')?.getValue() || null,
-      productId: entity.get('productId')?.getValue() || null,
-      variantId: entity.get('variantId')?.getValue() || null,
+      id: entity.get('id')?.getValue(),
+      url: entity.get('url')?.getValue(),
+      position: entity.get('position')?.getValue(),
+      mediaType: entity.get('mediaType')?.getValue(),
+      productId: entity.get('productId')?.getValue(),
+      variantId: entity.get('variantId')?.getValue(),
     }));
   }
 }

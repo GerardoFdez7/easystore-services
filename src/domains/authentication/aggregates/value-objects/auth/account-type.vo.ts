@@ -1,18 +1,22 @@
 import { z } from 'zod';
 
-export const AccountTypeEnum = z.enum(['TENANT', 'CUSTOMER', 'EMPLOYEE']);
+export enum AccountTypeEnum {
+  TENANT = 'TENANT',
+  CUSTOMER = 'CUSTOMER',
+  EMPLOYEE = 'EMPLOYEE',
+}
 
-export type AccountTypeType = z.infer<typeof AccountTypeEnum>;
+export const AccountTypeSchema = z.nativeEnum(AccountTypeEnum);
 
 export class AccountType {
-  private constructor(private readonly value: AccountTypeType) {}
+  private constructor(private readonly value: AccountTypeEnum) {}
 
   public static create(value: string): AccountType {
-    const parsed = AccountTypeEnum.parse(value);
+    const parsed = AccountTypeSchema.parse(value);
     return new AccountType(parsed);
   }
 
-  public getValue(): AccountTypeType {
+  public getValue(): AccountTypeEnum {
     return this.value;
   }
 

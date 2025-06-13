@@ -38,9 +38,9 @@ type UpdatableVariantFields = Partial<
  */
 export class UpdateVariantDTO {
   constructor(
-    public readonly id: number,
-    public readonly productId: number,
-    public readonly tenantId: number,
+    public readonly id: string,
+    public readonly productId: string,
+    public readonly tenantId: string,
     public readonly data: UpdatableVariantFields,
   ) {}
 }

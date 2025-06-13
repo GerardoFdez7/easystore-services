@@ -42,11 +42,11 @@ export class WarrantyMapper {
    */
   static toDto(warranty: Warranty): WarrantyDTO {
     return warranty.toDTO<WarrantyDTO>((entity) => ({
-      id: entity.get('id')?.getValue() || undefined,
-      months: entity.get('months')?.getValue() || null,
-      coverage: entity.get('coverage')?.getValue() || null,
-      instructions: entity.get('instructions')?.getValue() || null,
-      variantId: entity.get('variantId')?.getValue() || null,
+      id: entity.get('id')?.getValue(),
+      months: entity.get('months')?.getValue(),
+      coverage: entity.get('coverage')?.getValue(),
+      instructions: entity.get('instructions')?.getValue(),
+      variantId: entity.get('variantId')?.getValue(),
     }));
   }
 }

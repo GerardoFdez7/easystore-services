@@ -1,6 +1,6 @@
 export class GetProductByIdDTO {
   constructor(
-    public readonly id: number,
-    public readonly tenantId: number,
+    public readonly id: string,
+    public readonly tenantId: string,
   ) {}
 }

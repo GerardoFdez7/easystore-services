@@ -1,6 +1,5 @@
-import { AuthIdentity } from '../entities/auth/authentication.entity';
-import { Email } from '../value-objects';
-import { AccountType } from '.prisma/postgres';
+import { AuthIdentity } from '../entities';
+import { Email, AccountType } from '../value-objects';
 
 /**
  * Interface for the authentication repository.

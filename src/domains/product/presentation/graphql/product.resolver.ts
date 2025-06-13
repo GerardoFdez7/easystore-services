@@ -67,8 +67,8 @@ export class ProductResolver {
 
   @Mutation(() => ProductType)
   async updateProduct(
-    @Args('id') id: number,
-    @Args('tenantId') tenantId: number,
+    @Args('id') id: string,
+    @Args('tenantId') tenantId: string,
     @Args('input') input: UpdateProductInput,
   ): Promise<ProductType> {
     return this.commandBus.execute(
@@ -78,24 +78,24 @@ export class ProductResolver {
 
   @Mutation(() => ProductType)
   async softDeleteProduct(
-    @Args('id') id: number,
-    @Args('tenantId') tenantId: number,
+    @Args('id') id: string,
+    @Args('tenantId') tenantId: string,
   ): Promise<ProductType> {
     return this.commandBus.execute(new SoftDeleteProductDTO(id, tenantId));
   }
 
   @Mutation(() => ProductType)
   async hardDeleteProduct(
-    @Args('id') id: number,
-    @Args('tenantId') tenantId: number,
+    @Args('id') id: string,
+    @Args('tenantId') tenantId: string,
   ): Promise<ProductType> {
     return this.commandBus.execute(new HardDeleteProductDTO(id, tenantId));
   }
 
   @Mutation(() => ProductType)
   async restoreProduct(
-    @Args('id') id: number,
-    @Args('tenantId') tenantId: number,
+    @Args('id') id: string,
+    @Args('tenantId') tenantId: string,
   ): Promise<ProductType> {
     return this.commandBus.execute(new RestoreProductDTO(id, tenantId));
   }
@@ -110,9 +110,9 @@ export class ProductResolver {
 
   @Mutation(() => ProductType)
   async updateVariant(
-    @Args('id') id: number,
-    @Args('productId') productId: number,
-    @Args('tenantId') tenantId: number,
+    @Args('id') id: string,
+    @Args('productId') productId: string,
+    @Args('tenantId') tenantId: string,
     @Args('input') input: UpdateVariantInput,
   ): Promise<ProductType> {
     return this.commandBus.execute(
@@ -122,9 +122,9 @@ export class ProductResolver {
 
   @Mutation(() => ProductType)
   async archiveVariant(
-    @Args('id') id: number,
-    @Args('productId') productId: number,
-    @Args('tenantId') tenantId: number,
+    @Args('id') id: string,
+    @Args('productId') productId: string,
+    @Args('tenantId') tenantId: string,
   ): Promise<ProductType> {
     return this.commandBus.execute(
       new ArchiveVariantDTO(id, productId, tenantId),
@@ -133,9 +133,9 @@ export class ProductResolver {
 
   @Mutation(() => ProductType)
   async restoreVariant(
-    @Args('id') id: number,
-    @Args('productId') productId: number,
-    @Args('tenantId') tenantId: number,
+    @Args('id') id: string,
+    @Args('productId') productId: string,
+    @Args('tenantId') tenantId: string,
   ): Promise<ProductType> {
     return this.commandBus.execute(
       new RestoreVariantDTO(id, productId, tenantId),
@@ -144,9 +144,9 @@ export class ProductResolver {
 
   @Mutation(() => ProductType)
   async removeVariant(
-    @Args('id') id: number,
-    @Args('productId') productId: number,
-    @Args('tenantId') tenantId: number,
+    @Args('id') id: string,
+    @Args('productId') productId: string,
+    @Args('tenantId') tenantId: string,
   ): Promise<ProductType> {
     return this.commandBus.execute(
       new DeleteVariantDTO(id, productId, tenantId),
@@ -159,8 +159,8 @@ export class ProductResolver {
 
   @Query(() => ProductType)
   async getProductById(
-    @Args('id') id: number,
-    @Args('tenantId') tenantId: number,
+    @Args('id') id: string,
+    @Args('tenantId') tenantId: string,
   ): Promise<ProductType> {
     return this.queryBus.execute(new GetProductByIdDTO(id, tenantId));
   }
@@ -168,7 +168,7 @@ export class ProductResolver {
   @Query(() => PaginatedProductsType)
   async getProductsByName(
     @Args('name') name: string,
-    @Args('tenantId') tenantId: number,
+    @Args('tenantId') tenantId: string,
     @Args('page', { defaultValue: 1 }) page: number,
     @Args('limit', { defaultValue: 10 }) limit: number,
     @Args('includeSoftDeleted', { defaultValue: false, nullable: true })
@@ -181,11 +181,11 @@ export class ProductResolver {
 
   @Query(() => PaginatedProductsType)
   async getAllProducts(
-    @Args('tenantId') tenantId: number,
+    @Args('tenantId') tenantId: string,
     @Args('page', { defaultValue: 1 }) page: number,
     @Args('limit', { defaultValue: 10 }) limit: number,
     @Args('categoriesIds', { nullable: true, type: () => [Int] })
-    categoriesIds: number[],
+    categoriesIds: string[],
     @Args('type', { nullable: true, type: () => TypeEnum }) type: TypeEnum,
     @Args('sortBy', { nullable: true, type: () => SortBy }) sortBy: SortBy,
     @Args('sortOrder', { nullable: true, type: () => SortOrder })

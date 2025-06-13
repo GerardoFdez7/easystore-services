@@ -15,7 +15,7 @@ export class VariantRestoredHandler
     const restoredVariant = event.restoredVariant;
 
     this.logger.log(
-      `Variant archived for product: ${product.get('name').getValue()} (ID: ${product.get('id').getValue()}), Variant ID: ${restoredVariant.get('id').getValue()}`,
+      `Variant restored for product: ${product.get('name').getValue()} (ID: ${product.get('id').getValue()}), Variant ID: ${restoredVariant.get('id').getValue()}`,
     );
   }
 }

@@ -3,13 +3,12 @@ import { PostgreService } from '@database/postgres.service';
 import {
   UniqueConstraintViolationError,
   DatabaseOperationError,
-  ResourceNotFoundError,
 } from '@domains/errors';
-import { AuthenticationMapper } from '../../../application/mappers/authentication.mapper';
-import { AuthIdentity } from '../../../aggregates/entities/auth/authentication.entity';
+import { AuthenticationMapper } from '../../../application/mappers';
+import { AuthIdentity, IAuthIdentityType } from '../../../aggregates/entities';
 import { IAuthRepository } from '../../../aggregates/repositories/authentication.interface';
-import { Email } from '../../../aggregates/value-objects';
-import { AccountType } from '.prisma/postgres';
+import { Email, AccountType } from '../../../aggregates/value-objects';
+import { AuthIdentity as PrismaAuthIdentity } from '.prisma/postgres';
 import * as bcrypt from 'bcrypt';
 import {
   generateToken,
@@ -22,19 +21,23 @@ export class AuthenticationRepository implements IAuthRepository {
   constructor(private readonly prisma: PostgreService) {}
 
   async save(authIdentity: AuthIdentity): Promise<AuthIdentity> {
-    const id = authIdentity.get('id')?.getValue() ?? null;
+    const id = authIdentity.get('id').getValue();
     const fullDto = AuthenticationMapper.toDto(authIdentity);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id: _, createdAt, updatedAt, ...dto } = fullDto;
+    const { ...dto } = fullDto;
 
     try {
-      let persistedAuth;
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      const SALT_ROUNDS = 10;
+      let persistedAuth: PrismaAuthIdentity;
+      const saltRounds = 10;
 
-      if (id) {
+      // Check if auth identity exists in database
+      const existingAuth = await this.prisma.authIdentity.findUnique({
+        where: { id },
+      });
+
+      if (existingAuth) {
+        // Update existing auth identity
         if (dto.password) {
-          dto.password = await bcrypt.hash(dto.password, SALT_ROUNDS);
+          dto.password = await bcrypt.hash(dto.password, saltRounds);
         }
 
         persistedAuth = await this.prisma.authIdentity.update({
@@ -45,9 +48,10 @@ export class AuthenticationRepository implements IAuthRepository {
           },
         });
       } else {
+        // Create new auth identity
         const existing = await this.findByEmailAndAccountType(
           Email.create(dto.email),
-          dto.accountType,
+          AccountType.create(dto.accountType),
         );
 
         if (existing) {
@@ -56,15 +60,16 @@ export class AuthenticationRepository implements IAuthRepository {
           );
         }
 
-        dto.password = await bcrypt.hash(dto.password, SALT_ROUNDS);
+        dto.password = await bcrypt.hash(dto.password, saltRounds);
 
         persistedAuth = await this.prisma.authIdentity.create({
           data: dto,
         });
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      return AuthenticationMapper.fromPersistence(persistedAuth);
+      return AuthenticationMapper.fromPersistence(
+        persistedAuth as IAuthIdentityType,
+      );
     } catch (error) {
       if ((error as { code?: string }).code === 'P2002') {
         const prismaError = error as { meta?: { target?: string[] } };
@@ -72,12 +77,21 @@ export class AuthenticationRepository implements IAuthRepository {
         throw new UniqueConstraintViolationError(field);
       }
 
-      if ((error as { code?: string }).code === 'P2025') {
-        throw new ResourceNotFoundError('AuthIdentity', id?.toString());
+      // Determine operation type based on whether auth identity existed
+      let operation = 'save auth identity';
+      try {
+        const existingAuth = await this.prisma.authIdentity.findUnique({
+          where: { id },
+        });
+        operation = existingAuth
+          ? 'update auth identity'
+          : 'create auth identity';
+      } catch {
+        operation = 'create auth identity';
       }
 
       throw new DatabaseOperationError(
-        id ? 'update' : 'create',
+        operation,
         (error as Error).message,
         error as Error,
       );
@@ -92,11 +106,11 @@ export class AuthenticationRepository implements IAuthRepository {
       const user = await this.prisma.authIdentity.findFirst({
         where: {
           email: email.getValue(),
-          accountType,
+          accountType: accountType.getValue(),
         },
       });
 
-      return user ? AuthenticationMapper.fromPersistence(user) : null;
+      return AuthenticationMapper.fromPersistence(user as IAuthIdentityType);
     } catch (error) {
       throw new DatabaseOperationError(
         'findByEmailAndAccountType',
@@ -112,7 +126,7 @@ export class AuthenticationRepository implements IAuthRepository {
         where: { email: email.getValue() },
       });
 
-      return user ? AuthenticationMapper.fromPersistence(user) : null;
+      return AuthenticationMapper.fromPersistence(user as IAuthIdentityType);
     } catch (error) {
       throw new DatabaseOperationError(
         'findByEmail',
@@ -156,7 +170,7 @@ export class AuthenticationRepository implements IAuthRepository {
 
     const payload: JwtPayload = {
       email: email.getValue(),
-      id: user.get('id').getValue().toString(),
+      id: user.get('id').getValue(),
     };
 
     const accessToken = generateToken(payload);

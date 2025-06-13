@@ -1,11 +1,11 @@
 export interface IInstallmentPaymentBase {
   months: number;
   interestRate: number;
-  variantId: number;
+  variantId: string;
 }
 
 export interface IInstallmentPaymentSystem {
-  id: number;
+  id: string;
 }
 
 export interface IInstallmentPaymentType

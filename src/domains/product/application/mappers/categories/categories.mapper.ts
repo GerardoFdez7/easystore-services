@@ -39,8 +39,8 @@ export class ProductCategoriesMapper {
   static toDto(productCategories: ProductCategories): ProductCategoriesDTO {
     return productCategories.toDTO<ProductCategoriesDTO>((entity) => ({
       id: entity.get('id')?.getValue() || undefined,
-      productId: entity.get('productId')?.getValue() || null,
-      categoryId: entity.get('categoryId')?.getValue() || null,
+      productId: entity.get('productId')?.getValue(),
+      categoryId: entity.get('categoryId')?.getValue(),
     }));
   }
 }

@@ -18,9 +18,9 @@ export interface IAuthIdentityProps extends EntityProps {
   accountType: AccountType;
   isActive: IsActive;
   emailVerified: EmailVerified;
-  lastLoginAt?: Date | null;
+  lastLoginAt?: Date;
   failedAttempts: number;
-  lockedUntil?: Date | null;
+  lockedUntil?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -40,7 +40,7 @@ export class AuthIdentity extends Entity<IAuthIdentityProps> {
     };
 
     const auth = new AuthIdentity({
-      id: null,
+      id: Id.generate(),
       ...transformedProps,
       isActive: IsActive.create(true),
       emailVerified: EmailVerified.create(false),

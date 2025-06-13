@@ -3,7 +3,7 @@ import {
   ObjectType,
   Float,
   InputType,
-  Int,
+  ID,
   registerEnumType,
 } from '@nestjs/graphql';
 import {
@@ -210,11 +210,11 @@ export class CreateVariantInput {
   @Field({ nullable: true })
   barcode?: string;
 
-  @Field(() => Int)
-  productId: number;
+  @Field(() => ID)
+  productId: string;
 
-  @Field(() => Int)
-  tenantId: number;
+  @Field(() => ID)
+  tenantId: string;
 
   @Field(() => [CreateMediaInput], { nullable: true })
   variantMedia?: CreateMediaInput[];

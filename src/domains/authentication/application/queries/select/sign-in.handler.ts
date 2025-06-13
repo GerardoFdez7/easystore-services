@@ -2,8 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { IAuthRepository } from '../../../aggregates/repositories/authentication.interface';
 import { AuthenticationLoginResponseDTO } from './sign-in.dto';
-import { Email } from '../../../aggregates/value-objects';
-import { AccountType } from '.prisma/postgres';
+import { Email, AccountType } from '../../../aggregates/value-objects';
 import { AuthenticationLoginCommand } from '../../queries/select/sign-in.dto';
 
 @CommandHandler(AuthenticationLoginCommand)
@@ -22,12 +21,11 @@ export class AuthenticationLoginHandler
     const { email, password, accountType } = command;
 
     const emailVO = Email.create(email);
-    const accountTypeEnum = accountType as AccountType;
 
     const { accessToken, refreshToken } = await this.authRepository.login(
       emailVO,
       password,
-      accountTypeEnum,
+      AccountType.create(accountType),
     );
 
     return {

@@ -8,14 +8,14 @@ export interface ITenantProps extends EntityProps {
   id: Id;
   businessName: Name;
   ownerName: Name;
-  domain?: Domain | null;
-  logo?: Logo | null;
-  description?: LongDescription | null;
+  domain?: Domain;
+  logo?: Logo;
+  description?: LongDescription;
   currency: Currency;
   authIdentityId: Id;
-  defaultPhoneNumberId?: Id | null;
-  defaultShippingAddressId?: Id | null;
-  defaultBillingAddressId?: Id | null;
+  defaultPhoneNumberId?: Id;
+  defaultShippingAddressId?: Id;
+  defaultBillingAddressId?: Id;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -44,7 +44,7 @@ export class Tenant extends Entity<ITenantProps> {
     };
 
     const tenant = new Tenant({
-      id: null,
+      id: Id.generate(),
       ...transformedProps,
       defaultPhoneNumberId: null,
       defaultShippingAddressId: null,

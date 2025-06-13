@@ -37,9 +37,7 @@ export class TenantMapper {
       description: model.description
         ? LongDescription.create(model.description)
         : null,
-      currency: model.currency
-        ? Currency.create(model.currency)
-        : Currency.create('GTQ'),
+      currency: Currency.create(model.currency),
       authIdentityId: Id.create(model.authIdentityId),
       defaultPhoneNumberId: model.defaultPhoneNumberId
         ? Id.create(model.defaultPhoneNumberId)
@@ -62,20 +60,21 @@ export class TenantMapper {
    */
   static toDto(tenant: Tenant): TenantDTO {
     return tenant.toDTO<TenantDTO>((entity) => ({
-      id: entity.get('id')?.getValue() || null,
+      id: entity.get('id')?.getValue() || undefined,
       ownerName: entity.get('ownerName').getValue(),
       businessName: entity.get('businessName').getValue(),
       domain: entity.get('domain').getValue(),
-      logo: entity.get('logo')?.getValue() || null,
-      description: entity.get('description')?.getValue() || null,
+      logo: entity.get('logo')?.getValue(),
+      description: entity.get('description')?.getValue(),
       currency: entity.get('currency').getValue(),
       authIdentityId: entity.get('authIdentityId').getValue(),
-      defaultPhoneNumberId:
-        entity.get('defaultPhoneNumberId')?.getValue() || null,
-      defaultShippingAddressId:
-        entity.get('defaultShippingAddressId')?.getValue() || null,
-      defaultBillingAddressId:
-        entity.get('defaultBillingAddressId')?.getValue() || null,
+      defaultPhoneNumberId: entity.get('defaultPhoneNumberId')?.getValue(),
+      defaultShippingAddressId: entity
+        .get('defaultShippingAddressId')
+        ?.getValue(),
+      defaultBillingAddressId: entity
+        .get('defaultBillingAddressId')
+        ?.getValue(),
       createdAt: entity.get('createdAt'),
       updatedAt: entity.get('updatedAt'),
     }));
