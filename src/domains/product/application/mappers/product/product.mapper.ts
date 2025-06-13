@@ -110,23 +110,23 @@ export class ProductMapper {
     // If no fields specified, return all fields
     if (!fields || fields.length === 0) {
       return product.toDTO<ProductDTO>((entity) => ({
-        id: entity.get('id')?.getValue() ?? undefined,
-        name: entity.get('name')?.getValue() ?? null,
-        shortDescription: entity.get('shortDescription')?.getValue() ?? null,
-        longDescription: entity.get('longDescription')?.getValue() ?? null,
-        productType: entity.get('productType')?.getValue() ?? null,
-        cover: entity.get('cover')?.getValue() ?? null,
+        id: entity.get('id')?.getValue(),
+        name: entity.get('name')?.getValue(),
+        shortDescription: entity.get('shortDescription')?.getValue(),
+        longDescription: entity.get('longDescription')?.getValue(),
+        productType: entity.get('productType')?.getValue(),
+        cover: entity.get('cover')?.getValue(),
         tags:
           entity
             .get('tags')
             .map((tag) => tag.getValue())
             .flat() ?? [],
-        brand: entity.get('brand')?.getValue() ?? null,
-        manufacturer: entity.get('manufacturer')?.getValue() ?? null,
-        isArchived: entity.get('isArchived') ?? null,
-        tenantId: entity.get('tenantId')?.getValue() ?? null,
-        updatedAt: entity.get('updatedAt') ?? null,
-        createdAt: entity.get('createdAt') ?? null,
+        brand: entity.get('brand')?.getValue(),
+        manufacturer: entity.get('manufacturer')?.getValue(),
+        isArchived: entity.get('isArchived'),
+        tenantId: entity.get('tenantId')?.getValue(),
+        updatedAt: entity.get('updatedAt'),
+        createdAt: entity.get('createdAt'),
         variants:
           entity
             .get('variants')
@@ -150,39 +150,37 @@ export class ProductMapper {
     const dto: Partial<ProductDTO> = {};
 
     // Always include ID
-    dto.id = product.get('id')?.getValue() ?? undefined;
+    dto.id = product.get('id')?.getValue();
 
     // Map only requested fields
     fields.forEach((field) => {
       switch (field) {
         case 'name':
-          dto.name = product.get('name')?.getValue() ?? null;
+          dto.name = product.get('name')?.getValue();
           break;
         case 'shortDescription':
-          dto.shortDescription =
-            product.get('shortDescription')?.getValue() ?? null;
+          dto.shortDescription = product.get('shortDescription')?.getValue();
           break;
         case 'longDescription':
-          dto.longDescription =
-            product.get('longDescription')?.getValue() ?? null;
+          dto.longDescription = product.get('longDescription')?.getValue();
           break;
         case 'productType':
-          dto.productType = product.get('productType')?.getValue() ?? null;
+          dto.productType = product.get('productType')?.getValue();
           break;
         case 'cover':
-          dto.cover = product.get('cover')?.getValue() ?? null;
+          dto.cover = product.get('cover')?.getValue();
           break;
         case 'tags':
           dto.tags = product.get('tags').map((tag) => tag.getValue()[0]) ?? [];
           break;
         case 'brand':
-          dto.brand = product.get('brand')?.getValue() ?? null;
+          dto.brand = product.get('brand')?.getValue();
           break;
         case 'manufacturer':
-          dto.manufacturer = product.get('manufacturer')?.getValue() ?? null;
+          dto.manufacturer = product.get('manufacturer')?.getValue();
           break;
         case 'tenantId':
-          dto.tenantId = product.get('tenantId')?.getValue() ?? null;
+          dto.tenantId = product.get('tenantId')?.getValue();
           break;
       }
     });
@@ -274,7 +272,7 @@ export class ProductMapper {
    */
   static fromUpdateVariantDto(
     existingProduct: Product,
-    variantId: number,
+    variantId: string,
     dto: UpdateVariantDTO,
   ): Product {
     const updatedProduct = existingProduct.updateVariant(
@@ -292,7 +290,7 @@ export class ProductMapper {
    */
   static fromArchiveVariantDto(
     existingProduct: Product,
-    variantId: number,
+    variantId: string,
   ): Product {
     const updatedProduct = existingProduct.archiveVariant(variantId);
     return updatedProduct;
@@ -306,7 +304,7 @@ export class ProductMapper {
    */
   static fromRestoreVariantDto(
     existingProduct: Product,
-    variantId: number,
+    variantId: string,
   ): Product {
     const updatedProduct = existingProduct.restoreVariant(variantId);
     return updatedProduct;
@@ -320,7 +318,7 @@ export class ProductMapper {
    */
   static fromRemoveVariantDto(
     existingProduct: Product,
-    variantId: number,
+    variantId: string,
   ): Product {
     const updatedProduct = existingProduct.removeVariant(variantId);
     return updatedProduct;

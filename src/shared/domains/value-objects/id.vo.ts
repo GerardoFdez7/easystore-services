@@ -1,24 +1,28 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
+import { v7 as uuidv7 } from 'uuid';
 
-const IdSchema = z
-  .number()
-  .int()
-  .positive({ message: 'Id must be a positive integer' })
+export const IdSchema = z
+  .uuidv7({ message: 'Id must be a valid UUID' })
   .nullable();
 
 export class Id {
-  private readonly value: number;
+  private readonly value: string;
 
-  private constructor(value: number) {
+  private constructor(value: string) {
     this.value = value;
   }
 
-  public static create(id: number): Id {
+  public static create(id: string): Id {
     IdSchema.parse(id);
     return new Id(id);
   }
 
-  public getValue(): number {
+  public static generate(): Id {
+    const uuid = uuidv7();
+    return new Id(uuid);
+  }
+
+  public getValue(): string {
     return this.value;
   }
 

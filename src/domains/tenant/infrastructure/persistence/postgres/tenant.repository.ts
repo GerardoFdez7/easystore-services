@@ -17,7 +17,7 @@ export class TenantRepository implements ITenantRepository {
 
   // Save (create or update) a tenant
   async save(tenant: Tenant): Promise<Tenant> {
-    const id = tenant.get('id')?.getValue();
+    const id = tenant.get('id').getValue();
     const data = TenantMapper.toDto(tenant) as Omit<
       PrismaTenant,
       'id' | 'createdAt' | 'updatedAt'
@@ -25,8 +25,14 @@ export class TenantRepository implements ITenantRepository {
 
     try {
       let prismaTenant: PrismaTenant;
-      if (id) {
-        // Try to update existing tenant
+
+      // Check if tenant exists in database
+      const existingTenant = await this.prisma.tenant.findUnique({
+        where: { id },
+      });
+
+      if (existingTenant) {
+        // Update existing tenant
         prismaTenant = await this.prisma.tenant.update({
           where: { id },
           data: {
@@ -40,6 +46,7 @@ export class TenantRepository implements ITenantRepository {
           data: data as PrismaTenant,
         });
       }
+
       return this.mapToDomain(prismaTenant);
     } catch (error) {
       if ((error as { code?: string }).code === 'P2002') {
@@ -47,12 +54,20 @@ export class TenantRepository implements ITenantRepository {
         const field = prismaError.meta?.target?.[0] || 'unknown field';
         throw new UniqueConstraintViolationError(field);
       }
-      // Handle cases where an update is attempted on a non-existent record
-      if ((error as { code?: string }).code === 'P2025') {
-        throw new ResourceNotFoundError('Tenant', id?.toString());
+
+      // Determine operation type based on whether tenant existed
+      let operation = 'save tenant';
+      try {
+        const existingTenant = await this.prisma.tenant.findUnique({
+          where: { id },
+        });
+        operation = existingTenant ? 'update tenant' : 'create tenant';
+      } catch {
+        operation = 'create tenant';
       }
+
       throw new DatabaseOperationError(
-        id ? 'update' : 'create',
+        operation,
         (error as Error).message,
         error as Error,
       );

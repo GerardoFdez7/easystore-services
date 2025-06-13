@@ -21,7 +21,7 @@ export class InstallmentPayment extends Entity<IInstallmentPaymentProps> {
     };
 
     const installmentPayment = new InstallmentPayment({
-      id: null,
+      id: Id.generate(),
       ...transformedProps,
     });
 

@@ -1,11 +1,13 @@
+import { AccountTypeEnum } from '../../value-objects';
+
 export interface IAuthIdentityBaseType {
   email: string;
   password: string;
-  accountType: 'EMPLOYEE' | 'TENANT' | 'CUSTOMER';
+  accountType: AccountTypeEnum;
 }
 
 export interface IAuthIdentitySystemProps {
-  id: number;
+  id: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -15,7 +17,7 @@ export interface IAuthIdentityType
     IAuthIdentitySystemProps {
   isActive: boolean;
   emailVerified: boolean;
-  lastLoginAt?: Date | null;
+  lastLoginAt?: Date;
   failedAttempts: number;
-  lockedUntil?: Date | null;
+  lockedUntil?: Date;
 }

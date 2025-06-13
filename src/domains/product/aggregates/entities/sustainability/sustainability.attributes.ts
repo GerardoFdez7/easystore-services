@@ -1,11 +1,11 @@
 export interface ISustainabilityBase {
   certification?: string;
   recycledPercentage: number;
-  productId: number;
+  productId: string;
 }
 
 export interface ISustainabilitySystem {
-  id: number;
+  id: string;
 }
 
 export interface ISustainabilityType

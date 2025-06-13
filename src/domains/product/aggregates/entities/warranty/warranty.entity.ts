@@ -23,7 +23,7 @@ export class Warranty extends Entity<IWarrantyProps> {
     };
 
     const warranty = new Warranty({
-      id: null,
+      id: Id.generate(),
       ...transformedProps,
     });
 

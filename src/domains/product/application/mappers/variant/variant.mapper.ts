@@ -47,9 +47,7 @@ export class VariantMapper {
         Attribute.create(attr.key, attr.value),
       ),
       price: Price.create(Number(model.price)),
-      variantCover: model.variantCover
-        ? Cover.create(model.variantCover)
-        : null,
+      variantCover: Cover.create(model.variantCover),
       personalizationOptions: model.personalizationOptions
         ? model.personalizationOptions.map((opt) =>
             PersonalizationOptions.create(opt),
@@ -87,26 +85,26 @@ export class VariantMapper {
    */
   static toDto(variant: Variant): VariantDTO {
     return variant.toDTO<VariantDTO>((entity) => ({
-      id: entity.get('id')?.getValue() || undefined,
+      id: entity.get('id')?.getValue(),
       attributes:
         entity.get('attributes')?.map((attr) => attr.getAttribute()) || [],
-      price: entity.get('price')?.getValue() || null,
-      variantCover: entity.get('variantCover')?.getValue() || null,
+      price: entity.get('price')?.getValue(),
+      variantCover: entity.get('variantCover')?.getValue(),
       personalizationOptions:
         entity
           .get('personalizationOptions')
           ?.map((option) => option.getValue()) || [],
-      weight: entity.get('weight')?.getValue() || null,
-      dimension: entity.get('dimension')?.getValue() || null,
-      condition: entity.get('condition')?.getValue() || null,
-      upc: entity.get('upc')?.getValue() || null,
-      ean: entity.get('ean')?.getValue() || null,
-      sku: entity.get('sku')?.getValue() || null,
-      barcode: entity.get('barcode')?.getValue() || null,
-      isbn: entity.get('isbn')?.getValue() || null,
+      weight: entity.get('weight')?.getValue(),
+      dimension: entity.get('dimension')?.getValue(),
+      condition: entity.get('condition')?.getValue(),
+      upc: entity.get('upc')?.getValue(),
+      ean: entity.get('ean')?.getValue(),
+      sku: entity.get('sku')?.getValue(),
+      barcode: entity.get('barcode')?.getValue(),
+      isbn: entity.get('isbn')?.getValue(),
       isArchived: entity.get('isArchived'),
-      productId: entity.get('productId')?.getValue() || null,
-      tenantId: entity.get('tenantId')?.getValue() || null,
+      productId: entity.get('productId')?.getValue(),
+      tenantId: entity.get('tenantId')?.getValue(),
       updatedAt: entity.get('updatedAt'),
       createdAt: entity.get('createdAt'),
       variantMedia:

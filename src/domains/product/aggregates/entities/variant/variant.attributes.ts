@@ -25,15 +25,15 @@ export interface IVariantBase {
   sku?: string;
   barcode?: string;
   isbn?: string;
-  productId: number;
-  tenantId: number;
+  productId: string;
+  tenantId: string;
   variantMedia?: IMediaInitData[];
   warranties?: IWarrantyInitData[];
   installmentPayments?: IInstallmentPaymentInitData[];
 }
 
 export interface IVariantSystem {
-  id: number;
+  id: string;
   isArchived: boolean;
   updatedAt: Date;
   createdAt: Date;
@@ -52,8 +52,8 @@ export interface IVariantType extends IVariantSystem {
   sku?: string;
   barcode?: string;
   isbn?: string;
-  productId: number;
-  tenantId: number;
+  productId: string;
+  tenantId: string;
   variantMedia: IMediaType[];
   warranties: IWarrantyType[];
   installmentPayments: IInstallmentPaymentType[];

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Id } from '../';
 
 const attributeSchema = z.object({
   key: z.string().min(1, { message: 'Key must be at least 1 character' }),
@@ -6,6 +7,7 @@ const attributeSchema = z.object({
 });
 
 export type AttributeProps = {
+  id?: string;
   key: string;
   value: string;
 };
@@ -17,8 +19,9 @@ export class Attribute {
     this.props = props;
   }
 
-  public static create(key: string, value: string): Attribute {
-    const atributeData = { key, value };
+  public static create(key: string, value: string, id?: string): Attribute {
+    const attributeId = id ? Id.create(id) : Id.generate();
+    const atributeData = { id: attributeId.getValue(), key, value };
     attributeSchema.parse(atributeData);
     return new Attribute(atributeData);
   }
@@ -33,6 +36,7 @@ export class Attribute {
 
   public getAttribute(): AttributeProps {
     return {
+      id: this.props.id,
       key: this.props.key,
       value: this.props.value,
     };

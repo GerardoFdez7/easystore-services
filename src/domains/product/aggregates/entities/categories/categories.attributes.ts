@@ -1,10 +1,10 @@
 export interface IProductCategoriesBase {
-  productId: number;
-  categoryId: number;
+  productId: string;
+  categoryId: string;
 }
 
 export interface IProductCategoriesSystem {
-  id: number;
+  id: string;
 }
 
 export interface IProductCategoriesType

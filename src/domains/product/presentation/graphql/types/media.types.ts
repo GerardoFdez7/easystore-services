@@ -3,6 +3,7 @@ import {
   ObjectType,
   InputType,
   Int,
+  ID,
   registerEnumType,
 } from '@nestjs/graphql';
 import { MediaTypeEnum } from '../../../aggregates/value-objects';
@@ -23,11 +24,11 @@ export class MediaType {
   @Field(() => MediaTypeEnum)
   mediaType: MediaTypeEnum;
 
-  @Field(() => Int, { nullable: true })
-  productId?: number;
+  @Field(() => ID, { nullable: true })
+  productId?: string;
 
-  @Field(() => Int, { nullable: true })
-  variantId?: number;
+  @Field(() => ID, { nullable: true })
+  variantId?: string;
 }
 
 // Input types for creating media

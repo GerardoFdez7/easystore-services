@@ -1,6 +1,6 @@
-export * from './auth/email.vo';
-export * from './auth/password.vo';
-export * from './auth/account-type.vo';
-export * from './auth/is-active.vo';
-export * from './auth/email-verified.vo';
-export * from '@domains/value-objects';
+export { Email } from './auth/email.vo';
+export { Password } from './auth/password.vo';
+export { AccountType, AccountTypeEnum } from './auth/account-type.vo';
+export { IsActive } from './auth/is-active.vo';
+export { EmailVerified } from './auth/email-verified.vo';
+export { Id } from '@domains/value-objects';

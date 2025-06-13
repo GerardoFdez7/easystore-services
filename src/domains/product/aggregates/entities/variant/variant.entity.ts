@@ -29,14 +29,14 @@ export interface IVariantProps extends EntityProps {
   price: Price;
   variantCover?: Cover;
   personalizationOptions: PersonalizationOptions[];
-  weight?: Weight | null;
-  dimension?: Dimension | null;
+  weight?: Weight;
+  dimension?: Dimension;
   condition: Condition;
-  upc?: UPC | null;
-  ean?: EAN | null;
-  sku?: SKU | null;
-  barcode?: Barcode | null;
-  isbn?: ISBN | null;
+  upc?: UPC;
+  ean?: EAN;
+  sku?: SKU;
+  barcode?: Barcode;
+  isbn?: ISBN;
   isArchived: boolean;
   productId: Id;
   tenantId: Id;
@@ -82,20 +82,19 @@ export class Variant extends Entity<IVariantProps> {
 
     // Creation of related entities
     // This ID represents the variant being created.
-    const newVariantIdValue = null;
-    const newVariantEntityId = Id.create(newVariantIdValue as number);
+    const newVariantIdValue = Id.generate();
 
     const variantMedia = (props.variantMedia || []).map((mediaData) =>
       Media.create({
         ...mediaData,
-        variantId: newVariantEntityId.getValue(),
+        variantId: newVariantIdValue.getValue(),
       }),
     );
 
     const warranties = (props.warranties || []).map((warrantyData) =>
       Warranty.create({
         ...warrantyData,
-        variantId: newVariantEntityId.getValue(),
+        variantId: newVariantIdValue.getValue(),
       }),
     );
 
@@ -103,12 +102,12 @@ export class Variant extends Entity<IVariantProps> {
       (paymentData) =>
         InstallmentPayment.create({
           ...paymentData,
-          variantId: newVariantEntityId.getValue(),
+          variantId: newVariantIdValue.getValue(),
         }),
     );
 
     const variant = new Variant({
-      id: null,
+      id: newVariantIdValue,
       ...transformedProps,
       variantMedia,
       warranties,

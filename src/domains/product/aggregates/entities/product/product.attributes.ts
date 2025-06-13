@@ -20,7 +20,7 @@ export interface IProductType extends IProductSystem {
   brand?: string;
   manufacturer?: string;
   tags: string[];
-  tenantId: number;
+  tenantId: string;
   variants: IVariantType[];
   media: IMediaType[];
   categories: IProductCategoriesType[];
@@ -37,7 +37,7 @@ export interface IProductBase {
   brand?: string;
   manufacturer?: string;
   tags?: string[];
-  tenantId: number;
+  tenantId: string;
   variants?: IVariantInitData[];
   media?: IMediaInitData[];
   categories?: IProductCategoryInitData[];
@@ -46,7 +46,7 @@ export interface IProductBase {
 
 // System-generated properties for a product
 export interface IProductSystem {
-  id: number;
+  id: string;
   isArchived: boolean;
   updatedAt: Date;
   createdAt: Date;

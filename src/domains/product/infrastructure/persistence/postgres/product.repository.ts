@@ -38,8 +38,8 @@ export class ProductRepository implements IProductRepository {
 
   private async manageAttributes(
     tx: Prisma.TransactionClient,
-    variantId: number,
-    attributesData: Array<{ key: string; value: string }> = [],
+    variantId: string,
+    attributesData: Array<{ id?: string; key: string; value: string }> = [],
   ): Promise<void> {
     await tx.attribute.deleteMany({
       where: { variantId },
@@ -48,6 +48,7 @@ export class ProductRepository implements IProductRepository {
     // Create new attributes from the DTO
     if (attributesData.length > 0) {
       const createData = attributesData.map((attr) => ({
+        id: attr.id,
         key: attr.key,
         value: attr.value,
         variantId,
@@ -58,8 +59,9 @@ export class ProductRepository implements IProductRepository {
 
   private async manageDimension(
     tx: Prisma.TransactionClient,
-    variantId: number,
+    variantId: string,
     dimensionData?: {
+      id?: string;
       height: number;
       width: number;
       length: number;
@@ -71,16 +73,21 @@ export class ProductRepository implements IProductRepository {
 
     // Create a new dimension if data is provided
     if (dimensionData) {
+      const { id, ...dimensionFields } = dimensionData;
       await tx.dimension.create({
-        data: { ...dimensionData, variantId },
+        data: {
+          id: id || '',
+          ...dimensionFields,
+          variantId,
+        },
       });
     }
   }
 
   private async manageWarranties(
     tx: Prisma.TransactionClient,
-    variantId: number,
-    warrantyDtos: Omit<WarrantyDTO, 'id' | 'variantId'>[] = [],
+    variantId: string,
+    warrantyDtos: Omit<WarrantyDTO, 'variantId'>[] = [],
   ): Promise<void> {
     await tx.warranty.deleteMany({
       where: { variantId },
@@ -98,8 +105,8 @@ export class ProductRepository implements IProductRepository {
 
   private async manageInstallmentPayments(
     tx: Prisma.TransactionClient,
-    variantId: number,
-    paymentDtos: Omit<InstallmentPaymentDTO, 'id' | 'variantId'>[] = [],
+    variantId: string,
+    paymentDtos: Omit<InstallmentPaymentDTO, 'variantId'>[] = [],
   ): Promise<void> {
     await tx.installmentPayment.deleteMany({
       where: { variantId },
@@ -117,9 +124,9 @@ export class ProductRepository implements IProductRepository {
 
   private async manageMedia(
     tx: Prisma.TransactionClient,
-    entityId: number, // productId or variantId
+    entityId: string, // productId or variantId
     entityType: 'product' | 'variant',
-    mediaDtos: Omit<MediaDTO, 'id' | 'productId' | 'variantId'>[] = [],
+    mediaDtos: Omit<MediaDTO, 'productId' | 'variantId'>[] = [],
   ): Promise<void> {
     const deleteWhere: Prisma.MediaWhereInput = {};
     if (entityType === 'product') deleteWhere.productId = entityId;
@@ -131,6 +138,7 @@ export class ProductRepository implements IProductRepository {
     if (mediaDtos.length > 0) {
       const createData = mediaDtos.map((mediaDto) => {
         const data: Prisma.MediaUncheckedCreateInput = {
+          id: mediaDto.id,
           url: mediaDto.url,
           position: mediaDto.position,
           mediaType: mediaDto.mediaType,
@@ -145,8 +153,8 @@ export class ProductRepository implements IProductRepository {
 
   private async manageVariants(
     tx: Prisma.TransactionClient,
-    productId: number,
-    tenantId: number,
+    productId: string,
+    tenantId: string,
     variantDtos: VariantDTO[] = [],
     existingVariantsFull: (PrismaVariant & {
       attributes?: PrismaAttribute[];
@@ -172,6 +180,7 @@ export class ProductRepository implements IProductRepository {
 
     for (const variantDto of variantDtos) {
       const variantData = {
+        id: variantDto.id,
         price: variantDto.price,
         variantCover: variantDto.variantCover,
         personalizationOptions: variantDto.personalizationOptions || [],
@@ -239,13 +248,14 @@ export class ProductRepository implements IProductRepository {
 
   private async manageCategories(
     tx: Prisma.TransactionClient,
-    productId: number,
+    productId: string,
     categoryDtos: ProductCategoriesDTO[] = [],
   ): Promise<void> {
     await tx.productCategories.deleteMany({ where: { productId } });
     if (categoryDtos.length > 0) {
       await tx.productCategories.createMany({
         data: categoryDtos.map((cat) => ({
+          id: cat.id,
           productId,
           categoryId: cat.categoryId,
         })),
@@ -255,8 +265,8 @@ export class ProductRepository implements IProductRepository {
 
   private async manageSustainabilities(
     tx: Prisma.TransactionClient,
-    productId: number,
-    sustainabilityDtos: Omit<SustainabilityDTO, 'id' | 'productId'>[] = [],
+    productId: string,
+    sustainabilityDtos: Omit<SustainabilityDTO, 'productId'>[] = [],
   ): Promise<void> {
     await tx.sustainability.deleteMany({
       where: { productId },
@@ -291,30 +301,27 @@ export class ProductRepository implements IProductRepository {
           sustainabilities?: PrismaSustainability[];
         };
 
-        if (id) {
-          // Fetch existing product with all relations for update comparison
-          const existingProduct = await tx.product.findUnique({
-            where: { id },
-            include: {
-              media: true,
-              variants: {
-                include: {
-                  attributes: true,
-                  dimension: true,
-                  variantMedia: true,
-                  warranties: true,
-                  installmentPayments: true,
-                },
+        // Check if product exists in database
+        const existingProduct = await tx.product.findUnique({
+          where: { id },
+          include: {
+            media: true,
+            variants: {
+              include: {
+                attributes: true,
+                dimension: true,
+                variantMedia: true,
+                warranties: true,
+                installmentPayments: true,
               },
-              categories: true,
-              sustainabilities: true,
             },
-          });
-          if (!existingProduct)
-            throw new ResourceNotFoundError('Product', id.toString());
-          currentProductWithRelations = existingProduct;
+            categories: true,
+            sustainabilities: true,
+          },
+        });
 
-          // Update product base fields
+        if (existingProduct) {
+          // Update existing product
           currentProductWithRelations = await tx.product.update({
             where: { id },
             data: {
@@ -356,7 +363,7 @@ export class ProductRepository implements IProductRepository {
             currentProductWithRelations.id,
             currentProductWithRelations.tenantId,
             productDto.variants,
-            currentProductWithRelations.variants,
+            existingProduct.variants,
           );
           await this.manageCategories(
             tx,
@@ -372,6 +379,7 @@ export class ProductRepository implements IProductRepository {
           // Create new product
           currentProductWithRelations = await tx.product.create({
             data: {
+              id: productDto.id,
               name: productDto.name,
               shortDescription: productDto.shortDescription,
               longDescription: productDto.longDescription,
@@ -439,9 +447,6 @@ export class ProductRepository implements IProductRepository {
             relatedEntity = 'Tenant';
           }
           throw new ForeignKeyConstraintViolationError(field, relatedEntity);
-        }
-        if (error.code === 'P2025' && id) {
-          throw new ResourceNotFoundError('Product', id.toString());
         }
       }
       const operation = id ? 'update product' : 'create product';

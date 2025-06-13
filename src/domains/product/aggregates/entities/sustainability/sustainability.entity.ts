@@ -18,16 +18,12 @@ export class Sustainability extends Entity<ISustainabilityProps> {
       certification: props.certification
         ? Certification.create(props.certification)
         : null,
-      recycledPercentage:
-        props.recycledPercentage !== null &&
-        props.recycledPercentage !== undefined
-          ? RecycledPercentage.create(props.recycledPercentage)
-          : null,
-      productId: props.productId ? Id.create(props.productId) : null,
+      recycledPercentage: RecycledPercentage.create(props.recycledPercentage),
+      productId: Id.create(props.productId),
     };
 
     const sustainability = new Sustainability({
-      id: null,
+      id: Id.generate(),
       ...transformedProps,
     });
 

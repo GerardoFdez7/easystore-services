@@ -17,7 +17,7 @@ export class ProductCategories extends Entity<IProductCategoriesProps> {
     const categoryId = Id.create(props.categoryId);
 
     const productCategories = new ProductCategories({
-      id: null,
+      id: Id.generate(),
       productId,
       categoryId,
     });

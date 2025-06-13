@@ -4,9 +4,9 @@ export interface IWarrantyBase {
   months: number;
   coverage: string;
   instructions: string;
-  variantId: number;
+  variantId: string;
 }
 
 export interface IWarrantySystem {
-  id: number;
+  id: string;
 }

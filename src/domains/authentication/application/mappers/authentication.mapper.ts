@@ -1,11 +1,12 @@
 import { Entity } from '@domains/entity.base';
-import { Email, Password } from '../../aggregates/value-objects';
 import {
   AuthIdentity,
   IAuthIdentityProps,
   IAuthIdentityType,
 } from '../../aggregates/entities';
 import {
+  Email,
+  Password,
   IsActive,
   EmailVerified,
   AccountType,
@@ -51,15 +52,15 @@ export class AuthenticationMapper {
    */
   static toDto(auth: AuthIdentity): AuthenticationDTO {
     return auth.toDTO<AuthenticationDTO>((entity) => ({
-      id: entity.get('id')?.getValue() ?? null,
+      id: entity.get('id')?.getValue() ?? undefined,
       email: entity.get('email').getValue(),
       password: entity.get('password').getValue(),
       accountType: entity.get('accountType').getValue(),
       isActive: entity.get('isActive').getValue(),
       emailVerified: entity.get('emailVerified').getValue(),
-      lastLoginAt: entity.get('lastLoginAt') ?? null,
+      lastLoginAt: entity.get('lastLoginAt'),
       failedAttempts: entity.get('failedAttempts'),
-      lockedUntil: entity.get('lockedUntil') ?? null,
+      lockedUntil: entity.get('lockedUntil'),
       createdAt: entity.get('createdAt'),
       updatedAt: entity.get('updatedAt'),
     }));

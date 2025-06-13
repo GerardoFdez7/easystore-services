@@ -37,12 +37,12 @@ export interface IProductProps extends EntityProps {
   id: Id;
   name: Name;
   shortDescription: ShortDescription;
-  longDescription?: LongDescription | null;
+  longDescription?: LongDescription;
   productType: Type;
-  cover?: Cover | null;
+  cover?: Cover;
   tags?: Tags[];
-  brand?: Brand | null;
-  manufacturer?: Manufacturer | null;
+  brand?: Brand;
+  manufacturer?: Manufacturer;
   isArchived: boolean;
   tenantId: Id;
   updatedAt: Date;
@@ -54,7 +54,7 @@ export interface IProductProps extends EntityProps {
 }
 
 export class Product extends Entity<IProductProps> {
-  private variantsMap: Map<number, Variant>;
+  private variantsMap: Map<string, Variant>;
 
   private constructor(props: IProductProps) {
     super(props);
@@ -113,14 +113,13 @@ export class Product extends Entity<IProductProps> {
     };
     // Creation of related entities
     // This ID represents the product being created.
-    const newProductIdValue = null;
-    const newProductEntityId = Id.create(newProductIdValue as number);
+    const newProductIdValue = Id.generate();
     const productTenantId = transformedProps.tenantId;
 
     const variants = (props.variants || []).map((variantData) =>
       Variant.create({
         ...variantData,
-        productId: newProductEntityId.getValue(),
+        productId: newProductIdValue.getValue(),
         tenantId: productTenantId.getValue(),
       }),
     );
@@ -128,14 +127,14 @@ export class Product extends Entity<IProductProps> {
     const media = (props.media || []).map((mediaData) =>
       Media.create({
         ...mediaData,
-        productId: newProductEntityId.getValue(),
+        productId: newProductIdValue.getValue(),
       }),
     );
 
     const categories = (props.categories || []).map((categoryData) =>
       ProductCategories.create({
         ...categoryData,
-        productId: newProductEntityId.getValue(),
+        productId: newProductIdValue.getValue(),
       }),
     );
 
@@ -143,12 +142,12 @@ export class Product extends Entity<IProductProps> {
       (sustainabilityData) =>
         Sustainability.create({
           ...sustainabilityData,
-          productId: newProductEntityId.getValue(),
+          productId: newProductIdValue.getValue(),
         }),
     );
 
     const product = new Product({
-      id: null,
+      id: newProductIdValue,
       ...transformedProps,
       variants,
       media,
@@ -312,7 +311,7 @@ export class Product extends Entity<IProductProps> {
 
   // --- Variant Management ---
 
-  private getVariantOrThrow(variantId: number): Variant {
+  private getVariantOrThrow(variantId: string): Variant {
     const variant = this.variantsMap.get(variantId);
     if (!variant) {
       throw new NotFoundException(
@@ -355,7 +354,7 @@ export class Product extends Entity<IProductProps> {
    * @param updateData The data to update the variant with, conforming to Partial<IVariantBase>.
    */
   public updateVariant(
-    variantId: number,
+    variantId: string,
     updateData: Partial<IVariantBase>,
   ): Product {
     const variantToUpdate = this.getVariantOrThrow(variantId);
@@ -384,7 +383,7 @@ export class Product extends Entity<IProductProps> {
    * Soft deletes a variant from the product.
    * @param variantId The ID of the variant to soft delete.
    */
-  public archiveVariant(variantId: number): Product {
+  public archiveVariant(variantId: string): Product {
     const variantToArchive = this.getVariantOrThrow(variantId);
 
     // Check if the product is already archived
@@ -416,7 +415,7 @@ export class Product extends Entity<IProductProps> {
    * Restores a previously soft-deleted variant.
    * @param variantId The ID of the variant to restore.
    */
-  public restoreVariant(variantId: number): Product {
+  public restoreVariant(variantId: string): Product {
     const variantToRestore = this.getVariantOrThrow(variantId);
 
     // Check if the variant is actually deleted
@@ -448,7 +447,7 @@ export class Product extends Entity<IProductProps> {
    * Removes a variant from the product.
    * @param variantId The ID of the variant to remove.
    */
-  public removeVariant(variantId: number): Product {
+  public removeVariant(variantId: string): Product {
     const variantToRemove = this.getVariantOrThrow(variantId);
 
     const newVariants = this.props.variants.filter(

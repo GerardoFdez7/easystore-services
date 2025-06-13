@@ -5,15 +5,10 @@ import {
   InputType,
   registerEnumType,
 } from '@nestjs/graphql';
+import { AccountTypeEnum } from '../../aggregates/value-objects';
 
-export enum AccountType {
-  TENANT = 'TENANT',
-  CUSTOMER = 'CUSTOMER',
-  EMPLOYEE = 'EMPLOYEE',
-}
-
-registerEnumType(AccountType, {
-  name: 'AccountType',
+registerEnumType(AccountTypeEnum, {
+  name: 'AccountTypeEnum',
 });
 
 @ObjectType('AuthIdentity')
@@ -24,8 +19,8 @@ export class AuthIdentityType {
   @Field()
   email: string;
 
-  @Field(() => AccountType)
-  accountType: AccountType;
+  @Field(() => AccountTypeEnum)
+  accountType: AccountTypeEnum;
 
   @Field()
   isActive: boolean;
@@ -58,8 +53,8 @@ export class RegisterAuthInput {
   @Field()
   password: string;
 
-  @Field(() => AccountType)
-  accountType: AccountType;
+  @Field(() => AccountTypeEnum)
+  accountType: AccountTypeEnum;
 }
 
 // Input para login

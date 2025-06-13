@@ -6,8 +6,8 @@ export interface IMediaProps extends EntityProps {
   url: Url;
   position: Position;
   mediaType: MediaType;
-  productId?: Id | null;
-  variantId?: Id | null;
+  productId?: Id;
+  variantId?: Id;
 }
 
 export class Media extends Entity<IMediaProps> {
@@ -25,7 +25,7 @@ export class Media extends Entity<IMediaProps> {
     };
 
     const media = new Media({
-      id: null,
+      id: Id.generate(),
       ...transformedProps,
     });
 
