@@ -10,6 +10,7 @@ import { KafkaConfigModule } from '@kafka/config/kafka-config.module';
 import { AuthenticationDomain } from './domains/authentication/authentication.module';
 import { TenantDomain } from './domains/tenant/tenant.module';
 import { ProductDomain } from './domains/product/product.module';
+import { CategoryDomain } from './domains/category/category.module';
 
 @Global()
 @Module({
@@ -26,6 +27,7 @@ import { ProductDomain } from './domains/product/product.module';
     AuthenticationDomain,
     TenantDomain,
     ProductDomain,
+    CategoryDomain,
   ],
   providers: [],
   controllers: [MetricsController],
