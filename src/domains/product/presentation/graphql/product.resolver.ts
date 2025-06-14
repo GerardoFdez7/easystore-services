@@ -29,7 +29,6 @@ import {
 } from '../../application/commands';
 import {
   GetProductByIdDTO,
-  GetProductsByNameDTO,
   GetAllProductsDTO,
 } from '../../application/queries';
 import { PaginatedProductsDTO } from '../../application/mappers';
@@ -166,44 +165,31 @@ export class ProductResolver {
   }
 
   @Query(() => PaginatedProductsType)
-  async getProductsByName(
-    @Args('name') name: string,
-    @Args('tenantId') tenantId: string,
-    @Args('page', { defaultValue: 1 }) page: number,
-    @Args('limit', { defaultValue: 10 }) limit: number,
-    @Args('includeSoftDeleted', { defaultValue: false, nullable: true })
-    includeSoftDeleted: boolean,
-  ): Promise<PaginatedProductsDTO> {
-    return this.queryBus.execute(
-      new GetProductsByNameDTO(name, tenantId, page, limit, includeSoftDeleted),
-    );
-  }
-
-  @Query(() => PaginatedProductsType)
   async getAllProducts(
     @Args('tenantId') tenantId: string,
-    @Args('page', { defaultValue: 1 }) page: number,
-    @Args('limit', { defaultValue: 10 }) limit: number,
+    @Args('page', { defaultValue: 1, nullable: true }) page?: number,
+    @Args('limit', { defaultValue: 25, nullable: true }) limit?: number,
+    @Args('name', { nullable: true }) name?: string,
     @Args('categoriesIds', { nullable: true, type: () => [Int] })
-    categoriesIds: string[],
-    @Args('type', { nullable: true, type: () => TypeEnum }) type: TypeEnum,
-    @Args('sortBy', { nullable: true, type: () => SortBy }) sortBy: SortBy,
+    categoriesIds?: string[],
+    @Args('type', { nullable: true, type: () => TypeEnum }) type?: TypeEnum,
+    @Args('sortBy', { nullable: true, type: () => SortBy }) sortBy?: SortBy,
     @Args('sortOrder', { nullable: true, type: () => SortOrder })
-    sortOrder: SortOrder,
+    sortOrder?: SortOrder,
     @Args('includeSoftDeleted', { defaultValue: false, nullable: true })
-    includeSoftDeleted: boolean,
+    includeSoftDeleted?: boolean,
   ): Promise<PaginatedProductsDTO> {
     return this.queryBus.execute(
-      new GetAllProductsDTO(
-        tenantId,
+      new GetAllProductsDTO(tenantId, {
         page,
         limit,
+        name,
         categoriesIds,
         type,
         sortBy,
         sortOrder,
         includeSoftDeleted,
-      ),
+      }),
     );
   }
 }

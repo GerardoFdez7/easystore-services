@@ -84,6 +84,9 @@ export class PaginatedProductsType {
 
   @Field(() => Int)
   total: number;
+
+  @Field(() => Boolean)
+  hasMore: boolean;
 }
 
 // Input types for creating products

@@ -20,7 +20,6 @@ import {
 // Query Handlers
 import {
   GetProductByIdHandler,
-  GetProductsByNameHandler,
   GetAllProductsHandler,
 } from './application/queries';
 // Event Handlers
@@ -50,11 +49,7 @@ const CommandHandlers = [
   RestoreVariantHandler,
 ];
 
-const QueryHandlers = [
-  GetProductByIdHandler,
-  GetProductsByNameHandler,
-  GetAllProductsHandler,
-];
+const QueryHandlers = [GetProductByIdHandler, GetAllProductsHandler];
 
 const EventHandlers = [
   ProductCreatedHandler,

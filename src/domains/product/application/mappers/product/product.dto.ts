@@ -12,4 +12,5 @@ export type ProductDTO = IProductType;
 export interface PaginatedProductsDTO {
   products: ProductDTO[];
   total: number;
+  hasMore: boolean;
 }

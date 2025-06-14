@@ -101,6 +101,7 @@ export class ProductMapper {
           (product) => this.toDto(product, fields) as ProductDTO,
         ),
         total: paginatedData.total,
+        hasMore: paginatedData.hasMore,
       } as PaginatedProductsDTO;
     }
 

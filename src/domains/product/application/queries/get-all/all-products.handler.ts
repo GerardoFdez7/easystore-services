@@ -13,16 +13,17 @@ export class GetAllProductsHandler implements IQueryHandler<GetAllProductsDTO> {
   ) {}
 
   async execute(query: GetAllProductsDTO): Promise<PaginatedProductsDTO> {
+    const { tenantId, options } = query;
     const {
-      tenantId,
       page,
       limit,
+      name,
       categoriesIds,
       type,
       sortBy,
       sortOrder,
       includeSoftDeleted,
-    } = query;
+    } = options || {};
 
     // Validate pagination parameters
     if (page !== undefined && page < 1) {
@@ -44,16 +45,17 @@ export class GetAllProductsHandler implements IQueryHandler<GetAllProductsDTO> {
     const typeVO = type ? Type.create(type) : undefined;
 
     // Find all products with pagination and optional filtering
-    const result = await this.productRepository.findAll(
-      tenantIdVO,
+    const result = await this.productRepository.findAll(tenantIdVO, {
       page,
       limit,
-      categoriesIdsVO,
-      typeVO,
+      name,
+      categoriesIds: categoriesIdsVO,
+      type: typeVO,
       sortBy,
       sortOrder,
       includeSoftDeleted,
-    );
+    });
+
     if (!result || result.total === 0) {
       throw new NotFoundException(`No products found`);
     }
@@ -61,6 +63,7 @@ export class GetAllProductsHandler implements IQueryHandler<GetAllProductsDTO> {
     return {
       products: ProductMapper.toDtoArray(result.products),
       total: result.total,
+      hasMore: result.hasMore,
     };
   }
 }

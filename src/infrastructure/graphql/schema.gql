@@ -2,7 +2,7 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-enum AccountType {
+enum AccountTypeEnum {
   CUSTOMER
   EMPLOYEE
   TENANT
@@ -32,12 +32,12 @@ type Attribute {
 }
 
 type AuthIdentity {
-  accountType: AccountType!
+  accountType: AccountTypeEnum!
   createdAt: DateTime!
   email: String!
   emailVerified: Boolean!
   failedAttempts: Int!
-  id: ID!
+  id: Int!
   isActive: Boolean!
   lastLoginAt: DateTime
   lockedUntil: DateTime
@@ -110,7 +110,7 @@ input CreateSustainabilityInput {
 
 input CreateTenantInput {
   businessName: String!
-  currency: String
+  currency: CurrencyCodes
   description: String
   domain: String
   logo: String
@@ -141,6 +141,175 @@ input CreateWarrantyInput {
   coverage: String!
   instructions: String!
   months: Float!
+}
+
+enum CurrencyCodes {
+  AED
+  AFN
+  ALL
+  AMD
+  ANG
+  AOA
+  ARS
+  AUD
+  AWG
+  AZN
+  BAM
+  BBD
+  BDT
+  BGN
+  BHD
+  BIF
+  BMD
+  BND
+  BOB
+  BOV
+  BRL
+  BSD
+  BTN
+  BWP
+  BYR
+  BZD
+  CAD
+  CDF
+  CHE
+  CHF
+  CHW
+  CLF
+  CLP
+  CNY
+  COP
+  COU
+  CRC
+  CUC
+  CUP
+  CVE
+  CZK
+  DJF
+  DKK
+  DOP
+  DZD
+  EGP
+  ERN
+  ETB
+  EUR
+  FJD
+  FKP
+  GBP
+  GEL
+  GHS
+  GIP
+  GMD
+  GNF
+  GTQ
+  GYD
+  HKD
+  HNL
+  HRK
+  HTG
+  HUF
+  IDR
+  ILS
+  INR
+  IQD
+  IRR
+  ISK
+  JMD
+  JOD
+  JPY
+  KES
+  KGS
+  KHR
+  KMF
+  KPW
+  KRW
+  KWD
+  KYD
+  KZT
+  LAK
+  LBP
+  LKR
+  LRD
+  LSL
+  LYD
+  MAD
+  MDL
+  MGA
+  MKD
+  MMK
+  MNT
+  MOP
+  MRO
+  MUR
+  MVR
+  MWK
+  MXN
+  MXV
+  MYR
+  MZN
+  NAD
+  NGN
+  NIO
+  NOK
+  NPR
+  NZD
+  OMR
+  PAB
+  PEN
+  PGK
+  PHP
+  PKR
+  PLN
+  PYG
+  QAR
+  RON
+  RSD
+  RUB
+  RWF
+  SAR
+  SBD
+  SCR
+  SDG
+  SEK
+  SGD
+  SLL
+  SOS
+  SRD
+  SSP
+  STD
+  SVC
+  SYP
+  SZL
+  THB
+  TJS
+  TMT
+  TND
+  TOP
+  TRY
+  TTD
+  TWD
+  TZS
+  UAH
+  UGX
+  USD
+  UYI
+  UYU
+  UZS
+  VEF
+  VND
+  VUV
+  WST
+  XAF
+  XCD
+  XDR
+  XOF
+  XPF
+  XSU
+  XUA
+  YER
+  ZAR
+  ZMW
+  ZWL
 }
 
 """
@@ -189,6 +358,7 @@ type Mutation {
 }
 
 type PaginatedProductsType {
+  hasMore: Boolean!
   products: [Product!]!
   total: Int!
 }
@@ -218,13 +388,12 @@ type ProductCategory {
 
 type Query {
   findTenantByBusinessName(businessName: String!): Tenant
-  getAllProducts(categoriesIds: [Int!], includeSoftDeleted: Boolean = false, limit: Float! = 10, page: Float! = 1, sortBy: SortBy, sortOrder: SortOrder, tenantId: String!, type: TypeEnum): PaginatedProductsType!
+  getAllProducts(categoriesIds: [Int!], includeSoftDeleted: Boolean = false, limit: Float = 25, name: String, page: Float = 1, sortBy: SortBy, sortOrder: SortOrder, tenantId: String!, type: TypeEnum): PaginatedProductsType!
   getProductById(id: String!, tenantId: String!): Product!
-  getProductsByName(includeSoftDeleted: Boolean = false, limit: Float! = 10, name: String!, page: Float! = 1, tenantId: String!): PaginatedProductsType!
 }
 
 input RegisterAuthInput {
-  accountType: AccountType!
+  accountType: AccountTypeEnum!
   email: String!
   password: String!
 }
@@ -249,7 +418,7 @@ type Tenant {
   authIdentityId: Int!
   businessName: String!
   createdAt: DateTime!
-  currency: String!
+  currency: CurrencyCodes!
   defaultBillingAddressId: Int!
   defaultPhoneNumberId: Int!
   defaultShippingAddressId: Int!

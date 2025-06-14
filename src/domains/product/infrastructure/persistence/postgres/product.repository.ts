@@ -529,79 +529,43 @@ export class ProductRepository implements IProductRepository {
     }
   }
 
-  // Find products by name (partial match)
-  async findByName(
-    name: string,
-    tenantId: Id,
-    page?: number,
-    limit?: number,
-    includeSoftDeleted?: boolean,
-  ): Promise<{ products: Product[]; total: number }> {
-    const whereConditions: Prisma.ProductWhereInput[] = [
-      { tenantId: tenantId.getValue() },
-      { name: { contains: name, mode: 'insensitive' } },
-    ];
-
-    if (includeSoftDeleted === false || includeSoftDeleted === undefined) {
-      whereConditions.push({
-        isArchived: false,
-      });
-    } else if (includeSoftDeleted === true) {
-      whereConditions.push({
-        isArchived: true,
-      });
-    }
-
-    try {
-      const skip = page && limit ? (page - 1) * limit : undefined;
-      const take = limit;
-
-      const [products, total] = await Promise.all([
-        this.prisma.product.findMany({
-          where: { AND: whereConditions },
-          include: {
-            media: true,
-            variants: true,
-            categories: true,
-            sustainabilities: true,
-          },
-          skip,
-          take,
-        }),
-        this.prisma.product.count({
-          where: { AND: whereConditions },
-        }),
-      ]);
-
-      return {
-        products: products.map((product) => this.mapToDomain(product)),
-        total,
-      };
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      throw new DatabaseOperationError(
-        'find products by name',
-        errorMessage,
-        error instanceof Error ? error : new Error(errorMessage),
-      );
-    }
-  }
-
   // Find all products with pagination and optional filtering
   async findAll(
     tenantId: Id,
-    page: number,
-    limit: number,
-    categoriesIds?: Id[],
-    type?: Type,
-    sortBy?: SortBy,
-    sortOrder?: SortOrder,
-    includeSoftDeleted?: boolean,
-  ): Promise<{ products: Product[]; total: number }> {
+    options?: {
+      page?: number;
+      limit?: number;
+      name?: string;
+      categoriesIds?: Id[];
+      type?: Type;
+      sortBy?: SortBy;
+      sortOrder?: SortOrder;
+      includeSoftDeleted?: boolean;
+    },
+  ): Promise<{ products: Product[]; total: number; hasMore: boolean }> {
+    const {
+      page = 1,
+      limit = 10,
+      name,
+      categoriesIds,
+      type,
+      sortBy,
+      sortOrder,
+      includeSoftDeleted = false,
+    } = options || {};
+
     const conditions: Prisma.ProductWhereInput[] = [
       { tenantId: tenantId.getValue() },
     ];
+
+    if (name) {
+      conditions.push({
+        name: {
+          contains: name,
+          mode: 'insensitive',
+        },
+      });
+    }
 
     if (categoriesIds && categoriesIds.length > 0) {
       conditions.push({
@@ -619,13 +583,9 @@ export class ProductRepository implements IProductRepository {
       conditions.push({ productType: type.getValue() });
     }
 
-    if (includeSoftDeleted === false || includeSoftDeleted === undefined) {
+    if (!includeSoftDeleted) {
       conditions.push({
         isArchived: false,
-      });
-    } else if (includeSoftDeleted === true) {
-      conditions.push({
-        isArchived: true,
       });
     }
 
@@ -641,7 +601,7 @@ export class ProductRepository implements IProductRepository {
     }
 
     try {
-      const skip = page && limit ? (page - 1) * limit : undefined;
+      const skip = (page - 1) * limit;
       const take = limit;
 
       const [products, total] = await Promise.all([
@@ -659,9 +619,13 @@ export class ProductRepository implements IProductRepository {
         }),
         this.prisma.product.count({ where: whereClause }),
       ]);
+
+      const hasMore = skip + products.length < total;
+
       return {
         products: products.map((product) => this.mapToDomain(product)),
         total,
+        hasMore,
       };
     } catch (error) {
       const errorMessage =

@@ -5,12 +5,16 @@ export interface IProductRepository {
   /**
    * Save a product (create or update)
    * @param product The product to save
+   * @returns The saved product
+   * @throws {Error} If there is an error during the database operation
    */
   save(product: Product): Promise<Product>;
 
   /**
    * Hard delete a product by its ID (permanent deletion)
    * @param id The product ID
+   * @returns The deleted product
+   * @throws {Error} If there is an error during the database operation
    */
   hardDelete(tenantId: Id, id: Id): Promise<Product>;
 
@@ -18,54 +22,38 @@ export interface IProductRepository {
    * Find a product by its ID
    * @param tenantId The tenant ID
    * @param id The product ID
+   * @returns The product or null if not found
+   * @throws {Error} If there is an error during the search
    */
   findById(tenantId: Id, id: Id): Promise<Product | null>;
 
   /**
-   * Find products by name (partial match)
-   * @param name The product name to search for
-   * @param tenantId The tenant ID
-   * @param page The page number for pagination (e.g., 1 for the first page).
-   * @param limit The number of items per page.
-   * @param includeSoftDeleted Whether to include soft-deleted products (default: false)
-   */
-  findByName(
-    name: string,
-    tenantId: Id,
-    page?: number,
-    limit?: number,
-    includeSoftDeleted?: boolean,
-  ): Promise<{ products: Product[]; total: number }>;
-
-  /**
    * Find all products with pagination, filtering, and sorting.
    *
-   * @param tenantId The tenant ID
-   * @param page The page number for pagination (e.g., 1 for the first page).
-   * @param limit The number of items per page.
-   * @param categoriesIds Optional. An array of category IDs (Value Object `Id`) to filter products by.
-   *                      If provided, only products belonging to at least one of these categories will be returned.
-   * @param Types Optional. A `Type` value object to filter products by its specific type (e.g., PHYSICAL or DIGITAL).
-   *                     If provided, only.
-   * @param sortBy Optional. The field to sort the products by.
-   *               Supported fields: 'createdAt', 'updatedAt', 'name'.
-   *               Defaults to a predefined order (e.g., 'createdAt') if not specified.
-   * @param sortOrder Optional. The order of sorting ('ASC' for ascending, 'DESC' for descending).
-   *                  Defaults to 'DESC' for date fields and 'ASC' for text fields like 'name' if not specified.
-   *                  This parameter is typically used in conjunction with `sortBy`.
-   * @param includeSoftDeleted Optional. Whether to include soft-deleted products in the results.
-   *                           Defaults to `false`.
-   * @returns A promise that resolves to an object containing an array of `Product` entities
-   *          for the current page and the `total` number of products matching the criteria.
+   * @param tenantId The tenant ID to scope the search.
+   * @param options Optional parameters for pagination, filtering, and sorting.
+   * @param options.page The page number (default: 1).
+   * @param options.limit The number of items per page (default: 10).
+   * @param options.name Filter by product name (case-insensitive).
+   * @param options.categoriesIds Filter by category IDs.
+   * @param options.type Filter by product type.
+   * @param options.sortBy The field to sort by (default: 'createdAt').
+   * @param options.sortOrder The sort order ('asc' or 'desc') (default: 'desc').
+   * @param options.includeSoftDeleted Whether to include soft-deleted products (default: false).
+   * @returns A promise that resolves to an object containing the products, total count, and hasMore flag.
+   * @throws {Error} If there is an error during the search.
    */
   findAll(
     tenantId: Id,
-    page?: number,
-    limit?: number,
-    categoriesIds?: Id[],
-    type?: Type,
-    sortBy?: SortBy,
-    sortOrder?: SortOrder,
-    includeSoftDeleted?: boolean,
-  ): Promise<{ products: Product[]; total: number }>;
+    options?: {
+      page?: number;
+      limit?: number;
+      name?: string;
+      categoriesIds?: Id[];
+      type?: Type;
+      sortBy?: SortBy;
+      sortOrder?: SortOrder;
+      includeSoftDeleted?: boolean;
+    },
+  ): Promise<{ products: Product[]; total: number; hasMore: boolean }>;
 }
