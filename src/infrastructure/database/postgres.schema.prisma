@@ -439,6 +439,7 @@ model TaxRate {
 model Category {
   id            String              @id
   name          String
+  cover         String
   description   String?
   subCategories Category[]          @relation("Subcategory")
   parentId      String?
