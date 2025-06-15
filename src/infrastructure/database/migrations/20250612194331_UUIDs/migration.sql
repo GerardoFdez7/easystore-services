@@ -240,6 +240,7 @@ CREATE TABLE "product"."TaxRate" (
 CREATE TABLE "product"."Category" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "cover" TEXT NOT NULL,
     "description" TEXT,
     "parentId" TEXT,
     "tenantId" TEXT NOT NULL,

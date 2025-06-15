@@ -1,10 +1,10 @@
 // Shared value objects
-export { Cover } from './shared/cover.vo';
 export { Months } from './shared/months.vo';
 export {
   Id,
   IdSchema,
   Name,
+  Cover,
   ShortDescription,
   MediumDescription,
   LongDescription,

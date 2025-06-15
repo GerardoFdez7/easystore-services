@@ -4,6 +4,7 @@ export interface ICategoryType extends ICategorySystem, ICategoryBase {}
 // Base properties for a Category
 export interface ICategoryBase {
   name: string;
+  cover?: string;
   description?: string;
   subCategories?: ICategoryType[];
   parentId?: string;

@@ -1,5 +1,5 @@
 import { Entity, EntityProps, ICategoryBase } from '../';
-import { Id, Name, ShortDescription } from '../../value-objects';
+import { Id, Name, Cover, ShortDescription } from '../../value-objects';
 import {
   CategoryCreatedEvent,
   CategoryDeletedEvent,
@@ -9,6 +9,7 @@ import {
 export interface ICategoryProps extends EntityProps {
   id: Id;
   name: Name;
+  cover: Cover;
   description: ShortDescription;
   subCategories?: ICategoryProps[];
   parentId?: Id;
@@ -40,6 +41,9 @@ export class Category extends Entity<ICategoryProps> {
   static create(props: ICategoryBase): Category {
     const transformedProps = {
       name: Name.create(props.name),
+      cover: props.cover
+        ? Cover.create(props.cover)
+        : Cover.create('https://easystore.com/default-cover.jpg'),
       description: props.description
         ? ShortDescription.create(props.description)
         : null,
@@ -79,6 +83,11 @@ export class Category extends Entity<ICategoryProps> {
     if (updates.name !== undefined) {
       props.name = Name.create(updates.name);
     }
+
+    if (updates.cover !== undefined) {
+      props.cover = Cover.create(updates.cover);
+    }
+
     if (updates.description !== undefined) {
       props.description = ShortDescription.create(updates.description);
     }
@@ -115,5 +124,13 @@ export class Category extends Entity<ICategoryProps> {
     category.apply(new CategoryDeletedEvent(category));
 
     return category;
+  }
+
+  /**
+   * Get the category properties for mapping purposes
+   * @returns The category properties
+   */
+  getProps(): ICategoryProps {
+    return this.props;
   }
 }

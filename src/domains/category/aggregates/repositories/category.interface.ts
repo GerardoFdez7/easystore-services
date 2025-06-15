@@ -1,6 +1,5 @@
 import { Category } from '../entities';
 import { Id, SortBy, SortOrder } from '../value-objects';
-import { ICategoryBase } from '../entities';
 
 /**
  * Repository interface for Category domain operations.
@@ -13,39 +12,35 @@ export interface ICategoryRepository {
    * @returns Promise that resolves to the created Category entity
    * @throws {Error} When category creation fails
    */
-  create(category: ICategoryBase): Promise<Category>;
+  create(category: Category): Promise<Category>;
 
   /**
    * Updates an existing category in the repository.
-   * @param tenantId - The tenant identifier to scope the search
    * @param id - The unique identifier of the category to update
+   * @param tenantId - The tenant identifier to scope the search
    * @param updates - Partial category data containing fields to update
    * @returns Promise that resolves to the updated Category entity
    * @throws {Error} When category is not found or update fails
    */
-  update(
-    tenantId: Id,
-    id: Id,
-    updates: Partial<Omit<ICategoryBase, 'tenantId'>>,
-  ): Promise<Category>;
+  update(id: Id, tenantId: Id, updates: Category): Promise<Category>;
 
   /**
    * Deletes a category from the repository.
-   * @param tenantId - The tenant identifier to scope the search
    * @param id - The unique identifier of the category to delete
+   * @param tenantId - The tenant identifier to scope the search
    * @returns Promise that resolves to void when deletion is successful
    * @throws {Error} When category is not found or deletion fails
    */
-  delete(tenantId: Id, id: Id): Promise<void>;
+  delete(id: Id, tenantId: Id): Promise<void>;
 
   /**
    * Finds a category by its unique identifier.
-   * @param tenantId - The tenant identifier to scope the search
    * @param id - The unique identifier of the category
+   * @param tenantId - The tenant identifier to scope the search
    * @returns Promise that resolves to the Category entity if found, null otherwise
    * @throws {Error} When repository operation fails
    */
-  findById(tenantId: Id, id: Id): Promise<Category | null>;
+  findById(id: Id, tenantId: Id): Promise<Category | null>;
 
   /**
    * Finds a category by its name within a specific tenant.

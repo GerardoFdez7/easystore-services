@@ -25,7 +25,7 @@ export class HardDeleteProductHandler
       throw new NotFoundException(`Product with ID ${command.id} not found`);
     }
 
-    // Call the domain entity method to soft delete the product
+    // Call the domain entity method to delete the product
     const deletedProduct = this.eventPublisher.mergeObjectContext(
       ProductMapper.fromHardDeleteDto(product),
     );

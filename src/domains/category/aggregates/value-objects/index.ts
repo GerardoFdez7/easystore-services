@@ -1,6 +1,7 @@
 export {
   Id,
   Name,
+  Cover,
   ShortDescription,
   SortBy,
   SortOrder,
