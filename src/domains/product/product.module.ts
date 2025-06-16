@@ -67,11 +67,11 @@ const EventHandlers = [
 @Module({
   imports: [CqrsModule, PostgresModule, LoggerModule],
   providers: [
-    ProductResolver,
     { provide: 'IProductRepository', useClass: ProductRepository },
+    ProductResolver,
     ...CommandHandlers,
-    ...EventHandlers,
     ...QueryHandlers,
+    ...EventHandlers,
   ],
 })
 export class ProductDomain {}

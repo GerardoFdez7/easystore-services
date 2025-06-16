@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Inject, BadRequestException, NotFoundException } from '@nestjs/common';
-import { ICategoryRepository } from '../../../aggregates/repositories/category.interface';
+import ICategoryRepository from '../../../aggregates/repositories/category.interface';
 import { Id } from '../../../aggregates/value-objects';
 import { CategoryMapper, PaginatedCategoriesDTO } from '../../mappers';
 import { GetAllCategoriesDTO } from './all-categories.dto';

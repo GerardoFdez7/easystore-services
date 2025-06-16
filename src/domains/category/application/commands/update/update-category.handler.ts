@@ -1,7 +1,7 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { NotFoundException, Inject } from '@nestjs/common';
 import { UpdateCategoryDTO } from './update-category.dto';
-import { ICategoryRepository } from '../../../aggregates/repositories/category.interface';
+import ICategoryRepository from '../../../aggregates/repositories/category.interface';
 import { CategoryMapper, CategoryDTO } from '../../mappers';
 import { Id } from '../../../aggregates/value-objects';
 

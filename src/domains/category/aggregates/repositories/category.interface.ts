@@ -5,7 +5,7 @@ import { Id, SortBy, SortOrder } from '../value-objects';
  * Repository interface for Category domain operations.
  * Provides methods for CUD operations and querying categories.
  */
-export interface ICategoryRepository {
+export default interface ICategoryRepository {
   /**
    * Creates a new category in the repository.
    * @param category - The base category data to create
