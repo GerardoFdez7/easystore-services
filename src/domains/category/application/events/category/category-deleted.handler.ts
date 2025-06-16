@@ -11,7 +11,7 @@ export class CategoryDeletedHandler
   constructor(private readonly logger: LoggerService) {}
 
   handle(event: CategoryDeletedEvent): void {
-    this.logger.log(
+    this.logger.warn(
       `Category deleted: ${event.category.get('name').getValue()}, with id: ${event.category.get('id').getValue()}`,
     );
   }

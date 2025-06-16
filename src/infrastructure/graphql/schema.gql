@@ -55,6 +55,16 @@ type AuthenticationLoginResponseDTO {
   refreshToken: String!
 }
 
+type Category {
+  cover: String!
+  createdAt: DateTime!
+  description: String!
+  name: String!
+  subCategories: [Category!]!
+  tenantId: ID!
+  updatedAt: DateTime!
+}
+
 enum ConditionEnum {
   NEW
   REFURBISHED
@@ -64,6 +74,15 @@ enum ConditionEnum {
 input CreateAttributeInput {
   key: String!
   value: String!
+}
+
+input CreateCategoryInput {
+  cover: String
+  description: String
+  name: String!
+  parentId: ID
+  subCategories: [CreateCategoryInput!]
+  tenantId: ID!
 }
 
 input CreateDimensionInput {
@@ -345,7 +364,9 @@ type Mutation {
   TenantSingUp(input: CreateTenantInput!): Boolean!
   addVariant(input: CreateVariantInput!): Product!
   archiveVariant(id: String!, productId: String!, tenantId: String!): Product!
+  createCategory(input: CreateCategoryInput!): Category!
   createProduct(input: CreateProductInput!): Product!
+  deleteCategory(id: ID!, tenantId: ID!): Category!
   hardDeleteProduct(id: String!, tenantId: String!): Product!
   login(input: AuthenticationLoginDTO!): AuthenticationLoginResponseDTO!
   register(input: RegisterAuthInput!): AuthIdentity!
@@ -353,8 +374,15 @@ type Mutation {
   restoreProduct(id: String!, tenantId: String!): Product!
   restoreVariant(id: String!, productId: String!, tenantId: String!): Product!
   softDeleteProduct(id: String!, tenantId: String!): Product!
+  updateCategory(id: ID!, input: UpdateCategoryInput!, tenantId: ID!): Category!
   updateProduct(id: String!, input: UpdateProductInput!, tenantId: String!): Product!
   updateVariant(id: String!, input: UpdateVariantInput!, productId: String!, tenantId: String!): Product!
+}
+
+type PaginatedCategoriesType {
+  categories: [Category!]!
+  hasMore: Boolean!
+  total: Int!
 }
 
 type PaginatedProductsType {
@@ -388,7 +416,9 @@ type ProductCategory {
 
 type Query {
   findTenantByBusinessName(businessName: String!): Tenant
-  getAllProducts(categoriesIds: [Int!], includeSoftDeleted: Boolean = false, limit: Float = 25, name: String, page: Float = 1, sortBy: SortBy, sortOrder: SortOrder, tenantId: String!, type: TypeEnum): PaginatedProductsType!
+  getAllCategories(includeSubcategories: Boolean = true, limit: Int = 25, name: String, page: Int = 1, parentId: ID, sortBy: SortBy, sortOrder: SortOrder, tenantId: ID!): PaginatedCategoriesType!
+  getAllProducts(categoriesIds: [Int!], includeSoftDeleted: Boolean = false, limit: Float! = 10, page: Float! = 1, sortBy: SortBy, sortOrder: SortOrder, tenantId: String!, type: TypeEnum): PaginatedProductsType!
+  getCategoryById(id: ID!, tenantId: ID!): Category!
   getProductById(id: String!, tenantId: String!): Product!
 }
 
@@ -438,6 +468,14 @@ enum TypeEnum {
 input UpdateAttributeInput {
   key: String
   value: String
+}
+
+input UpdateCategoryInput {
+  cover: String
+  description: String
+  name: String
+  parentId: ID
+  subCategories: [UpdateCategoryInput!]
 }
 
 input UpdateDimensionInput {
