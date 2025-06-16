@@ -20,6 +20,7 @@ import {
   CategoryUpdatedHandler,
 } from './application/events';
 import CategoryRepository from './infrastructure/persistence/postgres/category.repository';
+import CategoryResolver from './presentation/graphql/category.resolver';
 
 const CommandHandlers = [
   CreateCategoryHandler,
@@ -39,6 +40,7 @@ const EventHandlers = [
   imports: [CqrsModule, PostgresModule, LoggerModule],
   providers: [
     { provide: 'ICategoryRepository', useClass: CategoryRepository },
+    CategoryResolver,
     ...CommandHandlers,
     ...QueryHandlers,
     ...EventHandlers,

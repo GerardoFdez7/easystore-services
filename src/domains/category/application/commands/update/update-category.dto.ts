@@ -1,6 +1,8 @@
 import { ICategoryBase } from '../../../aggregates/entities';
 
-type UpdatableCategoryFields = Partial<Omit<ICategoryBase, 'tenantId'>>;
+type UpdatableCategoryFields = Partial<
+  Omit<ICategoryBase, 'tenantId' | 'subCategories'>
+>;
 
 /**
  * Data Transfer Object for updating a Category
