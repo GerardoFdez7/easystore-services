@@ -22,6 +22,7 @@
       "@test/*": ["src/test/*"],
       "@config/*": ["src/config/*"],
       "@common/*": ["src/common/*"],
+      "@utils/*": ["src/common/utils/*"],
       "@database/*": ["src/infrastructure/database/*"],
       "@graphql/*": ["src/infrastructure/graphql/*"],
       "@metrics/*": ["src/infrastructure/metrics/*"],

@@ -19,6 +19,7 @@ import {
   CategoryDeletedHandler,
   CategoryUpdatedHandler,
 } from './application/events';
+import CategoryRepository from './infrastructure/persistence/postgres/category.repository';
 
 const CommandHandlers = [
   CreateCategoryHandler,
@@ -36,6 +37,11 @@ const EventHandlers = [
 
 @Module({
   imports: [CqrsModule, PostgresModule, LoggerModule],
-  providers: [...CommandHandlers, ...QueryHandlers, ...EventHandlers],
+  providers: [
+    { provide: 'ICategoryRepository', useClass: CategoryRepository },
+    ...CommandHandlers,
+    ...QueryHandlers,
+    ...EventHandlers,
+  ],
 })
 export class CategoryDomain {}
