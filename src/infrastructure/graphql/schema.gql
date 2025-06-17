@@ -417,7 +417,7 @@ type ProductCategory {
 type Query {
   findTenantByBusinessName(businessName: String!): Tenant
   getAllCategories(includeSubcategories: Boolean = true, limit: Int = 25, name: String, page: Int = 1, parentId: ID, sortBy: SortBy, sortOrder: SortOrder, tenantId: ID!): PaginatedCategoriesType!
-  getAllProducts(categoriesIds: [Int!], includeSoftDeleted: Boolean = false, limit: Float! = 10, page: Float! = 1, sortBy: SortBy, sortOrder: SortOrder, tenantId: String!, type: TypeEnum): PaginatedProductsType!
+  getAllProducts(categoriesIds: [Int!], includeSoftDeleted: Boolean = false, limit: Float = 25, name: String, page: Float = 1, sortBy: SortBy, sortOrder: SortOrder, tenantId: String!, type: TypeEnum): PaginatedProductsType!
   getCategoryById(id: ID!, tenantId: ID!): Category!
   getProductById(id: String!, tenantId: String!): Product!
 }
