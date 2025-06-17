@@ -16,10 +16,14 @@ export class DeleteCategoryHandler
   ) {}
 
   async execute(command: DeleteCategoryDTO): Promise<CategoryDTO> {
+    // Value objects
+    const categoryId = Id.create(command.id);
+    const tenantId = Id.create(command.tenantId);
+
     // Find the category by ID
     const category = await this.categoryRepository.findById(
-      Id.create(command.id),
-      Id.create(command.tenantId),
+      categoryId,
+      tenantId,
     );
     if (!category) {
       throw new NotFoundException(`Category with ID ${command.id} not found`);
@@ -29,6 +33,9 @@ export class DeleteCategoryHandler
     const deletedCategory = this.eventPublisher.mergeObjectContext(
       CategoryMapper.fromDeleteDto(category),
     );
+
+    // Delete through repository
+    await this.categoryRepository.delete(categoryId, tenantId);
 
     // Commit events to event bus
     deletedCategory.commit();
