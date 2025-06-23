@@ -11,6 +11,7 @@ import { AuthenticationDomain } from './domains/authentication/authentication.mo
 import { TenantDomain } from './domains/tenant/tenant.module';
 import { ProductDomain } from './domains/product/product.module';
 import { CategoryDomain } from './domains/category/category.module';
+import { AddressDomain } from './domains/address/address.module';
 import { InventoryDomain } from './domains/inventory/inventory.module';
 
 @Global()
@@ -29,6 +30,7 @@ import { InventoryDomain } from './domains/inventory/inventory.module';
     TenantDomain,
     ProductDomain,
     CategoryDomain,
+    AddressDomain,
     InventoryDomain,
   ],
   providers: [],
