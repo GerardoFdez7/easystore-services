@@ -26,6 +26,26 @@ input AddVariantToProductInput {
   weight: Float
 }
 
+type AddressType {
+  addressLine1: String!
+  addressLine2: String!
+  addressType: AddressTypes!
+  city: String!
+  countryId: ID!
+  customerId: ID!
+  deliveryNum: String!
+  name: String!
+  postalCode: String!
+  tenantId: ID!
+}
+
+"""Types of addresses"""
+enum AddressTypes {
+  BILLING
+  SHIPPING
+  WAREHOUSE
+}
+
 type Attribute {
   key: String!
   value: String!
@@ -69,6 +89,19 @@ enum ConditionEnum {
   NEW
   REFURBISHED
   USED
+}
+
+input CreateAddressInput {
+  addressLine1: String!
+  addressLine2: String
+  addressType: AddressTypes!
+  city: String!
+  countryId: ID!
+  customerId: ID
+  deliveryNum: String
+  name: String!
+  postalCode: String
+  tenantId: ID
 }
 
 input CreateAttributeInput {
@@ -364,6 +397,7 @@ type Mutation {
   TenantSingUp(input: CreateTenantInput!): Boolean!
   addVariant(input: CreateVariantInput!): Product!
   archiveVariant(id: String!, productId: String!, tenantId: String!): Product!
+  createAddress(input: CreateAddressInput!): AddressType!
   createCategory(input: CreateCategoryInput!): Category!
   createProduct(input: CreateProductInput!): Product!
   deleteCategory(id: ID!, tenantId: ID!): Category!
