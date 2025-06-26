@@ -1,5 +1,5 @@
+import { Id } from '@domains/value-objects';
 import { Address } from '../entities';
-//import { Id } from '../value-objects/id.vo';
 
 export default interface IAddressRepository {
   /**
@@ -16,5 +16,7 @@ export default interface IAddressRepository {
    * @returns Promise that resolves to the Address entity if found, null otherwise
    * @throws {Error} When repository operation fails
    */
-  //   findById(id: Id): Promise<Address | null>;
+  findById(id: Id): Promise<Address | null>;
+
+  delete(id: Id): Promise<void>;
 }

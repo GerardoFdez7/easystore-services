@@ -1,5 +1,5 @@
 import { Entity, EntityProps, IAddressBase } from '../';
-import { AddressCreatedEvent } from '../../events';
+import { AddressCreatedEvent, AddressDeletedEvent } from '../../events';
 import {
   Id,
   Name,
@@ -66,6 +66,11 @@ export class Address extends Entity<IAddressProps> {
     //Aply domain event
     address.apply(new AddressCreatedEvent(address));
 
+    return address;
+  }
+
+  static delete(address: Address): Address {
+    address.apply(new AddressDeletedEvent(address));
     return address;
   }
 }

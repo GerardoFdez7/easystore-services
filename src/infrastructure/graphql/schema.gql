@@ -400,6 +400,7 @@ type Mutation {
   createAddress(input: CreateAddressInput!): AddressType!
   createCategory(input: CreateCategoryInput!): Category!
   createProduct(input: CreateProductInput!): Product!
+  deleteAddress(id: String!): AddressType!
   deleteCategory(id: ID!, tenantId: ID!): Category!
   hardDeleteProduct(id: String!, tenantId: String!): Product!
   login(input: AuthenticationLoginDTO!): AuthenticationLoginResponseDTO!
