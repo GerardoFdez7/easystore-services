@@ -420,6 +420,7 @@ type Mutation {
   createCategory(input: CreateCategoryInput!): Category!
   createInventory(input: CreateWarehouseInput!): Warehouse!
   createProduct(input: CreateProductInput!): Product!
+  deleteAddress(id: String!): AddressType!
   deleteCategory(id: ID!, tenantId: ID!): Category!
   deleteStockPerWarehouse(id: String!, warehouseId: String!): StockPerWarehouse!
   deleteWarehouse(id: String!, tenantId: String!): Warehouse!
