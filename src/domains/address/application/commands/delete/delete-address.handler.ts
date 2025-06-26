@@ -20,9 +20,9 @@ export class DeleteAddressHandler implements ICommandHandler<AddressDeleteDTO> {
     if (!address) {
       throw new NotFoundException(`Address with ID ${command.id} not found`);
     }
-    
+
     const deletedAddress = this.eventPublisher.mergeObjectContext(
-      AddressMapper.fromDeleteDto(address)
+      AddressMapper.fromDeleteDto(address),
     );
 
     await this.addressRepository.delete(addressId);

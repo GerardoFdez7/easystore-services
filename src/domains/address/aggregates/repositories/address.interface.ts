@@ -16,7 +16,10 @@ export default interface IAddressRepository {
    * @returns Promise that resolves to the Address entity if found, null otherwise
    * @throws {Error} When repository operation fails
    */
-  findById(id: Id): Promise<Address | null>;
 
   delete(id: Id): Promise<void>;
+
+  findById(id: Id): Promise<Address | null>;
+
+  // findAll(tenatId: Id, customer: Id): Promise<Address[]>;
 }
