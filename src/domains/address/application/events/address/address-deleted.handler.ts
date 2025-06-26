@@ -11,6 +11,8 @@ export class AddressDeletedHandler
   constructor(private readonly logger: LoggerService) {}
 
   handle(event: AddressDeletedEvent): void {
-    this.logger.error(`Address deleted: ${event.address.get('name').getValue()}`);
+    this.logger.error(
+      `Address deleted: ${event.address.get('name').getValue()}`,
+    );
   }
 }
