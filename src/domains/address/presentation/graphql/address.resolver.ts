@@ -1,7 +1,7 @@
 import { Resolver, Mutation, Args } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AddressType, CreateAddressInput } from './types';
-import { CreateAddressDto } from '../../application/commands';
+import { CreateAddressDto, AddressDeleteDTO } from '../../application/commands';
 
 @Resolver()
 export default class AddressResolver {
@@ -20,5 +20,12 @@ export default class AddressResolver {
     input: CreateAddressInput,
   ): Promise<AddressType> {
     return this.commandBus.execute(new CreateAddressDto(input));
+  }
+
+  @Mutation(() => AddressType)
+  async deleteAddress(
+    @Args('id', { type: () => String }) id: string,
+  ): Promise<AddressType> {
+    return this.commandBus.execute(new AddressDeleteDTO(id));
   }
 }

@@ -1,0 +1,16 @@
+import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
+import { Injectable } from '@nestjs/common';
+import { LoggerService } from '@winston/winston.service';
+import { AddressDeletedEvent } from '../../../aggregates/events';
+
+@Injectable()
+@EventsHandler(AddressDeletedEvent)
+export class AddressDeletedHandler
+  implements IEventHandler<AddressDeletedEvent>
+{
+  constructor(private readonly logger: LoggerService) {}
+
+  handle(event: AddressDeletedEvent): void {
+    this.logger.error(`Address deleted: ${event.address.get('name').getValue()}`);
+  }
+}
