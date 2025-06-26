@@ -80,13 +80,12 @@ export class AddressMapper {
     return Address.create({ ...dto });
   }
 
-    /**
-     * Maps a DeleteAddressDTO to hard delete a address
-     * @param existingAddress The existing address to hard delete
-     * @returns The deleted Address domain entity
-     */
-    static fromDeleteDto(existingCategory: Address): Address {
-      return Address.delete(existingCategory);
-    }
-
+  /**
+   * Maps a DeleteAddressDTO to hard delete a address
+   * @param existingAddress The existing address to hard delete
+   * @returns The deleted Address domain entity
+   */
+  static fromDeleteDto(existingCategory: Address): Address {
+    return Address.delete(existingCategory);
+  }
 }
