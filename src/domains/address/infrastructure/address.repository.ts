@@ -12,6 +12,7 @@ import { Address } from '../aggregates/entities';
 //import { Id, SortBy, SortOrder } from '../aggregates/value-objects';
 import IAddressRepository from '../aggregates/repositories/address.interface';
 import { AddressMapper } from '../application/mappers';
+import { Id } from '@domains/value-objects';
 
 @Injectable()
 export default class AddressRepository implements IAddressRepository {
@@ -45,6 +46,42 @@ export default class AddressRepository implements IAddressRepository {
       return this.mapToDomain(prismaAddress);
     } catch (error) {
       return this.handleDatabaseError(error, 'create address');
+    }
+  }
+
+  async delete(id: Id): Promise<void> {
+    const idValue = id.getValue();
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        const address = await tx.address.findUnique({
+          where: { id: idValue },
+        });
+
+        if (!address) {
+          throw new ResourceNotFoundError('Address');
+        }
+
+        await tx.address.delete({ where: { id: idValue } });
+      });
+    } catch (error) {
+      this.handleDatabaseError(error, 'delete address');
+    }
+  }
+
+  async findById(id: Id): Promise<Address | null> {
+    const idValue = id.getValue();
+    try {
+      const prismaAddress = await this.prisma.address.findUnique({
+        where: { id: idValue },
+      });
+
+      if (!prismaAddress) {
+        return null;
+      }
+
+      return this.mapToDomain(prismaAddress);
+    } catch (error) {
+      this.handleDatabaseError(error, 'find address by ID');
     }
   }
 
