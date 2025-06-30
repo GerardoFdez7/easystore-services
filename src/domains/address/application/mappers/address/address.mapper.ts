@@ -15,6 +15,7 @@ import {
   City,
 } from '../../../aggregates/value-objects';
 import { AddressDTO } from './address.dto';
+import { UpdateAddressDTO } from '../../commands';
 
 export class AddressMapper {
   /**
@@ -85,7 +86,14 @@ export class AddressMapper {
    * @param existingAddress The existing address to hard delete
    * @returns The deleted Address domain entity
    */
-  static fromDeleteDto(existingCategory: Address): Address {
-    return Address.delete(existingCategory);
+  static fromDeleteDto(existingAddress: Address): Address {
+    return Address.delete(existingAddress);
+  }
+
+  static fromUpdateDto(
+    existingAddress: Address,
+    dto: UpdateAddressDTO,
+  ): Address {
+    return Address.update(existingAddress, dto.data);
   }
 }

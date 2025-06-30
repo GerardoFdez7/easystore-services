@@ -74,3 +74,30 @@ export class CreateAddressInput {
   @Field(() => ID, { nullable: true })
   customerId?: string;
 }
+
+@InputType()
+export class UpdateAddressInput {
+  @Field(() => String, { nullable: true })
+  name?: string;
+
+  @Field(() => String, { nullable: true })
+  addressLine1?: string;
+
+  @Field(() => String, { nullable: true })
+  addressLine2?: string;
+
+  @Field(() => String, { nullable: true })
+  postalCode?: string;
+
+  @Field(() => String, { nullable: true })
+  city?: string;
+
+  @Field(() => ID, { nullable: true })
+  countryId?: string;
+
+  @Field(() => AddressTypes, { nullable: true })
+  addressType?: AddressTypes;
+
+  @Field(() => String, { nullable: true })
+  deliveryNum?: string;
+}

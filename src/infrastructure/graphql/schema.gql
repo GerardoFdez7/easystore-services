@@ -400,7 +400,7 @@ type Mutation {
   createAddress(input: CreateAddressInput!): AddressType!
   createCategory(input: CreateCategoryInput!): Category!
   createProduct(input: CreateProductInput!): Product!
-  deleteAddress(id: String!): AddressType!
+  deleteAddress(customerId: ID, id: ID!, tenantId: ID): AddressType!
   deleteCategory(id: ID!, tenantId: ID!): Category!
   hardDeleteProduct(id: String!, tenantId: String!): Product!
   login(input: AuthenticationLoginDTO!): AuthenticationLoginResponseDTO!
@@ -409,6 +409,7 @@ type Mutation {
   restoreProduct(id: String!, tenantId: String!): Product!
   restoreVariant(id: String!, productId: String!, tenantId: String!): Product!
   softDeleteProduct(id: String!, tenantId: String!): Product!
+  updateAddress(id: ID!, input: UpdateAddressInput!): AddressType!
   updateCategory(id: ID!, input: UpdateCategoryInput!, tenantId: ID!): Category!
   updateProduct(id: String!, input: UpdateProductInput!, tenantId: String!): Product!
   updateVariant(id: String!, input: UpdateVariantInput!, productId: String!, tenantId: String!): Product!
@@ -499,6 +500,17 @@ type Tenant {
 enum TypeEnum {
   DIGITAL
   PHYSICAL
+}
+
+input UpdateAddressInput {
+  addressLine1: String
+  addressLine2: String
+  addressType: AddressTypes
+  city: String
+  countryId: ID
+  deliveryNum: String
+  name: String
+  postalCode: String
 }
 
 input UpdateAttributeInput {

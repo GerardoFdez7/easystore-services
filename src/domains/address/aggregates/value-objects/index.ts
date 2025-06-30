@@ -1,4 +1,4 @@
-export { Id, IdSchema } from './id.vo';
+export { Id, IdSchema } from '@domains/value-objects';
 export { Name } from './name.vo';
 export { AddressLine1 } from './address-line1.vo';
 export { AddressLine2 } from './address-line2.vo';
