@@ -1,7 +1,11 @@
 import { Resolver, Mutation, Args, ID, Query } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { AddressType, CreateAddressInput } from './types';
-import { CreateAddressDto, AddressDeleteDTO } from '../../application/commands';
+import { AddressType, CreateAddressInput, UpdateAddressInput } from './types';
+import {
+  CreateAddressDTO,
+  AddressDeleteDTO,
+  UpdateAddressDTO,
+} from '../../application/commands';
 import { GetAddressIdDto } from '../../application/queries';
 
 @Resolver()
@@ -20,14 +24,28 @@ export default class AddressResolver {
     @Args('input', { type: () => CreateAddressInput })
     input: CreateAddressInput,
   ): Promise<AddressType> {
-    return this.commandBus.execute(new CreateAddressDto(input));
+    return this.commandBus.execute(new CreateAddressDTO(input));
+  }
+
+  @Mutation(() => AddressType)
+  async updateAddress(
+    @Args('id', { type: () => ID })
+    id: string,
+    @Args('input', { type: () => UpdateAddressInput })
+    input: UpdateAddressInput,
+  ): Promise<AddressType> {
+    return this.commandBus.execute(new UpdateAddressDTO(id, input));
   }
 
   @Mutation(() => AddressType)
   async deleteAddress(
-    @Args('id', { type: () => String }) id: string,
+    @Args('id', { type: () => ID }) id: string,
+    @Args('tenantId', { type: () => ID, nullable: true }) tenantId?: string,
+    @Args('customerId', { type: () => ID, nullable: true }) customerId?: string,
   ): Promise<AddressType> {
-    return this.commandBus.execute(new AddressDeleteDTO(id));
+    return this.commandBus.execute(
+      new AddressDeleteDTO(id, tenantId, customerId),
+    );
   }
 
   ///////////////

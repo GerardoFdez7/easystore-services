@@ -4,8 +4,11 @@ import { PostgresModule } from '@database/postgres.module';
 import { LoggerModule } from '@winston/winston.module';
 
 //Comand Handlers
-import { CreateAddressHandler } from './application/commands';
-import { DeleteAddressHandler } from './application/commands';
+import {
+  CreateAddressHandler,
+  UpdateAddressHandler,
+  DeleteAddressHandler,
+} from './application/commands';
 
 //Query Handlers
 import { GetAddressByIdHandler } from './application/queries';
@@ -14,13 +17,22 @@ import { GetAddressByIdHandler } from './application/queries';
 import {
   AddressCreatedHandler,
   AddressDeletedHandler,
+  AddressUpdatedHandler,
 } from './application/events';
 import AddressRepository from './infrastructure/address.repository';
 import AddressResolver from './presentation/graphql/address.resolver';
 
-const CommandHanldlers = [CreateAddressHandler, DeleteAddressHandler];
+const CommandHanldlers = [
+  CreateAddressHandler,
+  DeleteAddressHandler,
+  UpdateAddressHandler,
+];
 const QueryHandlers = [GetAddressByIdHandler];
-const EventHandlers = [AddressCreatedHandler, AddressDeletedHandler];
+const EventHandlers = [
+  AddressCreatedHandler,
+  AddressDeletedHandler,
+  AddressUpdatedHandler,
+];
 
 @Module({
   imports: [CqrsModule, PostgresModule, LoggerModule],

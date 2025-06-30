@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Inject, NotFoundException } from '@nestjs/common';
 import IAddressRepository from '../../../aggregates/repositories/address.interface';
-import { Id } from '@domains/value-objects';
+import { Id } from '../../../aggregates/value-objects';
 import { AddressMapper, AddressDTO } from '../../mappers';
 import { GetAddressIdDto } from './id-address.dto';
 
