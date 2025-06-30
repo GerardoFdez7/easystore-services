@@ -3,7 +3,7 @@ import { AddressDeleteDTO } from './delete-address.dto';
 import { Inject, NotFoundException } from '@nestjs/common';
 import IAddressRepository from 'src/domains/address/aggregates/repositories/address.interface';
 import { AddressDTO, AddressMapper } from '../../mappers';
-import { Id } from '@domains/value-objects';
+import { Id } from '../../../aggregates/value-objects';
 
 @CommandHandler(AddressDeleteDTO)
 export class DeleteAddressHandler implements ICommandHandler<AddressDeleteDTO> {
@@ -14,7 +14,16 @@ export class DeleteAddressHandler implements ICommandHandler<AddressDeleteDTO> {
   ) {}
 
   async execute(command: AddressDeleteDTO): Promise<AddressDTO> {
-    const addressId = Id.create(command.id);
+    const { id, tenantId, customerId } = command;
+
+    if ((!tenantId && !customerId) || (tenantId && customerId)) {
+      throw new Error('You must provide either tenantId or customerId');
+    }
+
+    const addressId = Id.create(id);
+    const owner = tenantId
+      ? { tenantId: Id.create(tenantId) }
+      : { customerId: Id.create(customerId) };
 
     const address = await this.addressRepository.findById(addressId);
     if (!address) {
@@ -25,7 +34,7 @@ export class DeleteAddressHandler implements ICommandHandler<AddressDeleteDTO> {
       AddressMapper.fromDeleteDto(address),
     );
 
-    await this.addressRepository.delete(addressId);
+    await this.addressRepository.delete(addressId, owner);
 
     deletedAddress.commit();
 
