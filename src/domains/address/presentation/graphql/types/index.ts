@@ -1,1 +1,5 @@
-export { AddressType, CreateAddressInput } from './address.type';
+export {
+  AddressType,
+  CreateAddressInput,
+  UpdateAddressInput,
+} from './address.type';

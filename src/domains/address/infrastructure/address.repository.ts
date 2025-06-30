@@ -9,10 +9,11 @@ import {
   DatabaseOperationError,
 } from '@domains/errors';
 import { Address } from '../aggregates/entities';
-//import { Id, SortBy, SortOrder } from '../aggregates/value-objects';
 import IAddressRepository from '../aggregates/repositories/address.interface';
 import { AddressMapper } from '../application/mappers';
-import { Id } from '@domains/value-objects';
+import { Id } from '../aggregates/value-objects';
+
+type Owner = { tenantId: Id } | { customerId: Id };
 
 @Injectable()
 export default class AddressRepository implements IAddressRepository {
@@ -49,25 +50,85 @@ export default class AddressRepository implements IAddressRepository {
     }
   }
 
-  async delete(id: Id): Promise<void> {
+  async update(id: Id, updates: Address): Promise<Address> {
+    const idValue = id.getValue();
+    const updatesDto = AddressMapper.toDto(updates);
+    try {
+      const prismaAddress = await this.prisma.$transaction(async (tsx) => {
+        //Update the main address
+        await tsx.address.update({
+          where: {
+            id: idValue,
+          },
+          data: {
+            name: updatesDto.name,
+            addressLine1: updatesDto.addressLine1,
+            addressLine2: updatesDto.addressLine2,
+            postalCode: updatesDto.postalCode,
+            city: updatesDto.city,
+            countryId: updatesDto.countryId,
+            addressType: updatesDto.addressType,
+            deliveryNum: updatesDto.deliveryNum,
+          },
+        });
+
+        //Return the updated address
+        return await tsx.address.findUnique({
+          where: { id: idValue },
+        });
+      });
+
+      return this.mapToDomain(prismaAddress);
+    } catch (error) {
+      if (error instanceof ResourceNotFoundError) {
+        throw error;
+      }
+      return this.handleDatabaseError(error, 'update address');
+    }
+  }
+
+  async delete(id: Id, owner: Owner): Promise<void> {
     const idValue = id.getValue();
     try {
       await this.prisma.$transaction(async (tx) => {
-        const address = await tx.address.findUnique({
-          where: { id: idValue },
+        const address = await tx.address.findFirst({
+          where: {
+            id: idValue,
+            ...('tenantId' in owner
+              ? { tenantId: owner.tenantId.getValue() }
+              : {}),
+            ...('customerId' in owner
+              ? { customerId: owner.customerId.getValue() }
+              : {}),
+          },
         });
 
         if (!address) {
           throw new ResourceNotFoundError('Address');
         }
 
-        await tx.address.delete({ where: { id: idValue } });
+        await tx.address.delete({
+          where: {
+            id: idValue,
+            ...('tenantId' in owner
+              ? { tenantId: owner.tenantId.getValue() }
+              : {}),
+            ...('customerId' in owner
+              ? { customerId: owner.customerId.getValue() }
+              : {}),
+          },
+        });
       });
     } catch (error) {
-      this.handleDatabaseError(error, 'delete address');
+      return this.handleDatabaseError(error, 'delete address');
     }
   }
 
+  /**
+   * Finds an address by its ID
+   * @param id - The ID of the address to find
+   * @returns The found address or null if not found
+   */
   async findById(id: Id): Promise<Address | null> {
     const idValue = id.getValue();
     try {
@@ -81,7 +142,7 @@ export default class AddressRepository implements IAddressRepository {
 
       return this.mapToDomain(prismaAddress);
     } catch (error) {
-      this.handleDatabaseError(error, 'find address by ID');
+      return this.handleDatabaseError(error, 'find address by ID');
     }
   }
 
