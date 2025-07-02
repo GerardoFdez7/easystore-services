@@ -11,8 +11,23 @@ export default interface IAddressRepository {
    */
   create(address: Address): Promise<Address>;
 
-  update(id: Id, updates: Address): Promise<Address>;
+  /**
+   * Updates an existing address in the repository.
+   * @param id - The unique identifier of the address to update.
+   * @param owner - The owner object, containing either tenantId or customerId.
+   * @param updates - The address entity with updated data.
+   * @returns A promise that resolves to the updated address entity.
+   * @throws {Error} When the address does not exist or the update fails.
+   */
+  update(id: Id, owner: Owner, updates: Address): Promise<Address>;
 
+  /**
+   * Deletes an address from the repository.
+   * @param id - The unique identifier of the address to delete.
+   * @param owner - The owner object, containing either tenantId or customerId.
+   * @returns A promise that resolves when the address is deleted.
+   * @throws {Error} When the address does not exist or the deletion fails.
+   */
   delete(id: Id, owner: Owner): Promise<void>;
 
   /**
@@ -21,7 +36,5 @@ export default interface IAddressRepository {
    * @returns Promise that resolves to the Address entity if found, null otherwise
    * @throws {Error} When repository operation fails
    */
-  findById(id: Id): Promise<Address | null>;
-
-  // findAll(tenatId: Id, customer: Id): Promise<Address[]>;
+  findById(id: Id, owner: Owner): Promise<Address | null>;
 }
