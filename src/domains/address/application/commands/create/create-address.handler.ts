@@ -19,12 +19,18 @@ export class CreateAddressHandler implements ICommandHandler<CreateAddressDTO> {
       throw new Error('You must provide either tenantId or customerId');
     }
 
+    // Mapper to create the domain entity
     const address = this.eventPublisher.mergeObjectContext(
       AddressMapper.fromCreateDto(command.data),
     );
 
+    // Persist through repository
     await this.addressRepository.create(address);
+
+    // Commit events to event bus
     address.commit();
+
+    // Return the address as DTO
     return AddressMapper.toDto(address);
   }
 }

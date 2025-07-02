@@ -50,15 +50,21 @@ export default class AddressRepository implements IAddressRepository {
     }
   }
 
-  async update(id: Id, updates: Address): Promise<Address> {
+  async update(id: Id, owner: Owner, updates: Address): Promise<Address> {
     const idValue = id.getValue();
     const updatesDto = AddressMapper.toDto(updates);
     try {
       const prismaAddress = await this.prisma.$transaction(async (tsx) => {
-        //Update the main address
+        //Update the address
         await tsx.address.update({
           where: {
             id: idValue,
+            ...('tenantId' in owner
+              ? { tenantId: owner.tenantId.getValue() }
+              : {}),
+            ...('customerId' in owner
+              ? { customerId: owner.customerId.getValue() }
+              : {}),
           },
           data: {
             name: updatesDto.name,
@@ -107,6 +113,7 @@ export default class AddressRepository implements IAddressRepository {
           throw new ResourceNotFoundError('Address');
         }
 
+        //Delete the address
         await tx.address.delete({
           where: {
             id: idValue,
@@ -129,11 +136,19 @@ export default class AddressRepository implements IAddressRepository {
    * @param id - The ID of the address to find
    * @returns The found address or null if not found
    */
-  async findById(id: Id): Promise<Address | null> {
+  async findById(id: Id, owner: Owner): Promise<Address | null> {
     const idValue = id.getValue();
     try {
-      const prismaAddress = await this.prisma.address.findUnique({
-        where: { id: idValue },
+      const prismaAddress = await this.prisma.address.findFirst({
+        where: {
+          id: idValue,
+          ...('tenantId' in owner
+            ? { tenantId: owner.tenantId.getValue() }
+            : {}),
+          ...('customerId' in owner
+            ? { customerId: owner.customerId.getValue() }
+            : {}),
+        },
       });
 
       if (!prismaAddress) {
@@ -142,7 +157,7 @@ export default class AddressRepository implements IAddressRepository {
 
       return this.mapToDomain(prismaAddress);
     } catch (error) {
-      return this.handleDatabaseError(error, 'find address by ID');
+      return this.handleDatabaseError(error, 'find address by id');
     }
   }
 

@@ -25,19 +25,24 @@ export class DeleteAddressHandler implements ICommandHandler<AddressDeleteDTO> {
       ? { tenantId: Id.create(tenantId) }
       : { customerId: Id.create(customerId) };
 
-    const address = await this.addressRepository.findById(addressId);
+    //Find the address by Id
+    const address = await this.addressRepository.findById(addressId, owner);
     if (!address) {
       throw new NotFoundException(`Address with ID ${command.id} not found`);
     }
 
+    //Delete the address
     const deletedAddress = this.eventPublisher.mergeObjectContext(
       AddressMapper.fromDeleteDto(address),
     );
 
+    //Delete through repository
     await this.addressRepository.delete(addressId, owner);
 
+    // Commit events to event bus
     deletedAddress.commit();
 
+    //Return the address as DTO
     return AddressMapper.toDto(address);
   }
 }

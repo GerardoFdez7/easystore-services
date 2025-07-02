@@ -13,7 +13,17 @@ export class GetAddressByIdHandler implements IQueryHandler<GetAddressIdDto> {
   ) {}
 
   async execute(query: GetAddressIdDto): Promise<AddressDTO> {
-    const address = await this.addressRepository.findById(Id.create(query.id));
+    const { id, tenantId, customerId } = query;
+
+    if ((!tenantId && !customerId) || (tenantId && customerId)) {
+      throw new Error('You must provide either tenantId or customerId');
+    }
+
+    const owner = tenantId
+      ? { tenantId: Id.create(tenantId) }
+      : { customerId: Id.create(customerId) };
+
+    const address = await this.addressRepository.findById(Id.create(id), owner);
     if (!address) {
       throw new NotFoundException(`Address with id ${query.id} not found`);
     }
