@@ -14,10 +14,19 @@ export class UpdateAddressHandler implements ICommandHandler<UpdateAddressDTO> {
   ) {}
 
   async execute(command: UpdateAddressDTO): Promise<AddressDTO> {
-    const addressId = Id.create(command.id);
+    const { id, tenantId, customerId } = command;
+
+    if ((!tenantId && !customerId) || (tenantId && customerId)) {
+      throw new Error('You must provide either tenantId or customerId');
+    }
+
+    const addressId = Id.create(id);
+    const owner = tenantId
+      ? { tenantId: Id.create(tenantId) }
+      : { customerId: Id.create(customerId) };
 
     //Find the address by ID
-    const address = await this.addressRepository.findById(addressId);
+    const address = await this.addressRepository.findById(addressId, owner);
     if (!address) {
       throw new NotFoundException(`Address with ID ${command.id} not found`);
     }
@@ -27,7 +36,7 @@ export class UpdateAddressHandler implements ICommandHandler<UpdateAddressDTO> {
     );
 
     //Persist through the repository
-    await this.addressRepository.update(addressId, updateAddress);
+    await this.addressRepository.update(addressId, owner, updateAddress);
 
     //Commit events to event bus
     updateAddress.commit();

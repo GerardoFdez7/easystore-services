@@ -29,12 +29,15 @@ export default class AddressResolver {
 
   @Mutation(() => AddressType)
   async updateAddress(
-    @Args('id', { type: () => ID })
-    id: string,
+    @Args('id', { type: () => ID }) id: string,
     @Args('input', { type: () => UpdateAddressInput })
     input: UpdateAddressInput,
+    @Args('tenantId', { type: () => ID, nullable: true }) tenantId?: string,
+    @Args('customerId', { type: () => ID, nullable: true }) customerId?: string,
   ): Promise<AddressType> {
-    return this.commandBus.execute(new UpdateAddressDTO(id, input));
+    return this.commandBus.execute(
+      new UpdateAddressDTO(id, tenantId, customerId, input),
+    );
   }
 
   @Mutation(() => AddressType)
@@ -55,7 +58,9 @@ export default class AddressResolver {
   @Query(() => AddressType)
   async getAddressById(
     @Args('id', { type: () => ID }) id: string,
+    @Args('tenantId', { type: () => ID, nullable: true }) tenantId?: string,
+    @Args('customerId', { type: () => ID, nullable: true }) customerId?: string,
   ): Promise<AddressType> {
-    return this.queryBus.execute(new GetAddressIdDto(id));
+    return this.queryBus.execute(new GetAddressIdDto(id, tenantId, customerId));
   }
 }

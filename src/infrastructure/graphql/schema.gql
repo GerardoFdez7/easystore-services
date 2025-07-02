@@ -431,7 +431,7 @@ type Mutation {
   restoreProduct(id: String!, tenantId: String!): Product!
   restoreVariant(id: String!, productId: String!, tenantId: String!): Product!
   softDeleteProduct(id: String!, tenantId: String!): Product!
-  updateAddress(id: ID!, input: UpdateAddressInput!): AddressType!
+  updateAddress(customerId: ID, id: ID!, input: UpdateAddressInput!, tenantId: ID): AddressType!
   updateCategory(id: ID!, input: UpdateCategoryInput!, tenantId: ID!): Category!
   updateProduct(id: String!, input: UpdateProductInput!, tenantId: String!): Product!
   updateStockPerWarehouse(id: String!, input: UpdateStockPerWarehouseInput!, warehouseId: String!): StockPerWarehouse!
@@ -476,7 +476,7 @@ type ProductCategory {
 
 type Query {
   findTenantByBusinessName(businessName: String!): Tenant
-  getAddressById(id: ID!): AddressType!
+  getAddressById(customerId: ID, id: ID!, tenantId: ID): AddressType!
   getAllCategories(includeSubcategories: Boolean = true, limit: Int = 25, name: String, page: Int = 1, parentId: ID, sortBy: SortBy, sortOrder: SortOrder, tenantId: ID!): PaginatedCategoriesType!
   getAllProducts(categoriesIds: [Int!], includeSoftDeleted: Boolean = false, limit: Float = 25, name: String, page: Float = 1, sortBy: SortBy, sortOrder: SortOrder, tenantId: String!, type: TypeEnum): PaginatedProductsType!
   getAllStockPerWarehouseByWarehouseId(warehouseId: String!): [StockPerWarehouse!]!
