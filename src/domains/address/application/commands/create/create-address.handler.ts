@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import IAddressRepository from '../../../aggregates/repositories/address.interface';
+import { IAddressRepository } from '../../../aggregates/repositories/address.interface';
 import { CreateAddressDTO } from './create-address.dto';
 import { AddressMapper, AddressDTO } from '../../mappers';
 

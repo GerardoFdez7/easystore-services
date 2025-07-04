@@ -1,0 +1,37 @@
+import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
+import { Inject, NotFoundException } from '@nestjs/common';
+import { IAddressRepository } from '../../../aggregates/repositories/address.interface';
+import { Id, AddressType } from '../../../aggregates/value-objects';
+import { AddressMapper, AllAddressDTO } from '../../mappers';
+import { GetAllAddressDTO } from './all-address.dto';
+
+@QueryHandler(GetAllAddressDTO)
+export class GetAllAddressHandler implements IQueryHandler<GetAllAddressDTO> {
+  constructor(
+    @Inject('IAddressRepository')
+    private readonly addressRepository: IAddressRepository,
+  ) {}
+
+  async execute(query: GetAllAddressDTO): Promise<AllAddressDTO> {
+    const { tenantId, customerId, addressType } = query;
+
+    if ((!tenantId && !customerId) || (tenantId && customerId)) {
+      throw new Error('You must provide either tenantId or customerId');
+    }
+    const owner = tenantId
+      ? { tenantId: Id.create(tenantId) }
+      : { customerId: Id.create(customerId) };
+
+    const addressTypeVO = AddressType.create(addressType);
+
+    // result contains an array of Address domain entities
+    const result = await this.addressRepository.findAll(owner, addressTypeVO);
+
+    if (!result) {
+      throw new NotFoundException(`No address found`);
+    }
+
+    // Transform domain entities to DTOs
+    return AddressMapper.fromAllAddress(result);
+  }
+}

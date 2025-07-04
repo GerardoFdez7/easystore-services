@@ -9,11 +9,12 @@ import {
   DatabaseOperationError,
 } from '@domains/errors';
 import { Address } from '../aggregates/entities';
-import IAddressRepository from '../aggregates/repositories/address.interface';
+import {
+  IAddressRepository,
+  Owner,
+} from '../aggregates/repositories/address.interface';
 import { AddressMapper } from '../application/mappers';
-import { Id } from '../aggregates/value-objects';
-
-type Owner = { tenantId: Id } | { customerId: Id };
+import { Id, AddressType } from '../aggregates/value-objects';
 
 @Injectable()
 export default class AddressRepository implements IAddressRepository {
@@ -156,6 +157,39 @@ export default class AddressRepository implements IAddressRepository {
       }
 
       return this.mapToDomain(prismaAddress);
+    } catch (error) {
+      return this.handleDatabaseError(error, 'find address by id');
+    }
+  }
+
+  /**
+   * Finds all addresses for a given owner and address type
+   * @param owner - The owner (tenant or customer) of the addresses
+   * @param addressType - The type of address to find (BILLING, SHIPPING, WAREHOUSE)
+   * @returns The found addresses
+   */
+  async findAll(owner: Owner, addressType?: AddressType): Promise<Address[]> {
+    const addressTypevalue = addressType.getValue();
+    try {
+      //find all addresses
+      const addresses = await this.prisma.address.findMany({
+        where: {
+          ...('tenantId' in owner
+            ? { tenantId: owner.tenantId.getValue() }
+            : {}),
+          ...('customerId' in owner
+            ? { customerId: owner.customerId.getValue() }
+            : {}),
+          addressType: addressTypevalue,
+        },
+      });
+
+      //map to domain entity
+      const mappedAddress = addresses.map((address) =>
+        this.mapToDomain(address),
+      );
+
+      return mappedAddress;
     } catch (error) {
       return this.handleDatabaseError(error, 'find address by id');
     }
