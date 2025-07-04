@@ -14,7 +14,7 @@ import {
   AddressType,
   City,
 } from '../../../aggregates/value-objects';
-import { AddressDTO } from './address.dto';
+import { AddressDTO, AllAddressDTO } from './address.dto';
 import { UpdateAddressDTO } from '../../commands';
 
 export class AddressMapper {
@@ -90,10 +90,27 @@ export class AddressMapper {
     return Address.delete(existingAddress);
   }
 
+  /**
+   * Maps a UpdateAddressDTO to update an existing address entity
+   * @param existingAddress The existing address entity to be updated
+   * @param dto The update address DTO containing the new data
+   * @returns The updated Address domain entity
+   */
   static fromUpdateDto(
     existingAddress: Address,
     dto: UpdateAddressDTO,
   ): Address {
     return Address.update(existingAddress, dto.data);
+  }
+
+  /**
+   * Maps an array of Address domain entities to AllAddressDTO
+   * @param addresses Array of Address domain entities
+   * @returns AllAddressDTO containing an array of AddressDTO objects
+   */
+  static fromAllAddress(addresses: Address[]): AllAddressDTO {
+    return {
+      addresses: addresses.map((address) => this.toDto(address)),
+    };
   }
 }

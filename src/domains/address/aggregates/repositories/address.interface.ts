@@ -1,8 +1,8 @@
-import { Id } from '../value-objects';
+import { Id, AddressType } from '../value-objects';
 import { Address } from '../entities';
 
-type Owner = { tenantId: Id } | { customerId: Id };
-export default interface IAddressRepository {
+export type Owner = { tenantId: Id } | { customerId: Id };
+export interface IAddressRepository {
   /**
    * Creates a new address in the repository.
    * @param address - The address entity to be created.
@@ -37,4 +37,12 @@ export default interface IAddressRepository {
    * @throws {Error} When repository operation fails
    */
   findById(id: Id, owner: Owner): Promise<Address | null>;
+
+  /**
+   * Finds all addresses for a given owner and address type
+   * @param owner - The owner(tenant or customer) of the addresses
+   * @param addressType - The type of address to find (BILLING, SHIPPING, WAREHOUSE)
+   * @returns The found addresses
+   */
+  findAll(owner: Owner, addressType: AddressType): Promise<Address[]>;
 }
