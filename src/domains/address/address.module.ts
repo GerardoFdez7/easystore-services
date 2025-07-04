@@ -11,7 +11,10 @@ import {
 } from './application/commands';
 
 //Query Handlers
-import { GetAddressByIdHandler } from './application/queries';
+import {
+  GetAddressByIdHandler,
+  GetAllAddressHandler,
+} from './application/queries';
 
 //Event Handlers
 import {
@@ -27,7 +30,7 @@ const CommandHanldlers = [
   DeleteAddressHandler,
   UpdateAddressHandler,
 ];
-const QueryHandlers = [GetAddressByIdHandler];
+const QueryHandlers = [GetAddressByIdHandler, GetAllAddressHandler];
 const EventHandlers = [
   AddressCreatedHandler,
   AddressDeletedHandler,
