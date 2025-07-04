@@ -101,3 +101,9 @@ export class UpdateAddressInput {
   @Field(() => String, { nullable: true })
   deliveryNum?: string;
 }
+
+@ObjectType()
+export class AddressesType {
+  @Field(() => [AddressType])
+  addresses: AddressType[];
+}
