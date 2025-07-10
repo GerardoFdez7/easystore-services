@@ -6,7 +6,6 @@ import {
   LotNumber,
   SerialNumbers,
   VariantId,
-  WarehouseId,
 } from '../../value-objects/stockPerWarehouse';
 import { Id } from '@domains/value-objects';
 
@@ -49,5 +48,5 @@ export interface IStockPerWarehouseProps {
   lotNumber: LotNumber;
   serialNumbers: SerialNumbers;
   variantId: VariantId;
-  warehouseId: WarehouseId;
+  warehouseId: Id;
 } 
