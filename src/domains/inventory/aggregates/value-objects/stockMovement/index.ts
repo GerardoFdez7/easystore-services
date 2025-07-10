@@ -1,4 +1,3 @@
-export { StockMovementId } from './stock-movement-id.vo';
 export { DeltaQty } from './delta-qty.vo';
 export { Reason } from './reason.vo';
 export { CreatedById } from './created-by-id.vo';
