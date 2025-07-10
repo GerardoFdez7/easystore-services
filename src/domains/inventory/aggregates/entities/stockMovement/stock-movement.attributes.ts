@@ -2,8 +2,6 @@ import {
   DeltaQty,
   Reason,
   CreatedById,
-  WarehouseId,
-  StockPerWarehouseId,
   OcurredAt,
 } from '../../value-objects/stockMovement';
 import { Id } from '@domains/value-objects';
@@ -39,7 +37,7 @@ export interface IStockMovementProps {
   deltaQty: DeltaQty;
   reason: Reason;
   createdById: CreatedById;
-  warehouseId: WarehouseId;
-  stockPerWarehouseId: StockPerWarehouseId;
+  warehouseId: Id;
+  stockPerWarehouseId: Id;
   ocurredAt: OcurredAt;
 } 

@@ -7,7 +7,6 @@ import {
   LotNumber,
   SerialNumbers,
   VariantId,
-  WarehouseId,
 } from '../../value-objects/stockPerWarehouse';
 import { Id } from '@domains/value-objects';
 import { Entity, EntityProps } from '@domains/entity.base';
@@ -26,7 +25,7 @@ export interface IStockPerWarehouseProps extends EntityProps {
   lotNumber: LotNumber;
   serialNumbers: SerialNumbers;
   variantId: VariantId;
-  warehouseId: WarehouseId;
+  warehouseId: Id;
 }
 
 export class StockPerWarehouse extends Entity<IStockPerWarehouseProps> {
@@ -61,7 +60,7 @@ export class StockPerWarehouse extends Entity<IStockPerWarehouseProps> {
       lotNumber: LotNumber.create(props.lotNumber || null),
       serialNumbers: SerialNumbers.create(props.serialNumbers || []),
       variantId: VariantId.create(props.variantId),
-      warehouseId: WarehouseId.create(props.warehouseId),
+      warehouseId: Id.create(props.warehouseId),
     };
 
     const stockPerWarehouse = new StockPerWarehouse(transformedProps);
@@ -151,7 +150,7 @@ export class StockPerWarehouse extends Entity<IStockPerWarehouseProps> {
     return this.props.variantId;
   }
 
-  public getWarehouseId(): WarehouseId {
+  public getWarehouseId(): Id {
     return this.props.warehouseId;
   }
 

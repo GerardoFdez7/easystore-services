@@ -3,8 +3,6 @@ import {
   DeltaQty,
   Reason,
   CreatedById,
-  WarehouseId,
-  StockPerWarehouseId,
   OcurredAt,
 } from '../../value-objects/stockMovement';
 import { Id } from '@domains/value-objects';
@@ -19,8 +17,8 @@ export interface IStockMovementProps extends EntityProps {
   deltaQty: DeltaQty;
   reason: Reason;
   createdById: CreatedById;
-  warehouseId: WarehouseId;
-  stockPerWarehouseId: StockPerWarehouseId;
+  warehouseId: Id;
+  stockPerWarehouseId: Id;
   ocurredAt: OcurredAt;
 }
 
@@ -50,8 +48,8 @@ export class StockMovement extends Entity<IStockMovementProps> {
       deltaQty: DeltaQty.create(props.deltaQty),
       reason: Reason.create(props.reason),
       createdById: CreatedById.create(props.createdById || null),
-      warehouseId: WarehouseId.create(props.warehouseId),
-      stockPerWarehouseId: StockPerWarehouseId.create(props.stockPerWarehouseId),
+      warehouseId: Id.create(props.warehouseId),
+      stockPerWarehouseId: Id.create(props.stockPerWarehouseId),
       ocurredAt: OcurredAt.create(props.ocurredAt || new Date()),
     };
 
@@ -80,11 +78,11 @@ export class StockMovement extends Entity<IStockMovementProps> {
     return this.props.createdById;
   }
 
-  public getWarehouseId(): WarehouseId {
+  public getWarehouseId(): Id {
     return this.props.warehouseId;
   }
 
-  public getStockPerWarehouseId(): StockPerWarehouseId {
+  public getStockPerWarehouseId(): Id {
     return this.props.stockPerWarehouseId;
   }
 
