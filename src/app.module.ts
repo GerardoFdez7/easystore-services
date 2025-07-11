@@ -11,6 +11,7 @@ import { AuthenticationDomain } from './domains/authentication/authentication.mo
 import { TenantDomain } from './domains/tenant/tenant.module';
 import { ProductDomain } from './domains/product/product.module';
 import { CategoryDomain } from './domains/category/category.module';
+import { AddressDomain } from './domains/address/address.module';
 
 @Global()
 @Module({
@@ -28,6 +29,7 @@ import { CategoryDomain } from './domains/category/category.module';
     TenantDomain,
     ProductDomain,
     CategoryDomain,
+    AddressDomain,
   ],
   providers: [],
   controllers: [MetricsController],
