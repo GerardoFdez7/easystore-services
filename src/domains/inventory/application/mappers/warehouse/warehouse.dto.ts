@@ -1,10 +1,25 @@
-import { IWarehouseType } from '../../../aggregates/entities';
+import { ObjectType, Field, ID } from '@nestjs/graphql';
 
-/**
- * Data Transfer Object for Warehouse entity
- * Follows the same structure as IWarehouseType
- */
-export type WarehouseDTO = IWarehouseType;
+@ObjectType('Warehouse')
+export class WarehouseDTO {
+  @Field(() => ID)
+  id: string;
+
+  @Field()
+  name: string;
+
+  @Field()
+  addressId: string;
+
+  @Field()
+  tenantId: string;
+
+  @Field()
+  createdAt: Date;
+
+  @Field()
+  updatedAt: Date;
+}
 
 /**
  * Interface for paginated warehouse results
