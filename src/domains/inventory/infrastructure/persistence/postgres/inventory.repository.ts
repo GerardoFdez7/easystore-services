@@ -28,6 +28,28 @@ export class InventoryRepository implements IInventoryRepository {
     return WarehouseMapper.fromPersistence(createdWarehouse);
   }
 
+  async getWarehouseById(id: string): Promise<Warehouse | null> {
+    const warehouse = await this.prisma.warehouse.findUnique({
+      where: { id },
+    });
+
+    if (!warehouse) {
+      return null;
+    }
+
+    // Mapear de vuelta a entidad de dominio
+    return WarehouseMapper.fromPersistence(warehouse);
+  }
+
+  async getAllWarehouses(): Promise<Warehouse[]> {
+    const warehouses = await this.prisma.warehouse.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+
+    // Mapear de vuelta a entidades de dominio
+    return warehouses.map(warehouse => WarehouseMapper.fromPersistence(warehouse));
+  }
+
   async updateWarehouse(id: string, warehouse: Warehouse): Promise<Warehouse> {
     const warehouseDto = WarehouseMapper.toDto(warehouse) as any;
     const { name, addressId, tenantId, updatedAt } = warehouseDto;
