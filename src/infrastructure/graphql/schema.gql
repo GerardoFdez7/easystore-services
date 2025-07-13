@@ -68,17 +68,6 @@ type AuthIdentity {
   updatedAt: DateTime!
 }
 
-input AuthenticationLoginDTO {
-  accountType: String!
-  email: String!
-  password: String!
-}
-
-type AuthenticationLoginResponseDTO {
-  accessToken: String!
-  refreshToken: String!
-}
-
 type Category {
   cover: String!
   createdAt: DateTime!
@@ -384,6 +373,17 @@ type Installment {
   months: Int!
 }
 
+input LoginAuthInput {
+  accountType: AccountTypeEnum!
+  email: String!
+  password: String!
+}
+
+type LoginResponse {
+  accessToken: String!
+  refreshToken: String!
+}
+
 type Media {
   mediaType: MediaTypeEnum!
   position: Int!
@@ -407,7 +407,7 @@ type Mutation {
   deleteAddress(customerId: ID, id: ID!, tenantId: ID): AddressType!
   deleteCategory(id: ID!, tenantId: ID!): Category!
   hardDeleteProduct(id: String!, tenantId: String!): Product!
-  login(input: AuthenticationLoginDTO!): AuthenticationLoginResponseDTO!
+  login(input: LoginAuthInput!): LoginResponse!
   register(input: RegisterAuthInput!): AuthIdentity!
   removeVariant(id: String!, productId: String!, tenantId: String!): Product!
   restoreProduct(id: String!, tenantId: String!): Product!

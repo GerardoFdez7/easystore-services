@@ -3,7 +3,7 @@ import { Inject } from '@nestjs/common';
 import { IAuthRepository } from '../../../aggregates/repositories/authentication.interface';
 import { AuthenticationMapper } from '../../mappers';
 import { AuthenticationRegisterDTO } from '../create/sign-up.dto';
-import { AuthenticationDTO } from '../../mappers/authentication.dto';
+import { AuthenticationDTO } from '../../mappers/auth/authentication.dto';
 
 @CommandHandler(AuthenticationRegisterDTO)
 export class AuthenticationRegisterHandler
@@ -18,11 +18,18 @@ export class AuthenticationRegisterHandler
   async execute(
     command: AuthenticationRegisterDTO,
   ): Promise<AuthenticationDTO> {
+    // Execute domain logic
     const auth = this.eventPublisher.mergeObjectContext(
       AuthenticationMapper.fromRegisterDto(command),
     );
+
+    // Persist entity
     await this.authRepository.save(auth);
+
+    // Publish event
     auth.commit();
+
+    // Return DTO
     return AuthenticationMapper.toDto(auth);
   }
 }

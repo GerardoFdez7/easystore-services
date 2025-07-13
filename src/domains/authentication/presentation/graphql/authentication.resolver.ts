@@ -1,12 +1,15 @@
 import { Resolver, Mutation, Args } from '@nestjs/graphql';
 import { CommandBus } from '@nestjs/cqrs';
-import { RegisterAuthInput, AuthIdentityType } from './authentication.types';
-import { AuthenticationRegisterDTO } from '../../application/commands/create/sign-up.dto';
 import {
+  AuthIdentityType,
+  RegisterAuthInput,
+  LoginAuthInput,
+  LoginResponseType,
+} from './types/authentication.types';
+import {
+  AuthenticationRegisterDTO,
   AuthenticationLoginDTO,
-  AuthenticationLoginResponseDTO,
-  AuthenticationLoginCommand,
-} from '../../application/queries/select/sign-in.dto';
+} from '../../application/commands';
 
 @Resolver(() => AuthIdentityType)
 export class AuthenticationResolver {
@@ -23,16 +26,16 @@ export class AuthenticationResolver {
     return await this.commandBus.execute(new AuthenticationRegisterDTO(input));
   }
 
-  @Mutation(() => AuthenticationLoginResponseDTO)
+  @Mutation(() => LoginResponseType)
   async login(
-    @Args('input') input: AuthenticationLoginDTO,
-  ): Promise<AuthenticationLoginResponseDTO> {
-    const command = new AuthenticationLoginCommand(
-      input.email,
-      input.password,
-      input.accountType,
+    @Args('input') input: LoginAuthInput,
+  ): Promise<LoginResponseType> {
+    return await this.commandBus.execute(
+      new AuthenticationLoginDTO(
+        input.email,
+        input.password,
+        input.accountType,
+      ),
     );
-
-    return this.commandBus.execute(command);
   }
 }

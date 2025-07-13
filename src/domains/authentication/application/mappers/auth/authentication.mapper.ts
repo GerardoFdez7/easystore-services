@@ -1,9 +1,4 @@
-import { Entity } from '@domains/entity.base';
-import {
-  AuthIdentity,
-  IAuthIdentityProps,
-  IAuthIdentityType,
-} from '../../aggregates/entities';
+import { AuthIdentity, IAuthIdentityType } from '../../../aggregates/entities';
 import {
   Email,
   Password,
@@ -11,9 +6,9 @@ import {
   EmailVerified,
   AccountType,
   Id,
-} from '../../aggregates/value-objects';
+} from '../../../aggregates/value-objects';
 import { AuthenticationDTO } from './authentication.dto';
-import { AuthenticationRegisterDTO } from '../commands';
+import { AuthenticationRegisterDTO } from '../../commands';
 
 /**
  * Centralized mapper for Authentication domain entity to DTO conversion for queries and vice versa for commands.
@@ -26,23 +21,19 @@ export class AuthenticationMapper {
    * @returns The mapped Authentication domain entity
    */
   static fromPersistence(persistenceAuth: IAuthIdentityType): AuthIdentity {
-    return Entity.fromPersistence<
-      IAuthIdentityType,
-      IAuthIdentityProps,
-      AuthIdentity
-    >(AuthIdentity, persistenceAuth, (model) => ({
-      id: Id.create(model.id),
-      email: Email.create(model.email),
-      password: Password.create(model.password),
-      accountType: AccountType.create(model.accountType),
-      isActive: IsActive.create(model.isActive),
-      emailVerified: EmailVerified.create(model.emailVerified),
-      lastLoginAt: model.lastLoginAt || null,
-      failedAttempts: model.failedAttempts,
-      lockedUntil: model.lockedUntil || null,
-      createdAt: model.createdAt,
-      updatedAt: model.updatedAt,
-    }));
+    return AuthIdentity.reconstitute({
+      id: Id.create(persistenceAuth.id),
+      email: Email.create(persistenceAuth.email),
+      password: Password.create(persistenceAuth.password),
+      accountType: AccountType.create(persistenceAuth.accountType),
+      isActive: IsActive.create(persistenceAuth.isActive),
+      emailVerified: EmailVerified.create(persistenceAuth.emailVerified),
+      lastLoginAt: persistenceAuth.lastLoginAt || null,
+      failedAttempts: persistenceAuth.failedAttempts,
+      lockedUntil: persistenceAuth.lockedUntil || null,
+      createdAt: persistenceAuth.createdAt,
+      updatedAt: persistenceAuth.updatedAt,
+    });
   }
 
   /**
@@ -72,6 +63,6 @@ export class AuthenticationMapper {
    * @returns The mapped AuthIdentity domain entity
    */
   static fromRegisterDto(dto: AuthenticationRegisterDTO): AuthIdentity {
-    return AuthIdentity.register(dto.data as IAuthIdentityType);
+    return AuthIdentity.register(dto.data);
   }
 }
