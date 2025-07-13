@@ -28,4 +28,23 @@ export class InventoryRepository implements IInventoryRepository {
     return WarehouseMapper.fromPersistence(createdWarehouse);
   }
 
+  async deleteWarehouse(id: string): Promise<Warehouse> {
+    // Buscar el warehouse antes de eliminarlo
+    const warehouse = await this.prisma.warehouse.findUnique({
+      where: { id },
+    });
+
+    if (!warehouse) {
+      throw new Error(`Warehouse with id ${id} not found`);
+    }
+
+    // Eliminar el warehouse
+    await this.prisma.warehouse.delete({
+      where: { id },
+    });
+
+    // Mapear de vuelta a entidad de dominio
+    return WarehouseMapper.fromPersistence(warehouse);
+  }
+
 }
