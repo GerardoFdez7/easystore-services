@@ -13,6 +13,21 @@ export interface IInventoryRepository {
   saveWarehouse(warehouse: Warehouse): Promise<Warehouse>;
 
   /**
+   * Get a warehouse by its ID
+   * @param id The warehouse ID to find
+   * @returns The warehouse or null if not found
+   * @throws {Error} If there is an error during the database operation
+   */
+  getWarehouseById(id: string): Promise<Warehouse | null>;
+
+  /**
+   * Get all warehouses
+   * @returns Array of all warehouses
+   * @throws {Error} If there is an error during the database operation
+   */
+  getAllWarehouses(): Promise<Warehouse[]>;
+
+  /**
    * Update a warehouse by its ID
    * @param id The warehouse ID to update
    * @param warehouse The warehouse data to update

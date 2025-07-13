@@ -1,14 +1,29 @@
-import { Resolver, Mutation, Args } from '@nestjs/graphql';
-import { CommandBus } from '@nestjs/cqrs';
+import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateWarehouseInput, UpdateWarehouseInput } from './types/inventory.types';
 import { CreateInventoryDTO } from '../../application/commands/create/create-inventory.dto';
 import { UpdateWarehouseDTO } from '../../application/commands/update/update-warehouse.dto';
 import { DeleteWarehouseDTO } from '../../application/commands/delete/delete-warehouse.dto';
+import { GetWarehouseByIdQuery } from '../../application/queries/get-warehouse-by-id/get-warehouse-by-id.query';
+import { GetAllWarehousesQuery } from '../../application/queries/get-all-warehouses/get-all-warehouses.query';
 import { WarehouseDTO } from '../../application/mappers';
 
 @Resolver(() => WarehouseDTO)
 export class InventoryResolver {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
+
+  @Query(() => WarehouseDTO, { nullable: true })
+  async getWarehouse(@Args('id') id: string): Promise<WarehouseDTO | null> {
+    return this.queryBus.execute(new GetWarehouseByIdQuery(id));
+  }
+
+  @Query(() => [WarehouseDTO])
+  async getAllWarehouses(): Promise<WarehouseDTO[]> {
+    return this.queryBus.execute(new GetAllWarehousesQuery());
+  }
 
   @Mutation(() => WarehouseDTO)
   async createInventory(
