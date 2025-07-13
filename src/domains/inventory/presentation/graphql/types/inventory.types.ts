@@ -34,7 +34,4 @@ export class CreateWarehouseInput {
 
   @Field(() => ID)
   tenantId: string;
-
-  @Field(() => [CreateStockPerWarehouseInput])
-  stockPerWarehouse: CreateStockPerWarehouseInput[];
 } 
