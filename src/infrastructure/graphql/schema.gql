@@ -156,6 +156,12 @@ input CreateVariantInput {
   weight: Float
 }
 
+input CreateWarehouseInput {
+  addressId: ID!
+  name: String!
+  tenantId: ID!
+}
+
 input CreateWarrantyInput {
   coverage: String!
   instructions: String!
@@ -365,6 +371,7 @@ type Mutation {
   addVariant(input: CreateVariantInput!): Product!
   archiveVariant(id: String!, productId: String!, tenantId: String!): Product!
   createCategory(input: CreateCategoryInput!): Category!
+  createInventory(input: CreateWarehouseInput!): Warehouse!
   createProduct(input: CreateProductInput!): Product!
   deleteCategory(id: ID!, tenantId: ID!): Category!
   hardDeleteProduct(id: String!, tenantId: String!): Product!
@@ -559,6 +566,15 @@ type Variant {
   variantMedia: [Media!]
   warranties: [Warranty!]
   weight: Float
+}
+
+type Warehouse {
+  addressId: String!
+  createdAt: DateTime!
+  id: ID!
+  name: String!
+  tenantId: String!
+  updatedAt: DateTime!
 }
 
 type Warranty {
