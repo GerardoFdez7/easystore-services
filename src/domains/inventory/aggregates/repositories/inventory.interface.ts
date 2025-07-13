@@ -13,6 +13,15 @@ export interface IInventoryRepository {
   saveWarehouse(warehouse: Warehouse): Promise<Warehouse>;
 
   /**
+   * Update a warehouse by its ID
+   * @param id The warehouse ID to update
+   * @param warehouse The warehouse data to update
+   * @returns The updated warehouse
+   * @throws {Error} If there is an error during the database operation
+   */
+  updateWarehouse(id: string, warehouse: Warehouse): Promise<Warehouse>;
+
+  /**
    * Delete a warehouse by its ID
    * @param id The warehouse ID to delete
    * @returns The deleted warehouse

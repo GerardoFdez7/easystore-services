@@ -385,6 +385,7 @@ type Mutation {
   updateCategory(id: ID!, input: UpdateCategoryInput!, tenantId: ID!): Category!
   updateProduct(id: String!, input: UpdateProductInput!, tenantId: String!): Product!
   updateVariant(id: String!, input: UpdateVariantInput!, productId: String!, tenantId: String!): Product!
+  updateWarehouse(id: String!, input: UpdateWarehouseInput!): Warehouse!
 }
 
 type PaginatedCategoriesType {
@@ -542,6 +543,12 @@ input UpdateVariantInput {
   variantMedia: [UpdateMediaInput!]
   warranties: [UpdateWarrantyInput!]
   weight: Float
+}
+
+input UpdateWarehouseInput {
+  addressId: ID
+  name: String
+  tenantId: ID
 }
 
 input UpdateWarrantyInput {

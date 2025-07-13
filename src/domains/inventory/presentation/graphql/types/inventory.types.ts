@@ -34,4 +34,16 @@ export class CreateWarehouseInput {
 
   @Field(() => ID)
   tenantId: string;
+}
+
+@InputType()
+export class UpdateWarehouseInput {
+  @Field({ nullable: true })
+  name?: string;
+
+  @Field(() => ID, { nullable: true })
+  addressId?: string;
+
+  @Field(() => ID, { nullable: true })
+  tenantId?: string;
 } 

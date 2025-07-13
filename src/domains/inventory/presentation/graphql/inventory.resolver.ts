@@ -1,7 +1,8 @@
 import { Resolver, Mutation, Args } from '@nestjs/graphql';
 import { CommandBus } from '@nestjs/cqrs';
-import { CreateWarehouseInput } from './types/inventory.types';
+import { CreateWarehouseInput, UpdateWarehouseInput } from './types/inventory.types';
 import { CreateInventoryDTO } from '../../application/commands/create/create-inventory.dto';
+import { UpdateWarehouseDTO } from '../../application/commands/update/update-warehouse.dto';
 import { DeleteWarehouseDTO } from '../../application/commands/delete/delete-warehouse.dto';
 import { WarehouseDTO } from '../../application/mappers';
 
@@ -14,6 +15,14 @@ export class InventoryResolver {
     @Args('input') input: CreateWarehouseInput,
   ): Promise<WarehouseDTO> {
     return this.commandBus.execute(new CreateInventoryDTO({ ...input }));
+  }
+
+  @Mutation(() => WarehouseDTO)
+  async updateWarehouse(
+    @Args('id') id: string,
+    @Args('input') input: UpdateWarehouseInput,
+  ): Promise<WarehouseDTO> {
+    return this.commandBus.execute(new UpdateWarehouseDTO(id, input));
   }
 
   @Mutation(() => WarehouseDTO)
