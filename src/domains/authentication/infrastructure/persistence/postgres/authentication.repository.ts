@@ -14,7 +14,7 @@ import {
   generateToken,
   generateRefreshToken,
   JwtPayload,
-} from '@domains/auth/jwt-handler';
+} from '../../jwt/jwt-handler';
 
 @Injectable()
 export class AuthenticationRepository implements IAuthRepository {
@@ -109,6 +109,10 @@ export class AuthenticationRepository implements IAuthRepository {
           accountType: accountType.getValue(),
         },
       });
+
+      if (!user) {
+        return null;
+      }
 
       return AuthenticationMapper.fromPersistence(user as IAuthIdentityType);
     } catch (error) {

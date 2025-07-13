@@ -12,7 +12,7 @@ export class CategoryCreatedHandler
 
   handle(event: CategoryCreatedEvent): void {
     this.logger.log(
-      `Category created: ${event.category.get('name').getValue()}`,
+      `Category created: ${event.category.get('name').getValue()}, with id: ${event.category.get('id').getValue()}`,
     );
   }
 }
