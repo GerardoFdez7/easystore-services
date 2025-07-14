@@ -1,25 +1,30 @@
 import z from 'zod';
-import { AddressTypes } from '.prisma/postgres';
+
+export enum AddressTypeEnum {
+  SHIPPING = 'SHIPPING',
+  BILLING = 'BILLING',
+  WAREHOUSE = 'WAREHOUSE',
+}
 
 const addressTypeSchema = z.enum([
-  AddressTypes.SHIPPING,
-  AddressTypes.BILLING,
-  AddressTypes.WAREHOUSE,
+  AddressTypeEnum.SHIPPING,
+  AddressTypeEnum.BILLING,
+  AddressTypeEnum.WAREHOUSE,
 ]);
 
 export class AddressType {
-  private readonly value: AddressTypes;
+  private readonly value: AddressTypeEnum;
 
-  private constructor(value: AddressTypes) {
+  private constructor(value: AddressTypeEnum) {
     this.value = value;
   }
 
   public static create(addressType: string): AddressType {
-    const parsed = addressTypeSchema.parse(addressType) as AddressTypes;
+    const parsed = addressTypeSchema.parse(addressType) as AddressTypeEnum;
     return new AddressType(parsed);
   }
 
-  public getValue(): AddressTypes {
+  public getValue(): AddressTypeEnum {
     return this.value;
   }
 
