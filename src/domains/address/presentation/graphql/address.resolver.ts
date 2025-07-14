@@ -12,7 +12,7 @@ import {
   UpdateAddressDTO,
 } from '../../application/commands';
 import { GetAddressIdDto, GetAllAddressDTO } from '../../application/queries';
-import { AddressTypes } from '.prisma/postgres';
+import { AddressTypeEnum } from '../../aggregates/value-objects';
 
 @Resolver()
 export default class AddressResolver {
@@ -72,8 +72,8 @@ export default class AddressResolver {
 
   @Query(() => AddressesType)
   async getAllAddress(
-    @Args('addressType', { type: () => AddressTypes, nullable: true })
-    addressType?: AddressTypes,
+    @Args('addressType', { type: () => AddressTypeEnum, nullable: true })
+    addressType?: AddressTypeEnum,
     @Args('tenantId', { type: () => ID, nullable: true }) tenantId?: string,
     @Args('customerId', { type: () => ID, nullable: true }) customerId?: string,
   ): Promise<AddressesType> {

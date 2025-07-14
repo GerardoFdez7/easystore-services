@@ -1,8 +1,8 @@
 import {
   Address,
   IAddressProps,
-  IAddressType,
   IAddressBase,
+  IAddressType,
 } from '../../../aggregates/entities';
 import {
   Id,

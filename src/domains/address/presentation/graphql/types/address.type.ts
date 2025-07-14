@@ -1,10 +1,10 @@
 import { ObjectType, Field, ID, InputType } from '@nestjs/graphql';
 
 import { registerEnumType } from '@nestjs/graphql';
-import { AddressTypes } from '.prisma/postgres';
+import { AddressTypeEnum } from '../../../aggregates/value-objects';
 
-registerEnumType(AddressTypes, {
-  name: 'AddressTypes',
+registerEnumType(AddressTypeEnum, {
+  name: 'AddressTypeEnum',
   description: 'Types of addresses',
 });
 
@@ -28,8 +28,8 @@ export class AddressType {
   @Field(() => ID)
   countryId: string;
 
-  @Field(() => AddressTypes)
-  addressType: AddressTypes;
+  @Field(() => AddressTypeEnum)
+  addressType: AddressTypeEnum;
 
   @Field(() => String)
   deliveryNum: string;
@@ -62,8 +62,8 @@ export class CreateAddressInput {
   @Field(() => ID)
   countryId: string;
 
-  @Field(() => AddressTypes)
-  addressType: AddressTypes;
+  @Field(() => AddressTypeEnum)
+  addressType: AddressTypeEnum;
 
   @Field(() => String, { nullable: true })
   deliveryNum?: string;
@@ -95,8 +95,8 @@ export class UpdateAddressInput {
   @Field(() => ID, { nullable: true })
   countryId?: string;
 
-  @Field(() => AddressTypes, { nullable: true })
-  addressType?: AddressTypes;
+  @Field(() => AddressTypeEnum, { nullable: true })
+  addressType?: AddressTypeEnum;
 
   @Field(() => String, { nullable: true })
   deliveryNum?: string;
