@@ -168,20 +168,25 @@ export default class AddressRepository implements IAddressRepository {
    * @param addressType - The type of address to find (BILLING, SHIPPING, WAREHOUSE)
    * @returns The found addresses
    */
-  async findAll(owner: Owner, addressType?: AddressType): Promise<Address[]> {
-    const addressTypevalue = addressType.getValue();
+  async findAll(
+    owner: Owner,
+    options?: { addressType?: AddressType },
+  ): Promise<Address[]> {
     try {
       //find all addresses
+      const whereClause: Prisma.AddressWhereInput = {
+        ...('tenantId' in owner ? { tenantId: owner.tenantId.getValue() } : {}),
+        ...('customerId' in owner
+          ? { customerId: owner.customerId.getValue() }
+          : {}),
+      };
+
+      if (options?.addressType) {
+        whereClause.addressType = options.addressType.getValue();
+      }
+
       const addresses = await this.prisma.address.findMany({
-        where: {
-          ...('tenantId' in owner
-            ? { tenantId: owner.tenantId.getValue() }
-            : {}),
-          ...('customerId' in owner
-            ? { customerId: owner.customerId.getValue() }
-            : {}),
-          addressType: addressTypevalue,
-        },
+        where: whereClause,
       });
 
       //map to domain entity

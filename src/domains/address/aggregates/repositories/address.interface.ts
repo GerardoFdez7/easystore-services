@@ -44,5 +44,8 @@ export interface IAddressRepository {
    * @param addressType - The type of address to find (BILLING, SHIPPING, WAREHOUSE)
    * @returns The found addresses
    */
-  findAll(owner: Owner, addressType: AddressType): Promise<Address[]>;
+  findAll(
+    owner: Owner,
+    options?: { addressType?: AddressType },
+  ): Promise<Address[]>;
 }

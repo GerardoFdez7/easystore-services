@@ -11,6 +11,8 @@ export class AddressCreatedHandler
   constructor(private readonly logger: LoggerService) {}
 
   handle(event: AddressCreatedEvent): void {
-    this.logger.log(`Address created: ${event.address.get('name').getValue()}`);
+    this.logger.log(
+      `Address created: ${event.address.get('name').getValue()}, with id: ${event.address.get('id').getValue()}`,
+    );
   }
 }
