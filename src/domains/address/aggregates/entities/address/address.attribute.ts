@@ -1,7 +1,6 @@
-import { AddressTypes } from '.prisma/postgres';
+import { AddressTypeEnum } from '../../value-objects';
 
 export interface IAddressType extends IAddressBase, IAddressSytem {}
-
 export interface IAddressBase {
   name: string;
   addressLine1: string;
@@ -9,7 +8,7 @@ export interface IAddressBase {
   postalCode?: string;
   city: string;
   countryId: string;
-  addressType: AddressTypes;
+  addressType: AddressTypeEnum;
   deliveryNum?: string;
   tenantId?: string;
   customerId?: string;

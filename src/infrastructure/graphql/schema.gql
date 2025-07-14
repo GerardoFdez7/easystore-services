@@ -29,7 +29,7 @@ input AddVariantToProductInput {
 type AddressType {
   addressLine1: String!
   addressLine2: String!
-  addressType: AddressTypes!
+  addressType: AddressTypeEnum!
   city: String!
   countryId: ID!
   customerId: ID!
@@ -40,7 +40,7 @@ type AddressType {
 }
 
 """Types of addresses"""
-enum AddressTypes {
+enum AddressTypeEnum {
   BILLING
   SHIPPING
   WAREHOUSE
@@ -98,7 +98,7 @@ enum ConditionEnum {
 input CreateAddressInput {
   addressLine1: String!
   addressLine2: String
-  addressType: AddressTypes!
+  addressType: AddressTypeEnum!
   city: String!
   countryId: ID!
   customerId: ID
@@ -457,7 +457,7 @@ type ProductCategory {
 type Query {
   findTenantByBusinessName(businessName: String!): Tenant
   getAddressById(customerId: ID, id: ID!, tenantId: ID): AddressType!
-  getAllAddress(addressType: AddressTypes, customerId: ID, tenantId: ID): AddressesType!
+  getAllAddress(addressType: AddressTypeEnum, customerId: ID, tenantId: ID): AddressesType!
   getAllCategories(includeSubcategories: Boolean = true, limit: Int = 25, name: String, page: Int = 1, parentId: ID, sortBy: SortBy, sortOrder: SortOrder, tenantId: ID!): PaginatedCategoriesType!
   getAllProducts(categoriesIds: [Int!], includeSoftDeleted: Boolean = false, limit: Float = 25, name: String, page: Float = 1, sortBy: SortBy, sortOrder: SortOrder, tenantId: String!, type: TypeEnum): PaginatedProductsType!
   getCategoryById(id: ID!, tenantId: ID!): Category!
@@ -510,7 +510,7 @@ enum TypeEnum {
 input UpdateAddressInput {
   addressLine1: String
   addressLine2: String
-  addressType: AddressTypes
+  addressType: AddressTypeEnum
   city: String
   countryId: ID
   deliveryNum: String
