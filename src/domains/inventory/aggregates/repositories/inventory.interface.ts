@@ -43,5 +43,39 @@ export interface IInventoryRepository {
    * @throws {Error} If there is an error during the database operation
    */
   deleteWarehouse(id: string): Promise<Warehouse>;
+
+  // ==================== STOCK PER WAREHOUSE OPERATIONS ====================
+  
+  /**
+   * Save a stock per warehouse (create or update)
+   * @param stockPerWarehouse The stock per warehouse to save
+   * @returns The saved stock per warehouse
+   * @throws {Error} If there is an error during the database operation
+   */
+  saveStockPerWarehouse(stockPerWarehouse: StockPerWarehouse): Promise<StockPerWarehouse>;
+
+  /**
+   * Delete a stock per warehouse by its ID
+   * @param id The stock per warehouse ID to delete
+   * @returns The deleted stock per warehouse
+   * @throws {Error} If there is an error during the database operation
+   */
+  deleteStockPerWarehouse(id: string): Promise<StockPerWarehouse>;
+
+  /**
+   * Get a stock per warehouse by its ID
+   * @param id The stock per warehouse ID to find
+   * @returns The stock per warehouse or null if not found
+   * @throws {Error} If there is an error during the database operation
+   */
+  getStockPerWarehouseById(id: string): Promise<StockPerWarehouse | null>;
+
+  /**
+   * Get all stock per warehouse by warehouseId
+   * @param warehouseId The warehouse ID to filter by
+   * @returns Array of stock per warehouse
+   * @throws {Error} If there is an error during the database operation
+   */
+  getAllStockPerWarehouseByWarehouseId(warehouseId: string): Promise<StockPerWarehouse[]>;
   
 } 
