@@ -26,6 +26,30 @@ input AddVariantToProductInput {
   weight: Float
 }
 
+type AddressType {
+  addressLine1: String!
+  addressLine2: String!
+  addressType: AddressTypeEnum!
+  city: String!
+  countryId: ID!
+  customerId: ID!
+  deliveryNum: String!
+  name: String!
+  postalCode: String!
+  tenantId: ID!
+}
+
+"""Types of addresses"""
+enum AddressTypeEnum {
+  BILLING
+  SHIPPING
+  WAREHOUSE
+}
+
+type AddressesType {
+  addresses: [AddressType!]!
+}
+
 type Attribute {
   key: String!
   value: String!
@@ -69,6 +93,19 @@ enum ConditionEnum {
   NEW
   REFURBISHED
   USED
+}
+
+input CreateAddressInput {
+  addressLine1: String!
+  addressLine2: String
+  addressType: AddressTypeEnum!
+  city: String!
+  countryId: ID!
+  customerId: ID
+  deliveryNum: String
+  name: String!
+  postalCode: String
+  tenantId: ID
 }
 
 input CreateAttributeInput {
@@ -364,8 +401,10 @@ type Mutation {
   TenantSingUp(input: CreateTenantInput!): Boolean!
   addVariant(input: CreateVariantInput!): Product!
   archiveVariant(id: String!, productId: String!, tenantId: String!): Product!
+  createAddress(input: CreateAddressInput!): AddressType!
   createCategory(input: CreateCategoryInput!): Category!
   createProduct(input: CreateProductInput!): Product!
+  deleteAddress(customerId: ID, id: ID!, tenantId: ID): AddressType!
   deleteCategory(id: ID!, tenantId: ID!): Category!
   hardDeleteProduct(id: String!, tenantId: String!): Product!
   login(input: AuthenticationLoginDTO!): AuthenticationLoginResponseDTO!
@@ -374,6 +413,7 @@ type Mutation {
   restoreProduct(id: String!, tenantId: String!): Product!
   restoreVariant(id: String!, productId: String!, tenantId: String!): Product!
   softDeleteProduct(id: String!, tenantId: String!): Product!
+  updateAddress(customerId: ID, id: ID!, input: UpdateAddressInput!, tenantId: ID): AddressType!
   updateCategory(id: ID!, input: UpdateCategoryInput!, tenantId: ID!): Category!
   updateProduct(id: String!, input: UpdateProductInput!, tenantId: String!): Product!
   updateVariant(id: String!, input: UpdateVariantInput!, productId: String!, tenantId: String!): Product!
@@ -416,6 +456,8 @@ type ProductCategory {
 
 type Query {
   findTenantByBusinessName(businessName: String!): Tenant
+  getAddressById(customerId: ID, id: ID!, tenantId: ID): AddressType!
+  getAllAddress(addressType: AddressTypeEnum, customerId: ID, tenantId: ID): AddressesType!
   getAllCategories(includeSubcategories: Boolean = true, limit: Int = 25, name: String, page: Int = 1, parentId: ID, sortBy: SortBy, sortOrder: SortOrder, tenantId: ID!): PaginatedCategoriesType!
   getAllProducts(categoriesIds: [Int!], includeSoftDeleted: Boolean = false, limit: Float = 25, name: String, page: Float = 1, sortBy: SortBy, sortOrder: SortOrder, tenantId: String!, type: TypeEnum): PaginatedProductsType!
   getCategoryById(id: ID!, tenantId: ID!): Category!
@@ -463,6 +505,17 @@ type Tenant {
 enum TypeEnum {
   DIGITAL
   PHYSICAL
+}
+
+input UpdateAddressInput {
+  addressLine1: String
+  addressLine2: String
+  addressType: AddressTypeEnum
+  city: String
+  countryId: ID
+  deliveryNum: String
+  name: String
+  postalCode: String
 }
 
 input UpdateAttributeInput {
