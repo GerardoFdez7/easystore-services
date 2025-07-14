@@ -13,7 +13,8 @@ export class GetAllAddressHandler implements IQueryHandler<GetAllAddressDTO> {
   ) {}
 
   async execute(query: GetAllAddressDTO): Promise<AllAddressDTO> {
-    const { tenantId, customerId, addressType } = query;
+    const { tenantId, customerId, options } = query;
+    const { addressType } = options || {};
 
     if ((!tenantId && !customerId) || (tenantId && customerId)) {
       throw new Error('You must provide either tenantId or customerId');
@@ -22,10 +23,10 @@ export class GetAllAddressHandler implements IQueryHandler<GetAllAddressDTO> {
       ? { tenantId: Id.create(tenantId) }
       : { customerId: Id.create(customerId) };
 
-    const addressTypeVO = AddressType.create(addressType);
-
     // result contains an array of Address domain entities
-    const result = await this.addressRepository.findAll(owner, addressTypeVO);
+    const result = await this.addressRepository.findAll(owner, {
+      addressType: addressType ? AddressType.create(addressType) : undefined,
+    });
 
     if (!result) {
       throw new NotFoundException(`No address found`);
