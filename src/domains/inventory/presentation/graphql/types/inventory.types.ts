@@ -22,6 +22,9 @@ export class CreateStockPerWarehouseInput {
 
   @Field(() => ID)
   variantId: string;
+
+  @Field(() => ID)
+  warehouseId: string;
 }
 
 @InputType()

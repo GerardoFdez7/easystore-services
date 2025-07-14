@@ -122,6 +122,17 @@ input CreateProductInput {
   variants: [AddVariantToProductInput!]!
 }
 
+input CreateStockPerWarehouseInput {
+  estimatedReplenishmentDate: DateTime
+  lotNumber: String
+  productLocation: String!
+  qtyAvailable: Int!
+  qtyReserved: Int!
+  serialNumbers: [String!]
+  variantId: ID!
+  warehouseId: ID!
+}
+
 input CreateSustainabilityInput {
   certification: String!
   recycledPercentage: Float!
@@ -373,7 +384,9 @@ type Mutation {
   createCategory(input: CreateCategoryInput!): Category!
   createInventory(input: CreateWarehouseInput!): Warehouse!
   createProduct(input: CreateProductInput!): Product!
+  createStockPerWarehouse(input: CreateStockPerWarehouseInput!): StockPerWarehouse!
   deleteCategory(id: ID!, tenantId: ID!): Category!
+  deleteStockPerWarehouse(id: String!): StockPerWarehouse!
   deleteWarehouse(id: String!): Warehouse!
   hardDeleteProduct(id: String!, tenantId: String!): Product!
   login(input: AuthenticationLoginDTO!): AuthenticationLoginResponseDTO!
@@ -427,9 +440,11 @@ type Query {
   findTenantByBusinessName(businessName: String!): Tenant
   getAllCategories(includeSubcategories: Boolean = true, limit: Int = 25, name: String, page: Int = 1, parentId: ID, sortBy: SortBy, sortOrder: SortOrder, tenantId: ID!): PaginatedCategoriesType!
   getAllProducts(categoriesIds: [Int!], includeSoftDeleted: Boolean = false, limit: Float = 25, name: String, page: Float = 1, sortBy: SortBy, sortOrder: SortOrder, tenantId: String!, type: TypeEnum): PaginatedProductsType!
+  getAllStockPerWarehouseByWarehouseId(warehouseId: String!): [StockPerWarehouse!]!
   getAllWarehouses: [Warehouse!]!
   getCategoryById(id: ID!, tenantId: ID!): Category!
   getProductById(id: String!, tenantId: String!): Product!
+  getStockPerWarehouse(id: String!): StockPerWarehouse
   getWarehouse(id: String!): Warehouse
 }
 
@@ -448,6 +463,18 @@ enum SortBy {
 enum SortOrder {
   ASC
   DESC
+}
+
+type StockPerWarehouse {
+  estimatedReplenishmentDate: DateTime
+  id: ID!
+  lotNumber: String
+  productLocation: String!
+  qtyAvailable: Int!
+  qtyReserved: Int!
+  serialNumbers: [String!]
+  variantId: ID!
+  warehouseId: ID!
 }
 
 type Sustainability {

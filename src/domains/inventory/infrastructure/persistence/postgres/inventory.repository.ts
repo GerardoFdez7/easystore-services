@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { IInventoryRepository } from '../../../aggregates/repositories/inventory.interface';
-import { Warehouse } from '../../../aggregates/entities';
+import { Warehouse, StockPerWarehouse } from '../../../aggregates/entities';
 import { PostgreService } from 'src/infrastructure/database/postgres.service';
-import { WarehouseMapper } from '../../../application/mappers';
+import { WarehouseMapper, StockPerWarehouseMapper } from '../../../application/mappers';
 
 @Injectable()
 export class InventoryRepository implements IInventoryRepository {
@@ -95,6 +95,57 @@ export class InventoryRepository implements IInventoryRepository {
 
     // Mapear de vuelta a entidad de dominio
     return WarehouseMapper.fromPersistence(warehouse);
+  }
+
+  async saveStockPerWarehouse(stockPerWarehouse: StockPerWarehouse): Promise<StockPerWarehouse> {
+    const stockPerWarehouseDto = StockPerWarehouseMapper.toDto(stockPerWarehouse) as any;
+    const { 
+      id, 
+      qtyAvailable, 
+      qtyReserved, 
+      productLocation, 
+      estimatedReplenishmentDate, 
+      lotNumber, 
+      serialNumbers, 
+      variantId, 
+      warehouseId 
+    } = stockPerWarehouseDto;
+
+    // Guardar el stock per warehouse
+    const createdStockPerWarehouse = await this.prisma.stockPerWarehouse.create({
+      data: {
+        id,
+        qtyAvailable,
+        qtyReserved,
+        productLocation,
+        estimatedReplenishmentDate,
+        lotNumber,
+        serialNumbers,
+        variantId,
+        warehouseId,
+      },
+    });
+
+    // Mapear de vuelta a entidad de dominio
+    return StockPerWarehouseMapper.fromPersistence(createdStockPerWarehouse);
+  }
+
+  async deleteStockPerWarehouse(id: string): Promise<StockPerWarehouse> {
+    const stock = await this.prisma.stockPerWarehouse.findUnique({ where: { id } });
+    if (!stock) throw new Error(`StockPerWarehouse with id ${id} not found`);
+    await this.prisma.stockPerWarehouse.delete({ where: { id } });
+    return StockPerWarehouseMapper.fromPersistence(stock);
+  }
+
+  async getStockPerWarehouseById(id: string): Promise<StockPerWarehouse | null> {
+    const stock = await this.prisma.stockPerWarehouse.findUnique({ where: { id } });
+    if (!stock) return null;
+    return StockPerWarehouseMapper.fromPersistence(stock);
+  }
+
+  async getAllStockPerWarehouseByWarehouseId(warehouseId: string): Promise<StockPerWarehouse[]> {
+    const stocks = await this.prisma.stockPerWarehouse.findMany({ where: { warehouseId } });
+    return stocks.map(stock => StockPerWarehouseMapper.fromPersistence(stock));
   }
 
 }
