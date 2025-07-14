@@ -12,7 +12,7 @@ export class AddressDeletedHandler
 
   handle(event: AddressDeletedEvent): void {
     this.logger.warn(
-      `Address deleted: ${event.address.get('name').getValue()}`,
+      `Address deleted: ${event.address.get('name').getValue()}, with id: ${event.address.get('id').getValue()}`,
     );
   }
 }

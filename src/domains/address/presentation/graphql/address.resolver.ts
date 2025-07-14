@@ -72,13 +72,13 @@ export default class AddressResolver {
 
   @Query(() => AddressesType)
   async getAllAddress(
-    @Args('addressType', { type: () => AddressTypes })
-    addressType: AddressTypes,
+    @Args('addressType', { type: () => AddressTypes, nullable: true })
+    addressType?: AddressTypes,
     @Args('tenantId', { type: () => ID, nullable: true }) tenantId?: string,
     @Args('customerId', { type: () => ID, nullable: true }) customerId?: string,
   ): Promise<AddressesType> {
     return this.queryBus.execute(
-      new GetAllAddressDTO(addressType, tenantId, customerId),
+      new GetAllAddressDTO(tenantId, customerId, { addressType }),
     );
   }
 }
