@@ -8,7 +8,7 @@ import {
   ForeignKeyConstraintViolationError,
   DatabaseOperationError,
 } from '@domains/errors';
-import { Address } from '../aggregates/entities';
+import { Address, IAddressType } from '../aggregates/entities';
 import {
   IAddressRepository,
   Owner,
@@ -245,6 +245,6 @@ export default class AddressRepository implements IAddressRepository {
    * Maps Prisma address to domain entity
    */
   private mapToDomain(prismaAddress: prismaAddress): Address {
-    return AddressMapper.fromPersistence(prismaAddress);
+    return AddressMapper.fromPersistence(prismaAddress as IAddressType);
   }
 }
