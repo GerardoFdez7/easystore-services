@@ -27,12 +27,13 @@ export class Tenant extends Entity<ITenantProps> {
 
   // Factory method to create a new Tenant
   static create(props: ITenantType): Tenant {
+    const businessName = Name.generate();
     const transformedProps = {
-      businessName: Name.create(props.businessName),
+      businessName: businessName,
       ownerName: Name.create(props.ownerName),
       domain: props.domain
         ? Domain.create(props.domain)
-        : Domain.createDefault(props.businessName),
+        : Domain.createDefault(businessName.getValue()),
       logo: props.logo ? Logo.create(props.logo) : null,
       description: props.description
         ? LongDescription.create(props.description)

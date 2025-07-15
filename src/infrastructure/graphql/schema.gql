@@ -153,15 +153,6 @@ input CreateSustainabilityInput {
   recycledPercentage: Float!
 }
 
-input CreateTenantInput {
-  businessName: String!
-  currency: CurrencyCodes
-  description: String
-  domain: String
-  logo: String
-  ownerName: String!
-}
-
 input CreateVariantInput {
   attributes: [CreateAttributeInput!]!
   barcode: String
@@ -186,175 +177,6 @@ input CreateWarrantyInput {
   coverage: String!
   instructions: String!
   months: Float!
-}
-
-enum CurrencyCodes {
-  AED
-  AFN
-  ALL
-  AMD
-  ANG
-  AOA
-  ARS
-  AUD
-  AWG
-  AZN
-  BAM
-  BBD
-  BDT
-  BGN
-  BHD
-  BIF
-  BMD
-  BND
-  BOB
-  BOV
-  BRL
-  BSD
-  BTN
-  BWP
-  BYR
-  BZD
-  CAD
-  CDF
-  CHE
-  CHF
-  CHW
-  CLF
-  CLP
-  CNY
-  COP
-  COU
-  CRC
-  CUC
-  CUP
-  CVE
-  CZK
-  DJF
-  DKK
-  DOP
-  DZD
-  EGP
-  ERN
-  ETB
-  EUR
-  FJD
-  FKP
-  GBP
-  GEL
-  GHS
-  GIP
-  GMD
-  GNF
-  GTQ
-  GYD
-  HKD
-  HNL
-  HRK
-  HTG
-  HUF
-  IDR
-  ILS
-  INR
-  IQD
-  IRR
-  ISK
-  JMD
-  JOD
-  JPY
-  KES
-  KGS
-  KHR
-  KMF
-  KPW
-  KRW
-  KWD
-  KYD
-  KZT
-  LAK
-  LBP
-  LKR
-  LRD
-  LSL
-  LYD
-  MAD
-  MDL
-  MGA
-  MKD
-  MMK
-  MNT
-  MOP
-  MRO
-  MUR
-  MVR
-  MWK
-  MXN
-  MXV
-  MYR
-  MZN
-  NAD
-  NGN
-  NIO
-  NOK
-  NPR
-  NZD
-  OMR
-  PAB
-  PEN
-  PGK
-  PHP
-  PKR
-  PLN
-  PYG
-  QAR
-  RON
-  RSD
-  RUB
-  RWF
-  SAR
-  SBD
-  SCR
-  SDG
-  SEK
-  SGD
-  SLL
-  SOS
-  SRD
-  SSP
-  STD
-  SVC
-  SYP
-  SZL
-  THB
-  TJS
-  TMT
-  TND
-  TOP
-  TRY
-  TTD
-  TWD
-  TZS
-  UAH
-  UGX
-  USD
-  UYI
-  UYU
-  UZS
-  VEF
-  VND
-  VUV
-  WST
-  XAF
-  XCD
-  XDR
-  XOF
-  XPF
-  XSU
-  XUA
-  YER
-  ZAR
-  ZMW
-  ZWL
 }
 
 """
@@ -398,7 +220,6 @@ enum MediaTypeEnum {
 }
 
 type Mutation {
-  TenantSingUp(input: CreateTenantInput!): Boolean!
   addVariant(input: CreateVariantInput!): Product!
   archiveVariant(id: String!, productId: String!, tenantId: String!): Product!
   createAddress(input: CreateAddressInput!): AddressType!
@@ -484,22 +305,6 @@ enum SortOrder {
 type Sustainability {
   certification: String!
   recycledPercentage: Float!
-}
-
-type Tenant {
-  authIdentityId: Int!
-  businessName: String!
-  createdAt: DateTime!
-  currency: CurrencyCodes!
-  defaultBillingAddressId: Int!
-  defaultPhoneNumberId: Int!
-  defaultShippingAddressId: Int!
-  description: String!
-  domain: String!
-  id: ID!
-  logo: String!
-  ownerName: String!
-  updatedAt: DateTime!
 }
 
 enum TypeEnum {

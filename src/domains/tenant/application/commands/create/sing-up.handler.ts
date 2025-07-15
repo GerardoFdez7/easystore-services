@@ -13,15 +13,13 @@ export class TenantSingUpHandler implements ICommandHandler<TenantSingUpDTO> {
   ) {}
 
   async execute(command: TenantSingUpDTO): Promise<TenantDTO> {
-    // TO DO: add get authIdentityId from auth model when event CreatedTenantIdentity is commited
-
     // Create domain entity using factory method
     const tenant = this.eventPublisher.mergeObjectContext(
       TenantMapper.fromCreateDto(command),
     );
 
     // Persist through repository
-    await this.tenantRepository.save(tenant);
+    await this.tenantRepository.create(tenant);
 
     // Commit events to event bus
     tenant.commit();
