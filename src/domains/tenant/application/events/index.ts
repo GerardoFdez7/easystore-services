@@ -1,1 +1,1 @@
-export { TenantCreatedHandler } from './tenant-created.handler';
+export { TenantCreatedHandler } from './tenant/tenant-created.handler';

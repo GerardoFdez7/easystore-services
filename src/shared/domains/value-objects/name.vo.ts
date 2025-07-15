@@ -1,3 +1,4 @@
+import { faker } from '@faker-js/faker';
 import { z } from 'zod';
 
 const nameSchema = z
@@ -15,6 +16,10 @@ export class Name {
   public static create(name: string): Name {
     nameSchema.parse(name);
     return new Name(name);
+  }
+
+  public static generate(): Name {
+    return new Name(faker.company.name());
   }
 
   public getValue(): string {

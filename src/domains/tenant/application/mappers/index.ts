@@ -1,2 +1,2 @@
-export { TenantDTO } from './tenant.dto';
-export { TenantMapper } from './tenant.mapper';
+export { TenantDTO } from './tenant/tenant.dto';
+export { TenantMapper } from './tenant/tenant.mapper';
