@@ -6,7 +6,7 @@ import {
   InputType,
   registerEnumType,
 } from '@nestjs/graphql';
-import { CurrencyCodes } from '../../aggregates/value-objects';
+import { CurrencyCodes } from '../../../aggregates/value-objects';
 
 registerEnumType(CurrencyCodes, {
   name: 'CurrencyCodes',

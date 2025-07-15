@@ -28,6 +28,7 @@
       "@metrics/*": ["src/infrastructure/metrics/*"],
       "@microservices/*": ["src/infrastructure/microservices/*"],
       "@domains/*": ["src/shared/domains/*"],
+      "@authentication/*": ["src/domains/authentication/*"],
       "@elastic/*": ["src/shared/elastic/*"],
       "@event-store/*": ["src/shared/event-store/*"],
       "@kafka/*": ["src/shared/kafka/*"],
