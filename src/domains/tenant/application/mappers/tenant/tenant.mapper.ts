@@ -1,5 +1,9 @@
 import { Entity } from '@domains/entity.base';
-import { Tenant, ITenantProps, ITenantType } from '../../aggregates/entities';
+import {
+  Tenant,
+  ITenantProps,
+  ITenantType,
+} from '../../../aggregates/entities';
 import {
   Id,
   Name,
@@ -7,9 +11,9 @@ import {
   Domain,
   Logo,
   Currency,
-} from '../../aggregates/value-objects';
-import { TenantDTO } from './';
-import { TenantSingUpDTO } from '../commands';
+} from '../../../aggregates/value-objects';
+import { TenantDTO } from '..';
+import { TenantSingUpDTO } from '../../commands';
 
 /**
  * Centralized mapper for Tenant domain entity to DTO conversion for queries and vice versa for commands.

@@ -4,113 +4,144 @@ import {
   UniqueConstraintViolationError,
   DatabaseOperationError,
   ResourceNotFoundError,
+  ForeignKeyConstraintViolationError,
 } from '@domains/errors';
-import { Id, Name } from '@domains/value-objects';
+import { Id } from '@domains/value-objects';
 import { TenantMapper } from '../../../application/mappers';
-import { Tenant } from '../../../aggregates/entities';
-import { Tenant as PrismaTenant } from '.prisma/postgres';
+import { Tenant, ITenantType } from '../../../aggregates/entities';
+import { Prisma, Tenant as PrismaTenant } from '.prisma/postgres';
 import { ITenantRepository } from '../../../aggregates/repositories/tenant.interface';
+import { PrismaErrorUtils } from '@utils/prisma-error-utils';
 
 @Injectable()
 export class TenantRepository implements ITenantRepository {
   constructor(private readonly prisma: PostgreService) {}
 
-  // Save (create or update) a tenant
-  async save(tenant: Tenant): Promise<Tenant> {
-    const id = tenant.get('id').getValue();
-    const data = TenantMapper.toDto(tenant) as Omit<
-      PrismaTenant,
-      'id' | 'createdAt' | 'updatedAt'
-    >;
+  async create(tenant: Tenant): Promise<Tenant> {
+    const tenantDto = TenantMapper.toDto(tenant);
 
     try {
-      let prismaTenant: PrismaTenant;
-
-      // Check if tenant exists in database
-      const existingTenant = await this.prisma.tenant.findUnique({
-        where: { id },
-      });
-
-      if (existingTenant) {
-        // Update existing tenant
-        prismaTenant = await this.prisma.tenant.update({
-          where: { id },
+      const prismaTenant = await this.prisma.$transaction(async (tx) => {
+        return await tx.tenant.create({
           data: {
-            ...data,
-            updatedAt: new Date(),
+            id: tenantDto.id,
+            businessName: tenantDto.businessName,
+            ownerName: tenantDto.ownerName,
+            domain: tenantDto.domain,
+            logo: tenantDto.logo,
+            description: tenantDto.description,
+            currency: tenantDto.currency,
+            authIdentityId: tenantDto.authIdentityId,
           },
         });
-      } else {
-        // Create new tenant
-        prismaTenant = await this.prisma.tenant.create({
-          data: data as PrismaTenant,
+      });
+      return this.mapToDomain(prismaTenant);
+    } catch (error) {
+      return this.handleDatabaseError(error, 'create tenant');
+    }
+  }
+
+  async update(id: Id, tenant: Tenant): Promise<Tenant> {
+    const idValue = id.getValue();
+    const tenantDto = TenantMapper.toDto(tenant);
+
+    try {
+      const prismaTenant = await this.prisma.$transaction(async (tx) => {
+        await tx.tenant.findUniqueOrThrow({
+          where: {
+            id: idValue,
+          },
         });
-      }
+
+        return await tx.tenant.update({
+          where: {
+            id: idValue,
+          },
+          data: {
+            businessName: tenantDto.businessName,
+            ownerName: tenantDto.ownerName,
+            domain: tenantDto.domain,
+            logo: tenantDto.logo,
+            description: tenantDto.description,
+            currency: tenantDto.currency,
+          },
+        });
+      });
 
       return this.mapToDomain(prismaTenant);
     } catch (error) {
-      if ((error as { code?: string }).code === 'P2002') {
-        const prismaError = error as { meta?: { target?: string[] } };
-        const field = prismaError.meta?.target?.[0] || 'unknown field';
-        throw new UniqueConstraintViolationError(field);
+      if (error instanceof ResourceNotFoundError) {
+        throw error;
       }
-
-      // Determine operation type based on whether tenant existed
-      let operation = 'save tenant';
-      try {
-        const existingTenant = await this.prisma.tenant.findUnique({
-          where: { id },
-        });
-        operation = existingTenant ? 'update tenant' : 'create tenant';
-      } catch {
-        operation = 'create tenant';
-      }
-
-      throw new DatabaseOperationError(
-        operation,
-        (error as Error).message,
-        error as Error,
-      );
+      return this.handleDatabaseError(error, 'update tenant');
     }
   }
 
-  // Delete a tenant by ID
   async delete(id: Id): Promise<void> {
+    const idValue = id.getValue();
+
     try {
-      await this.prisma.tenant.delete({
-        where: { id: id.getValue() },
+      await this.prisma.$transaction(async (tx) => {
+        const existingTenant = await tx.tenant.findUnique({
+          where: {
+            id: idValue,
+          },
+        });
+
+        if (!existingTenant) {
+          throw new ResourceNotFoundError('Tenant', idValue);
+        }
+
+        await tx.tenant.delete({
+          where: {
+            id: idValue,
+          },
+        });
       });
     } catch (error) {
-      if ((error as { code?: string }).code === 'P2025') {
-        throw new ResourceNotFoundError('Tenant', id.getValue().toString());
+      if (error instanceof ResourceNotFoundError) {
+        throw error;
       }
-      throw new DatabaseOperationError(
-        'delete',
-        (error as Error).message,
-        error as Error,
-      );
+      return this.handleDatabaseError(error, 'delete tenant');
     }
   }
 
-  // Find a tenant by Business Name
-  async findByBusinessName(businessNameObj: Name): Promise<Tenant | null> {
-    const businessName = businessNameObj.getValue();
-    try {
-      const tenant = await this.prisma.tenant.findUnique({
-        where: { businessName },
-      });
-      return tenant ? this.mapToDomain(tenant) : null;
-    } catch (error) {
-      throw new DatabaseOperationError(
-        'findByBusinessName',
-        (error as Error).message,
-        error as Error,
-      );
+  private handleDatabaseError(error: unknown, operation: string): never {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (error.code) {
+        case 'P2002': {
+          const field =
+            PrismaErrorUtils.extractFieldFromUniqueConstraintError(error);
+          throw new UniqueConstraintViolationError(
+            field,
+            `Tenant ${field} already exists`,
+          );
+        }
+        case 'P2003': {
+          const field = PrismaErrorUtils.extractFieldFromForeignKeyError(error);
+          const fieldToEntityMap: Record<string, string> = {
+            authIdentityId: 'Auth Identity',
+          };
+          const relatedEntity = fieldToEntityMap[field] || 'Related Entity';
+          throw new ForeignKeyConstraintViolationError(field, relatedEntity);
+        }
+        case 'P2025':
+          throw new ResourceNotFoundError('Tenant');
+        default:
+          break;
+      }
     }
+
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error);
+    throw new DatabaseOperationError(
+      operation,
+      errorMessage,
+      error instanceof Error ? error : new Error(errorMessage),
+    );
   }
 
-  // Map from database model to domain entity using the centralized mapping approach
   private mapToDomain(clientPrisma: PrismaTenant): Tenant {
-    return TenantMapper.fromPersistence(clientPrisma);
+    return TenantMapper.fromPersistence(clientPrisma as ITenantType);
   }
 }
