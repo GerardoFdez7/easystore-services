@@ -24,7 +24,7 @@ export class AuthenticationRegisterHandler
     );
 
     // Persist entity
-    await this.authRepository.save(auth);
+    await this.authRepository.create(auth);
 
     // Publish event
     auth.commit();
