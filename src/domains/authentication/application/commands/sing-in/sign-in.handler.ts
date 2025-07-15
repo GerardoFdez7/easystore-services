@@ -3,10 +3,17 @@ import {
   Inject,
   NotFoundException,
   UnauthorizedException,
+  ForbiddenException,
 } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
+import {
+  generateToken,
+  generateRefreshToken,
+  JwtPayload,
+} from '../../../infrastructure/jwt/jwt-handler';
 import { IAuthRepository } from '../../../aggregates/repositories/authentication.interface';
 import { LoginResponseDTO } from '../../mappers';
-import { Email, AccountType } from '../../../aggregates/value-objects';
+import { Id, Email, AccountType } from '../../../aggregates/value-objects';
 import { AuthenticationLoginDTO } from './sign-in.dto';
 
 @CommandHandler(AuthenticationLoginDTO)
@@ -25,38 +32,55 @@ export class AuthenticationLoginHandler
     const emailVO = Email.create(email);
     const accountTypeVO = AccountType.create(accountType);
 
+    // Get user with account type
     const authEntity = await this.authRepository.findByEmailAndAccountType(
       emailVO,
       accountTypeVO,
     );
 
     if (!authEntity) {
-      throw new NotFoundException('User not found');
+      // Prevent timing attacks by still hashing a dummy password
+      await bcrypt.compare(
+        'dummy',
+        '$2b$10$dummy.hash.to.prevent.timing.attacks',
+      );
+      throw new NotFoundException('Invalid credentials');
     }
 
     const auth = this.eventPublisher.mergeObjectContext(authEntity);
 
-    const areCredentialsValid = await this.authRepository.validateCredentials(
-      emailVO,
-      password,
-    );
+    // Check if account is locked
+    const lockedUntil = auth.get('lockedUntil');
+    if (lockedUntil && new Date() < lockedUntil) {
+      throw new ForbiddenException('Account is temporarily locked');
+    }
+
+    // Validate credentials
+    const storedPassword = auth.get('password').getValue();
+    const areCredentialsValid = await bcrypt.compare(password, storedPassword);
+
+    const id = auth.get('id').getValue();
+    const IdVO = Id.create(id);
 
     if (!areCredentialsValid) {
       auth.loginFailed();
-      await this.authRepository.save(auth);
+      await this.authRepository.update(IdVO, auth);
       auth.commit();
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    // Success flow
     auth.loginSucceeded();
+    await this.authRepository.update(IdVO, auth);
 
-    const { accessToken, refreshToken } = await this.authRepository.login(
-      emailVO,
-      password,
-      accountTypeVO,
-    );
+    // Generate tokens
+    const payload: JwtPayload = {
+      email: emailVO.getValue(),
+      id: auth.get('id').getValue(),
+    };
 
-    await this.authRepository.save(auth);
+    const accessToken = generateToken(payload);
+    const refreshToken = generateRefreshToken(payload);
 
     auth.commit();
 
