@@ -4,6 +4,7 @@ export { CreateStockPerWarehouseHandler } from './create/create-stock-per-wareho
 
 // Update command handlers
 export { UpdateWarehouseHandler } from './update/update-warehouse.handler';
+export { UpdateStockPerWarehouseHandler } from './update/update-stock-per-warehouse.handler';
 
 // Delete command handlers
 export { DeleteWarehouseHandler } from './delete/delete-warehouse.handler';
