@@ -1,5 +1,6 @@
 import { Warehouse, StockPerWarehouse, StockMovement } from '../entities';
 import { Id, SortBy, SortOrder } from '@domains/value-objects';
+import { IStockPerWarehouseBase } from '../entities/stockPerWarehouse/stock-per-warehouse.attributes';
 
 export interface IInventoryRepository {
   // ==================== WAREHOUSE OPERATIONS ====================
@@ -77,5 +78,14 @@ export interface IInventoryRepository {
    * @throws {Error} If there is an error during the database operation
    */
   getAllStockPerWarehouseByWarehouseId(warehouseId: string): Promise<StockPerWarehouse[]>;
+  
+  /**
+   * Update a stock per warehouse by its ID
+   * @param id The stock per warehouse ID to update
+   * @param updates The fields to update
+   * @returns The updated stock per warehouse
+   * @throws {Error} If there is an error during the database operation
+   */
+  updateStockPerWarehouse(id: string, updates: Partial<IStockPerWarehouseBase>): Promise<StockPerWarehouse>;
   
 } 

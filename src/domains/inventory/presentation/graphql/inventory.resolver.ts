@@ -1,9 +1,10 @@
 import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CreateWarehouseInput, UpdateWarehouseInput, CreateStockPerWarehouseInput } from './types/inventory.types';
+import { CreateWarehouseInput, UpdateWarehouseInput, CreateStockPerWarehouseInput, UpdateStockPerWarehouseInput } from './types/inventory.types';
 import { CreateInventoryDTO } from '../../application/commands/create/create-inventory.dto';
 import { CreateStockPerWarehouseDTO } from '../../application/commands/create/create-stock-per-warehouse.dto';
 import { UpdateWarehouseDTO } from '../../application/commands/update/update-warehouse.dto';
+import { UpdateStockPerWarehouseDTO } from '../../application/commands/update/update-stock-per-warehouse.dto';
 import { DeleteWarehouseDTO } from '../../application/commands/delete/delete-warehouse.dto';
 import { DeleteStockPerWarehouseDTO } from '../../application/commands/delete/delete-stock-per-warehouse.dto';
 import { GetWarehouseByIdQuery } from '../../application/queries/get-warehouse-by-id/get-warehouse-by-id.query';
@@ -52,6 +53,14 @@ export class InventoryResolver {
     @Args('input') input: CreateStockPerWarehouseInput,
   ): Promise<StockPerWarehouseDTO> {
     return this.commandBus.execute(new CreateStockPerWarehouseDTO({ ...input }));
+  }
+
+  @Mutation(() => StockPerWarehouseDTO)
+  async updateStockPerWarehouse(
+    @Args('id') id: string,
+    @Args('input') input: UpdateStockPerWarehouseInput,
+  ): Promise<StockPerWarehouseDTO> {
+    return this.commandBus.execute(new UpdateStockPerWarehouseDTO(id, input));
   }
 
   @Mutation(() => StockPerWarehouseDTO)

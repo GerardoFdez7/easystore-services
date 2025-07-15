@@ -397,6 +397,7 @@ type Mutation {
   softDeleteProduct(id: String!, tenantId: String!): Product!
   updateCategory(id: ID!, input: UpdateCategoryInput!, tenantId: ID!): Category!
   updateProduct(id: String!, input: UpdateProductInput!, tenantId: String!): Product!
+  updateStockPerWarehouse(id: String!, input: UpdateStockPerWarehouseInput!): StockPerWarehouse!
   updateVariant(id: String!, input: UpdateVariantInput!, productId: String!, tenantId: String!): Product!
   updateWarehouse(id: String!, input: UpdateWarehouseInput!): Warehouse!
 }
@@ -549,6 +550,15 @@ input UpdateProductInput {
   shortDescription: String
   sustainabilities: [UpdateSustainabilityInput!]
   tags: [String!]
+}
+
+input UpdateStockPerWarehouseInput {
+  estimatedReplenishmentDate: DateTime
+  lotNumber: String
+  productLocation: String
+  qtyAvailable: Int
+  qtyReserved: Int
+  serialNumbers: [String!]
 }
 
 input UpdateSustainabilityInput {

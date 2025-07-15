@@ -28,6 +28,27 @@ export class CreateStockPerWarehouseInput {
 }
 
 @InputType()
+export class UpdateStockPerWarehouseInput {
+  @Field(() => Int, { nullable: true })
+  qtyAvailable?: number;
+
+  @Field(() => Int, { nullable: true })
+  qtyReserved?: number;
+
+  @Field({ nullable: true })
+  productLocation?: string;
+
+  @Field({ nullable: true })
+  estimatedReplenishmentDate?: Date;
+
+  @Field({ nullable: true })
+  lotNumber?: string;
+
+  @Field(() => [String], { nullable: true })
+  serialNumbers?: string[];
+}
+
+@InputType()
 export class CreateWarehouseInput {
   @Field()
   name: string;
