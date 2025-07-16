@@ -167,18 +167,37 @@ export class InventoryRepository implements IInventoryRepository {
       },
     });
 
-    // Crear el StockMovement solo si hay cambio en qtyAvailable
+    // Actualizar o crear el StockMovement solo si hay cambio en qtyAvailable
     if (deltaQty !== 0) {
-      await this.prisma.stockMovement.create({
-        data: {
-          id: uuidv4(),
-          deltaQty,
-          reason: 'StockPerWarehouse updated',
-          warehouseId: updated.warehouseId,
-          stockPerWarehouseId: updated.id,
-          ocurredAt: new Date(),
-        },
+      // Buscar si ya existe un StockMovement para este StockPerWarehouse
+      const existingStockMovement = await this.prisma.stockMovement.findFirst({
+        where: { stockPerWarehouseId: updated.id },
+        orderBy: { ocurredAt: 'desc' },
       });
+
+      if (existingStockMovement) {
+        // Actualizar el registro existente
+        await this.prisma.stockMovement.update({
+          where: { id: existingStockMovement.id },
+          data: {
+            deltaQty: existingStockMovement.deltaQty + deltaQty, // Acumular el delta
+            reason: 'StockPerWarehouse updated',
+            ocurredAt: new Date(),
+          },
+        });
+      } else {
+        // Crear un nuevo registro si no existe
+        await this.prisma.stockMovement.create({
+          data: {
+            id: uuidv4(),
+            deltaQty,
+            reason: 'StockPerWarehouse updated',
+            warehouseId: updated.warehouseId,
+            stockPerWarehouseId: updated.id,
+            ocurredAt: new Date(),
+          },
+        });
+      }
     }
 
     return StockPerWarehouseMapper.fromPersistence(updated);
