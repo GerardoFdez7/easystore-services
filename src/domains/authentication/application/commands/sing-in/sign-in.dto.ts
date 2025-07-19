@@ -1,9 +1,5 @@
-import { AccountTypeEnum } from '../../../aggregates/value-objects';
+import { IAuthIdentityBaseType } from '../../../aggregates/entities';
 
 export class AuthenticationLoginDTO {
-  constructor(
-    public readonly email: string,
-    public readonly password: string,
-    public readonly accountType: AccountTypeEnum,
-  ) {}
+  constructor(public readonly data: IAuthIdentityBaseType) {}
 }

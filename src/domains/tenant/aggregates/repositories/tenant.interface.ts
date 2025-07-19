@@ -26,4 +26,11 @@ export interface ITenantRepository {
    * @param id The unique identifier of the tenant.
    */
   delete(id: Id): Promise<void>;
+
+  /**
+   * Finds a tenant by its auth identity ID.
+   * @param authIdentityId The auth identity ID to search for.
+   * @returns The tenant entity or null if not found.
+   */
+  findByAuthIdentityId(authIdentityId: Id): Promise<Tenant | null>;
 }

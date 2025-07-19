@@ -12,4 +12,5 @@ export type AuthenticationDTO = IAuthIdentityType;
 export interface LoginResponseDTO {
   refreshToken: string;
   accessToken: string;
+  userId: string;
 }

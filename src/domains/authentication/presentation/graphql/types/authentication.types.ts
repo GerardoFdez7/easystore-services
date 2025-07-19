@@ -1,4 +1,5 @@
 import {
+  ID,
   Field,
   Int,
   ObjectType,
@@ -13,9 +14,6 @@ registerEnumType(AccountTypeEnum, {
 
 @ObjectType('AuthIdentity')
 export class AuthIdentityType {
-  @Field(() => Int)
-  id: number;
-
   @Field()
   email: string;
 
@@ -51,6 +49,9 @@ export class LoginResponseType {
 
   @Field()
   refreshToken: string;
+
+  @Field(() => ID)
+  userId: string;
 }
 
 // Input to create a new AuthIdentity
