@@ -30,12 +30,6 @@ export class AuthenticationResolver {
   async login(
     @Args('input') input: LoginAuthInput,
   ): Promise<LoginResponseType> {
-    return await this.commandBus.execute(
-      new AuthenticationLoginDTO(
-        input.email,
-        input.password,
-        input.accountType,
-      ),
-    );
+    return await this.commandBus.execute(new AuthenticationLoginDTO(input));
   }
 }

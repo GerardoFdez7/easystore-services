@@ -106,6 +106,22 @@ export class TenantRepository implements ITenantRepository {
     }
   }
 
+  async findByAuthIdentityId(authIdentityId: Id): Promise<Tenant | null> {
+    const authIdentityIdValue = authIdentityId.getValue();
+
+    try {
+      const tenant = await this.prisma.tenant.findFirst({
+        where: {
+          authIdentityId: authIdentityIdValue,
+        },
+      });
+
+      return tenant ? this.mapToDomain(tenant) : null;
+    } catch (error) {
+      return this.handleDatabaseError(error, 'find tenant by auth identity id');
+    }
+  }
+
   private handleDatabaseError(error: unknown, operation: string): never {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       switch (error.code) {

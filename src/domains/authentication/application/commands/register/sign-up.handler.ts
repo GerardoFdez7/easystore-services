@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { IAuthRepository } from '../../../aggregates/repositories/authentication.interface';
 import { AuthenticationMapper } from '../../mappers';
-import { AuthenticationRegisterDTO } from '../create/sign-up.dto';
+import { AuthenticationRegisterDTO } from './sign-up.dto';
 import { AuthenticationDTO } from '../../mappers/auth/authentication.dto';
 
 @CommandHandler(AuthenticationRegisterDTO)
