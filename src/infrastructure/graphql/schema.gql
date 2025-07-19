@@ -61,7 +61,6 @@ type AuthIdentity {
   email: String!
   emailVerified: Boolean!
   failedAttempts: Int!
-  id: Int!
   isActive: Boolean!
   lastLoginAt: DateTime
   lockedUntil: DateTime
@@ -222,6 +221,7 @@ input LoginAuthInput {
 type LoginResponse {
   accessToken: String!
   refreshToken: String!
+  userId: ID!
 }
 
 type Media {
