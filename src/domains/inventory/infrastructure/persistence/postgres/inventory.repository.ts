@@ -135,6 +135,9 @@ export class InventoryRepository implements IInventoryRepository {
   async deleteStockPerWarehouse(id: string): Promise<StockPerWarehouse> {
     const stock = await this.prisma.stockPerWarehouse.findUnique({ where: { id } });
     if (!stock) throw new Error(`StockPerWarehouse with id ${id} not found`);
+    await this.prisma.stockMovement.deleteMany({
+      where: { stockPerWarehouseId: id },
+    });
     await this.prisma.stockPerWarehouse.delete({ where: { id } });
     return StockPerWarehouseMapper.fromPersistence(stock);
   }
