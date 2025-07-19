@@ -11,6 +11,7 @@ import {
   IdentityLoggedInHandler,
 } from './application/events';
 import { AuthenticationRepository } from './infrastructure/persistence/postgres/authentication.repository';
+import { TenantRepository } from '../tenant/infrastructure/persistence/postgres/tenant.repository';
 import { AuthenticationResolver } from './presentation/graphql/authentication.resolver';
 
 const CommandHandlers = [
@@ -25,6 +26,10 @@ const EventHandlers = [IdentityRegisteredHandler, IdentityLoggedInHandler];
     {
       provide: 'AuthRepository',
       useClass: AuthenticationRepository,
+    },
+    {
+      provide: 'TenantRepository',
+      useClass: TenantRepository,
     },
     AuthenticationResolver,
     ...CommandHandlers,
