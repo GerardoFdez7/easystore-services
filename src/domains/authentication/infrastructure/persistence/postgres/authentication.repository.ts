@@ -69,7 +69,10 @@ export class AuthenticationRepository implements IAuthRepository {
           throw new ResourceNotFoundError('AuthIdentity', idValue);
         }
 
-        if (updatesDto.password) {
+        if (
+          updatesDto.password &&
+          updatesDto.password !== existingAuth.password
+        ) {
           const saltRounds = 10;
           updatesDto.password = await bcrypt.hash(
             updatesDto.password,
@@ -116,6 +119,23 @@ export class AuthenticationRepository implements IAuthRepository {
         error,
         'find auth identity by email and account type',
       );
+    }
+  }
+
+  /**
+   * Finds an authIdentity by ID.
+   */
+  async findById(id: Id): Promise<AuthIdentity | null> {
+    try {
+      const user = await this.prisma.authIdentity.findUnique({
+        where: {
+          id: id.getValue(),
+        },
+      });
+
+      return user ? this.mapToDomain(user) : null;
+    } catch (error) {
+      return this.handleDatabaseError(error, 'find auth identity by id');
     }
   }
 

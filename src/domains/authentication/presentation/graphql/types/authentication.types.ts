@@ -79,3 +79,17 @@ export class LoginAuthInput {
   @Field(() => AccountTypeEnum)
   accountType: AccountTypeEnum;
 }
+
+// Input for logout
+@InputType()
+export class LogoutAuthInput {
+  @Field()
+  token: string;
+}
+
+// Response for logout
+@ObjectType('LogoutResponse')
+export class LogoutResponseType {
+  @Field()
+  success: boolean;
+}

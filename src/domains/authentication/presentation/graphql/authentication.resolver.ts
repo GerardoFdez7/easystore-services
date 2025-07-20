@@ -5,10 +5,13 @@ import {
   RegisterAuthInput,
   LoginAuthInput,
   LoginResponseType,
-} from './types/authentication.types';
+  LogoutAuthInput,
+  LogoutResponseType,
+} from './types';
 import {
   AuthenticationRegisterDTO,
   AuthenticationLoginDTO,
+  AuthenticationLogoutDTO,
 } from '../../application/commands';
 
 @Resolver(() => AuthIdentityType)
@@ -31,5 +34,14 @@ export class AuthenticationResolver {
     @Args('input') input: LoginAuthInput,
   ): Promise<LoginResponseType> {
     return await this.commandBus.execute(new AuthenticationLoginDTO(input));
+  }
+
+  @Mutation(() => LogoutResponseType)
+  async logout(
+    @Args('input') input: LogoutAuthInput,
+  ): Promise<LogoutResponseType> {
+    return await this.commandBus.execute(
+      new AuthenticationLogoutDTO(input.token),
+    );
   }
 }
