@@ -34,4 +34,12 @@ export interface IAuthRepository {
     email: Email,
     accountType: AccountType,
   ): Promise<AuthIdentity | null>;
+
+  /**
+   * Finds an authIdentity by ID.
+   * @param id - The unique identifier to search for
+   * @returns Promise that resolves to the found AuthIdentity entity or null
+   * @throws {Error} When authIdentity is not found
+   */
+  findById(id: Id): Promise<AuthIdentity | null>;
 }
