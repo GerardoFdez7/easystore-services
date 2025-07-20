@@ -14,3 +14,10 @@ export interface LoginResponseDTO {
   accessToken: string;
   userId: string;
 }
+
+/**
+ * Interface for authentication logout response
+ */
+export interface LogoutResponseDTO {
+  success: boolean;
+}

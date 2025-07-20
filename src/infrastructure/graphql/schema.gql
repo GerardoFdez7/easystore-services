@@ -206,6 +206,14 @@ type LoginResponse {
   userId: ID!
 }
 
+input LogoutAuthInput {
+  token: String!
+}
+
+type LogoutResponse {
+  success: Boolean!
+}
+
 type Media {
   mediaType: MediaTypeEnum!
   position: Int!
@@ -229,6 +237,7 @@ type Mutation {
   deleteCategory(id: ID!, tenantId: ID!): Category!
   hardDeleteProduct(id: String!, tenantId: String!): Product!
   login(input: LoginAuthInput!): LoginResponse!
+  logout(input: LogoutAuthInput!): LogoutResponse!
   register(input: RegisterAuthInput!): AuthIdentity!
   removeVariant(id: String!, productId: String!, tenantId: String!): Product!
   restoreProduct(id: String!, tenantId: String!): Product!
