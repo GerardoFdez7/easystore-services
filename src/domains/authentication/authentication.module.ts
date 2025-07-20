@@ -5,10 +5,12 @@ import { LoggerModule } from '@winston/winston.module';
 import {
   AuthenticationRegisterHandler,
   AuthenticationLoginHandler,
+  AuthenticationLogoutHandler,
 } from './application/commands';
 import {
   IdentityRegisteredHandler,
   IdentityLoggedInHandler,
+  IdentityLoggedOutHandler,
 } from './application/events';
 import { AuthenticationRepository } from './infrastructure/persistence/postgres/authentication.repository';
 import { TenantRepository } from '../tenant/infrastructure/persistence/postgres/tenant.repository';
@@ -17,8 +19,13 @@ import { AuthenticationResolver } from './presentation/graphql/authentication.re
 const CommandHandlers = [
   AuthenticationRegisterHandler,
   AuthenticationLoginHandler,
+  AuthenticationLogoutHandler,
 ];
-const EventHandlers = [IdentityRegisteredHandler, IdentityLoggedInHandler];
+const EventHandlers = [
+  IdentityRegisteredHandler,
+  IdentityLoggedInHandler,
+  IdentityLoggedOutHandler,
+];
 
 @Module({
   imports: [CqrsModule, PostgresModule, LoggerModule],

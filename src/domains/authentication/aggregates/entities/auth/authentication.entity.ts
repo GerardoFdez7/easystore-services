@@ -13,6 +13,7 @@ import {
   AuthenticationRegisterEvent,
   AuthenticationFailedEvent,
   AuthenticationLockedEvent,
+  AuthenticationLogoutEvent,
 } from '../../events';
 
 export interface IAuthIdentityProps extends EntityProps {
@@ -89,6 +90,10 @@ export class AuthIdentity extends Entity<IAuthIdentityProps> {
   deactivate(): void {
     this.props.isActive = IsActive.create(false);
     this.touch();
+  }
+
+  logout(): void {
+    this.apply(new AuthenticationLogoutEvent(this));
   }
 
   private touch(): void {
