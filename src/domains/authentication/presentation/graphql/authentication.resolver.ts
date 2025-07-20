@@ -1,5 +1,6 @@
 import { Resolver, Mutation, Args } from '@nestjs/graphql';
 import { CommandBus } from '@nestjs/cqrs';
+import { Public } from '../../infrastructure/decorators/public.decorator';
 import {
   AuthIdentityType,
   RegisterAuthInput,
@@ -22,6 +23,7 @@ export class AuthenticationResolver {
   // Mutations //
   ///////////////
 
+  @Public()
   @Mutation(() => AuthIdentityType)
   async register(
     @Args('input') input: RegisterAuthInput,
@@ -29,6 +31,7 @@ export class AuthenticationResolver {
     return await this.commandBus.execute(new AuthenticationRegisterDTO(input));
   }
 
+  @Public()
   @Mutation(() => LoginResponseType)
   async login(
     @Args('input') input: LoginAuthInput,
@@ -36,6 +39,7 @@ export class AuthenticationResolver {
     return await this.commandBus.execute(new AuthenticationLoginDTO(input));
   }
 
+  @Public()
   @Mutation(() => LogoutResponseType)
   async logout(
     @Args('input') input: LogoutAuthInput,

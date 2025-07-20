@@ -8,10 +8,7 @@ import { IAuthRepository } from '../../../aggregates/repositories/authentication
 import { LogoutResponseDTO } from '../../mappers';
 import { Id } from '../../../aggregates/value-objects';
 import { AuthenticationLogoutDTO } from './sing-out.dto';
-import {
-  verifyToken,
-  invalidateToken,
-} from '../../../infrastructure/jwt/jwt-handler';
+import { verifyToken, invalidateToken } from '../../../infrastructure/jwt';
 
 @CommandHandler(AuthenticationLogoutDTO)
 export class AuthenticationLogoutHandler

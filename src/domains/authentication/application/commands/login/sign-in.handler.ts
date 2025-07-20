@@ -10,7 +10,7 @@ import {
   generateToken,
   generateRefreshToken,
   JwtPayload,
-} from '../../../infrastructure/jwt/jwt-handler';
+} from '../../../infrastructure/jwt';
 import { IAuthRepository } from '../../../aggregates/repositories/authentication.interface';
 import { ITenantRepository } from '../../../../tenant/aggregates/repositories/tenant.interface';
 import { LoginResponseDTO } from '../../mappers';
