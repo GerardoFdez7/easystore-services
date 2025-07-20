@@ -13,6 +13,7 @@ import {
   IdentityLoggedOutHandler,
 } from './application/events';
 import { AuthenticationRepository } from './infrastructure/persistence/postgres/authentication.repository';
+import { AuthGuard } from './infrastructure/guard/auth.guard';
 import { TenantRepository } from '../tenant/infrastructure/persistence/postgres/tenant.repository';
 import { AuthenticationResolver } from './presentation/graphql/authentication.resolver';
 
@@ -39,8 +40,10 @@ const EventHandlers = [
       useClass: TenantRepository,
     },
     AuthenticationResolver,
+    AuthGuard,
     ...CommandHandlers,
     ...EventHandlers,
   ],
+  exports: [AuthGuard],
 })
 export class AuthenticationDomain {}
