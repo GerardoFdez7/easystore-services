@@ -122,6 +122,18 @@ input CreateProductInput {
   variants: [AddVariantToProductInput!]!
 }
 
+input CreateStockPerWarehouseInput {
+  estimatedReplenishmentDate: DateTime
+  lotNumber: String
+  productLocation: String!
+  qtyAvailable: Int!
+  qtyReserved: Int!
+  serialNumbers: [String!]
+  tenantId: ID!
+  variantId: ID!
+  warehouseId: ID!
+}
+
 input CreateSustainabilityInput {
   certification: String!
   recycledPercentage: Float!
@@ -154,6 +166,12 @@ input CreateVariantInput {
   variantMedia: [CreateMediaInput!]
   warranties: [CreateWarrantyInput!]
   weight: Float
+}
+
+input CreateWarehouseInput {
+  addressId: ID!
+  name: String!
+  tenantId: ID!
 }
 
 input CreateWarrantyInput {
@@ -362,11 +380,15 @@ enum MediaTypeEnum {
 
 type Mutation {
   TenantSingUp(input: CreateTenantInput!): Boolean!
+  addStockToWarehouse(input: CreateStockPerWarehouseInput!): StockPerWarehouse!
   addVariant(input: CreateVariantInput!): Product!
   archiveVariant(id: String!, productId: String!, tenantId: String!): Product!
   createCategory(input: CreateCategoryInput!): Category!
+  createInventory(input: CreateWarehouseInput!): Warehouse!
   createProduct(input: CreateProductInput!): Product!
   deleteCategory(id: ID!, tenantId: ID!): Category!
+  deleteStockPerWarehouse(id: String!, warehouseId: String!): StockPerWarehouse!
+  deleteWarehouse(id: String!, tenantId: String!): Warehouse!
   hardDeleteProduct(id: String!, tenantId: String!): Product!
   login(input: AuthenticationLoginDTO!): AuthenticationLoginResponseDTO!
   register(input: RegisterAuthInput!): AuthIdentity!
@@ -376,7 +398,9 @@ type Mutation {
   softDeleteProduct(id: String!, tenantId: String!): Product!
   updateCategory(id: ID!, input: UpdateCategoryInput!, tenantId: ID!): Category!
   updateProduct(id: String!, input: UpdateProductInput!, tenantId: String!): Product!
+  updateStockPerWarehouse(id: String!, input: UpdateStockPerWarehouseInput!, warehouseId: String!): StockPerWarehouse!
   updateVariant(id: String!, input: UpdateVariantInput!, productId: String!, tenantId: String!): Product!
+  updateWarehouse(id: String!, input: UpdateWarehouseInput!, tenantId: String!): Warehouse!
 }
 
 type PaginatedCategoriesType {
@@ -418,8 +442,12 @@ type Query {
   findTenantByBusinessName(businessName: String!): Tenant
   getAllCategories(includeSubcategories: Boolean = true, limit: Int = 25, name: String, page: Int = 1, parentId: ID, sortBy: SortBy, sortOrder: SortOrder, tenantId: ID!): PaginatedCategoriesType!
   getAllProducts(categoriesIds: [Int!], includeSoftDeleted: Boolean = false, limit: Float = 25, name: String, page: Float = 1, sortBy: SortBy, sortOrder: SortOrder, tenantId: String!, type: TypeEnum): PaginatedProductsType!
+  getAllStockPerWarehouseByWarehouseId(warehouseId: String!): [StockPerWarehouse!]!
+  getAllWarehouses(addressId: String, limit: Float, name: String, page: Float, sortBy: String, sortOrder: String, tenantId: String!): [Warehouse!]!
   getCategoryById(id: ID!, tenantId: ID!): Category!
   getProductById(id: String!, tenantId: String!): Product!
+  getStockPerWarehouse(id: String!, warehouseId: String!): StockPerWarehouse
+  getWarehouse(id: String!, tenantId: String!): Warehouse
 }
 
 input RegisterAuthInput {
@@ -437,6 +465,18 @@ enum SortBy {
 enum SortOrder {
   ASC
   DESC
+}
+
+type StockPerWarehouse {
+  estimatedReplenishmentDate: DateTime
+  id: ID!
+  lotNumber: String
+  productLocation: String!
+  qtyAvailable: Int!
+  qtyReserved: Int!
+  serialNumbers: [String!]
+  variantId: ID!
+  warehouseId: ID!
 }
 
 type Sustainability {
@@ -513,6 +553,16 @@ input UpdateProductInput {
   tags: [String!]
 }
 
+input UpdateStockPerWarehouseInput {
+  estimatedReplenishmentDate: DateTime
+  lotNumber: String
+  productLocation: String
+  qtyAvailable: Int
+  qtyReserved: Int
+  serialNumbers: [String!]
+  tenantId: ID
+}
+
 input UpdateSustainabilityInput {
   certification: String
   recycledPercentage: Float
@@ -534,6 +584,12 @@ input UpdateVariantInput {
   variantMedia: [UpdateMediaInput!]
   warranties: [UpdateWarrantyInput!]
   weight: Float
+}
+
+input UpdateWarehouseInput {
+  addressId: ID
+  name: String
+  tenantId: ID
 }
 
 input UpdateWarrantyInput {
@@ -559,6 +615,15 @@ type Variant {
   variantMedia: [Media!]
   warranties: [Warranty!]
   weight: Float
+}
+
+type Warehouse {
+  addressId: String!
+  createdAt: DateTime!
+  id: ID!
+  name: String!
+  tenantId: String!
+  updatedAt: DateTime!
 }
 
 type Warranty {
