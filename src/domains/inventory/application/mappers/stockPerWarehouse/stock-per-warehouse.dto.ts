@@ -1,5 +1,4 @@
 import { ObjectType, Field, ID, Int } from '@nestjs/graphql';
-import { IStockPerWarehouseType } from '../../../aggregates/entities';
 
 @ObjectType('StockPerWarehouse')
 export class StockPerWarehouseDTO {
@@ -38,4 +37,4 @@ export interface PaginatedStockPerWarehousesDTO {
   stockPerWarehouses: StockPerWarehouseDTO[];
   total: number;
   hasMore: boolean;
-} 
+}

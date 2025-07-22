@@ -3,6 +3,7 @@ import { IStockPerWarehouseBase } from '../../../aggregates/entities/stockPerWar
 export class UpdateStockPerWarehouseDTO {
   constructor(
     public readonly id: string,
-    public readonly updates: Partial<IStockPerWarehouseBase>
+    public readonly warehouseId: string,
+    public readonly updates: Partial<IStockPerWarehouseBase>,
   ) {}
-} 
+}

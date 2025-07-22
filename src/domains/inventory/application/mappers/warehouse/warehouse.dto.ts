@@ -28,4 +28,4 @@ export interface PaginatedWarehousesDTO {
   warehouses: WarehouseDTO[];
   total: number;
   hasMore: boolean;
-} 
+}

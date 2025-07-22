@@ -8,4 +8,4 @@ export { UpdateStockPerWarehouseHandler } from './update/update-stock-per-wareho
 
 // Delete command handlers
 export { DeleteWarehouseHandler } from './delete/delete-warehouse.handler';
-export { DeleteStockPerWarehouseHandler } from './delete/delete-stock-per-warehouse.handler'; 
+export { DeleteStockPerWarehouseHandler } from './delete/delete-stock-per-warehouse.handler';

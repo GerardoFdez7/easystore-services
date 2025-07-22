@@ -1,10 +1,6 @@
-import {
-  DeltaQty,
-  Reason,
-  CreatedById,
-  OcurredAt,
-} from '../../value-objects/stockMovement';
+import { DeltaQty, Reason } from '../../value-objects';
 import { Id } from '@domains/value-objects';
+import { EntityProps } from '@domains/entity.base';
 
 // Complete stock movement type combining base properties and system properties
 export interface IStockMovementType extends IStockMovementSystem {
@@ -32,12 +28,12 @@ export interface IStockMovementSystem {
 }
 
 // Props interface for the StockMovement entity
-export interface IStockMovementProps {
+export interface IStockMovementProps extends EntityProps {
   id: Id;
   deltaQty: DeltaQty;
   reason: Reason;
-  createdById: CreatedById;
+  createdById: string | null;
   warehouseId: Id;
   stockPerWarehouseId: Id;
-  ocurredAt: OcurredAt;
-} 
+  ocurredAt: Date;
+}

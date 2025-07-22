@@ -25,6 +25,9 @@ export class CreateStockPerWarehouseInput {
 
   @Field(() => ID)
   warehouseId: string;
+
+  @Field(() => ID)
+  tenantId: string;
 }
 
 @InputType()
@@ -46,6 +49,9 @@ export class UpdateStockPerWarehouseInput {
 
   @Field(() => [String], { nullable: true })
   serialNumbers?: string[];
+
+  @Field(() => ID, { nullable: true })
+  tenantId?: string;
 }
 
 @InputType()
@@ -70,4 +76,4 @@ export class UpdateWarehouseInput {
 
   @Field(() => ID, { nullable: true })
   tenantId?: string;
-} 
+}

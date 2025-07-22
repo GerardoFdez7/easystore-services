@@ -4,13 +4,7 @@ import {
   IWarehouseType,
   IWarehouseBase,
 } from '../../../aggregates/entities';
-import {
-  WarehouseName,
-  AddressId,
-  TenantId,
-  CreatedAt,
-  UpdatedAt,
-} from '../../../aggregates/value-objects';
+import { WarehouseName } from '../../../aggregates/value-objects';
 import { WarehouseDTO, PaginatedWarehousesDTO } from './warehouse.dto';
 import { Id } from '@domains/value-objects';
 
@@ -28,10 +22,10 @@ export class WarehouseMapper {
     const warehouseProps: IWarehouseProps = {
       id: Id.create(persistenceWarehouse.id),
       name: WarehouseName.create(persistenceWarehouse.name),
-      addressId: AddressId.create(persistenceWarehouse.addressId),
-      tenantId: TenantId.create(persistenceWarehouse.tenantId),
-      createdAt: CreatedAt.create(persistenceWarehouse.createdAt),
-      updatedAt: UpdatedAt.create(persistenceWarehouse.updatedAt),
+      addressId: Id.create(persistenceWarehouse.addressId),
+      tenantId: Id.create(persistenceWarehouse.tenantId),
+      createdAt: persistenceWarehouse.createdAt,
+      updatedAt: persistenceWarehouse.updatedAt,
     };
     return Warehouse.reconstitute(warehouseProps);
   }
@@ -73,8 +67,8 @@ export class WarehouseMapper {
         name: entity.get('name')?.getValue(),
         addressId: entity.get('addressId')?.getValue(),
         tenantId: entity.get('tenantId')?.getValue(),
-        createdAt: entity.get('createdAt')?.getValue(),
-        updatedAt: entity.get('updatedAt')?.getValue(),
+        createdAt: entity.get('createdAt'),
+        updatedAt: entity.get('updatedAt'),
       }));
     }
 
@@ -97,10 +91,10 @@ export class WarehouseMapper {
           dto.tenantId = warehouse.get('tenantId')?.getValue();
           break;
         case 'createdAt':
-          dto.createdAt = warehouse.get('createdAt')?.getValue();
+          dto.createdAt = warehouse.get('createdAt');
           break;
         case 'updatedAt':
-          dto.updatedAt = warehouse.get('updatedAt')?.getValue();
+          dto.updatedAt = warehouse.get('updatedAt');
           break;
       }
     });
@@ -114,8 +108,13 @@ export class WarehouseMapper {
    * @param fields Optional array of fields to include in the DTOs
    * @returns Array of warehouse DTOs
    */
-  static toDtoArray(warehouses: Warehouse[], fields?: string[]): WarehouseDTO[] {
-    return warehouses.map((warehouse) => this.toDto(warehouse, fields) as WarehouseDTO);
+  static toDtoArray(
+    warehouses: Warehouse[],
+    fields?: string[],
+  ): WarehouseDTO[] {
+    return warehouses.map(
+      (warehouse) => this.toDto(warehouse, fields) as WarehouseDTO,
+    );
   }
 
   /**
@@ -139,4 +138,4 @@ export class WarehouseMapper {
   ): Warehouse {
     return Warehouse.update(existingWarehouse, dto);
   }
-} 
+}

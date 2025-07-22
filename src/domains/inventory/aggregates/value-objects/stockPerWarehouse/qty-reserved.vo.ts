@@ -45,4 +45,4 @@ export class QtyReserved {
   public isPositive(): boolean {
     return this.value > 0;
   }
-} 
+}

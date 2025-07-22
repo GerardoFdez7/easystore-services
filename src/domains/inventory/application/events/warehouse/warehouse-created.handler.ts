@@ -11,6 +11,8 @@ export class WarehouseCreatedHandler
   constructor(private readonly logger: LoggerService) {}
 
   handle(event: WarehouseCreatedEvent): void {
-    this.logger.log(`Warehouse created: ${event.warehouse.get('name').getValue()}`);
+    this.logger.log(
+      `Warehouse created: ${event.warehouse.get('name').getValue()} (ID: ${event.warehouse.get('id').getValue()})`,
+    );
   }
-} 
+}

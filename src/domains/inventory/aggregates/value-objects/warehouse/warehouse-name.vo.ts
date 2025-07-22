@@ -25,4 +25,4 @@ export class WarehouseName {
   public equals(otherName: WarehouseName): boolean {
     return this.value === otherName.value;
   }
-} 
+}

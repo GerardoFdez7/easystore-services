@@ -13,4 +13,4 @@ export interface PaginatedStockMovementsDTO {
   stockMovements: StockMovementDTO[];
   total: number;
   hasMore: boolean;
-} 
+}

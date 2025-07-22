@@ -38,4 +38,4 @@ export class ProductLocation {
   public hasValue(): boolean {
     return this.value !== null;
   }
-} 
+}

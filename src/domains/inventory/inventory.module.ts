@@ -12,14 +12,41 @@ import { GetWarehouseByIdHandler } from './application/queries/get-warehouse-by-
 import { GetAllWarehousesHandler } from './application/queries/get-all-warehouses/get-all-warehouses.handler';
 import { GetStockPerWarehouseByIdHandler } from './application/queries/get-stock-per-warehouse-by-id/get-stock-per-warehouse-by-id.handler';
 import { GetAllStockPerWarehouseByWarehouseIdHandler } from './application/queries/get-all-stock-per-warehouse-by-warehouse-id/get-all-stock-per-warehouse-by-warehouse-id.handler';
-import { WarehouseCreatedHandler, WarehouseUpdatedHandler, WarehouseDeletedHandler } from './application/events';
-import { StockPerWarehouseCreatedHandler, StockPerWarehouseDeletedHandler, StockPerWarehouseUpdatedHandler } from './application/events';
+import {
+  WarehouseCreatedHandler,
+  WarehouseUpdatedHandler,
+  WarehouseDeletedHandler,
+} from './application/events';
+import {
+  StockPerWarehouseCreatedHandler,
+  StockPerWarehouseDeletedHandler,
+  StockPerWarehouseUpdatedHandler,
+} from './application/events';
 import { PostgresModule } from 'src/infrastructure/database/postgres.module';
 import { LoggerModule } from 'src/shared/winston/winston.module';
 
-const CommandHandlers = [CreateInventoryHandler, CreateStockPerWarehouseHandler, UpdateWarehouseHandler, UpdateStockPerWarehouseHandler, DeleteWarehouseHandler, DeleteStockPerWarehouseHandler];
-const QueryHandlers = [GetWarehouseByIdHandler, GetAllWarehousesHandler, GetStockPerWarehouseByIdHandler, GetAllStockPerWarehouseByWarehouseIdHandler];
-const EventHandlers = [WarehouseCreatedHandler, WarehouseUpdatedHandler, WarehouseDeletedHandler, StockPerWarehouseCreatedHandler, StockPerWarehouseDeletedHandler, StockPerWarehouseUpdatedHandler];
+const CommandHandlers = [
+  CreateInventoryHandler,
+  CreateStockPerWarehouseHandler,
+  UpdateWarehouseHandler,
+  UpdateStockPerWarehouseHandler,
+  DeleteWarehouseHandler,
+  DeleteStockPerWarehouseHandler,
+];
+const QueryHandlers = [
+  GetWarehouseByIdHandler,
+  GetAllWarehousesHandler,
+  GetStockPerWarehouseByIdHandler,
+  GetAllStockPerWarehouseByWarehouseIdHandler,
+];
+const EventHandlers = [
+  WarehouseCreatedHandler,
+  WarehouseUpdatedHandler,
+  WarehouseDeletedHandler,
+  StockPerWarehouseCreatedHandler,
+  StockPerWarehouseDeletedHandler,
+  StockPerWarehouseUpdatedHandler,
+];
 
 @Module({
   imports: [CqrsModule, PostgresModule, LoggerModule],
@@ -31,4 +58,4 @@ const EventHandlers = [WarehouseCreatedHandler, WarehouseUpdatedHandler, Warehou
     ...EventHandlers,
   ],
 })
-export class InventoryModule {}
+export class InventoryDomain {}

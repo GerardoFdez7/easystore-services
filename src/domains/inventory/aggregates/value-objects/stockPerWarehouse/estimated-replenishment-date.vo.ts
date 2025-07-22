@@ -2,7 +2,9 @@ import { z } from 'zod';
 
 const estimatedReplenishmentDateSchema = z
   .date()
-  .min(new Date(), { message: 'Estimated replenishment date must be in the future' })
+  .min(new Date(), {
+    message: 'Estimated replenishment date must be in the future',
+  })
   .nullable();
 
 export class EstimatedReplenishmentDate {
@@ -52,4 +54,4 @@ export class EstimatedReplenishmentDate {
     if (!this.value) return false;
     return this.value > new Date();
   }
-} 
+}

@@ -38,4 +38,4 @@ export class LotNumber {
   public hasValue(): boolean {
     return this.value !== null;
   }
-} 
+}

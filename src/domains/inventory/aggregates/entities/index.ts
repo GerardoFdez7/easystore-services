@@ -10,7 +10,10 @@ export {
 } from './warehouse/warehouse.attributes';
 
 // StockPerWarehouse entity
-export { StockPerWarehouse, IStockPerWarehouseProps } from './stockPerWarehouse/stock-per-warehouse.entity';
+export {
+  StockPerWarehouse,
+  IStockPerWarehouseProps,
+} from './stockPerWarehouse/stock-per-warehouse.entity';
 export {
   IStockPerWarehouseType,
   IStockPerWarehouseBase,
@@ -18,9 +21,12 @@ export {
 } from './stockPerWarehouse/stock-per-warehouse.attributes';
 
 // StockMovement entity
-export { StockMovement, IStockMovementProps } from './stockMovement/stock-movement.entity';
+export {
+  StockMovement,
+  IStockMovementProps,
+} from './stockMovement/stock-movement.entity';
 export {
   IStockMovementType,
   IStockMovementBase,
   IStockMovementSystem,
-} from './stockMovement/stock-movement.attributes'; 
+} from './stockMovement/stock-movement.attributes';

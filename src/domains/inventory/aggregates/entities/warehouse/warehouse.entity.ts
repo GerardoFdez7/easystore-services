@@ -1,26 +1,18 @@
 import { BadRequestException } from '@nestjs/common';
-import {
-  WarehouseName,
-  AddressId,
-  TenantId,
-  CreatedAt,
-  UpdatedAt,
-} from '../../value-objects/warehouse';
+import { WarehouseName } from '../../value-objects';
 import { Id } from '@domains/value-objects';
 import { Entity, EntityProps } from '@domains/entity.base';
-import {
-  WarehouseCreatedEvent,
-  WarehouseUpdatedEvent,
-} from '../../events';
+import { WarehouseCreatedEvent, WarehouseUpdatedEvent } from '../../events';
 import { IWarehouseBase } from './warehouse.attributes';
+import { StockPerWarehouse } from '../stockPerWarehouse/stock-per-warehouse.entity';
 
 export interface IWarehouseProps extends EntityProps {
   id: Id;
   name: WarehouseName;
-  addressId: AddressId;
-  tenantId: TenantId;
-  createdAt: CreatedAt;
-  updatedAt: UpdatedAt;
+  addressId: Id;
+  tenantId: Id;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export class Warehouse extends Entity<IWarehouseProps> {
@@ -47,10 +39,10 @@ export class Warehouse extends Entity<IWarehouseProps> {
     const transformedProps = {
       id: Id.generate(),
       name: WarehouseName.create(props.name),
-      addressId: AddressId.create(props.addressId),
-      tenantId: TenantId.create(props.tenantId),
-      createdAt: CreatedAt.createNow(),
-      updatedAt: UpdatedAt.createNow(),
+      addressId: Id.create(props.addressId),
+      tenantId: Id.create(props.tenantId),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
 
     const warehouse = new Warehouse(transformedProps);
@@ -78,10 +70,10 @@ export class Warehouse extends Entity<IWarehouseProps> {
     }
 
     if (updates.addressId !== undefined) {
-      props.addressId = AddressId.create(updates.addressId);
+      props.addressId = Id.create(updates.addressId);
     }
 
-    props.updatedAt = UpdatedAt.createNow();
+    props.updatedAt = new Date();
 
     const updatedWarehouse = new Warehouse(props);
 
@@ -91,48 +83,20 @@ export class Warehouse extends Entity<IWarehouseProps> {
     return updatedWarehouse;
   }
 
-  // Getters
-  public getId(): Id {
-    return this.props.id;
+  // Stock management methods for the aggregate root
+  public addStockToWarehouse(stock: StockPerWarehouse) {
+    this.apply({ type: 'StockPerWarehouseAdded', stock, warehouse: this });
   }
 
-  public getName(): WarehouseName {
-    return this.props.name;
+  public updateStockInWarehouse(stock: StockPerWarehouse) {
+    this.apply({ type: 'StockPerWarehouseUpdated', stock, warehouse: this });
   }
 
-  public getAddressId(): AddressId {
-    return this.props.addressId;
+  public removeStockFromWarehouse(stock: StockPerWarehouse) {
+    this.apply({
+      type: 'StockPerWarehouseRemoved',
+      stockId: stock.getId(),
+      warehouse: this,
+    });
   }
-
-  public getTenantId(): TenantId {
-    return this.props.tenantId;
-  }
-
-  public getCreatedAt(): CreatedAt {
-    return this.props.createdAt;
-  }
-
-  public getUpdatedAt(): UpdatedAt {
-    return this.props.updatedAt;
-  }
-
-  // Business logic methods
-  public changeName(newName: string): Warehouse {
-    return Warehouse.update(this, { name: newName });
-  }
-
-  public changeAddress(newAddressId: string): Warehouse {
-    return Warehouse.update(this, { addressId: newAddressId });
-  }
-
-  public isFromTenant(tenantId: string): boolean {
-    return this.props.tenantId.getValue() === tenantId;
-  }
-
-  public getAgeInDays(): number {
-    const now = new Date();
-    const createdAt = this.props.createdAt.getValue();
-    const diffTime = Math.abs(now.getTime() - createdAt.getTime());
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  }
-} 
+}

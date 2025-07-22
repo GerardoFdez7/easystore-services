@@ -6,4 +6,4 @@ export { GetAllWarehousesHandler } from './get-all-warehouses/get-all-warehouses
 
 // StockPerWarehouse queries
 export { GetStockPerWarehouseByIdHandler } from './get-stock-per-warehouse-by-id/get-stock-per-warehouse-by-id.handler';
-export { GetAllStockPerWarehouseByWarehouseIdHandler } from './get-all-stock-per-warehouse-by-warehouse-id/get-all-stock-per-warehouse-by-warehouse-id.handler'; 
+export { GetAllStockPerWarehouseByWarehouseIdHandler } from './get-all-stock-per-warehouse-by-warehouse-id/get-all-stock-per-warehouse-by-warehouse-id.handler';

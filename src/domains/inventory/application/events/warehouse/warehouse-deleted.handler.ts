@@ -11,6 +11,8 @@ export class WarehouseDeletedHandler
   constructor(private readonly logger: LoggerService) {}
 
   handle(event: WarehouseDeletedEvent): void {
-    this.logger.error(`Warehouse deleted: ${event.warehouse.get('name').getValue()}`);
+    this.logger.error(
+      `Warehouse deleted: ${event.warehouse.get('name').getValue()}`,
+    );
   }
-} 
+}

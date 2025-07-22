@@ -8,4 +8,4 @@ export { StockPerWarehouseCreatedEvent } from './stockPerWarehouse/stock-per-war
 export { StockPerWarehouseUpdatedEvent } from './stockPerWarehouse/stock-per-warehouse-updated.event';
 
 // StockMovement events
-export { StockMovementCreatedEvent } from './stockMovement/stock-movement-created.event'; 
+export { StockMovementCreatedEvent } from './stockMovement/stock-movement-created.event';

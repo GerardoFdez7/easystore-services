@@ -11,6 +11,8 @@ export class WarehouseUpdatedHandler
   constructor(private readonly logger: LoggerService) {}
 
   handle(event: WarehouseUpdatedEvent): void {
-    this.logger.log(`Warehouse updated: ${event.warehouse.get('name').getValue()}`);
+    this.logger.log(
+      `Warehouse updated: ${event.warehouse.get('name').getValue()} (ID: ${event.warehouse.get('id').getValue()})`,
+    );
   }
-} 
+}

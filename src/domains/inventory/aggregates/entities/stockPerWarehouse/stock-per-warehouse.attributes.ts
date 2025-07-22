@@ -5,8 +5,7 @@ import {
   EstimatedReplenishmentDate,
   LotNumber,
   SerialNumbers,
-  VariantId,
-} from '../../value-objects/stockPerWarehouse';
+} from '../../value-objects';
 import { Id } from '@domains/value-objects';
 
 // Complete stock per warehouse type combining base properties and system properties
@@ -23,7 +22,7 @@ export interface IStockPerWarehouseType extends IStockPerWarehouseSystem {
 
 // Base stock per warehouse properties shared across all stock-related types
 export interface IStockPerWarehouseBase {
-  qtyAvailable?: number;
+  qtyAvailable: number;
   qtyReserved?: number;
   productLocation?: string;
   estimatedReplenishmentDate?: Date;
@@ -47,6 +46,6 @@ export interface IStockPerWarehouseProps {
   estimatedReplenishmentDate: EstimatedReplenishmentDate;
   lotNumber: LotNumber;
   serialNumbers: SerialNumbers;
-  variantId: VariantId;
+  variantId: Id;
   warehouseId: Id;
-} 
+}
