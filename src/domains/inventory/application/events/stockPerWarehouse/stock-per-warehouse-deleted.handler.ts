@@ -11,6 +11,8 @@ export class StockPerWarehouseDeletedHandler
   constructor(private readonly logger: LoggerService) {}
 
   handle(event: StockPerWarehouseDeletedEvent): void {
-    this.logger.error(`StockPerWarehouse deleted: ${event.stockPerWarehouse.get('id').getValue()}`);
+    this.logger.error(
+      `StockPerWarehouse deleted: ${event.stockPerWarehouse.get('id').getValue()}`,
+    );
   }
-} 
+}

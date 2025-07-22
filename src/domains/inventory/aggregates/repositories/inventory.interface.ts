@@ -1,17 +1,17 @@
-import { Warehouse, StockPerWarehouse, StockMovement } from '../entities';
-import { Id, SortBy, SortOrder } from '@domains/value-objects';
+import { Warehouse, StockPerWarehouse } from '../entities';
 import { IStockPerWarehouseBase } from '../entities/stockPerWarehouse/stock-per-warehouse.attributes';
+import { Id } from '@domains/value-objects';
 
 export interface IInventoryRepository {
   // ==================== WAREHOUSE OPERATIONS ====================
-  
+
   /**
-   * Save a warehouse (create or update)
+   * Create a warehouse
    * @param warehouse The warehouse to save
    * @returns The saved warehouse
    * @throws {Error} If there is an error during the database operation
    */
-  saveWarehouse(warehouse: Warehouse): Promise<Warehouse>;
+  createWarehouse(warehouse: Warehouse): Promise<Warehouse>;
 
   /**
    * Get a warehouse by its ID
@@ -19,14 +19,7 @@ export interface IInventoryRepository {
    * @returns The warehouse or null if not found
    * @throws {Error} If there is an error during the database operation
    */
-  getWarehouseById(id: string): Promise<Warehouse | null>;
-
-  /**
-   * Get all warehouses
-   * @returns Array of all warehouses
-   * @throws {Error} If there is an error during the database operation
-   */
-  getAllWarehouses(): Promise<Warehouse[]>;
+  getWarehouseById(id: Id): Promise<Warehouse | null>;
 
   /**
    * Update a warehouse by its ID
@@ -35,7 +28,11 @@ export interface IInventoryRepository {
    * @returns The updated warehouse
    * @throws {Error} If there is an error during the database operation
    */
-  updateWarehouse(id: string, warehouse: Warehouse): Promise<Warehouse>;
+  updateWarehouse(
+    id: Id,
+    tenantId: Id,
+    warehouse: Warehouse,
+  ): Promise<Warehouse>;
 
   /**
    * Delete a warehouse by its ID
@@ -43,17 +40,37 @@ export interface IInventoryRepository {
    * @returns The deleted warehouse
    * @throws {Error} If there is an error during the database operation
    */
-  deleteWarehouse(id: string): Promise<Warehouse>;
+  deleteWarehouse(id: Id, tenantId: Id): Promise<Warehouse>;
+
+  /**
+   * Find all warehouses for a tenant with pagination, filtering, and sorting options.
+   * @param tenantId The tenant ID to scope the search.
+   * @param options Optional parameters for pagination, filtering, and sorting.
+   * @returns A promise with warehouses, total count, and hasMore flag.
+   */
+  findAllWarehouses(
+    tenantId: Id,
+    options?: {
+      page?: number;
+      limit?: number;
+      name?: string;
+      addressId?: Id;
+      sortBy?: 'createdAt' | 'name' | 'addressId';
+      sortOrder?: 'asc' | 'desc';
+    },
+  ): Promise<{ warehouses: Warehouse[]; total: number; hasMore: boolean }>;
 
   // ==================== STOCK PER WAREHOUSE OPERATIONS ====================
-  
+
   /**
    * Save a stock per warehouse (create or update)
    * @param stockPerWarehouse The stock per warehouse to save
    * @returns The saved stock per warehouse
    * @throws {Error} If there is an error during the database operation
    */
-  saveStockPerWarehouse(stockPerWarehouse: StockPerWarehouse): Promise<StockPerWarehouse>;
+  saveStockPerWarehouse(
+    stockPerWarehouse: StockPerWarehouse,
+  ): Promise<StockPerWarehouse>;
 
   /**
    * Delete a stock per warehouse by its ID
@@ -61,7 +78,7 @@ export interface IInventoryRepository {
    * @returns The deleted stock per warehouse
    * @throws {Error} If there is an error during the database operation
    */
-  deleteStockPerWarehouse(id: string): Promise<StockPerWarehouse>;
+  deleteStockPerWarehouse(id: Id, warehouseId: Id): Promise<StockPerWarehouse>;
 
   /**
    * Get a stock per warehouse by its ID
@@ -69,7 +86,10 @@ export interface IInventoryRepository {
    * @returns The stock per warehouse or null if not found
    * @throws {Error} If there is an error during the database operation
    */
-  getStockPerWarehouseById(id: string): Promise<StockPerWarehouse | null>;
+  getStockPerWarehouseById(
+    id: Id,
+    warehouseId: Id,
+  ): Promise<StockPerWarehouse | null>;
 
   /**
    * Get all stock per warehouse by warehouseId
@@ -77,8 +97,10 @@ export interface IInventoryRepository {
    * @returns Array of stock per warehouse
    * @throws {Error} If there is an error during the database operation
    */
-  getAllStockPerWarehouseByWarehouseId(warehouseId: string): Promise<StockPerWarehouse[]>;
-  
+  getAllStockPerWarehouseByWarehouseId(
+    warehouseId: string,
+  ): Promise<StockPerWarehouse[]>;
+
   /**
    * Update a stock per warehouse by its ID
    * @param id The stock per warehouse ID to update
@@ -86,6 +108,9 @@ export interface IInventoryRepository {
    * @returns The updated stock per warehouse
    * @throws {Error} If there is an error during the database operation
    */
-  updateStockPerWarehouse(id: string, updates: Partial<IStockPerWarehouseBase>): Promise<StockPerWarehouse>;
-  
-} 
+  updateStockPerWarehouse(
+    id: Id,
+    warehouseId: Id,
+    updates: Partial<IStockPerWarehouseBase>,
+  ): Promise<StockPerWarehouse>;
+}

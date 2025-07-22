@@ -1,25 +1,19 @@
 import { BadRequestException } from '@nestjs/common';
-import {
-  DeltaQty,
-  Reason,
-  CreatedById,
-  OcurredAt,
-} from '../../value-objects/stockMovement';
+import { DeltaQty } from '../../value-objects/stockMovement/delta-qty.vo';
+import { Reason } from '../../value-objects/stockMovement/reason.vo';
 import { Id } from '@domains/value-objects';
 import { Entity, EntityProps } from '@domains/entity.base';
-import {
-  StockMovementCreatedEvent,
-} from '../../events';
+import { StockMovementCreatedEvent } from '../../events';
 import { IStockMovementBase } from './stock-movement.attributes';
 
 export interface IStockMovementProps extends EntityProps {
   id: Id;
   deltaQty: DeltaQty;
   reason: Reason;
-  createdById: CreatedById;
+  createdById: string | null;
   warehouseId: Id;
   stockPerWarehouseId: Id;
-  ocurredAt: OcurredAt;
+  ocurredAt: Date;
 }
 
 export class StockMovement extends Entity<IStockMovementProps> {
@@ -47,10 +41,10 @@ export class StockMovement extends Entity<IStockMovementProps> {
       id: Id.generate(),
       deltaQty: DeltaQty.create(props.deltaQty),
       reason: Reason.create(props.reason),
-      createdById: CreatedById.create(props.createdById || null),
+      createdById: props.createdById || null,
       warehouseId: Id.create(props.warehouseId),
       stockPerWarehouseId: Id.create(props.stockPerWarehouseId),
-      ocurredAt: OcurredAt.create(props.ocurredAt || new Date()),
+      ocurredAt: props.ocurredAt || new Date(),
     };
 
     const stockMovement = new StockMovement(transformedProps);
@@ -61,115 +55,21 @@ export class StockMovement extends Entity<IStockMovementProps> {
     return stockMovement;
   }
 
-  // Getters
-  public getId(): Id {
-    return this.props.id;
-  }
-
-  public getDeltaQty(): DeltaQty {
-    return this.props.deltaQty;
-  }
-
-  public getReason(): Reason {
-    return this.props.reason;
-  }
-
-  public getCreatedById(): CreatedById {
+  public getCreatedById(): string | null {
     return this.props.createdById;
   }
 
-  public getWarehouseId(): Id {
-    return this.props.warehouseId;
-  }
-
-  public getStockPerWarehouseId(): Id {
-    return this.props.stockPerWarehouseId;
-  }
-
-  public getOcurredAt(): OcurredAt {
-    return this.props.ocurredAt;
-  }
-
-  // Business logic methods
-  public isEntry(): boolean {
-    return this.props.deltaQty.isPositive();
-  }
-
-  public isExit(): boolean {
-    return this.props.deltaQty.isNegative();
-  }
-
-  public isAdjustment(): boolean {
-    return this.props.deltaQty.isZero();
-  }
-
-  public getAbsoluteQuantity(): number {
-    return this.props.deltaQty.getAbsoluteValue();
-  }
-
   public wasCreatedByEmployee(): boolean {
-    return this.props.createdById.hasValue();
+    return !!this.props.createdById;
   }
 
   public wasCreatedBySystem(): boolean {
-    return this.props.createdById.isNull();
+    return !this.props.createdById;
   }
 
-  public isRecent(hours: number = 24): boolean {
-    const now = new Date();
-    const ocurredAt = this.props.ocurredAt.getValue();
-    const diffInHours = (now.getTime() - ocurredAt.getTime()) / (1000 * 60 * 60);
-    return diffInHours <= hours;
+  public getOcurredAt(): Date {
+    return this.props.ocurredAt;
   }
 
-  public isToday(): boolean {
-    return this.props.ocurredAt.isToday();
-  }
-
-  public isThisWeek(): boolean {
-    return this.props.ocurredAt.isThisWeek();
-  }
-
-  public isThisMonth(): boolean {
-    return this.props.ocurredAt.isThisMonth();
-  }
-
-  public getTimeAgo(): string {
-    return this.props.ocurredAt.getTimeAgo();
-  }
-
-  public getMovementType(): string {
-    if (this.isEntry()) return 'ENTRY';
-    if (this.isExit()) return 'EXIT';
-    return 'ADJUSTMENT';
-  }
-
-  public getMovementDescription(): string {
-    const type = this.getMovementType();
-    const quantity = this.getAbsoluteQuantity();
-    const reason = this.props.reason.getValue();
-    
-    switch (type) {
-      case 'ENTRY':
-        return `Entry of ${quantity} units - ${reason}`;
-      case 'EXIT':
-        return `Exit of ${quantity} units - ${reason}`;
-      case 'ADJUSTMENT':
-        return `Stock adjustment - ${reason}`;
-      default:
-        return reason;
-    }
-  }
-
-  public isSignificant(threshold: number = 100): boolean {
-    return this.getAbsoluteQuantity() >= threshold;
-  }
-
-  public isAutomatic(): boolean {
-    return this.wasCreatedBySystem();
-  }
-
-  public isManual(): boolean {
-    return this.wasCreatedByEmployee();
-  }
-} 
+  // Utility methods for date logic can be implemented as needed, or use date-fns/moment in services
+}

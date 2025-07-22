@@ -45,4 +45,4 @@ export class Reason {
   public endsWith(suffix: string): boolean {
     return this.value.toLowerCase().endsWith(suffix.toLowerCase());
   }
-} 
+}

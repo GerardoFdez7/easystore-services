@@ -6,8 +6,7 @@ import {
   EstimatedReplenishmentDate,
   LotNumber,
   SerialNumbers,
-  VariantId,
-} from '../../value-objects/stockPerWarehouse';
+} from '../../value-objects';
 import { Id } from '@domains/value-objects';
 import { Entity, EntityProps } from '@domains/entity.base';
 import {
@@ -24,7 +23,7 @@ export interface IStockPerWarehouseProps extends EntityProps {
   estimatedReplenishmentDate: EstimatedReplenishmentDate;
   lotNumber: LotNumber;
   serialNumbers: SerialNumbers;
-  variantId: VariantId;
+  variantId: Id;
   warehouseId: Id;
 }
 
@@ -59,14 +58,16 @@ export class StockPerWarehouse extends Entity<IStockPerWarehouseProps> {
       ),
       lotNumber: LotNumber.create(props.lotNumber || null),
       serialNumbers: SerialNumbers.create(props.serialNumbers || []),
-      variantId: VariantId.create(props.variantId),
+      variantId: Id.create(props.variantId),
       warehouseId: Id.create(props.warehouseId),
     };
 
     const stockPerWarehouse = new StockPerWarehouse(transformedProps);
 
     // Apply domain event
-    stockPerWarehouse.apply(new StockPerWarehouseCreatedEvent(stockPerWarehouse));
+    stockPerWarehouse.apply(
+      new StockPerWarehouseCreatedEvent(stockPerWarehouse),
+    );
 
     return stockPerWarehouse;
   }
@@ -112,142 +113,18 @@ export class StockPerWarehouse extends Entity<IStockPerWarehouseProps> {
     const updatedStockPerWarehouse = new StockPerWarehouse(props);
 
     // Apply domain event
-    updatedStockPerWarehouse.apply(new StockPerWarehouseUpdatedEvent(updatedStockPerWarehouse));
+    updatedStockPerWarehouse.apply(
+      new StockPerWarehouseUpdatedEvent(updatedStockPerWarehouse),
+    );
 
     return updatedStockPerWarehouse;
   }
 
-  // Getters
   public getId(): Id {
     return this.props.id;
-  }
-
-  public getQtyAvailable(): QtyAvailable {
-    return this.props.qtyAvailable;
-  }
-
-  public getQtyReserved(): QtyReserved {
-    return this.props.qtyReserved;
-  }
-
-  public getProductLocation(): ProductLocation {
-    return this.props.productLocation;
-  }
-
-  public getEstimatedReplenishmentDate(): EstimatedReplenishmentDate {
-    return this.props.estimatedReplenishmentDate;
-  }
-
-  public getLotNumber(): LotNumber {
-    return this.props.lotNumber;
-  }
-
-  public getSerialNumbers(): SerialNumbers {
-    return this.props.serialNumbers;
-  }
-
-  public getVariantId(): VariantId {
-    return this.props.variantId;
   }
 
   public getWarehouseId(): Id {
     return this.props.warehouseId;
   }
-
-  // Business logic methods
-  public getTotalStock(): number {
-    return this.props.qtyAvailable.getValue() + this.props.qtyReserved.getValue();
-  }
-
-  public getAvailableStock(): number {
-    return this.props.qtyAvailable.getValue();
-  }
-
-  public getReservedStock(): number {
-    return this.props.qtyReserved.getValue();
-  }
-
-  public hasStock(): boolean {
-    return this.props.qtyAvailable.isPositive();
-  }
-
-  public hasReservedStock(): boolean {
-    return this.props.qtyReserved.isPositive();
-  }
-
-  public canReserve(quantity: number): boolean {
-    return this.props.qtyAvailable.getValue() >= quantity;
-  }
-
-  public reserveStock(quantity: number): StockPerWarehouse {
-    if (!this.canReserve(quantity)) {
-      throw new BadRequestException('Insufficient stock to reserve');
-    }
-
-    return StockPerWarehouse.update(this, {
-      qtyAvailable: this.props.qtyAvailable.getValue() - quantity,
-      qtyReserved: this.props.qtyReserved.getValue() + quantity,
-    });
-  }
-
-  public releaseReservedStock(quantity: number): StockPerWarehouse {
-    if (this.props.qtyReserved.getValue() < quantity) {
-      throw new BadRequestException('Insufficient reserved stock to release');
-    }
-
-    return StockPerWarehouse.update(this, {
-      qtyAvailable: this.props.qtyAvailable.getValue() + quantity,
-      qtyReserved: this.props.qtyReserved.getValue() - quantity,
-    });
-  }
-
-  public addStock(quantity: number): StockPerWarehouse {
-    return StockPerWarehouse.update(this, {
-      qtyAvailable: this.props.qtyAvailable.getValue() + quantity,
-    });
-  }
-
-  public removeStock(quantity: number): StockPerWarehouse {
-    if (this.props.qtyAvailable.getValue() < quantity) {
-      throw new BadRequestException('Insufficient stock to remove');
-    }
-
-    return StockPerWarehouse.update(this, {
-      qtyAvailable: this.props.qtyAvailable.getValue() - quantity,
-    });
-  }
-
-  public updateLocation(location: string): StockPerWarehouse {
-    return StockPerWarehouse.update(this, { productLocation: location });
-  }
-
-  public updateReplenishmentDate(date: Date): StockPerWarehouse {
-    return StockPerWarehouse.update(this, { estimatedReplenishmentDate: date });
-  }
-
-  public addSerialNumber(serialNumber: string): StockPerWarehouse {
-    const currentSerialNumbers = this.props.serialNumbers.getValue();
-    return StockPerWarehouse.update(this, {
-      serialNumbers: [...currentSerialNumbers, serialNumber],
-    });
-  }
-
-  public removeSerialNumber(serialNumber: string): StockPerWarehouse {
-    const currentSerialNumbers = this.props.serialNumbers.getValue();
-    return StockPerWarehouse.update(this, {
-      serialNumbers: currentSerialNumbers.filter(sn => sn !== serialNumber),
-    });
-  }
-
-  public isLowStock(threshold: number = 10): boolean {
-    return this.props.qtyAvailable.getValue() <= threshold;
-  }
-
-  public isOutOfStock(): boolean {
-    return this.props.qtyAvailable.isZero();
-  }
-
-  public needsReplenishment(): boolean {
-    return this.isLowStock() && this.props.estimatedReplenishmentDate.hasValue();
-  }
-} 
+}

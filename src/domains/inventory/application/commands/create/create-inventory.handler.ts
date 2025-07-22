@@ -5,7 +5,9 @@ import { CreateInventoryDTO } from './create-inventory.dto';
 import { WarehouseMapper, WarehouseDTO } from '../../mappers';
 
 @CommandHandler(CreateInventoryDTO)
-export class CreateInventoryHandler implements ICommandHandler<CreateInventoryDTO> {
+export class CreateInventoryHandler
+  implements ICommandHandler<CreateInventoryDTO>
+{
   constructor(
     @Inject('IInventoryRepository')
     private readonly inventoryRepository: IInventoryRepository,
@@ -17,10 +19,10 @@ export class CreateInventoryHandler implements ICommandHandler<CreateInventoryDT
       WarehouseMapper.fromCreateDto(command.data),
     );
 
-    await this.inventoryRepository.saveWarehouse(warehouse);
+    await this.inventoryRepository.createWarehouse(warehouse);
 
     warehouse.commit();
 
     return WarehouseMapper.toDto(warehouse) as WarehouseDTO;
   }
-} 
+}

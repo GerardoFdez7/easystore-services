@@ -5,14 +5,23 @@ import { GetAllStockPerWarehouseByWarehouseIdQuery } from './get-all-stock-per-w
 import { StockPerWarehouseMapper, StockPerWarehouseDTO } from '../../mappers';
 
 @QueryHandler(GetAllStockPerWarehouseByWarehouseIdQuery)
-export class GetAllStockPerWarehouseByWarehouseIdHandler implements IQueryHandler<GetAllStockPerWarehouseByWarehouseIdQuery> {
+export class GetAllStockPerWarehouseByWarehouseIdHandler
+  implements IQueryHandler<GetAllStockPerWarehouseByWarehouseIdQuery>
+{
   constructor(
     @Inject('IInventoryRepository')
     private readonly inventoryRepository: IInventoryRepository,
   ) {}
 
-  async execute(query: GetAllStockPerWarehouseByWarehouseIdQuery): Promise<StockPerWarehouseDTO[]> {
-    const stocks = await this.inventoryRepository.getAllStockPerWarehouseByWarehouseId(query.warehouseId);
-    return stocks.map(stock => StockPerWarehouseMapper.toDto(stock) as StockPerWarehouseDTO);
+  async execute(
+    query: GetAllStockPerWarehouseByWarehouseIdQuery,
+  ): Promise<StockPerWarehouseDTO[]> {
+    const stocks =
+      await this.inventoryRepository.getAllStockPerWarehouseByWarehouseId(
+        query.warehouseId,
+      );
+    return stocks.map(
+      (stock) => StockPerWarehouseMapper.toDto(stock) as StockPerWarehouseDTO,
+    );
   }
-} 
+}

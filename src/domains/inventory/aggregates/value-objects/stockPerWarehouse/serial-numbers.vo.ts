@@ -34,7 +34,9 @@ export class SerialNumbers {
     if (this.values.length !== otherSerialNumbers.values.length) {
       return false;
     }
-    return this.values.every((value, index) => value === otherSerialNumbers.values[index]);
+    return this.values.every(
+      (value, index) => value === otherSerialNumbers.values[index],
+    );
   }
 
   public isEmpty(): boolean {
@@ -55,11 +57,11 @@ export class SerialNumbers {
   }
 
   public remove(serialNumber: string): SerialNumbers {
-    const newValues = this.values.filter(value => value !== serialNumber);
+    const newValues = this.values.filter((value) => value !== serialNumber);
     return SerialNumbers.create(newValues);
   }
 
   public contains(serialNumber: string): boolean {
     return this.values.includes(serialNumber);
   }
-} 
+}

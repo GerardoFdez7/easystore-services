@@ -1,10 +1,4 @@
-import {
-  WarehouseName,
-  AddressId,
-  TenantId,
-  CreatedAt,
-  UpdatedAt,
-} from '../../value-objects/warehouse';
+import { WarehouseName } from '../../value-objects';
 import { Id } from '@domains/value-objects';
 
 // Complete warehouse type combining base properties and system properties
@@ -32,8 +26,8 @@ export interface IWarehouseSystem {
 export interface IWarehouseProps {
   id: Id;
   name: WarehouseName;
-  addressId: AddressId;
-  tenantId: TenantId;
-  createdAt: CreatedAt;
-  updatedAt: UpdatedAt;
-} 
+  addressId: Id;
+  tenantId: Id;
+  createdAt: Date;
+  updatedAt: Date;
+}

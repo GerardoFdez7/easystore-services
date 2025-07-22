@@ -129,6 +129,7 @@ input CreateStockPerWarehouseInput {
   qtyAvailable: Int!
   qtyReserved: Int!
   serialNumbers: [String!]
+  tenantId: ID!
   variantId: ID!
   warehouseId: ID!
 }
@@ -379,15 +380,15 @@ enum MediaTypeEnum {
 
 type Mutation {
   TenantSingUp(input: CreateTenantInput!): Boolean!
+  addStockToWarehouse(input: CreateStockPerWarehouseInput!): StockPerWarehouse!
   addVariant(input: CreateVariantInput!): Product!
   archiveVariant(id: String!, productId: String!, tenantId: String!): Product!
   createCategory(input: CreateCategoryInput!): Category!
   createInventory(input: CreateWarehouseInput!): Warehouse!
   createProduct(input: CreateProductInput!): Product!
-  createStockPerWarehouse(input: CreateStockPerWarehouseInput!): StockPerWarehouse!
   deleteCategory(id: ID!, tenantId: ID!): Category!
-  deleteStockPerWarehouse(id: String!): StockPerWarehouse!
-  deleteWarehouse(id: String!): Warehouse!
+  deleteStockPerWarehouse(id: String!, warehouseId: String!): StockPerWarehouse!
+  deleteWarehouse(id: String!, tenantId: String!): Warehouse!
   hardDeleteProduct(id: String!, tenantId: String!): Product!
   login(input: AuthenticationLoginDTO!): AuthenticationLoginResponseDTO!
   register(input: RegisterAuthInput!): AuthIdentity!
@@ -397,9 +398,9 @@ type Mutation {
   softDeleteProduct(id: String!, tenantId: String!): Product!
   updateCategory(id: ID!, input: UpdateCategoryInput!, tenantId: ID!): Category!
   updateProduct(id: String!, input: UpdateProductInput!, tenantId: String!): Product!
-  updateStockPerWarehouse(id: String!, input: UpdateStockPerWarehouseInput!): StockPerWarehouse!
+  updateStockPerWarehouse(id: String!, input: UpdateStockPerWarehouseInput!, warehouseId: String!): StockPerWarehouse!
   updateVariant(id: String!, input: UpdateVariantInput!, productId: String!, tenantId: String!): Product!
-  updateWarehouse(id: String!, input: UpdateWarehouseInput!): Warehouse!
+  updateWarehouse(id: String!, input: UpdateWarehouseInput!, tenantId: String!): Warehouse!
 }
 
 type PaginatedCategoriesType {
@@ -442,11 +443,11 @@ type Query {
   getAllCategories(includeSubcategories: Boolean = true, limit: Int = 25, name: String, page: Int = 1, parentId: ID, sortBy: SortBy, sortOrder: SortOrder, tenantId: ID!): PaginatedCategoriesType!
   getAllProducts(categoriesIds: [Int!], includeSoftDeleted: Boolean = false, limit: Float = 25, name: String, page: Float = 1, sortBy: SortBy, sortOrder: SortOrder, tenantId: String!, type: TypeEnum): PaginatedProductsType!
   getAllStockPerWarehouseByWarehouseId(warehouseId: String!): [StockPerWarehouse!]!
-  getAllWarehouses: [Warehouse!]!
+  getAllWarehouses(addressId: String, limit: Float, name: String, page: Float, sortBy: String, sortOrder: String, tenantId: String!): [Warehouse!]!
   getCategoryById(id: ID!, tenantId: ID!): Category!
   getProductById(id: String!, tenantId: String!): Product!
-  getStockPerWarehouse(id: String!): StockPerWarehouse
-  getWarehouse(id: String!): Warehouse
+  getStockPerWarehouse(id: String!, warehouseId: String!): StockPerWarehouse
+  getWarehouse(id: String!, tenantId: String!): Warehouse
 }
 
 input RegisterAuthInput {
@@ -559,6 +560,7 @@ input UpdateStockPerWarehouseInput {
   qtyAvailable: Int
   qtyReserved: Int
   serialNumbers: [String!]
+  tenantId: ID
 }
 
 input UpdateSustainabilityInput {

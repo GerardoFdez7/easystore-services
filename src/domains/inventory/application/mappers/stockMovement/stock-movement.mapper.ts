@@ -4,13 +4,12 @@ import {
   IStockMovementType,
   IStockMovementBase,
 } from '../../../aggregates/entities';
+import { DeltaQty } from '../../../aggregates/value-objects/stockMovement/delta-qty.vo';
+import { Reason } from '../../../aggregates/value-objects/stockMovement/reason.vo';
 import {
-  DeltaQty,
-  Reason,
-  CreatedById,
-  OcurredAt,
-} from '../../../aggregates/value-objects';
-import { StockMovementDTO, PaginatedStockMovementsDTO } from './stock-movement.dto';
+  StockMovementDTO,
+  PaginatedStockMovementsDTO,
+} from './stock-movement.dto';
 import { Id } from '@domains/value-objects';
 
 /**
@@ -23,15 +22,19 @@ export class StockMovementMapper {
    * @param persistenceStockMovement The Persistence StockMovement model
    * @returns The mapped StockMovement domain entity
    */
-  static fromPersistence(persistenceStockMovement: IStockMovementType): StockMovement {
+  static fromPersistence(
+    persistenceStockMovement: IStockMovementType,
+  ): StockMovement {
     const stockMovementProps: IStockMovementProps = {
       id: Id.create(persistenceStockMovement.id),
       deltaQty: DeltaQty.create(persistenceStockMovement.deltaQty),
       reason: Reason.create(persistenceStockMovement.reason),
-      createdById: CreatedById.create(persistenceStockMovement.createdById || null),
+      createdById: persistenceStockMovement.createdById || null,
       warehouseId: Id.create(persistenceStockMovement.warehouseId),
-      stockPerWarehouseId: Id.create(persistenceStockMovement.stockPerWarehouseId),
-      ocurredAt: OcurredAt.create(persistenceStockMovement.ocurredAt),
+      stockPerWarehouseId: Id.create(
+        persistenceStockMovement.stockPerWarehouseId,
+      ),
+      ocurredAt: persistenceStockMovement.ocurredAt,
     };
     return StockMovement.reconstitute(stockMovementProps);
   }
@@ -56,7 +59,8 @@ export class StockMovementMapper {
       const paginatedData = data as PaginatedStockMovementsDTO;
       return {
         stockMovements: paginatedData.stockMovements.map(
-          (stockMovement) => this.toDto(stockMovement, fields) as StockMovementDTO,
+          (stockMovement) =>
+            this.toDto(stockMovement, fields) as StockMovementDTO,
         ),
         total: paginatedData.total,
         hasMore: paginatedData.hasMore,
@@ -72,10 +76,10 @@ export class StockMovementMapper {
         id: entity.get('id')?.getValue(),
         deltaQty: entity.get('deltaQty')?.getValue(),
         reason: entity.get('reason')?.getValue(),
-        createdById: entity.get('createdById')?.getValue(),
+        createdById: entity.get('createdById'),
         warehouseId: entity.get('warehouseId')?.getValue(),
         stockPerWarehouseId: entity.get('stockPerWarehouseId')?.getValue(),
-        ocurredAt: entity.get('ocurredAt')?.getValue(),
+        ocurredAt: entity.get('ocurredAt'),
       }));
     }
 
@@ -95,16 +99,18 @@ export class StockMovementMapper {
           dto.reason = stockMovement.get('reason')?.getValue();
           break;
         case 'createdById':
-          dto.createdById = stockMovement.get('createdById')?.getValue();
+          dto.createdById = stockMovement.get('createdById');
           break;
         case 'warehouseId':
           dto.warehouseId = stockMovement.get('warehouseId')?.getValue();
           break;
         case 'stockPerWarehouseId':
-          dto.stockPerWarehouseId = stockMovement.get('stockPerWarehouseId')?.getValue();
+          dto.stockPerWarehouseId = stockMovement
+            .get('stockPerWarehouseId')
+            ?.getValue();
           break;
         case 'ocurredAt':
-          dto.ocurredAt = stockMovement.get('ocurredAt')?.getValue();
+          dto.ocurredAt = stockMovement.get('ocurredAt');
           break;
       }
     });
@@ -118,8 +124,13 @@ export class StockMovementMapper {
    * @param fields Optional array of fields to include in the DTOs
    * @returns Array of stock movement DTOs
    */
-  static toDtoArray(stockMovements: StockMovement[], fields?: string[]): StockMovementDTO[] {
-    return stockMovements.map((stockMovement) => this.toDto(stockMovement, fields) as StockMovementDTO);
+  static toDtoArray(
+    stockMovements: StockMovement[],
+    fields?: string[],
+  ): StockMovementDTO[] {
+    return stockMovements.map(
+      (stockMovement) => this.toDto(stockMovement, fields) as StockMovementDTO,
+    );
   }
 
   /**
@@ -130,4 +141,4 @@ export class StockMovementMapper {
   static fromCreateDto(dto: IStockMovementBase): StockMovement {
     return StockMovement.create(dto);
   }
-} 
+}

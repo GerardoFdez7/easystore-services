@@ -45,4 +45,4 @@ export class QtyAvailable {
   public isPositive(): boolean {
     return this.value > 0;
   }
-} 
+}

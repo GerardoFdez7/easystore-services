@@ -4,9 +4,13 @@ import { IInventoryRepository } from '../../../aggregates/repositories/inventory
 import { DeleteWarehouseDTO } from './delete-warehouse.dto';
 import { WarehouseMapper, WarehouseDTO } from '../../mappers';
 import { WarehouseDeletedEvent } from '../../../aggregates/events/warehouse/warehouse-deleted.event';
+import { Id } from '@domains/value-objects';
+import { NotFoundException } from '@nestjs/common';
 
 @CommandHandler(DeleteWarehouseDTO)
-export class DeleteWarehouseHandler implements ICommandHandler<DeleteWarehouseDTO> {
+export class DeleteWarehouseHandler
+  implements ICommandHandler<DeleteWarehouseDTO>
+{
   constructor(
     @Inject('IInventoryRepository')
     private readonly inventoryRepository: IInventoryRepository,
@@ -14,14 +18,22 @@ export class DeleteWarehouseHandler implements ICommandHandler<DeleteWarehouseDT
   ) {}
 
   async execute(command: DeleteWarehouseDTO): Promise<WarehouseDTO> {
-    // Buscar el warehouse antes de eliminarlo
-    const warehouse = await this.inventoryRepository.deleteWarehouse(command.id);
+    const found = await this.inventoryRepository.getWarehouseById(
+      Id.create(command.id),
+    );
+    if (!found) {
+      throw new NotFoundException(`Warehouse with id ${command.id} not found`);
+    }
+    const warehouse = await this.inventoryRepository.deleteWarehouse(
+      Id.create(command.id),
+      Id.create(command.tenantId),
+    );
 
-    // Publicar el evento
-    const warehouseWithEvents = this.eventPublisher.mergeObjectContext(warehouse);
+    const warehouseWithEvents =
+      this.eventPublisher.mergeObjectContext(warehouse);
     warehouseWithEvents.apply(new WarehouseDeletedEvent(warehouse));
     warehouseWithEvents.commit();
 
     return WarehouseMapper.toDto(warehouse) as WarehouseDTO;
   }
-} 
+}

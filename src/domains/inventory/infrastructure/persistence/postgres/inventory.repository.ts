@@ -2,189 +2,265 @@ import { Injectable } from '@nestjs/common';
 import { IInventoryRepository } from '../../../aggregates/repositories/inventory.interface';
 import { Warehouse, StockPerWarehouse } from '../../../aggregates/entities';
 import { PostgreService } from 'src/infrastructure/database/postgres.service';
-import { WarehouseMapper, StockPerWarehouseMapper } from '../../../application/mappers';
+import {
+  WarehouseMapper,
+  StockPerWarehouseMapper,
+} from '../../../application/mappers';
 import { IStockPerWarehouseBase } from '../../../aggregates/entities/stockPerWarehouse/stock-per-warehouse.attributes';
 import { v4 as uuidv4 } from 'uuid';
+import { Id } from '@domains/value-objects';
 
 @Injectable()
 export class InventoryRepository implements IInventoryRepository {
   constructor(private readonly prisma: PostgreService) {}
 
-  async saveWarehouse(warehouse: Warehouse): Promise<Warehouse> {
+  async createWarehouse(warehouse: Warehouse): Promise<Warehouse> {
     const warehouseDto = WarehouseMapper.toDto(warehouse) as any;
-    const { id, name, addressId, tenantId, createdAt, updatedAt } = warehouseDto;
+    const { id, name, addressId, tenantId, createdAt, updatedAt } =
+      warehouseDto;
 
-    // Guardar solo el warehouse sin stockPerWarehouse
-    const createdWarehouse = await this.prisma.warehouse.create({
-      data: {
-        id,
-        name,
-        addressId,
-        tenantId,
-        createdAt,
-        updatedAt,
-      },
+    const createdWarehouse = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.warehouse.create({
+        data: {
+          id,
+          name,
+          addressId,
+          tenantId,
+          createdAt,
+          updatedAt,
+        },
+      });
+      return created;
     });
 
-    // Mapear de vuelta a entidad de dominio
     return WarehouseMapper.fromPersistence(createdWarehouse);
   }
 
-  async getWarehouseById(id: string): Promise<Warehouse | null> {
+  async getWarehouseById(id: Id): Promise<Warehouse | null> {
     const warehouse = await this.prisma.warehouse.findUnique({
-      where: { id },
+      where: { id: id.getValue() },
     });
 
     if (!warehouse) {
       return null;
     }
 
-    // Mapear de vuelta a entidad de dominio
     return WarehouseMapper.fromPersistence(warehouse);
   }
 
-  async getAllWarehouses(): Promise<Warehouse[]> {
-    const warehouses = await this.prisma.warehouse.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
-
-    // Mapear de vuelta a entidades de dominio
-    return warehouses.map(warehouse => WarehouseMapper.fromPersistence(warehouse));
-  }
-
-  async updateWarehouse(id: string, warehouse: Warehouse): Promise<Warehouse> {
+  async updateWarehouse(
+    id: Id,
+    tenantId: Id,
+    warehouse: Warehouse,
+  ): Promise<Warehouse> {
     const warehouseDto = WarehouseMapper.toDto(warehouse) as any;
-    const { name, addressId, tenantId, updatedAt } = warehouseDto;
+    const { name, addressId, tenantId: tenantIdDto, updatedAt } = warehouseDto;
 
-    // Verificar que el warehouse existe
-    const existingWarehouse = await this.prisma.warehouse.findUnique({
-      where: { id },
+    const updatedWarehouse = await this.prisma.$transaction(async (tx) => {
+      const existingWarehouse = await tx.warehouse.findUnique({
+        where: { id: id.getValue(), tenantId: tenantId.getValue() },
+      });
+      if (!existingWarehouse) {
+        throw new Error(
+          `Warehouse with id ${id.getValue()} and tenantId ${tenantId.getValue()} not found`,
+        );
+      }
+      const updated = await tx.warehouse.update({
+        where: { id: id.getValue(), tenantId: tenantId.getValue() },
+        data: {
+          name,
+          addressId,
+          tenantId: tenantIdDto,
+          updatedAt,
+        },
+      });
+      return updated;
     });
 
-    if (!existingWarehouse) {
-      throw new Error(`Warehouse with id ${id} not found`);
-    }
-
-    // Actualizar el warehouse
-    const updatedWarehouse = await this.prisma.warehouse.update({
-      where: { id },
-      data: {
-        name,
-        addressId,
-        tenantId,
-        updatedAt,
-      },
-    });
-
-    // Mapear de vuelta a entidad de dominio
     return WarehouseMapper.fromPersistence(updatedWarehouse);
   }
 
-  async deleteWarehouse(id: string): Promise<Warehouse> {
-    // Buscar el warehouse antes de eliminarlo
-    const warehouse = await this.prisma.warehouse.findUnique({
-      where: { id },
+  async deleteWarehouse(id: Id, tenantId: Id): Promise<Warehouse> {
+    const warehouse = await this.prisma.$transaction(async (tx) => {
+      const found = await tx.warehouse.findUnique({
+        where: { id: id.getValue(), tenantId: tenantId.getValue() },
+      });
+      if (!found) {
+        throw new Error(
+          `Warehouse with id ${id.getValue()} and tenantId ${tenantId.getValue()} not found`,
+        );
+      }
+      await tx.warehouse.delete({
+        where: { id: id.getValue(), tenantId: tenantId.getValue() },
+      });
+      return found;
     });
-
-    if (!warehouse) {
-      throw new Error(`Warehouse with id ${id} not found`);
-    }
-
-    // Eliminar el warehouse
-    await this.prisma.warehouse.delete({
-      where: { id },
-    });
-
-    // Mapear de vuelta a entidad de dominio
     return WarehouseMapper.fromPersistence(warehouse);
   }
 
-  async saveStockPerWarehouse(stockPerWarehouse: StockPerWarehouse): Promise<StockPerWarehouse> {
-    const stockPerWarehouseDto = StockPerWarehouseMapper.toDto(stockPerWarehouse) as any;
-    const { 
-      id, 
-      qtyAvailable, 
-      qtyReserved, 
-      productLocation, 
-      estimatedReplenishmentDate, 
-      lotNumber, 
-      serialNumbers, 
-      variantId, 
-      warehouseId 
+  async saveStockPerWarehouse(
+    stockPerWarehouse: StockPerWarehouse,
+  ): Promise<StockPerWarehouse> {
+    const stockPerWarehouseDto = StockPerWarehouseMapper.toDto(
+      stockPerWarehouse,
+    ) as any;
+    const {
+      id,
+      qtyAvailable,
+      qtyReserved,
+      productLocation,
+      estimatedReplenishmentDate,
+      lotNumber,
+      serialNumbers,
+      variantId,
+      warehouseId,
     } = stockPerWarehouseDto;
 
-    // Guardar el stock per warehouse
-    const createdStockPerWarehouse = await this.prisma.stockPerWarehouse.create({
-      data: {
-        id,
-        qtyAvailable,
-        qtyReserved,
-        productLocation,
-        estimatedReplenishmentDate,
-        lotNumber,
-        serialNumbers,
-        variantId,
-        warehouseId,
+    const createdStockPerWarehouse = await this.prisma.$transaction(
+      async (tx) => {
+        const created = await tx.stockPerWarehouse.create({
+          data: {
+            id,
+            qtyAvailable,
+            qtyReserved,
+            productLocation,
+            estimatedReplenishmentDate,
+            lotNumber,
+            serialNumbers,
+            variantId,
+            warehouseId,
+          },
+        });
+        return created;
       },
-    });
+    );
 
-    // Mapear de vuelta a entidad de dominio
     return StockPerWarehouseMapper.fromPersistence(createdStockPerWarehouse);
   }
 
-  async deleteStockPerWarehouse(id: string): Promise<StockPerWarehouse> {
-    const stock = await this.prisma.stockPerWarehouse.findUnique({ where: { id } });
-    if (!stock) throw new Error(`StockPerWarehouse with id ${id} not found`);
-    await this.prisma.stockMovement.deleteMany({
-      where: { stockPerWarehouseId: id },
+  async deleteStockPerWarehouse(
+    id: Id,
+    warehouseId: Id,
+  ): Promise<StockPerWarehouse> {
+    const stock = await this.prisma.$transaction(async (tx) => {
+      const found = await tx.stockPerWarehouse.findUnique({
+        where: { id: id.getValue(), warehouseId: warehouseId.getValue() },
+      });
+      if (!found)
+        throw new Error(
+          `StockPerWarehouse with id ${id.getValue()} and warehouseId ${warehouseId.getValue()} not found`,
+        );
+      await tx.stockMovement.deleteMany({
+        where: { stockPerWarehouseId: id.getValue() },
+      });
+      await tx.stockPerWarehouse.delete({
+        where: { id: id.getValue(), warehouseId: warehouseId.getValue() },
+      });
+      return found;
     });
-    await this.prisma.stockPerWarehouse.delete({ where: { id } });
     return StockPerWarehouseMapper.fromPersistence(stock);
   }
 
-  async getStockPerWarehouseById(id: string): Promise<StockPerWarehouse | null> {
-    const stock = await this.prisma.stockPerWarehouse.findUnique({ where: { id } });
+  async getStockPerWarehouseById(
+    id: Id,
+    warehouseId: Id,
+  ): Promise<StockPerWarehouse | null> {
+    const stock = await this.prisma.stockPerWarehouse.findUnique({
+      where: { id: id.getValue(), warehouseId: warehouseId.getValue() },
+    });
     if (!stock) return null;
     return StockPerWarehouseMapper.fromPersistence(stock);
   }
 
-  async getAllStockPerWarehouseByWarehouseId(warehouseId: string): Promise<StockPerWarehouse[]> {
-    const stocks = await this.prisma.stockPerWarehouse.findMany({ where: { warehouseId } });
-    return stocks.map(stock => StockPerWarehouseMapper.fromPersistence(stock));
+  async getAllStockPerWarehouseByWarehouseId(
+    warehouseId: string,
+  ): Promise<StockPerWarehouse[]> {
+    const stocks = await this.prisma.stockPerWarehouse.findMany({
+      where: { warehouseId },
+    });
+    return stocks.map((stock) =>
+      StockPerWarehouseMapper.fromPersistence(stock),
+    );
   }
 
-  async updateStockPerWarehouse(id: string, updates: Partial<IStockPerWarehouseBase>): Promise<StockPerWarehouse> {
-    // Obtener el registro actual
-    const current = await this.prisma.stockPerWarehouse.findUnique({ where: { id } });
-    if (!current) throw new Error(`StockPerWarehouse with id ${id} not found`);
-
-    // Calcular el delta de qtyAvailable
-    const newQtyAvailable = updates.qtyAvailable ?? current.qtyAvailable;
-    const deltaQty = newQtyAvailable - current.qtyAvailable;
-
-    // Actualizar el registro
-    const updated = await this.prisma.stockPerWarehouse.update({
-      where: { id },
-      data: {
-        ...updates,
-      },
-    });
-
-    // Crear un nuevo StockMovement solo si hay cambio en qtyAvailable
-    if (deltaQty !== 0) {
-      await this.prisma.stockMovement.create({
+  async updateStockPerWarehouse(
+    id: Id,
+    warehouseId: Id,
+    updates: Partial<IStockPerWarehouseBase>,
+  ): Promise<StockPerWarehouse> {
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const current = await tx.stockPerWarehouse.findUnique({
+        where: { id: id.getValue(), warehouseId: warehouseId.getValue() },
+      });
+      if (!current)
+        throw new Error(
+          `StockPerWarehouse with id ${id.getValue()} and warehouseId ${warehouseId.getValue()} not found`,
+        );
+      const newQtyAvailable = updates.qtyAvailable ?? current.qtyAvailable;
+      const deltaQty = newQtyAvailable - current.qtyAvailable;
+      const updatedStock = await tx.stockPerWarehouse.update({
+        where: { id: id.getValue(), warehouseId: warehouseId.getValue() },
         data: {
-          id: uuidv4(),
-          deltaQty,
-          reason: 'StockPerWarehouse updated',
-          warehouseId: updated.warehouseId,
-          stockPerWarehouseId: updated.id,
-          ocurredAt: new Date(),
+          ...updates,
         },
       });
-    }
-
+      if (deltaQty !== 0) {
+        await tx.stockMovement.create({
+          data: {
+            id: uuidv4(),
+            deltaQty,
+            reason: 'StockPerWarehouse updated',
+            warehouseId: updatedStock.warehouseId,
+            stockPerWarehouseId: updatedStock.id,
+            ocurredAt: new Date(),
+          },
+        });
+      }
+      return updatedStock;
+    });
     return StockPerWarehouseMapper.fromPersistence(updated);
   }
 
+  async findAllWarehouses(
+    tenantId: Id,
+    options?: {
+      page?: number;
+      limit?: number;
+      name?: string;
+      addressId?: Id;
+      sortBy?: 'createdAt' | 'name' | 'addressId';
+      sortOrder?: 'asc' | 'desc';
+    },
+  ): Promise<{ warehouses: Warehouse[]; total: number; hasMore: boolean }> {
+    const page = options?.page ?? 1;
+    const limit = options?.limit ?? 10;
+    const skip = (page - 1) * limit;
+    const where: any = { tenantId: tenantId.getValue() };
+    if (options?.name) {
+      where.name = { contains: options.name, mode: 'insensitive' };
+    }
+    if (options?.addressId) {
+      where.addressId = options.addressId.getValue();
+    }
+    // Prisma espera 'asc' | 'desc' como tipo, así que forzamos el tipo
+    const sortOrder = (options?.sortOrder ?? 'desc') as 'asc' | 'desc';
+    const orderBy = options?.sortBy
+      ? { [options.sortBy]: sortOrder }
+      : { createdAt: sortOrder };
+    const [warehouses, total] = await Promise.all([
+      this.prisma.warehouse.findMany({
+        where,
+        orderBy,
+        skip,
+        take: limit,
+      }),
+      this.prisma.warehouse.count({ where }),
+    ]);
+    const hasMore = skip + warehouses.length < total;
+    return {
+      warehouses: warehouses.map((w) => WarehouseMapper.fromPersistence(w)),
+      total,
+      hasMore,
+    };
+  }
 }

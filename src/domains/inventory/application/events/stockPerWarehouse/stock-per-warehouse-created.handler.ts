@@ -11,6 +11,8 @@ export class StockPerWarehouseCreatedHandler
   constructor(private readonly logger: LoggerService) {}
 
   handle(event: StockPerWarehouseCreatedEvent): void {
-    this.logger.log(`Stock per warehouse created: ${event.stockPerWarehouse.get('id').getValue()}`);
+    this.logger.log(
+      `Stock per warehouse created: ${event.stockPerWarehouse.get('id').getValue()}`,
+    );
   }
-} 
+}

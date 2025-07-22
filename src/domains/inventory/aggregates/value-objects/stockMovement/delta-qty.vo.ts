@@ -3,7 +3,9 @@ import { z } from 'zod';
 const deltaQtySchema = z
   .number()
   .int({ message: 'Delta quantity must be an integer' })
-  .min(-999999999, { message: 'Delta quantity cannot be less than -999,999,999' })
+  .min(-999999999, {
+    message: 'Delta quantity cannot be less than -999,999,999',
+  })
   .max(999999999, { message: 'Delta quantity cannot exceed 999,999,999' });
 
 export class DeltaQty {
@@ -53,4 +55,4 @@ export class DeltaQty {
   public multiply(factor: number): DeltaQty {
     return DeltaQty.create(this.value * factor);
   }
-} 
+}

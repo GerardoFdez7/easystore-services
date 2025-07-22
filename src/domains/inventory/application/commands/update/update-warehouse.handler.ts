@@ -4,9 +4,13 @@ import { IInventoryRepository } from '../../../aggregates/repositories/inventory
 import { UpdateWarehouseDTO } from './update-warehouse.dto';
 import { WarehouseMapper, WarehouseDTO } from '../../mappers';
 import { WarehouseUpdatedEvent } from '../../../aggregates/events/warehouse/warehouse-updated.event';
+import { Id } from '@domains/value-objects';
+import { NotFoundException } from '@nestjs/common';
 
 @CommandHandler(UpdateWarehouseDTO)
-export class UpdateWarehouseHandler implements ICommandHandler<UpdateWarehouseDTO> {
+export class UpdateWarehouseHandler
+  implements ICommandHandler<UpdateWarehouseDTO>
+{
   constructor(
     @Inject('IInventoryRepository')
     private readonly inventoryRepository: IInventoryRepository,
@@ -14,23 +18,29 @@ export class UpdateWarehouseHandler implements ICommandHandler<UpdateWarehouseDT
   ) {}
 
   async execute(command: UpdateWarehouseDTO): Promise<WarehouseDTO> {
-    // Crear la entidad de dominio con los datos actualizados
+    const found = await this.inventoryRepository.getWarehouseById(
+      Id.create(command.id),
+    );
+    if (!found) {
+      throw new NotFoundException(`Warehouse with id ${command.id} not found`);
+    }
+
     const updatedWarehouse = WarehouseMapper.fromUpdateDto(
-      { id: command.id } as any, // Placeholder para la entidad existente
-      command.data
+      { id: command.id } as any,
+      command.data,
     );
 
-    // Actualizar el warehouse
     const warehouse = await this.inventoryRepository.updateWarehouse(
-      command.id,
-      updatedWarehouse
+      Id.create(command.id),
+      Id.create(command.tenantId),
+      updatedWarehouse,
     );
 
-    // Publicar el evento
-    const warehouseWithEvents = this.eventPublisher.mergeObjectContext(warehouse);
+    const warehouseWithEvents =
+      this.eventPublisher.mergeObjectContext(warehouse);
     warehouseWithEvents.apply(new WarehouseUpdatedEvent(warehouse));
     warehouseWithEvents.commit();
 
     return WarehouseMapper.toDto(warehouse) as WarehouseDTO;
   }
-} 
+}
