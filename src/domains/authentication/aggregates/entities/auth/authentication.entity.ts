@@ -8,8 +8,13 @@ import {
   EmailVerified,
   Id,
 } from '../../value-objects';
-import { AuthenticationLoginEvent } from '../../events/authentication-login.event';
-import { AuthenticationRegisterEvent } from '../../events/authentication-register.event';
+import {
+  AuthenticationLoginEvent,
+  AuthenticationRegisterEvent,
+  AuthenticationFailedEvent,
+  AuthenticationLockedEvent,
+  AuthenticationLogoutEvent,
+} from '../../events';
 
 export interface IAuthIdentityProps extends EntityProps {
   id: Id;
@@ -26,8 +31,12 @@ export interface IAuthIdentityProps extends EntityProps {
 }
 
 export class AuthIdentity extends Entity<IAuthIdentityProps> {
-  constructor(props: IAuthIdentityProps) {
+  private constructor(props: IAuthIdentityProps) {
     super(props);
+  }
+
+  static reconstitute(props: IAuthIdentityProps): AuthIdentity {
+    return new AuthIdentity(props);
   }
 
   static register(input: IAuthIdentityBaseType): AuthIdentity {
@@ -55,7 +64,7 @@ export class AuthIdentity extends Entity<IAuthIdentityProps> {
     return auth;
   }
 
-  public loginSucceeded(): void {
+  loginSucceeded(): void {
     this.props.failedAttempts = 0;
     this.props.lastLoginAt = new Date();
     this.props.lockedUntil = null;
@@ -63,22 +72,28 @@ export class AuthIdentity extends Entity<IAuthIdentityProps> {
     this.apply(new AuthenticationLoginEvent(this));
   }
 
-  public loginFailed(): void {
+  loginFailed(): void {
     this.props.failedAttempts += 1;
     if (this.props.failedAttempts >= 5) {
       this.props.lockedUntil = new Date(Date.now() + 10 * 60 * 1000); // lock 10 mins
+      this.apply(new AuthenticationLockedEvent(this));
     }
     this.touch();
+    this.apply(new AuthenticationFailedEvent(this));
   }
 
-  public verifyEmail(): void {
+  verifyEmail(): void {
     this.props.emailVerified = EmailVerified.create(true);
     this.touch();
   }
 
-  public deactivate(): void {
+  deactivate(): void {
     this.props.isActive = IsActive.create(false);
     this.touch();
+  }
+
+  logout(): void {
+    this.apply(new AuthenticationLogoutEvent(this));
   }
 
   private touch(): void {

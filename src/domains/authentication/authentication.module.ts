@@ -2,34 +2,48 @@ import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { PostgresModule } from '@database/postgres.module';
 import { LoggerModule } from '@winston/winston.module';
-import { Provider } from '@nestjs/common';
-import { AuthenticationRegisterHandler } from './application/commands/create/sign-up.handler';
+import {
+  AuthenticationRegisterHandler,
+  AuthenticationLoginHandler,
+  AuthenticationLogoutHandler,
+} from './application/commands';
+import {
+  IdentityRegisteredHandler,
+  IdentityLoggedInHandler,
+  IdentityLoggedOutHandler,
+} from './application/events';
 import { AuthenticationRepository } from './infrastructure/persistence/postgres/authentication.repository';
+import { AuthGuard } from './infrastructure/guard/auth.guard';
+import { TenantRepository } from '../tenant/infrastructure/persistence/postgres/tenant.repository';
 import { AuthenticationResolver } from './presentation/graphql/authentication.resolver';
-import { AuthenticationRegisterEvent } from './aggregates/events/authentication-register.event';
-import { AuthenticationLoginHandler } from './application/queries/select/sign-in.handler';
 
-// Agrupación de handlers
 const CommandHandlers = [
   AuthenticationRegisterHandler,
   AuthenticationLoginHandler,
+  AuthenticationLogoutHandler,
 ];
-const QueryHandlers: Provider[] = [];
-const EventHandlers = [AuthenticationRegisterEvent];
+const EventHandlers = [
+  IdentityRegisteredHandler,
+  IdentityLoggedInHandler,
+  IdentityLoggedOutHandler,
+];
 
 @Module({
   imports: [CqrsModule, PostgresModule, LoggerModule],
   providers: [
-    AuthenticationRepository,
     {
       provide: 'AuthRepository',
       useClass: AuthenticationRepository,
     },
+    {
+      provide: 'TenantRepository',
+      useClass: TenantRepository,
+    },
     AuthenticationResolver,
+    AuthGuard,
     ...CommandHandlers,
-    ...QueryHandlers,
     ...EventHandlers,
   ],
-  exports: [],
+  exports: [AuthGuard],
 })
 export class AuthenticationDomain {}

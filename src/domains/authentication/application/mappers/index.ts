@@ -1,2 +1,6 @@
-export { AuthenticationDTO } from './authentication.dto';
-export { AuthenticationMapper } from './authentication.mapper';
+export {
+  AuthenticationDTO,
+  LoginResponseDTO,
+  LogoutResponseDTO,
+} from './auth/authentication.dto';
+export { AuthenticationMapper } from './auth/authentication.mapper';
