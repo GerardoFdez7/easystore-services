@@ -7,7 +7,7 @@
   "license": "",
   "scripts": {
     "build": "nest build",
-    "start": "set NODE_ENV=production && node dist/main",
+    "start": "set NODE_ENV=production && node dist/src/main",
     "dev": "set NODE_ENV=development && nest start --watch",
     "start:debug": "nest start --debug --watch",
     "lint": "eslint ",
