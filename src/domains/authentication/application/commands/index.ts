@@ -6,3 +6,6 @@ export { AuthenticationLoginHandler } from './login/sign-in.handler';
 
 export { AuthenticationLogoutDTO } from './logout/sing-out.dto';
 export { AuthenticationLogoutHandler } from './logout/sing-out.handler';
+
+export { AuthenticationValidateTokenDTO } from './validate-token/validate-token.dto';
+export { AuthenticationValidateTokenHandler } from './validate-token/validate-token.handler';

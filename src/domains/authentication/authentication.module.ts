@@ -6,6 +6,7 @@ import {
   AuthenticationRegisterHandler,
   AuthenticationLoginHandler,
   AuthenticationLogoutHandler,
+  AuthenticationValidateTokenHandler,
 } from './application/commands';
 import {
   IdentityRegisteredHandler,
@@ -13,6 +14,8 @@ import {
   IdentityLoggedOutHandler,
 } from './application/events';
 import { AuthenticationRepository } from './infrastructure/persistence/postgres/authentication.repository';
+import { CustomerRepository } from './infrastructure/persistence/postgres/customer.repository';
+import { EmployeeRepository } from './infrastructure/persistence/postgres/employee.repository';
 import { AuthGuard } from './infrastructure/guard/auth.guard';
 import { TenantRepository } from '../tenant/infrastructure/persistence/postgres/tenant.repository';
 import { AuthenticationResolver } from './presentation/graphql/authentication.resolver';
@@ -21,6 +24,7 @@ const CommandHandlers = [
   AuthenticationRegisterHandler,
   AuthenticationLoginHandler,
   AuthenticationLogoutHandler,
+  AuthenticationValidateTokenHandler,
 ];
 const EventHandlers = [
   IdentityRegisteredHandler,
@@ -38,6 +42,14 @@ const EventHandlers = [
     {
       provide: 'TenantRepository',
       useClass: TenantRepository,
+    },
+    {
+      provide: 'CustomerRepository',
+      useClass: CustomerRepository,
+    },
+    {
+      provide: 'EmployeeRepository',
+      useClass: EmployeeRepository,
     },
     AuthenticationResolver,
     AuthGuard,

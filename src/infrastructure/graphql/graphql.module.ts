@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
+import { Request, Response } from 'express';
 import { join } from 'path';
 
 @Module({
@@ -19,7 +20,10 @@ import { join } from 'path';
           ? [ApolloServerPluginLandingPageLocalDefault()]
           : [],
       introspection: true,
-      context: ({ req }: { req: Request }) => ({ req }),
+      context: ({ req, res }: { req: Request; res: Response }) => ({
+        req,
+        res,
+      }),
       path: '/gql',
     }),
   ],
