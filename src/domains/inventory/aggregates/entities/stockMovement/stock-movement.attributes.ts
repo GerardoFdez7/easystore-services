@@ -1,4 +1,4 @@
-import { DeltaQty, Reason } from '../../value-objects';
+import { DeltaQty, LongDescription } from '../../value-objects';
 import { Id } from '@domains/value-objects';
 import { EntityProps } from '@domains/entity.base';
 
@@ -31,7 +31,7 @@ export interface IStockMovementSystem {
 export interface IStockMovementProps extends EntityProps {
   id: Id;
   deltaQty: DeltaQty;
-  reason: Reason;
+  reason: LongDescription;
   createdById: string | null;
   warehouseId: Id;
   stockPerWarehouseId: Id;

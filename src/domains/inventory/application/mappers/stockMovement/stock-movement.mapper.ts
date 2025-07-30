@@ -5,7 +5,7 @@ import {
   IStockMovementBase,
 } from '../../../aggregates/entities';
 import { DeltaQty } from '../../../aggregates/value-objects/stockMovement/delta-qty.vo';
-import { Reason } from '../../../aggregates/value-objects/stockMovement/reason.vo';
+import { LongDescription } from '@domains/value-objects';
 import { StockMovementDTO } from './stock-movement.dto';
 import { Id } from '@domains/value-objects';
 
@@ -25,7 +25,7 @@ export class StockMovementMapper {
     const stockMovementProps: IStockMovementProps = {
       id: Id.create(persistenceStockMovement.id),
       deltaQty: DeltaQty.create(persistenceStockMovement.deltaQty),
-      reason: Reason.create(persistenceStockMovement.reason),
+      reason: LongDescription.create(persistenceStockMovement.reason),
       createdById: persistenceStockMovement.createdById || null,
       warehouseId: Id.create(persistenceStockMovement.warehouseId),
       stockPerWarehouseId: Id.create(

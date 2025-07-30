@@ -7,7 +7,7 @@ import {
 import {
   QtyAvailable,
   QtyReserved,
-  ProductLocation,
+  ShortDescription,
   EstimatedReplenishmentDate,
   LotNumber,
   SerialNumbers,
@@ -37,7 +37,7 @@ export class StockPerWarehouseMapper {
         persistenceStockPerWarehouse.qtyAvailable,
       ),
       qtyReserved: QtyReserved.create(persistenceStockPerWarehouse.qtyReserved),
-      productLocation: ProductLocation.create(
+      productLocation: ShortDescription.create(
         persistenceStockPerWarehouse.productLocation || null,
       ),
       estimatedReplenishmentDate: EstimatedReplenishmentDate.create(

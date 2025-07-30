@@ -1,4 +1,4 @@
-import { WarehouseName } from '../../value-objects';
+import { Name } from '../../value-objects';
 import { Id } from '@domains/value-objects';
 import { Entity, EntityProps } from '@domains/entity.base';
 import {
@@ -14,7 +14,7 @@ import { IStockPerWarehouseBase } from '../stockPerWarehouse/stock-per-warehouse
 
 export interface IWarehouseProps extends EntityProps {
   id: Id;
-  name: WarehouseName;
+  name: Name;
   addressId: Id;
   tenantId: Id;
   createdAt: Date;
@@ -44,7 +44,7 @@ export class Warehouse extends Entity<IWarehouseProps> {
   static create(props: IWarehouseBase): Warehouse {
     const transformedProps = {
       id: Id.generate(),
-      name: WarehouseName.create(props.name),
+      name: Name.create(props.name),
       addressId: Id.create(props.addressId),
       tenantId: Id.create(props.tenantId),
       createdAt: new Date(),
@@ -72,7 +72,7 @@ export class Warehouse extends Entity<IWarehouseProps> {
     const props = { ...warehouse.props };
 
     if (updates.name !== undefined) {
-      props.name = WarehouseName.create(updates.name);
+      props.name = Name.create(updates.name);
     }
 
     if (updates.addressId !== undefined) {

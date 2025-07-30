@@ -1,5 +1,5 @@
 import { DeltaQty } from '../../value-objects/stockMovement/delta-qty.vo';
-import { Reason } from '../../value-objects/stockMovement/reason.vo';
+import { LongDescription } from '@domains/value-objects';
 import { Id } from '@domains/value-objects';
 import { Entity, EntityProps } from '@domains/entity.base';
 import { StockMovementCreatedEvent } from '../../events';
@@ -8,7 +8,7 @@ import { IStockMovementBase } from './stock-movement.attributes';
 export interface IStockMovementProps extends EntityProps {
   id: Id;
   deltaQty: DeltaQty;
-  reason: Reason;
+  reason: LongDescription;
   createdById: string | null;
   warehouseId: Id;
   stockPerWarehouseId: Id;
@@ -39,7 +39,7 @@ export class StockMovement extends Entity<IStockMovementProps> {
     const transformedProps = {
       id: Id.generate(),
       deltaQty: DeltaQty.create(props.deltaQty),
-      reason: Reason.create(props.reason),
+      reason: LongDescription.create(props.reason),
       createdById: props.createdById || null,
       warehouseId: Id.create(props.warehouseId),
       stockPerWarehouseId: Id.create(props.stockPerWarehouseId),
