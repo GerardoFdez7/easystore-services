@@ -1,7 +1,7 @@
 import {
   QtyAvailable,
   QtyReserved,
-  ProductLocation,
+  ShortDescription,
   EstimatedReplenishmentDate,
   LotNumber,
   SerialNumbers,
@@ -42,7 +42,7 @@ export interface IStockPerWarehouseProps {
   id: Id;
   qtyAvailable: QtyAvailable;
   qtyReserved: QtyReserved;
-  productLocation: ProductLocation;
+  productLocation: ShortDescription;
   estimatedReplenishmentDate: EstimatedReplenishmentDate;
   lotNumber: LotNumber;
   serialNumbers: SerialNumbers;

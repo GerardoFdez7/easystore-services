@@ -6,7 +6,7 @@ import {
   StockPerWarehouse,
   IStockPerWarehouseBase,
 } from '../../../aggregates/entities';
-import { WarehouseName } from '../../../aggregates/value-objects';
+import { Name } from '../../../aggregates/value-objects';
 import { WarehouseDTO, PaginatedWarehousesDTO } from './warehouse.dto';
 import { Id } from '@domains/value-objects';
 
@@ -23,7 +23,7 @@ export class WarehouseMapper {
   static fromPersistence(persistenceWarehouse: IWarehouseType): Warehouse {
     const warehouseProps: IWarehouseProps = {
       id: Id.create(persistenceWarehouse.id),
-      name: WarehouseName.create(persistenceWarehouse.name),
+      name: Name.create(persistenceWarehouse.name),
       addressId: Id.create(persistenceWarehouse.addressId),
       tenantId: Id.create(persistenceWarehouse.tenantId),
       createdAt: persistenceWarehouse.createdAt,

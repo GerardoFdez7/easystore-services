@@ -1,7 +1,7 @@
 import {
   QtyAvailable,
   QtyReserved,
-  ProductLocation,
+  ShortDescription,
   EstimatedReplenishmentDate,
   LotNumber,
   SerialNumbers,
@@ -14,7 +14,7 @@ export interface IStockPerWarehouseProps extends EntityProps {
   id: Id;
   qtyAvailable: QtyAvailable;
   qtyReserved: QtyReserved;
-  productLocation: ProductLocation;
+  productLocation: ShortDescription;
   estimatedReplenishmentDate: EstimatedReplenishmentDate;
   lotNumber: LotNumber;
   serialNumbers: SerialNumbers;
@@ -47,7 +47,7 @@ export class StockPerWarehouse extends Entity<IStockPerWarehouseProps> {
       id: Id.generate(),
       qtyAvailable: QtyAvailable.create(props.qtyAvailable || 0),
       qtyReserved: QtyReserved.create(props.qtyReserved || 0),
-      productLocation: ProductLocation.create(props.productLocation || null),
+      productLocation: ShortDescription.create(props.productLocation || null),
       estimatedReplenishmentDate: EstimatedReplenishmentDate.create(
         props.estimatedReplenishmentDate || null,
       ),
@@ -83,7 +83,7 @@ export class StockPerWarehouse extends Entity<IStockPerWarehouseProps> {
     }
 
     if (updates.productLocation !== undefined) {
-      props.productLocation = ProductLocation.create(updates.productLocation);
+      props.productLocation = ShortDescription.create(updates.productLocation);
     }
 
     if (updates.estimatedReplenishmentDate !== undefined) {
