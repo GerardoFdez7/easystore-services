@@ -1,5 +1,5 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
-import { Inject } from '@nestjs/common';
+import { Inject, NotFoundException } from '@nestjs/common';
 import { IInventoryRepository } from '../../../aggregates/repositories/inventory.interface';
 import { GetAllWarehousesQuery } from './get-all-warehouses.query';
 import { WarehouseMapper, WarehouseDTO } from '../../mappers';
@@ -27,6 +27,13 @@ export class GetAllWarehousesHandler
         sortOrder: sortOrder as 'asc' | 'desc',
       },
     );
+
+    if (!warehouses || warehouses.length === 0) {
+      throw new NotFoundException(
+        `No warehouses found for tenant with id ${tenantId}`,
+      );
+    }
+
     return warehouses.map(
       (warehouse) => WarehouseMapper.toDto(warehouse) as WarehouseDTO,
     );
