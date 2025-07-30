@@ -63,12 +63,12 @@ export interface IInventoryRepository {
   // ==================== STOCK PER WAREHOUSE OPERATIONS ====================
 
   /**
-   * Save a stock per warehouse (create or update)
+   * Save a stock per warehouse
    * @param stockPerWarehouse The stock per warehouse to save
    * @returns The saved stock per warehouse
    * @throws {Error} If there is an error during the database operation
    */
-  saveStockPerWarehouse(
+  createStockPerWarehouse(
     stockPerWarehouse: StockPerWarehouse,
   ): Promise<StockPerWarehouse>;
 

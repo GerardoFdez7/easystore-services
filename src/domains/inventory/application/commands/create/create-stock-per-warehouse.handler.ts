@@ -34,7 +34,7 @@ export class CreateStockPerWarehouseHandler
     const stockPerWarehouse = StockPerWarehouseMapper.fromCreateDto(
       command.data,
     );
-    await this.inventoryRepository.saveStockPerWarehouse(stockPerWarehouse);
+    await this.inventoryRepository.createStockPerWarehouse(stockPerWarehouse);
 
     return StockPerWarehouseMapper.toDto(stockPerWarehouse);
   }

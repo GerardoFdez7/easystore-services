@@ -99,7 +99,7 @@ export class InventoryRepository implements IInventoryRepository {
     return WarehouseMapper.fromPersistence(warehouse);
   }
 
-  async saveStockPerWarehouse(
+  async createStockPerWarehouse(
     stockPerWarehouse: StockPerWarehouse,
   ): Promise<StockPerWarehouse> {
     const stockPerWarehouseDto =

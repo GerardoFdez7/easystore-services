@@ -6,4 +6,4 @@ export class StockPerWarehouseUpdatedInWarehouseEvent implements IEvent {
     public readonly stockPerWarehouse: StockPerWarehouse,
     public readonly warehouse: Warehouse,
   ) {}
-} 
+}

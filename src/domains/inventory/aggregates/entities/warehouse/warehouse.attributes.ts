@@ -18,4 +18,3 @@ export interface IWarehouseSystem {
   createdAt: Date;
   updatedAt: Date;
 }
-
