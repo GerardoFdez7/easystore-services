@@ -7,17 +7,11 @@ import { IAuthIdentityType } from '../../../aggregates/entities';
 export type AuthenticationDTO = IAuthIdentityType;
 
 /**
- * Interface for authentication login response
+ * Interface for authentication response
  */
-export interface LoginResponseDTO {
-  refreshToken: string;
-  accessToken: string;
-  userId: string;
-}
-
-/**
- * Interface for authentication logout response
- */
-export interface LogoutResponseDTO {
+export interface ResponseDTO {
   success: boolean;
+  message: string;
+  accessToken?: string;
+  refreshToken?: string;
 }

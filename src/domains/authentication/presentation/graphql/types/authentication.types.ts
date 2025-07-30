@@ -1,5 +1,4 @@
 import {
-  ID,
   Field,
   Int,
   ObjectType,
@@ -42,54 +41,24 @@ export class AuthIdentityType {
   updatedAt: Date;
 }
 
-@ObjectType('LoginResponse')
-export class LoginResponseType {
-  @Field()
-  accessToken: string;
-
-  @Field()
-  refreshToken: string;
-
-  @Field(() => ID)
-  userId: string;
-}
-
-// Input to create a new AuthIdentity
-@InputType()
-export class RegisterAuthInput {
-  @Field()
-  email: string;
-
-  @Field()
-  password: string;
-
-  @Field(() => AccountTypeEnum)
-  accountType: AccountTypeEnum;
-}
-
-// Input for login
-@InputType()
-export class LoginAuthInput {
-  @Field()
-  email: string;
-
-  @Field()
-  password: string;
-
-  @Field(() => AccountTypeEnum)
-  accountType: AccountTypeEnum;
-}
-
-// Input for logout
-@InputType()
-export class LogoutAuthInput {
-  @Field()
-  token: string;
-}
-
-// Response for logout
-@ObjectType('LogoutResponse')
-export class LogoutResponseType {
+@ObjectType('Response')
+export class ResponseType {
   @Field()
   success: boolean;
+
+  @Field()
+  message: string;
+}
+
+// Input to register or login a new AuthIdentity
+@InputType()
+export class AuthenticationInput {
+  @Field()
+  email: string;
+
+  @Field()
+  password: string;
+
+  @Field(() => AccountTypeEnum)
+  accountType: AccountTypeEnum;
 }

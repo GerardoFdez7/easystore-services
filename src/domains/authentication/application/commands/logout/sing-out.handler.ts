@@ -4,8 +4,9 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+
 import { IAuthRepository } from '../../../aggregates/repositories/authentication.interface';
-import { LogoutResponseDTO } from '../../mappers';
+import { ResponseDTO } from '../../mappers';
 import { Id } from '../../../aggregates/value-objects';
 import { AuthenticationLogoutDTO } from './sing-out.dto';
 import { verifyToken, invalidateToken } from '../../../infrastructure/jwt';
@@ -20,19 +21,23 @@ export class AuthenticationLogoutHandler
     private readonly eventPublisher: EventPublisher,
   ) {}
 
-  async execute(command: AuthenticationLogoutDTO): Promise<LogoutResponseDTO> {
+  async execute(command: AuthenticationLogoutDTO): Promise<ResponseDTO> {
     const { token } = command;
 
-    // Verify the token and extract user ID from payload
-    let userId: string;
+    if (!token) {
+      throw new UnauthorizedException('No authentication token provided');
+    }
+
+    // Verify the token and extract authIdentity ID from payload
+    let authIdentityId: string;
     try {
       const decoded = verifyToken(token);
-      userId = decoded.id;
+      authIdentityId = decoded.authIdentityId;
     } catch (_error) {
       throw new UnauthorizedException('Invalid or expired token');
     }
 
-    const idVO = Id.create(userId);
+    const idVO = Id.create(authIdentityId);
 
     // Find the auth identity by ID
     const authEntity = await this.authRepository.findById(idVO);
@@ -54,6 +59,7 @@ export class AuthenticationLogoutHandler
 
     return {
       success: true,
+      message: 'Logout successful',
     };
   }
 }

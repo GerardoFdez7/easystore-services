@@ -1,19 +1,20 @@
-import { Resolver, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Mutation, Query, Args, Context } from '@nestjs/graphql';
 import { CommandBus } from '@nestjs/cqrs';
 import { Public } from '../../infrastructure/decorators/public.decorator';
-import {
-  AuthIdentityType,
-  RegisterAuthInput,
-  LoginAuthInput,
-  LoginResponseType,
-  LogoutAuthInput,
-  LogoutResponseType,
-} from './types';
+import { AuthIdentityType, AuthenticationInput, ResponseType } from './types';
 import {
   AuthenticationRegisterDTO,
   AuthenticationLoginDTO,
   AuthenticationLogoutDTO,
+  AuthenticationValidateTokenDTO,
 } from '../../application/commands';
+import { ResponseDTO } from '../../application/mappers';
+import {
+  setTokenCookies,
+  clearTokenCookies,
+  extractTokenFromCookies,
+} from '../../infrastructure/jwt';
+import { Request, Response } from 'express';
 
 @Resolver(() => AuthIdentityType)
 export class AuthenticationResolver {
@@ -26,26 +27,87 @@ export class AuthenticationResolver {
   @Public()
   @Mutation(() => AuthIdentityType)
   async register(
-    @Args('input') input: RegisterAuthInput,
+    @Args('input') input: AuthenticationInput,
   ): Promise<AuthIdentityType> {
     return await this.commandBus.execute(new AuthenticationRegisterDTO(input));
   }
 
   @Public()
-  @Mutation(() => LoginResponseType)
+  @Mutation(() => ResponseType)
   async login(
-    @Args('input') input: LoginAuthInput,
-  ): Promise<LoginResponseType> {
-    return await this.commandBus.execute(new AuthenticationLoginDTO(input));
+    @Args('input') input: AuthenticationInput,
+    @Context() context: { res: Response },
+  ): Promise<ResponseType> {
+    const result = await this.commandBus.execute<
+      AuthenticationLoginDTO,
+      ResponseDTO
+    >(new AuthenticationLoginDTO(input));
+
+    // Set tokens as httpOnly cookies
+    if (result.accessToken && context.res) {
+      setTokenCookies(context.res, result.accessToken);
+    }
+
+    return {
+      success: result.success,
+      message: result.message,
+    };
   }
 
   @Public()
-  @Mutation(() => LogoutResponseType)
+  @Mutation(() => ResponseType)
   async logout(
-    @Args('input') input: LogoutAuthInput,
-  ): Promise<LogoutResponseType> {
-    return await this.commandBus.execute(
-      new AuthenticationLogoutDTO(input.token),
-    );
+    @Context() context: { req: Request; res: Response },
+  ): Promise<ResponseType> {
+    // Extract token at resolver level
+    const token = extractTokenFromCookies(context.req);
+
+    if (!token) {
+      return {
+        success: false,
+        message: 'No authentication token found in cookies',
+      };
+    }
+
+    const result = await this.commandBus.execute<
+      AuthenticationLogoutDTO,
+      ResponseDTO
+    >(new AuthenticationLogoutDTO(token));
+
+    // Clear token cookies
+    if (context.res) {
+      clearTokenCookies(context.res);
+    }
+
+    return {
+      success: result.success,
+      message: result.message,
+    };
+  }
+
+  @Public()
+  @Query(() => ResponseType)
+  async validateToken(
+    @Context() context: { req: Request },
+  ): Promise<ResponseType> {
+    // Extract token at resolver level
+    const token = extractTokenFromCookies(context.req);
+
+    if (!token) {
+      return {
+        success: false,
+        message: 'No authentication token found in cookies',
+      };
+    }
+
+    const result = await this.commandBus.execute<
+      AuthenticationValidateTokenDTO,
+      ResponseDTO
+    >(new AuthenticationValidateTokenDTO(token));
+
+    return {
+      success: result.success,
+      message: result.message,
+    };
   }
 }

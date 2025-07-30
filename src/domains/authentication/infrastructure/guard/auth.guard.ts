@@ -6,13 +6,15 @@ import {
 } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { Reflector } from '@nestjs/core';
-import { verifyToken, JwtPayload } from '../jwt/jwt-handler';
+import { Request } from 'express';
+import {
+  verifyToken,
+  JwtPayload,
+  extractTokenFromCookies,
+} from '../jwt/jwt-handler';
 import { IsPublicKey } from '../decorators/public.decorator';
 
-interface RequestWithUser {
-  headers: {
-    authorization?: string;
-  };
+interface RequestWithUser extends Request {
   user?: JwtPayload;
 }
 
@@ -35,28 +37,18 @@ export class AuthGuard implements CanActivate {
     const ctx = GqlExecutionContext.create(context);
     const { req } = ctx.getContext<{ req: RequestWithUser }>();
 
-    // Extract token from Authorization header
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      throw new UnauthorizedException('Authorization token is required');
+    // Extract token from cookies
+    const cookieToken = extractTokenFromCookies(req);
+    if (!cookieToken) {
+      throw new UnauthorizedException(
+        'Authentication token is required in cookies',
+      );
     }
 
-    // Determine authentication scheme and delegate to appropriate handler
-    if (authHeader.startsWith('Bearer ')) {
-      return this.handleBearerToken(authHeader, req);
-    }
-
-    // Future: Add OAuth handling here
-    // if (authHeader.startsWith('OAuth ')) {
-    //   return this.handleOAuthToken(authHeader, req);
-    // }
-
-    throw new UnauthorizedException('Unsupported authentication scheme');
+    return this.handleToken(cookieToken, req);
   }
 
-  private handleBearerToken(authHeader: string, req: RequestWithUser): boolean {
-    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
-
+  private handleToken(token: string, req: RequestWithUser): boolean {
     try {
       // Verify the JWT token
       const payload = verifyToken(token);
