@@ -22,9 +22,6 @@ import {
   WarehouseDeletedHandler,
 } from './application/events';
 import {
-  StockPerWarehouseCreatedHandler,
-  StockPerWarehouseDeletedHandler,
-  StockPerWarehouseUpdatedHandler,
   StockPerWarehouseAddedHandler,
   StockPerWarehouseUpdatedInWarehouseHandler,
   StockPerWarehouseRemovedFromWarehouseHandler,
@@ -50,9 +47,6 @@ const EventHandlers = [
   WarehouseCreatedHandler,
   WarehouseUpdatedHandler,
   WarehouseDeletedHandler,
-  StockPerWarehouseCreatedHandler,
-  StockPerWarehouseDeletedHandler,
-  StockPerWarehouseUpdatedHandler,
   StockPerWarehouseAddedHandler,
   StockPerWarehouseUpdatedInWarehouseHandler,
   StockPerWarehouseRemovedFromWarehouseHandler,

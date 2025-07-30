@@ -15,4 +15,4 @@ export class StockPerWarehouseAddedHandler
       `StockPerWarehouse added to warehouse: ${event.stockPerWarehouse.get('id').getValue()} -> ${event.warehouse.get('id').getValue()}`,
     );
   }
-} 
+}
