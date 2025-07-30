@@ -67,6 +67,12 @@ type AuthIdentity {
   updatedAt: DateTime!
 }
 
+input AuthenticationInput {
+  accountType: AccountTypeEnum!
+  email: String!
+  password: String!
+}
+
 type Category {
   cover: String!
   createdAt: DateTime!
@@ -194,26 +200,6 @@ type Installment {
   months: Int!
 }
 
-input LoginAuthInput {
-  accountType: AccountTypeEnum!
-  email: String!
-  password: String!
-}
-
-type LoginResponse {
-  accessToken: String!
-  refreshToken: String!
-  userId: ID!
-}
-
-input LogoutAuthInput {
-  token: String!
-}
-
-type LogoutResponse {
-  success: Boolean!
-}
-
 type Media {
   mediaType: MediaTypeEnum!
   position: Int!
@@ -236,9 +222,9 @@ type Mutation {
   deleteAddress(customerId: ID, id: ID!, tenantId: ID): AddressType!
   deleteCategory(id: ID!, tenantId: ID!): Category!
   hardDeleteProduct(id: String!, tenantId: String!): Product!
-  login(input: LoginAuthInput!): LoginResponse!
-  logout(input: LogoutAuthInput!): LogoutResponse!
-  register(input: RegisterAuthInput!): AuthIdentity!
+  login(input: AuthenticationInput!): Response!
+  logout: Response!
+  register(input: AuthenticationInput!): AuthIdentity!
   removeVariant(id: String!, productId: String!, tenantId: String!): Product!
   restoreProduct(id: String!, tenantId: String!): Product!
   restoreVariant(id: String!, productId: String!, tenantId: String!): Product!
@@ -292,12 +278,12 @@ type Query {
   getAllProducts(categoriesIds: [Int!], includeSoftDeleted: Boolean = false, limit: Float = 25, name: String, page: Float = 1, sortBy: SortBy, sortOrder: SortOrder, tenantId: String!, type: TypeEnum): PaginatedProductsType!
   getCategoryById(id: ID!, tenantId: ID!): Category!
   getProductById(id: String!, tenantId: String!): Product!
+  validateToken: Response!
 }
 
-input RegisterAuthInput {
-  accountType: AccountTypeEnum!
-  email: String!
-  password: String!
+type Response {
+  message: String!
+  success: Boolean!
 }
 
 enum SortBy {

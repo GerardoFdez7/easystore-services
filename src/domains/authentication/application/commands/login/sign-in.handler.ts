@@ -11,9 +11,11 @@ import {
   generateRefreshToken,
   JwtPayload,
 } from '../../../infrastructure/jwt';
+import { ICustomerRepository } from '../../../aggregates/repositories/customer.interface';
+import { IEmployeeRepository } from '../../../aggregates/repositories/employee.interface';
 import { IAuthRepository } from '../../../aggregates/repositories/authentication.interface';
 import { ITenantRepository } from '../../../../tenant/aggregates/repositories/tenant.interface';
-import { LoginResponseDTO } from '../../mappers';
+import { ResponseDTO } from '../../mappers';
 import {
   Id,
   Email,
@@ -31,10 +33,14 @@ export class AuthenticationLoginHandler
     private readonly authRepository: IAuthRepository,
     @Inject('TenantRepository')
     private readonly tenantRepository: ITenantRepository,
+    @Inject('CustomerRepository')
+    private readonly customerRepository: ICustomerRepository,
+    @Inject('EmployeeRepository')
+    private readonly employeeRepository: IEmployeeRepository,
     private readonly eventPublisher: EventPublisher,
   ) {}
 
-  async execute(command: AuthenticationLoginDTO): Promise<LoginResponseDTO> {
+  async execute(command: AuthenticationLoginDTO): Promise<ResponseDTO> {
     const { data } = command;
 
     const emailVO = Email.create(data.email);
@@ -84,37 +90,69 @@ export class AuthenticationLoginHandler
     auth.loginSucceeded();
     await this.authRepository.update(IdVO, auth);
 
-    // Generate tokens
+    // Get authIdentity ID
+    const authIdentityId = auth.get('id');
+    const authIdentityIdValue = authIdentityId.getValue();
+
+    // Initialize payload with common fields
+    let tenantId: string;
+    let customerId: string | undefined;
+    let employeeId: string | undefined;
+
+    // Determine IDs based on account type
+    if (accountTypeVO.getValue() === AccountTypeEnum.TENANT) {
+      // For tenants, find the tenant entity
+      const tenant =
+        await this.tenantRepository.findByAuthIdentityId(authIdentityId);
+      if (!tenant) {
+        throw new NotFoundException('Tenant not found for this auth identity');
+      }
+      tenantId = tenant.get('id').getValue();
+    } else if (accountTypeVO.getValue() === AccountTypeEnum.CUSTOMER) {
+      // For customers, find customer and tenant
+      const customer =
+        await this.customerRepository.findByAuthIdentityId(authIdentityId);
+      if (!customer) {
+        throw new NotFoundException(
+          'Customer not found for this auth identity',
+        );
+      }
+      tenantId = customer.tenantId;
+      customerId = customer.id;
+    } else if (accountTypeVO.getValue() === AccountTypeEnum.EMPLOYEE) {
+      // For employees, find employee and tenant
+      const employee =
+        await this.employeeRepository.findByAuthIdentityId(authIdentityId);
+      if (!employee) {
+        throw new NotFoundException(
+          'Employee not found for this auth identity',
+        );
+      }
+      tenantId = employee.tenantId;
+      employeeId = employee.id;
+    } else {
+      throw new UnauthorizedException('Invalid account type');
+    }
+
+    // Generate tokens with enhanced payload
     const payload: JwtPayload = {
       email: emailVO.getValue(),
-      id: auth.get('id').getValue(),
+      authIdentityId: authIdentityIdValue,
+      tenantId,
+      customerId,
+      employeeId,
     };
 
     const accessToken = generateToken(payload);
     const refreshToken = generateRefreshToken(payload);
 
-    // Determine user ID based on account type
-    let userId: string;
-    const authIdentityId = auth.get('id');
-
-    if (accountTypeVO.getValue() === AccountTypeEnum.TENANT) {
-      // For tenants, find the tenant entity and return its ID
-      const tenant =
-        await this.tenantRepository.findByAuthIdentityId(authIdentityId);
-      if (tenant) {
-        userId = tenant.get('id').getValue();
-      } else {
-        // Fallback to authIdentity ID if tenant not found
-        userId = authIdentityId.getValue();
-      }
-    } else {
-      // For customers and employees, return the authIdentity ID
-      // since they don't have separate domain entities yet
-      userId = authIdentityId.getValue();
-    }
-
     auth.commit();
 
-    return { accessToken, refreshToken, userId };
+    return {
+      success: true,
+      message: 'Login successful',
+      accessToken,
+      refreshToken,
+    };
   }
 }

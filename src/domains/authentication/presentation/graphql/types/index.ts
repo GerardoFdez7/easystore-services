@@ -1,8 +1,5 @@
 export {
   AuthIdentityType,
-  LoginResponseType,
-  RegisterAuthInput,
-  LoginAuthInput,
-  LogoutAuthInput,
-  LogoutResponseType,
+  ResponseType,
+  AuthenticationInput,
 } from './authentication.types';
