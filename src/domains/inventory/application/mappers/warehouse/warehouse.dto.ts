@@ -1,25 +1,4 @@
-import { ObjectType, Field, ID } from '@nestjs/graphql';
-
-@ObjectType('Warehouse')
-export class WarehouseDTO {
-  @Field(() => ID)
-  id: string;
-
-  @Field()
-  name: string;
-
-  @Field()
-  addressId: string;
-
-  @Field()
-  tenantId: string;
-
-  @Field()
-  createdAt: Date;
-
-  @Field()
-  updatedAt: Date;
-}
+import { IWarehouseType } from 'src/domains/inventory/aggregates/entities';
 
 /**
  * Interface for paginated warehouse results
@@ -29,3 +8,5 @@ export interface PaginatedWarehousesDTO {
   total: number;
   hasMore: boolean;
 }
+
+export type WarehouseDTO = IWarehouseType;

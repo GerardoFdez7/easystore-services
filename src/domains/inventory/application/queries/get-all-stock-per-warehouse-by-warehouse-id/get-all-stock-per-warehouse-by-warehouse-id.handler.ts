@@ -20,8 +20,6 @@ export class GetAllStockPerWarehouseByWarehouseIdHandler
       await this.inventoryRepository.getAllStockPerWarehouseByWarehouseId(
         query.warehouseId,
       );
-    return stocks.map(
-      (stock) => StockPerWarehouseMapper.toDto(stock) as StockPerWarehouseDTO,
-    );
+    return stocks.map((stock) => StockPerWarehouseMapper.toDto(stock));
   }
 }

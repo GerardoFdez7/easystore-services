@@ -1,3 +1,6 @@
 export class GetWarehouseByIdQuery {
-  constructor(public readonly id: string, public readonly tenantId: string) {}
+  constructor(
+    public readonly id: string,
+    public readonly tenantId: string,
+  ) {}
 }

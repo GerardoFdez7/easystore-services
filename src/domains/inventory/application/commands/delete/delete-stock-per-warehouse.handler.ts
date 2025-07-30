@@ -3,9 +3,7 @@ import { Inject } from '@nestjs/common';
 import { IInventoryRepository } from '../../../aggregates/repositories/inventory.interface';
 import { DeleteStockPerWarehouseDTO } from './delete-stock-per-warehouse.dto';
 import { StockPerWarehouseMapper, StockPerWarehouseDTO } from '../../mappers';
-import { StockPerWarehouseDeletedEvent } from '../../../aggregates/events/stockPerWarehouse/stock-per-warehouse-deleted.event';
-import { WarehouseMapper } from '../../mappers';
-import { AggregateRoot } from '@nestjs/cqrs';
+
 import { Id } from '@domains/value-objects';
 import { NotFoundException } from '@nestjs/common';
 
@@ -35,19 +33,19 @@ export class DeleteStockPerWarehouseHandler
       Id.create(command.id),
       Id.create(command.warehouseId),
     );
-    // Get the warehouse aggregate root
+
+    // Get the warehouse aggregate root and update it
     const warehouse = await this.inventoryRepository.getWarehouseById(
-      stock.getWarehouseId(),
+      Id.create(command.warehouseId),
     );
     if (!warehouse) throw new Error('Warehouse not found');
+
+    // Update the warehouse and commit events
     const warehouseWithEvents =
       this.eventPublisher.mergeObjectContext(warehouse);
-
-    // Use the aggregate root method and apply the event from the root
     warehouseWithEvents.removeStockFromWarehouse(stock);
-    warehouseWithEvents.apply(new StockPerWarehouseDeletedEvent(stock));
     warehouseWithEvents.commit();
 
-    return StockPerWarehouseMapper.toDto(stock) as StockPerWarehouseDTO;
+    return StockPerWarehouseMapper.toDto(stock);
   }
 }

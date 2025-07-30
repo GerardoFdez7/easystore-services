@@ -25,10 +25,7 @@ export class UpdateWarehouseHandler
       throw new NotFoundException(`Warehouse with id ${command.id} not found`);
     }
 
-    const updatedWarehouse = WarehouseMapper.fromUpdateDto(
-      { id: command.id } as any,
-      command.data,
-    );
+    const updatedWarehouse = WarehouseMapper.fromUpdateDto(found, command.data);
 
     const warehouse = await this.inventoryRepository.updateWarehouse(
       Id.create(command.id),

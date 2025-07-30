@@ -3,7 +3,6 @@ import { Inject } from '@nestjs/common';
 import { IInventoryRepository } from '../../../aggregates/repositories/inventory.interface';
 import { CreateStockPerWarehouseDTO } from './create-stock-per-warehouse.dto';
 import { StockPerWarehouseMapper, StockPerWarehouseDTO } from '../../mappers';
-import { WarehouseMapper } from '../../mappers';
 import { Id } from '@domains/value-objects';
 
 @CommandHandler(CreateStockPerWarehouseDTO)
@@ -19,27 +18,24 @@ export class CreateStockPerWarehouseHandler
   async execute(
     command: CreateStockPerWarehouseDTO,
   ): Promise<StockPerWarehouseDTO> {
-    const stockPerWarehouse = this.eventPublisher.mergeObjectContext(
-      StockPerWarehouseMapper.fromCreateDto(command.data),
-    );
-
     // Get the warehouse aggregate root
     const warehouse = await this.inventoryRepository.getWarehouseById(
       Id.create(command.data.warehouseId),
     );
     if (!warehouse) throw new Error('Warehouse not found');
+
+    // Use the aggregate root method - it creates the stock entity and applies domain events
     const warehouseWithEvents =
       this.eventPublisher.mergeObjectContext(warehouse);
-
-    // Use the aggregate root method
-    warehouseWithEvents.addStockToWarehouse(stockPerWarehouse);
+    warehouseWithEvents.addStockToWarehouse(command.data);
     warehouseWithEvents.commit();
 
+    // Create the stock entity for persistence
+    const stockPerWarehouse = StockPerWarehouseMapper.fromCreateDto(
+      command.data,
+    );
     await this.inventoryRepository.saveStockPerWarehouse(stockPerWarehouse);
-    stockPerWarehouse.commit();
 
-    return StockPerWarehouseMapper.toDto(
-      stockPerWarehouse,
-    ) as StockPerWarehouseDTO;
+    return StockPerWarehouseMapper.toDto(stockPerWarehouse);
   }
 }

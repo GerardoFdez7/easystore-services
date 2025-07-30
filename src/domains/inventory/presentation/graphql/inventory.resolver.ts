@@ -5,24 +5,22 @@ import {
   UpdateWarehouseInput,
   CreateStockPerWarehouseInput,
   UpdateStockPerWarehouseInput,
+  WarehouseDTO,
 } from './types/inventory.types';
-import { CreateInventoryDTO } from '../../application/commands/create/create-inventory.dto';
-import { CreateStockPerWarehouseDTO } from '../../application/commands/create/create-stock-per-warehouse.dto';
-import { UpdateWarehouseDTO } from '../../application/commands/update/update-warehouse.dto';
-import { UpdateStockPerWarehouseDTO } from '../../application/commands/update/update-stock-per-warehouse.dto';
-import { DeleteWarehouseDTO } from '../../application/commands/delete/delete-warehouse.dto';
+import {
+  CreateInventoryDTO,
+  CreateStockPerWarehouseDTO,
+  UpdateWarehouseDTO,
+  UpdateStockPerWarehouseDTO,
+  DeleteWarehouseDTO,
+} from '../../application/commands';
 import { DeleteStockPerWarehouseDTO } from '../../application/commands/delete/delete-stock-per-warehouse.dto';
 import { GetWarehouseByIdQuery } from '../../application/queries/get-warehouse-by-id/get-warehouse-by-id.query';
 import { GetStockPerWarehouseByIdQuery } from '../../application/queries/get-stock-per-warehouse-by-id/get-stock-per-warehouse-by-id.query';
 import { GetAllStockPerWarehouseByWarehouseIdQuery } from '../../application/queries/get-all-stock-per-warehouse-by-warehouse-id/get-all-stock-per-warehouse-by-warehouse-id.query';
-import { WarehouseDTO, StockPerWarehouseDTO } from '../../application/mappers';
-import { Id } from '@domains/value-objects';
-import {
-  UseGuards,
-  Inject,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { GetAllWarehousesQuery } from '../../application/queries/get-all-warehouses/get-all-warehouses.query';
+import { StockPerWarehouseDTO } from '../../application/mappers';
+import { Inject } from '@nestjs/common';
 import { IInventoryRepository } from '../../aggregates/repositories/inventory.interface';
 
 @Resolver(() => WarehouseDTO)
@@ -39,16 +37,7 @@ export class InventoryResolver {
     @Args('id') id: string,
     @Args('tenantId') tenantId: string,
   ): Promise<WarehouseDTO | null> {
-    if (!id || !tenantId) {
-      throw new BadRequestException('id and tenantId are required');
-    }
-    const warehouse = await this.queryBus.execute(
-      new GetWarehouseByIdQuery(id, tenantId),
-    );
-    if (!warehouse) {
-      throw new NotFoundException(`Warehouse with id ${id} not found`);
-    }
-    return warehouse;
+    return this.queryBus.execute(new GetWarehouseByIdQuery(id, tenantId));
   }
 
   @Query(() => [WarehouseDTO])
@@ -60,24 +49,18 @@ export class InventoryResolver {
     @Args('addressId', { nullable: true }) addressId?: string,
     @Args('sortBy', { nullable: true }) sortBy?: string,
     @Args('sortOrder', { nullable: true }) sortOrder?: string,
-  ) {
-    const { warehouses, total, hasMore } =
-      await this.inventoryRepository.findAllWarehouses(Id.create(tenantId), {
+  ): Promise<WarehouseDTO[]> {
+    return this.queryBus.execute(
+      new GetAllWarehousesQuery(
+        tenantId,
         page,
         limit,
         name,
-        addressId: addressId ? Id.create(addressId) : undefined,
-        sortBy: sortBy as any,
-        sortOrder: sortOrder as any,
-      });
-    return warehouses.map((w) => ({
-      id: w.get('id')?.getValue(),
-      name: w.get('name')?.getValue(),
-      addressId: w.get('addressId')?.getValue(),
-      tenantId: w.get('tenantId')?.getValue(),
-      createdAt: w.get('createdAt'),
-      updatedAt: w.get('updatedAt'),
-    }));
+        addressId,
+        sortBy,
+        sortOrder,
+      ),
+    );
   }
 
   @Query(() => StockPerWarehouseDTO, { nullable: true })
@@ -85,18 +68,9 @@ export class InventoryResolver {
     @Args('id') id: string,
     @Args('warehouseId') warehouseId: string,
   ): Promise<StockPerWarehouseDTO | null> {
-    if (!id || !warehouseId) {
-      throw new BadRequestException('id and warehouseId are required');
-    }
-    const stock = await this.queryBus.execute(
+    return this.queryBus.execute(
       new GetStockPerWarehouseByIdQuery(id, warehouseId),
     );
-    if (!stock) {
-      throw new NotFoundException(
-        `StockPerWarehouse with id ${id} and warehouseId ${warehouseId} not found`,
-      );
-    }
-    return stock;
   }
 
   @Query(() => [StockPerWarehouseDTO])
