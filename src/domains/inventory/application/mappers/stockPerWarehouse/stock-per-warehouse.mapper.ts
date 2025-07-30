@@ -67,23 +67,10 @@ export class StockPerWarehouseMapper {
       | PaginatedStockPerWarehousesDTO
       | StockPerWarehouseDTO,
     fields?: string[],
-  ): StockPerWarehouseDTO | PaginatedStockPerWarehousesDTO {
+  ): StockPerWarehouseDTO {
     // If data is already a StockPerWarehouseDTO, return it directly
     if (!('stockPerWarehouses' in data) && !('props' in data)) {
       return data;
-    }
-
-    // Handle pagination result
-    if ('stockPerWarehouses' in data && 'total' in data) {
-      const paginatedData = data as PaginatedStockPerWarehousesDTO;
-      return {
-        stockPerWarehouses: paginatedData.stockPerWarehouses.map(
-          (stockPerWarehouse) =>
-            this.toDto(stockPerWarehouse, fields) as StockPerWarehouseDTO,
-        ),
-        total: paginatedData.total,
-        hasMore: paginatedData.hasMore,
-      } as PaginatedStockPerWarehousesDTO;
     }
 
     // Handle single stock per warehouse
@@ -161,9 +148,8 @@ export class StockPerWarehouseMapper {
     stockPerWarehouses: StockPerWarehouse[],
     fields?: string[],
   ): StockPerWarehouseDTO[] {
-    return stockPerWarehouses.map(
-      (stockPerWarehouse) =>
-        this.toDto(stockPerWarehouse, fields) as StockPerWarehouseDTO,
+    return stockPerWarehouses.map((stockPerWarehouse) =>
+      this.toDto(stockPerWarehouse, fields),
     );
   }
 

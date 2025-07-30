@@ -5,6 +5,7 @@ import { PostgreService } from 'src/infrastructure/database/postgres.service';
 import {
   WarehouseMapper,
   StockPerWarehouseMapper,
+  WarehouseDTO,
 } from '../../../application/mappers';
 import { IStockPerWarehouseBase } from '../../../aggregates/entities/stockPerWarehouse/stock-per-warehouse.attributes';
 import { v4 as uuidv4 } from 'uuid';
@@ -15,7 +16,7 @@ export class InventoryRepository implements IInventoryRepository {
   constructor(private readonly prisma: PostgreService) {}
 
   async createWarehouse(warehouse: Warehouse): Promise<Warehouse> {
-    const warehouseDto = WarehouseMapper.toDto(warehouse) as any;
+    const warehouseDto = WarehouseMapper.toDto(warehouse) as WarehouseDTO;
     const { id, name, addressId, tenantId, createdAt, updatedAt } =
       warehouseDto;
 
@@ -53,7 +54,7 @@ export class InventoryRepository implements IInventoryRepository {
     tenantId: Id,
     warehouse: Warehouse,
   ): Promise<Warehouse> {
-    const warehouseDto = WarehouseMapper.toDto(warehouse) as any;
+    const warehouseDto = WarehouseMapper.toDto(warehouse) as WarehouseDTO;
     const { name, addressId, tenantId: tenantIdDto, updatedAt } = warehouseDto;
 
     const updatedWarehouse = await this.prisma.$transaction(async (tx) => {
@@ -101,9 +102,8 @@ export class InventoryRepository implements IInventoryRepository {
   async saveStockPerWarehouse(
     stockPerWarehouse: StockPerWarehouse,
   ): Promise<StockPerWarehouse> {
-    const stockPerWarehouseDto = StockPerWarehouseMapper.toDto(
-      stockPerWarehouse,
-    ) as any;
+    const stockPerWarehouseDto =
+      StockPerWarehouseMapper.toDto(stockPerWarehouse);
     const {
       id,
       qtyAvailable,
@@ -235,15 +235,18 @@ export class InventoryRepository implements IInventoryRepository {
     const page = options?.page ?? 1;
     const limit = options?.limit ?? 10;
     const skip = (page - 1) * limit;
-    const where: any = { tenantId: tenantId.getValue() };
+    const where: {
+      tenantId: string;
+      name?: { contains: string; mode: 'insensitive' };
+      addressId?: string;
+    } = { tenantId: tenantId.getValue() };
     if (options?.name) {
       where.name = { contains: options.name, mode: 'insensitive' };
     }
     if (options?.addressId) {
       where.addressId = options.addressId.getValue();
     }
-    // Prisma espera 'asc' | 'desc' como tipo, así que forzamos el tipo
-    const sortOrder = (options?.sortOrder ?? 'desc') as 'asc' | 'desc';
+    const sortOrder = options?.sortOrder ?? 'desc';
     const orderBy = options?.sortBy
       ? { [options.sortBy]: sortOrder }
       : { createdAt: sortOrder };

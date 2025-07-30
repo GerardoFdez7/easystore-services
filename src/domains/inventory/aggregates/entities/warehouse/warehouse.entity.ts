@@ -1,10 +1,16 @@
-import { BadRequestException } from '@nestjs/common';
 import { WarehouseName } from '../../value-objects';
 import { Id } from '@domains/value-objects';
 import { Entity, EntityProps } from '@domains/entity.base';
-import { WarehouseCreatedEvent, WarehouseUpdatedEvent } from '../../events';
+import {
+  WarehouseCreatedEvent,
+  WarehouseUpdatedEvent,
+  StockPerWarehouseAddedEvent,
+  StockPerWarehouseUpdatedInWarehouseEvent,
+  StockPerWarehouseRemovedFromWarehouseEvent,
+} from '../../events';
 import { IWarehouseBase } from './warehouse.attributes';
 import { StockPerWarehouse } from '../stockPerWarehouse/stock-per-warehouse.entity';
+import { IStockPerWarehouseBase } from '../stockPerWarehouse/stock-per-warehouse.attributes';
 
 export interface IWarehouseProps extends EntityProps {
   id: Id;
@@ -84,19 +90,45 @@ export class Warehouse extends Entity<IWarehouseProps> {
   }
 
   // Stock management methods for the aggregate root
-  public addStockToWarehouse(stock: StockPerWarehouse) {
-    this.apply({ type: 'StockPerWarehouseAdded', stock, warehouse: this });
-  }
-
-  public updateStockInWarehouse(stock: StockPerWarehouse) {
-    this.apply({ type: 'StockPerWarehouseUpdated', stock, warehouse: this });
-  }
-
-  public removeStockFromWarehouse(stock: StockPerWarehouse) {
-    this.apply({
-      type: 'StockPerWarehouseRemoved',
-      stockId: stock.getId(),
-      warehouse: this,
+  public addStockToWarehouse(stockData: IStockPerWarehouseBase): Warehouse {
+    // Create the stock per warehouse entity using the create method
+    const stock = StockPerWarehouse.create({
+      ...stockData,
+      warehouseId: this.props.id.getValue(), // Ensure it belongs to this warehouse
     });
+
+    // Apply domain event
+    this.apply(new StockPerWarehouseAddedEvent(stock, this));
+
+    return this;
+  }
+
+  /**
+   * Updates an existing stock in the warehouse.
+   * @param stockId The ID of the stock to update.
+   * @param updateData The data to update the stock with, conforming to Partial<IStockPerWarehouseBase>.
+   */
+  public updateStockInWarehouse(
+    stock: StockPerWarehouse,
+    updateData: Partial<
+      Omit<IStockPerWarehouseBase, 'variantId' | 'warehouseId'>
+    >,
+  ): Warehouse {
+    // Update the stock using its static update method
+    const updatedStock = StockPerWarehouse.update(stock, updateData);
+
+    // Apply domain event
+    this.apply(
+      new StockPerWarehouseUpdatedInWarehouseEvent(updatedStock, this),
+    );
+
+    return this;
+  }
+
+  public removeStockFromWarehouse(stock: StockPerWarehouse): Warehouse {
+    // Apply domain event
+    this.apply(new StockPerWarehouseRemovedFromWarehouseEvent(stock, this));
+
+    return this;
   }
 }

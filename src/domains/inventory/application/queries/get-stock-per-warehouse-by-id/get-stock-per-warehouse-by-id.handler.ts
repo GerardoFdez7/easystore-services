@@ -26,6 +26,6 @@ export class GetStockPerWarehouseByIdHandler
       throw new NotFoundException(
         `StockPerWarehouse with id ${query.id} and warehouseId ${query.warehouseId} not found`,
       );
-    return StockPerWarehouseMapper.toDto(stock) as StockPerWarehouseDTO;
+    return StockPerWarehouseMapper.toDto(stock);
   }
 }

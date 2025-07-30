@@ -6,10 +6,7 @@ import {
 } from '../../../aggregates/entities';
 import { DeltaQty } from '../../../aggregates/value-objects/stockMovement/delta-qty.vo';
 import { Reason } from '../../../aggregates/value-objects/stockMovement/reason.vo';
-import {
-  StockMovementDTO,
-  PaginatedStockMovementsDTO,
-} from './stock-movement.dto';
+import { StockMovementDTO } from './stock-movement.dto';
 import { Id } from '@domains/value-objects';
 
 /**
@@ -46,29 +43,16 @@ export class StockMovementMapper {
    * @returns The stock movement DTO
    */
   static toDto(
-    data: StockMovement | PaginatedStockMovementsDTO | StockMovementDTO,
+    data: StockMovement | StockMovementDTO,
     fields?: string[],
-  ): StockMovementDTO | PaginatedStockMovementsDTO {
+  ): StockMovementDTO {
     // If data is already a StockMovementDTO, return it directly
     if (!('stockMovements' in data) && !('props' in data)) {
       return data;
     }
 
-    // Handle pagination result
-    if ('stockMovements' in data && 'total' in data) {
-      const paginatedData = data as PaginatedStockMovementsDTO;
-      return {
-        stockMovements: paginatedData.stockMovements.map(
-          (stockMovement) =>
-            this.toDto(stockMovement, fields) as StockMovementDTO,
-        ),
-        total: paginatedData.total,
-        hasMore: paginatedData.hasMore,
-      } as PaginatedStockMovementsDTO;
-    }
-
     // Handle single stock movement
-    const stockMovement = data as StockMovement;
+    const stockMovement = data;
 
     // If no fields specified, return all fields
     if (!fields || fields.length === 0) {
@@ -128,8 +112,8 @@ export class StockMovementMapper {
     stockMovements: StockMovement[],
     fields?: string[],
   ): StockMovementDTO[] {
-    return stockMovements.map(
-      (stockMovement) => this.toDto(stockMovement, fields) as StockMovementDTO,
+    return stockMovements.map((stockMovement) =>
+      this.toDto(stockMovement, fields),
     );
   }
 

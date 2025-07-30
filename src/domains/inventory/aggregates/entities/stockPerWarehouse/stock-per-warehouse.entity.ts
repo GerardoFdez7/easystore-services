@@ -1,4 +1,3 @@
-import { BadRequestException } from '@nestjs/common';
 import {
   QtyAvailable,
   QtyReserved,
@@ -9,10 +8,6 @@ import {
 } from '../../value-objects';
 import { Id } from '@domains/value-objects';
 import { Entity, EntityProps } from '@domains/entity.base';
-import {
-  StockPerWarehouseCreatedEvent,
-  StockPerWarehouseUpdatedEvent,
-} from '../../events';
 import { IStockPerWarehouseBase } from './stock-per-warehouse.attributes';
 
 export interface IStockPerWarehouseProps extends EntityProps {
@@ -64,11 +59,6 @@ export class StockPerWarehouse extends Entity<IStockPerWarehouseProps> {
 
     const stockPerWarehouse = new StockPerWarehouse(transformedProps);
 
-    // Apply domain event
-    stockPerWarehouse.apply(
-      new StockPerWarehouseCreatedEvent(stockPerWarehouse),
-    );
-
     return stockPerWarehouse;
   }
 
@@ -112,19 +102,6 @@ export class StockPerWarehouse extends Entity<IStockPerWarehouseProps> {
 
     const updatedStockPerWarehouse = new StockPerWarehouse(props);
 
-    // Apply domain event
-    updatedStockPerWarehouse.apply(
-      new StockPerWarehouseUpdatedEvent(updatedStockPerWarehouse),
-    );
-
     return updatedStockPerWarehouse;
-  }
-
-  public getId(): Id {
-    return this.props.id;
-  }
-
-  public getWarehouseId(): Id {
-    return this.props.warehouseId;
   }
 }

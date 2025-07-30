@@ -2,10 +2,11 @@ import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { IInventoryRepository } from '../../../aggregates/repositories/inventory.interface';
 import { UpdateStockPerWarehouseDTO } from './update-stock-per-warehouse.dto';
-import { StockPerWarehouseMapper, StockPerWarehouseDTO } from '../../mappers';
-import { StockPerWarehouseUpdatedEvent } from '../../../aggregates/events/stockPerWarehouse/stock-per-warehouse-updated.event';
-import { WarehouseMapper } from '../../mappers';
-import { AggregateRoot } from '@nestjs/cqrs';
+import {
+  StockPerWarehouseMapper,
+  StockPerWarehouseDTO,
+  WarehouseMapper,
+} from '../../mappers';
 import { Id } from '@domains/value-objects';
 import { NotFoundException } from '@nestjs/common';
 
@@ -22,36 +23,32 @@ export class UpdateStockPerWarehouseHandler
   async execute(
     command: UpdateStockPerWarehouseDTO,
   ): Promise<StockPerWarehouseDTO> {
-    const found = await this.inventoryRepository.getStockPerWarehouseById(
-      Id.create(command.id),
+    const warehouseFound = await this.inventoryRepository.getWarehouseById(
       Id.create(command.warehouseId),
     );
-    if (!found) {
-      throw new NotFoundException(
-        `StockPerWarehouse with id ${command.id} and warehouseId ${command.warehouseId} not found`,
-      );
+    if (!warehouseFound) {
+      throw new NotFoundException(`Warehouse with id ${command.id} not found`);
     }
-    const updated = await this.inventoryRepository.updateStockPerWarehouse(
+    const stockPerWarehouseFound =
+      await this.inventoryRepository.getStockPerWarehouseById(
+        Id.create(command.id),
+        Id.create(command.warehouseId),
+      );
+    // Merge context and commit events to event bus
+    const stockWithEvents = this.eventPublisher.mergeObjectContext(
+      WarehouseMapper.fromUpdateStockInWarehouse(
+        warehouseFound,
+        stockPerWarehouseFound,
+        command.updates,
+      ),
+    );
+    await this.inventoryRepository.updateStockPerWarehouse(
       Id.create(command.id),
       Id.create(command.warehouseId),
       command.updates,
     );
-    const stockWithEvents = this.eventPublisher.mergeObjectContext(updated);
+    stockWithEvents.commit();
 
-    // Get the warehouse aggregate root
-    const warehouse = await this.inventoryRepository.getWarehouseById(
-      updated.getWarehouseId(),
-    );
-    if (!warehouse) throw new Error('Warehouse not found');
-    const warehouseWithEvents =
-      this.eventPublisher.mergeObjectContext(warehouse);
-
-    // Use the aggregate root method
-    warehouseWithEvents.updateStockInWarehouse(updated);
-    // No commit call here
-
-    stockWithEvents.apply(new StockPerWarehouseUpdatedEvent(updated));
-    // No commit call here
-    return StockPerWarehouseMapper.toDto(updated) as StockPerWarehouseDTO;
+    return StockPerWarehouseMapper.toDto(stockPerWarehouseFound);
   }
 }

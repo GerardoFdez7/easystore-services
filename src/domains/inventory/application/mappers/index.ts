@@ -13,8 +13,5 @@ export {
 export { StockPerWarehouseMapper } from './stockPerWarehouse/stock-per-warehouse.mapper';
 
 // StockMovement mapper
-export {
-  StockMovementDTO,
-  PaginatedStockMovementsDTO,
-} from './stockMovement/stock-movement.dto';
+export { StockMovementDTO } from './stockMovement/stock-movement.dto';
 export { StockMovementMapper } from './stockMovement/stock-movement.mapper';

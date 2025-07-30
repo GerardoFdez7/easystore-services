@@ -1,4 +1,25 @@
-import { InputType, Field, ID, Int } from '@nestjs/graphql';
+import { InputType, Field, ID, Int, ObjectType } from '@nestjs/graphql';
+
+@ObjectType('Warehouse')
+export class WarehouseDTO {
+  @Field(() => ID)
+  id: string;
+
+  @Field()
+  name: string;
+
+  @Field()
+  addressId: string;
+
+  @Field()
+  tenantId: string;
+
+  @Field()
+  createdAt: Date;
+
+  @Field()
+  updatedAt: Date;
+}
 
 @InputType()
 export class CreateStockPerWarehouseInput {

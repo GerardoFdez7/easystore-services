@@ -1,4 +1,3 @@
-import { BadRequestException } from '@nestjs/common';
 import { DeltaQty } from '../../value-objects/stockMovement/delta-qty.vo';
 import { Reason } from '../../value-objects/stockMovement/reason.vo';
 import { Id } from '@domains/value-objects';
@@ -54,22 +53,4 @@ export class StockMovement extends Entity<IStockMovementProps> {
 
     return stockMovement;
   }
-
-  public getCreatedById(): string | null {
-    return this.props.createdById;
-  }
-
-  public wasCreatedByEmployee(): boolean {
-    return !!this.props.createdById;
-  }
-
-  public wasCreatedBySystem(): boolean {
-    return !this.props.createdById;
-  }
-
-  public getOcurredAt(): Date {
-    return this.props.ocurredAt;
-  }
-
-  // Utility methods for date logic can be implemented as needed, or use date-fns/moment in services
 }

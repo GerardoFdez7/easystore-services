@@ -3,6 +3,8 @@ import {
   IWarehouseProps,
   IWarehouseType,
   IWarehouseBase,
+  StockPerWarehouse,
+  IStockPerWarehouseBase,
 } from '../../../aggregates/entities';
 import { WarehouseName } from '../../../aggregates/value-objects';
 import { WarehouseDTO, PaginatedWarehousesDTO } from './warehouse.dto';
@@ -58,7 +60,7 @@ export class WarehouseMapper {
     }
 
     // Handle single warehouse
-    const warehouse = data as Warehouse;
+    const warehouse = data;
 
     // If no fields specified, return all fields
     if (!fields || fields.length === 0) {
@@ -137,5 +139,13 @@ export class WarehouseMapper {
     dto: Partial<IWarehouseBase>,
   ): Warehouse {
     return Warehouse.update(existingWarehouse, dto);
+  }
+
+  static fromUpdateStockInWarehouse(
+    existingWarehouse: Warehouse,
+    stock: StockPerWarehouse,
+    updateData: Partial<IStockPerWarehouseBase>,
+  ): Warehouse {
+    return existingWarehouse.updateStockInWarehouse(stock, updateData);
   }
 }
