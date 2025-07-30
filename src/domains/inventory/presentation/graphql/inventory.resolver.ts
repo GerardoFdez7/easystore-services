@@ -6,6 +6,7 @@ import {
   CreateStockPerWarehouseInput,
   UpdateStockPerWarehouseInput,
   WarehouseDTO,
+  StockPerWarehouseDTO,
 } from './types/inventory.types';
 import {
   CreateInventoryDTO,
@@ -19,7 +20,6 @@ import { GetWarehouseByIdQuery } from '../../application/queries/get-warehouse-b
 import { GetStockPerWarehouseByIdQuery } from '../../application/queries/get-stock-per-warehouse-by-id/get-stock-per-warehouse-by-id.query';
 import { GetAllStockPerWarehouseByWarehouseIdQuery } from '../../application/queries/get-all-stock-per-warehouse-by-warehouse-id/get-all-stock-per-warehouse-by-warehouse-id.query';
 import { GetAllWarehousesQuery } from '../../application/queries/get-all-warehouses/get-all-warehouses.query';
-import { StockPerWarehouseDTO } from '../../application/mappers';
 import { Inject } from '@nestjs/common';
 import { IInventoryRepository } from '../../aggregates/repositories/inventory.interface';
 

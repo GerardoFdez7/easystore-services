@@ -12,10 +12,7 @@ import {
   LotNumber,
   SerialNumbers,
 } from '../../../aggregates/value-objects';
-import {
-  StockPerWarehouseDTO,
-  PaginatedStockPerWarehousesDTO,
-} from './stock-per-warehouse.dto';
+import { StockPerWarehouseDTO } from './stock-per-warehouse.dto';
 import { Id } from '@domains/value-objects';
 
 /**
@@ -62,19 +59,16 @@ export class StockPerWarehouseMapper {
    * @returns The stock per warehouse DTO
    */
   static toDto(
-    data:
-      | StockPerWarehouse
-      | PaginatedStockPerWarehousesDTO
-      | StockPerWarehouseDTO,
+    data: StockPerWarehouse | StockPerWarehouseDTO,
     fields?: string[],
   ): StockPerWarehouseDTO {
     // If data is already a StockPerWarehouseDTO, return it directly
-    if (!('stockPerWarehouses' in data) && !('props' in data)) {
+    if (!('props' in data)) {
       return data;
     }
 
     // Handle single stock per warehouse
-    const stockPerWarehouse = data as StockPerWarehouse;
+    const stockPerWarehouse = data;
 
     // If no fields specified, return all fields
     if (!fields || fields.length === 0) {
