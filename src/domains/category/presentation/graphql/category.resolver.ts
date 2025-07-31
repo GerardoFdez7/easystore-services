@@ -7,6 +7,10 @@ import {
   Query,
   registerEnumType,
 } from '@nestjs/graphql';
+import { UseGuards } from '@nestjs/common';
+import { CurrentUser } from '@authentication/infrastructure/decorators/current-user.decorator';
+import { JwtPayload } from '@authentication/infrastructure/jwt/jwt-handler';
+import { AuthGuard } from '@authentication/infrastructure/guard/auth.guard';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   CategoryType,
@@ -34,7 +38,8 @@ registerEnumType(SortOrder, {
   name: 'SortOrder',
 });
 
-@Resolver()
+@Resolver(() => CategoryType)
+@UseGuards(AuthGuard)
 export default class CategoryResolver {
   constructor(
     private readonly commandBus: CommandBus,
@@ -49,26 +54,30 @@ export default class CategoryResolver {
   async createCategory(
     @Args('input', { type: () => CreateCategoryInput })
     input: CreateCategoryInput,
+    @CurrentUser() user: JwtPayload,
   ): Promise<CategoryType> {
-    return this.commandBus.execute(new CreateCategoryDTO(input));
+    const inputWithTenantId = { ...input, tenantId: user.tenantId };
+    return this.commandBus.execute(new CreateCategoryDTO(inputWithTenantId));
   }
 
   @Mutation(() => CategoryType)
   async updateCategory(
     @Args('id', { type: () => ID }) id: string,
-    @Args('tenantId', { type: () => ID }) tenantId: string,
     @Args('input', { type: () => UpdateCategoryInput })
     input: UpdateCategoryInput,
+    @CurrentUser() user: JwtPayload,
   ): Promise<CategoryType> {
-    return this.commandBus.execute(new UpdateCategoryDTO(id, tenantId, input));
+    return this.commandBus.execute(
+      new UpdateCategoryDTO(id, user.tenantId, input),
+    );
   }
 
   @Mutation(() => CategoryType)
   async deleteCategory(
     @Args('id', { type: () => ID }) id: string,
-    @Args('tenantId', { type: () => ID }) tenantId: string,
+    @CurrentUser() user: JwtPayload,
   ): Promise<CategoryType> {
-    return this.commandBus.execute(new DeleteCategoryDTO(id, tenantId));
+    return this.commandBus.execute(new DeleteCategoryDTO(id, user.tenantId));
   }
 
   ///////////////
@@ -78,17 +87,17 @@ export default class CategoryResolver {
   @Query(() => CategoryType)
   async getCategoryById(
     @Args('id', { type: () => ID }) id: string,
-    @Args('tenantId', { type: () => ID }) tenantId: string,
+    @CurrentUser() user: JwtPayload,
   ): Promise<CategoryType> {
-    return this.queryBus.execute(new GetCategoryByIdDTO(id, tenantId));
+    return this.queryBus.execute(new GetCategoryByIdDTO(id, user.tenantId));
   }
 
   @Query(() => PaginatedCategoriesType)
   async getAllCategories(
-    @Args('tenantId', { type: () => ID }) tenantId: string,
+    @CurrentUser() user: JwtPayload,
     @Args('page', { defaultValue: 1, nullable: true, type: () => Int })
     page?: number,
-    @Args('limit', { defaultValue: 25, nullable: true, type: () => Int })
+    @Args('limit', { defaultValue: 10, nullable: true, type: () => Int })
     limit?: number,
     @Args('name', { nullable: true, type: () => String }) name?: string,
     @Args('parentId', { nullable: true, type: () => ID })
@@ -100,7 +109,7 @@ export default class CategoryResolver {
     sortOrder?: SortOrder,
   ): Promise<PaginatedCategoriesDTO> {
     return this.queryBus.execute(
-      new GetAllCategoriesDTO(tenantId, {
+      new GetAllCategoriesDTO(user.tenantId, {
         page,
         limit,
         name,

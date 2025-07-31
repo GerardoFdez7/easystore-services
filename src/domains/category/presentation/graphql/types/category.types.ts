@@ -19,9 +19,6 @@ export class CategoryType {
 
   @Field()
   createdAt: Date;
-
-  @Field(() => ID)
-  tenantId: string;
 }
 
 @ObjectType()
@@ -53,9 +50,6 @@ export class CreateCategoryInput {
 
   @Field(() => ID, { nullable: true })
   parentId?: string;
-
-  @Field(() => ID)
-  tenantId: string;
 }
 
 // Input type for updating categories

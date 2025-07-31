@@ -61,7 +61,7 @@ export class CreateProductHandler implements ICommandHandler<CreateProductDTO> {
     );
 
     // Persist through repository
-    await this.productRepository.save(product);
+    await this.productRepository.create(product);
 
     // Commit events to event bus
     product.commit();

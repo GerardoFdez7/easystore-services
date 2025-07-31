@@ -41,7 +41,11 @@ export class RestoreProductHandler
     );
 
     // Save the updated product
-    await this.productRepository.save(restoredProduct);
+    await this.productRepository.update(
+      Id.create(tenantId),
+      Id.create(id),
+      restoredProduct,
+    );
 
     // Commit events to event bus
     restoredProduct.commit();

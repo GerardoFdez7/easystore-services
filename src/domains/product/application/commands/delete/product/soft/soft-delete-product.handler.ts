@@ -16,22 +16,20 @@ export class SoftDeleteProductHandler
   ) {}
 
   async execute(command: SoftDeleteProductDTO): Promise<ProductDTO> {
-    const { id, tenantId } = command;
-
     // Find the product by ID
     const product = await this.productRepository.findById(
-      Id.create(tenantId),
-      Id.create(id),
+      Id.create(command.tenantId),
+      Id.create(command.id),
     );
     if (!product) {
-      throw new NotFoundException(`Product with ID ${id} not found`);
+      throw new NotFoundException(`Product with ID ${command.id} not found`);
     }
 
     // Check if the product is already soft deleted
     const isArchived = product.get('isArchived');
     if (isArchived === true) {
       throw new BadRequestException(
-        `Product with ID ${id} is already soft deleted and cannot be soft deleted again`,
+        `Product with ID ${command.id} is already soft deleted and cannot be soft deleted again`,
       );
     }
 
@@ -41,12 +39,16 @@ export class SoftDeleteProductHandler
     );
 
     // Save the updated product
-    await this.productRepository.save(deletedProduct);
+    await this.productRepository.update(
+      Id.create(command.id),
+      Id.create(command.tenantId),
+      deletedProduct,
+    );
 
     // Commit events to event bus
     deletedProduct.commit();
 
     // Return the product as DTO
-    return ProductMapper.toDto(product) as ProductDTO;
+    return ProductMapper.toDto(deletedProduct) as ProductDTO;
   }
 }

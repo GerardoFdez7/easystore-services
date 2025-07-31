@@ -213,9 +213,6 @@ export class CreateVariantInput {
   @Field(() => ID)
   productId: string;
 
-  @Field(() => ID)
-  tenantId: string;
-
   @Field(() => [CreateMediaInput], { nullable: true })
   variantMedia?: CreateMediaInput[];
 
