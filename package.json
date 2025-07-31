@@ -8,9 +8,9 @@
   "scripts": {
     "build": "nest build",
     "start": "node dist/src/main",
-    "dev": "set NODE_ENV=development && nest start --watch",
+    "dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "lint": "eslint ",
+    "lint": "eslint",
     "docker": "set npm_config_ignore_scripts=true && docker-compose up",
     "docker:dev": "set npm_config_ignore_scripts=true && docker-compose -f docker-compose.dev.yml up",
     "studio": "set PRISMA_HIDE_UPDATE_MESSAGE=1 && npx prisma studio --schema src/infrastructure/database/postgres.schema.prisma",

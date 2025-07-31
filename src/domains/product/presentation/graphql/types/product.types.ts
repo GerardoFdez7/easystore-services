@@ -3,7 +3,6 @@ import {
   ObjectType,
   InputType,
   Int,
-  ID,
   registerEnumType,
 } from '@nestjs/graphql';
 import {
@@ -61,9 +60,6 @@ export class ProductType {
   @Field()
   createdAt: Date;
 
-  @Field(() => ID)
-  tenantId: string;
-
   @Field(() => [VariantType], { nullable: true })
   variants?: VariantType[];
 
@@ -118,9 +114,6 @@ export class CreateProductInput {
 
   @Field({ nullable: true })
   manufacturer?: string;
-
-  @Field(() => ID)
-  tenantId: string;
 
   @Field(() => [CreateMediaInput], { nullable: true })
   media?: CreateMediaInput[];

@@ -48,7 +48,11 @@ export class Category extends Entity<ICategoryProps> {
         ? ShortDescription.create(props.description)
         : null,
       subCategories: (props.subCategories || []).map((subCategory) => {
-        const subCategoryEntity = Category.create(subCategory);
+        const subCategoryWithTenantId = {
+          ...subCategory,
+          tenantId: props.tenantId,
+        };
+        const subCategoryEntity = Category.create(subCategoryWithTenantId);
         return subCategoryEntity.props;
       }),
       parentId: props.parentId ? Id.create(props.parentId) : null,
@@ -94,7 +98,11 @@ export class Category extends Entity<ICategoryProps> {
 
     if (updates.subCategories !== undefined) {
       props.subCategories = (updates.subCategories || []).map((subCategory) => {
-        const subCategoryEntity = Category.create(subCategory);
+        const subCategoryWithTenantId = {
+          ...subCategory,
+          tenantId: props.tenantId.getValue(),
+        };
+        const subCategoryEntity = Category.create(subCategoryWithTenantId);
         return subCategoryEntity.props;
       });
     }

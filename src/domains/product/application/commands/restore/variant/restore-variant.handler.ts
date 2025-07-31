@@ -31,7 +31,11 @@ export class RestoreVariantHandler
     );
 
     // Save the updated variant
-    await this.productRepository.save(restoredVariant);
+    await this.productRepository.update(
+      Id.create(command.tenantId),
+      Id.create(command.productId),
+      restoredVariant,
+    );
 
     // Commit events to event bus
     restoredVariant.commit();

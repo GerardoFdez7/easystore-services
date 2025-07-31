@@ -3,12 +3,22 @@ import { Id, Type, SortBy, SortOrder } from '../value-objects/index';
 
 export interface IProductRepository {
   /**
-   * Save a product (create or update)
-   * @param product The product to save
-   * @returns The saved product
-   * @throws {Error} If there is an error during the database operation
+   * Creates a new product
+   * @param product The product to create
+   * @returns Promise that resolves to the created Product entity
+   * @throws {Error} When product creation fails
    */
-  save(product: Product): Promise<Product>;
+  create(product: Product): Promise<Product>;
+
+  /**
+   * Updates an existing product
+   * @param id The unique identifier of the product to update
+   * @param tenantId The tenant identifier to scope the search
+   * @param updates Product data containing fields to update
+   * @returns Promise that resolves to the updated Product entity
+   * @throws {Error} When product is not found or update fails
+   */
+  update(tenantId: Id, id: Id, updates: Product): Promise<Product>;
 
   /**
    * Hard delete a product by its ID (permanent deletion)
