@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PostgreService } from '@database/postgres.service';
+import { PrismaErrorUtils } from '@utils/prisma-error-utils';
 import {
   Product as PrismaProduct,
   Variant as PrismaVariant,
   Media as PrismaMedia,
-  ProductCategories as PrismaProductCategory,
-  Sustainability as PrismaSustainability,
   Attribute as PrismaAttribute,
   Dimension as PrismaDimension,
   Warranty as PrismaWarranty,
@@ -282,138 +281,52 @@ export class ProductRepository implements IProductRepository {
     }
   }
 
-  async save(product: Product): Promise<Product> {
-    const id = product.get('id')?.getValue?.();
+  /**
+   * Creates a new product with transaction support and proper error handling
+   */
+  async create(product: Product): Promise<Product> {
     const productDto = ProductMapper.toDto(product) as ProductDTO;
 
     try {
       const prismaProduct = await this.prisma.$transaction(async (tx) => {
-        let currentProductWithRelations: PrismaProduct & {
-          media?: PrismaMedia[];
-          variants?: (PrismaVariant & {
-            attributes?: PrismaAttribute[];
-            dimension?: PrismaDimension | null;
-            variantMedia?: PrismaMedia[];
-            warranties?: PrismaWarranty[];
-            installmentPayments?: PrismaInstallmentPayment[];
-          })[];
-          categories?: PrismaProductCategory[];
-          sustainabilities?: PrismaSustainability[];
-        };
-
-        // Check if product exists in database
-        const existingProduct = await tx.product.findUnique({
-          where: { id },
-          include: {
-            media: true,
-            variants: {
-              include: {
-                attributes: true,
-                dimension: true,
-                variantMedia: true,
-                warranties: true,
-                installmentPayments: true,
-              },
-            },
-            categories: true,
-            sustainabilities: true,
+        // Create new product
+        const currentProductWithRelations = await tx.product.create({
+          data: {
+            id: productDto.id,
+            name: productDto.name,
+            shortDescription: productDto.shortDescription,
+            longDescription: productDto.longDescription,
+            productType: productDto.productType,
+            cover: productDto.cover,
+            tags: productDto.tags,
+            brand: productDto.brand,
+            manufacturer: productDto.manufacturer,
+            isArchived: productDto.isArchived,
+            tenant: { connect: { id: productDto.tenantId } },
           },
         });
 
-        if (existingProduct) {
-          // Update existing product
-          currentProductWithRelations = await tx.product.update({
-            where: { id },
-            data: {
-              name: productDto.name,
-              shortDescription: productDto.shortDescription,
-              longDescription: productDto.longDescription,
-              productType: productDto.productType,
-              cover: productDto.cover,
-              tags: productDto.tags,
-              brand: productDto.brand,
-              manufacturer: productDto.manufacturer,
-              isArchived: productDto.isArchived,
-            },
-            include: {
-              // Re-include relations after update
-              media: true,
-              variants: {
-                include: {
-                  attributes: true,
-                  dimension: true,
-                  variantMedia: true,
-                  warranties: true,
-                  installmentPayments: true,
-                },
-              },
-              categories: true,
-              sustainabilities: true,
-            },
-          });
+        const newProductId = currentProductWithRelations.id;
+        const tenantId = productDto.tenantId;
 
-          await this.manageMedia(
-            tx,
-            currentProductWithRelations.id,
-            'product',
-            productDto.media,
-          );
-          await this.manageVariants(
-            tx,
-            currentProductWithRelations.id,
-            currentProductWithRelations.tenantId,
-            productDto.variants,
-            existingProduct.variants,
-          );
-          await this.manageCategories(
-            tx,
-            currentProductWithRelations.id,
-            productDto.categories,
-          );
-          await this.manageSustainabilities(
-            tx,
-            currentProductWithRelations.id,
-            productDto.sustainabilities,
-          );
-        } else {
-          // Create new product
-          currentProductWithRelations = await tx.product.create({
-            data: {
-              id: productDto.id,
-              name: productDto.name,
-              shortDescription: productDto.shortDescription,
-              longDescription: productDto.longDescription,
-              productType: productDto.productType,
-              cover: productDto.cover,
-              tags: productDto.tags,
-              brand: productDto.brand,
-              manufacturer: productDto.manufacturer,
-              isArchived: productDto.isArchived,
-              tenant: { connect: { id: productDto.tenantId } },
-            },
-          });
+        // Handle related entities
+        await this.manageMedia(tx, newProductId, 'product', productDto.media);
+        await this.manageVariants(
+          tx,
+          newProductId,
+          tenantId,
+          productDto.variants,
+        );
+        await this.manageCategories(tx, newProductId, productDto.categories);
+        await this.manageSustainabilities(
+          tx,
+          newProductId,
+          productDto.sustainabilities,
+        );
 
-          const newProductId = currentProductWithRelations.id;
-          const tenantId = productDto.tenantId;
-
-          await this.manageMedia(tx, newProductId, 'product', productDto.media);
-          await this.manageVariants(
-            tx,
-            newProductId,
-            tenantId,
-            productDto.variants,
-          );
-          await this.manageCategories(tx, newProductId, productDto.categories);
-          await this.manageSustainabilities(
-            tx,
-            newProductId,
-            productDto.sustainabilities,
-          );
-        }
-
-        // Re-fetch the product with all its relations after all operations
+        // Return the created product with all relations
         return tx.product.findUniqueOrThrow({
-          where: { id: currentProductWithRelations.id },
+          where: { id: newProductId },
           include: {
             media: true,
             variants: {
@@ -430,33 +343,110 @@ export class ProductRepository implements IProductRepository {
           },
         });
       });
+
       return this.mapToDomain(prismaProduct);
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          const target = error.meta?.target as string[] | undefined;
-          const field = target ? target.join(', ') : 'unknown field';
-          throw new UniqueConstraintViolationError(field);
+      return this.handleDatabaseError(error, 'create product');
+    }
+  }
+
+  /**
+   * Updates an existing product with transaction support
+   */
+  async update(tenantId: Id, id: Id, updates: Product): Promise<Product> {
+    const idValue = id.getValue();
+    const tenantIdValue = tenantId.getValue();
+    const updatesDto = ProductMapper.toDto(updates) as ProductDTO;
+
+    try {
+      const prismaProduct = await this.prisma.$transaction(async (tx) => {
+        // Get existing product with all relations
+        const existingProduct = await tx.product.findUnique({
+          where: {
+            id: idValue,
+            tenantId: tenantIdValue,
+          },
+          include: {
+            media: true,
+            variants: {
+              include: {
+                attributes: true,
+                dimension: true,
+                variantMedia: true,
+                warranties: true,
+                installmentPayments: true,
+              },
+            },
+            categories: true,
+            sustainabilities: true,
+          },
+        });
+
+        if (!existingProduct) {
+          throw new ResourceNotFoundError('Product', idValue);
         }
-        if (error.code === 'P2003') {
-          const rawFieldName = error.meta?.field_name as string | undefined;
-          let field = rawFieldName || 'unknown field';
-          let relatedEntity = 'related entity';
-          if (rawFieldName?.toLowerCase().includes('tenantid')) {
-            field = 'tenantId';
-            relatedEntity = 'Tenant';
-          }
-          throw new ForeignKeyConstraintViolationError(field, relatedEntity);
-        }
+
+        // Update the main product
+        await tx.product.update({
+          where: {
+            id: idValue,
+            tenantId: tenantIdValue,
+          },
+          data: {
+            name: updatesDto.name,
+            shortDescription: updatesDto.shortDescription,
+            longDescription: updatesDto.longDescription,
+            productType: updatesDto.productType,
+            cover: updatesDto.cover,
+            tags: updatesDto.tags,
+            brand: updatesDto.brand,
+            manufacturer: updatesDto.manufacturer,
+            isArchived: updatesDto.isArchived,
+          },
+        });
+
+        // Handle related entities updates
+        await this.manageMedia(tx, idValue, 'product', updatesDto.media);
+        await this.manageVariants(
+          tx,
+          idValue,
+          tenantIdValue,
+          updatesDto.variants,
+          existingProduct.variants,
+        );
+        await this.manageCategories(tx, idValue, updatesDto.categories);
+        await this.manageSustainabilities(
+          tx,
+          idValue,
+          updatesDto.sustainabilities,
+        );
+
+        // Return updated product with all relations
+        return tx.product.findUniqueOrThrow({
+          where: { id: idValue },
+          include: {
+            media: true,
+            variants: {
+              include: {
+                attributes: true,
+                dimension: true,
+                variantMedia: true,
+                warranties: true,
+                installmentPayments: true,
+              },
+            },
+            categories: true,
+            sustainabilities: true,
+          },
+        });
+      });
+
+      return this.mapToDomain(prismaProduct);
+    } catch (error) {
+      if (error instanceof ResourceNotFoundError) {
+        throw error;
       }
-      const operation = id ? 'update product' : 'create product';
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      throw new DatabaseOperationError(
-        operation,
-        errorMessage,
-        error instanceof Error ? error : new Error(errorMessage),
-      );
+      return this.handleDatabaseError(error, 'update product');
     }
   }
 
@@ -638,7 +628,50 @@ export class ProductRepository implements IProductRepository {
     }
   }
 
-  // Map from database product to domain product using the centralized mapping approach
+  /**
+   * Centralized error handling for database operations
+   */
+  private handleDatabaseError(error: unknown, operation: string): never {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (error.code) {
+        case 'P2002': {
+          // Unique constraint violation
+          const field =
+            PrismaErrorUtils.extractFieldFromUniqueConstraintError(error);
+          throw new UniqueConstraintViolationError(
+            field,
+            `Product ${field} already exists`,
+          );
+        }
+        case 'P2003': {
+          // Foreign key constraint violation
+          const field = PrismaErrorUtils.extractFieldFromForeignKeyError(error);
+          const fieldToEntityMap: Record<string, string> = {
+            tenantId: 'Tenant',
+            categoryId: 'Category',
+          };
+          const relatedEntity = fieldToEntityMap[field] || 'Related Entity';
+          throw new ForeignKeyConstraintViolationError(field, relatedEntity);
+        }
+        case 'P2025': // Record not found
+          throw new ResourceNotFoundError('Product');
+        default:
+          break;
+      }
+    }
+
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error);
+    throw new DatabaseOperationError(
+      operation,
+      errorMessage,
+      error instanceof Error ? error : new Error(errorMessage),
+    );
+  }
+
+  /**
+   * Maps Prisma product to domain entity
+   */
   private mapToDomain(prismaProduct: PrismaProduct): Product {
     return ProductMapper.fromPersistence(prismaProduct as IProductType);
   }

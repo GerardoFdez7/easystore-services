@@ -32,7 +32,11 @@ export class CreateVariantHandler implements ICommandHandler<CreateVariantDTO> {
     );
 
     // Persist through repository
-    await this.productRepository.save(updatedProduct);
+    await this.productRepository.update(
+      Id.create(tenantId),
+      Id.create(productId),
+      updatedProduct,
+    );
 
     // Commit events to event bus
     updatedProduct.commit();

@@ -12,7 +12,7 @@ export class VariantCreatedHandler
 
   handle(event: VariantCreatedEvent): void {
     this.logger.log(
-      `Variant created for product: ${event.product.get('name').getValue()} (ID: ${event.product.get('id').getValue()})`,
+      `Variant created for Product: ${event.product.get('name').getValue()} (ID: ${event.product.get('id').getValue()}), Variant ID: ${event.craetedVariant.get('id').getValue()}`,
     );
   }
 }

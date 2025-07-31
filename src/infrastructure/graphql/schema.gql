@@ -79,7 +79,6 @@ type Category {
   description: String!
   name: String!
   subCategories: [Category!]!
-  tenantId: ID!
   updatedAt: DateTime!
 }
 
@@ -113,7 +112,6 @@ input CreateCategoryInput {
   name: String!
   parentId: ID
   subCategories: [CreateCategoryInput!]
-  tenantId: ID!
 }
 
 input CreateDimensionInput {
@@ -149,7 +147,6 @@ input CreateProductInput {
   shortDescription: String!
   sustainabilities: [CreateSustainabilityInput!]
   tags: [String!]
-  tenantId: ID!
   variants: [AddVariantToProductInput!]!
 }
 
@@ -182,7 +179,6 @@ input CreateVariantInput {
   price: Float!
   productId: ID!
   sku: String
-  tenantId: ID!
   upc: String
   variantCover: String
   variantMedia: [CreateMediaInput!]
@@ -285,7 +281,6 @@ type Product {
   shortDescription: String!
   sustainabilities: [Sustainability!]
   tags: [String!]
-  tenantId: ID!
   updatedAt: DateTime!
   variants: [Variant!]
 }

@@ -29,7 +29,11 @@ export class UpdateProductHandler implements ICommandHandler<UpdateProductDTO> {
     );
 
     // Persist through repository
-    await this.productRepository.save(updatedProduct);
+    await this.productRepository.update(
+      Id.create(command.tenantId),
+      Id.create(command.id),
+      updatedProduct,
+    );
 
     // Commit events to event bus
     updatedProduct.commit();

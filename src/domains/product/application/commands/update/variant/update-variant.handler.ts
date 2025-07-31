@@ -69,7 +69,11 @@ export class UpdateVariantHandler implements ICommandHandler<UpdateVariantDTO> {
     );
 
     // Persist through repository
-    await this.productRepository.save(updatedProductDomainEntity);
+    await this.productRepository.update(
+      Id.create(tenantId),
+      Id.create(productId),
+      updatedProductDomainEntity,
+    );
 
     // Commit events to event bus
     updatedProductDomainEntity.commit();

@@ -6,6 +6,10 @@ import {
   Query,
   registerEnumType,
 } from '@nestjs/graphql';
+import { UseGuards } from '@nestjs/common';
+import { CurrentUser } from '@authentication/infrastructure/decorators/current-user.decorator';
+import { JwtPayload } from '@authentication/infrastructure/jwt/jwt-handler';
+import { AuthGuard } from '@authentication/infrastructure/guard/auth.guard';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   ProductType,
@@ -47,6 +51,7 @@ registerEnumType(SortOrder, {
 });
 
 @Resolver(() => ProductType)
+@UseGuards(AuthGuard)
 export class ProductResolver {
   constructor(
     private readonly commandBus: CommandBus,
@@ -60,62 +65,66 @@ export class ProductResolver {
   @Mutation(() => ProductType)
   async createProduct(
     @Args('input') input: CreateProductInput,
+    @CurrentUser() user: JwtPayload,
   ): Promise<ProductType> {
-    return this.commandBus.execute(new CreateProductDTO({ ...input }));
+    const inputWithTenantId = { ...input, tenantId: user.tenantId };
+    return this.commandBus.execute(new CreateProductDTO(inputWithTenantId));
   }
 
   @Mutation(() => ProductType)
   async updateProduct(
     @Args('id') id: string,
-    @Args('tenantId') tenantId: string,
     @Args('input') input: UpdateProductInput,
+    @CurrentUser() user: JwtPayload,
   ): Promise<ProductType> {
     return this.commandBus.execute(
-      new UpdateProductDTO(id, tenantId, { ...input }),
+      new UpdateProductDTO(id, user.tenantId, { ...input }),
     );
   }
 
   @Mutation(() => ProductType)
   async softDeleteProduct(
     @Args('id') id: string,
-    @Args('tenantId') tenantId: string,
+    @CurrentUser() user: JwtPayload,
   ): Promise<ProductType> {
-    return this.commandBus.execute(new SoftDeleteProductDTO(id, tenantId));
+    return this.commandBus.execute(new SoftDeleteProductDTO(id, user.tenantId));
   }
 
   @Mutation(() => ProductType)
   async hardDeleteProduct(
     @Args('id') id: string,
-    @Args('tenantId') tenantId: string,
+    @CurrentUser() user: JwtPayload,
   ): Promise<ProductType> {
-    return this.commandBus.execute(new HardDeleteProductDTO(id, tenantId));
+    return this.commandBus.execute(new HardDeleteProductDTO(id, user.tenantId));
   }
 
   @Mutation(() => ProductType)
   async restoreProduct(
     @Args('id') id: string,
-    @Args('tenantId') tenantId: string,
+    @CurrentUser() user: JwtPayload,
   ): Promise<ProductType> {
-    return this.commandBus.execute(new RestoreProductDTO(id, tenantId));
+    return this.commandBus.execute(new RestoreProductDTO(id, user.tenantId));
   }
 
   // Variants mutations
   @Mutation(() => ProductType)
   async addVariant(
     @Args('input') input: CreateVariantInput,
+    @CurrentUser() user: JwtPayload,
   ): Promise<ProductType> {
-    return this.commandBus.execute(new CreateVariantDTO(input));
+    const inputWithTenantId = { ...input, tenantId: user.tenantId };
+    return this.commandBus.execute(new CreateVariantDTO(inputWithTenantId));
   }
 
   @Mutation(() => ProductType)
   async updateVariant(
     @Args('id') id: string,
     @Args('productId') productId: string,
-    @Args('tenantId') tenantId: string,
     @Args('input') input: UpdateVariantInput,
+    @CurrentUser() user: JwtPayload,
   ): Promise<ProductType> {
     return this.commandBus.execute(
-      new UpdateVariantDTO(id, productId, tenantId, { ...input }),
+      new UpdateVariantDTO(id, productId, user.tenantId, { ...input }),
     );
   }
 
@@ -123,10 +132,10 @@ export class ProductResolver {
   async archiveVariant(
     @Args('id') id: string,
     @Args('productId') productId: string,
-    @Args('tenantId') tenantId: string,
+    @CurrentUser() user: JwtPayload,
   ): Promise<ProductType> {
     return this.commandBus.execute(
-      new ArchiveVariantDTO(id, productId, tenantId),
+      new ArchiveVariantDTO(id, productId, user.tenantId),
     );
   }
 
@@ -134,10 +143,10 @@ export class ProductResolver {
   async restoreVariant(
     @Args('id') id: string,
     @Args('productId') productId: string,
-    @Args('tenantId') tenantId: string,
+    @CurrentUser() user: JwtPayload,
   ): Promise<ProductType> {
     return this.commandBus.execute(
-      new RestoreVariantDTO(id, productId, tenantId),
+      new RestoreVariantDTO(id, productId, user.tenantId),
     );
   }
 
@@ -145,10 +154,10 @@ export class ProductResolver {
   async removeVariant(
     @Args('id') id: string,
     @Args('productId') productId: string,
-    @Args('tenantId') tenantId: string,
+    @CurrentUser() user: JwtPayload,
   ): Promise<ProductType> {
     return this.commandBus.execute(
-      new DeleteVariantDTO(id, productId, tenantId),
+      new DeleteVariantDTO(id, productId, user.tenantId),
     );
   }
 
@@ -159,14 +168,14 @@ export class ProductResolver {
   @Query(() => ProductType)
   async getProductById(
     @Args('id') id: string,
-    @Args('tenantId') tenantId: string,
+    @CurrentUser() user: JwtPayload,
   ): Promise<ProductType> {
-    return this.queryBus.execute(new GetProductByIdDTO(id, tenantId));
+    return this.queryBus.execute(new GetProductByIdDTO(id, user.tenantId));
   }
 
   @Query(() => PaginatedProductsType)
   async getAllProducts(
-    @Args('tenantId') tenantId: string,
+    @CurrentUser() user: JwtPayload,
     @Args('page', { defaultValue: 1, nullable: true }) page?: number,
     @Args('limit', { defaultValue: 25, nullable: true }) limit?: number,
     @Args('name', { nullable: true }) name?: string,
@@ -180,7 +189,7 @@ export class ProductResolver {
     includeSoftDeleted?: boolean,
   ): Promise<PaginatedProductsDTO> {
     return this.queryBus.execute(
-      new GetAllProductsDTO(tenantId, {
+      new GetAllProductsDTO(user.tenantId, {
         page,
         limit,
         name,

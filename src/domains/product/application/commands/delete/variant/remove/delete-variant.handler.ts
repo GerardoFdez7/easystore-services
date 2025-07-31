@@ -31,7 +31,11 @@ export class DeleteVariantHandler implements ICommandHandler<DeleteVariantDTO> {
     );
 
     // Save the updated product
-    await this.productRepository.save(updatedProduct);
+    await this.productRepository.update(
+      Id.create(tenantId),
+      Id.create(productId),
+      updatedProduct,
+    );
 
     // Commit events to event bus
     updatedProduct.commit();
