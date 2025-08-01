@@ -1,9 +1,25 @@
 {
   "moduleFileExtensions": ["js", "json", "ts"],
-  "rootDir": ".",
+  "rootDir": "../",
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^@test/(.*)$": "<rootDir>/src/test/$1",
+    "^@config/(.*)$": "<rootDir>/src/config/$1",
+    "^@common/(.*)$": "<rootDir>/src/common/$1",
+    "^@utils/(.*)$": "<rootDir>/src/common/utils/$1",
+    "^@database/(.*)$": "<rootDir>/src/infrastructure/database/$1",
+    "^@graphql/(.*)$": "<rootDir>/src/infrastructure/graphql/$1",
+    "^@metrics/(.*)$": "<rootDir>/src/infrastructure/metrics/$1",
+    "^@microservices/(.*)$": "<rootDir>/src/infrastructure/microservices/$1",
+    "^@domains/(.*)$": "<rootDir>/src/shared/domains/$1",
+    "^@elastic/(.*)$": "<rootDir>/src/shared/elastic/$1",
+    "^@event-store/(.*)$": "<rootDir>/src/shared/event-store/$1",
+    "^@kafka/(.*)$": "<rootDir>/src/shared/kafka/$1",
+    "^@redis/(.*)$": "<rootDir>/src/shared/redis/$1",
+    "^@winston/(.*)$": "<rootDir>/src/shared/winston/$1"
   }
 }
