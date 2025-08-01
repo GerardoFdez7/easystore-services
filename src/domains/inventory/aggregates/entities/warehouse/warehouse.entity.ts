@@ -1,16 +1,19 @@
-import { Name } from '../../value-objects';
-import { Id } from '@domains/value-objects';
-import { Entity, EntityProps } from '@domains/entity.base';
+import {
+  Entity,
+  EntityProps,
+  IWarehouseBase,
+  StockPerWarehouse,
+  IStockPerWarehouseBase,
+} from '../';
+import { Id, Name, StockMovement } from '../../value-objects';
 import {
   WarehouseCreatedEvent,
   WarehouseUpdatedEvent,
+  WarehouseDeletedEvent,
   StockPerWarehouseAddedEvent,
-  StockPerWarehouseUpdatedInWarehouseEvent,
-  StockPerWarehouseRemovedFromWarehouseEvent,
+  StockPerWarehouseUpdatedEvent,
+  StockPerWarehouseRemovedEvent,
 } from '../../events';
-import { IWarehouseBase } from './warehouse.attributes';
-import { StockPerWarehouse } from '../stockPerWarehouse/stock-per-warehouse.entity';
-import { IStockPerWarehouseBase } from '../stockPerWarehouse/stock-per-warehouse.attributes';
 
 export interface IWarehouseProps extends EntityProps {
   id: Id;
@@ -89,12 +92,20 @@ export class Warehouse extends Entity<IWarehouseProps> {
     return updatedWarehouse;
   }
 
+  /**
+   * Deletes a warehouse.
+   * @param warehouse The warehouse to delete.
+   */
+  static delete(warehouse: Warehouse): void {
+    // Apply domain event
+    warehouse.apply(new WarehouseDeletedEvent(warehouse));
+  }
+
   // Stock management methods for the aggregate root
   public addStockToWarehouse(stockData: IStockPerWarehouseBase): Warehouse {
-    // Create the stock per warehouse entity using the create method
     const stock = StockPerWarehouse.create({
       ...stockData,
-      warehouseId: this.props.id.getValue(), // Ensure it belongs to this warehouse
+      warehouseId: this.props.id.getValue(),
     });
 
     // Apply domain event
@@ -104,8 +115,8 @@ export class Warehouse extends Entity<IWarehouseProps> {
   }
 
   /**
-   * Updates an existing stock in the warehouse.
-   * @param stockId The ID of the stock to update.
+   * Updates an existing stock in the warehouse and automatically creates movement history.
+   * @param stock The stock to update.
    * @param updateData The data to update the stock with, conforming to Partial<IStockPerWarehouseBase>.
    */
   public updateStockInWarehouse(
@@ -113,21 +124,51 @@ export class Warehouse extends Entity<IWarehouseProps> {
     updateData: Partial<
       Omit<IStockPerWarehouseBase, 'variantId' | 'warehouseId'>
     >,
-  ): Warehouse {
-    // Update the stock using its static update method
+    reason: string,
+    createdById: string,
+  ): { updatedWarehouse: Warehouse; movements: StockMovement[] } {
+    const movements: StockMovement[] = [];
+
+    // Auto-calculate deltaQty for available quantity changes
+    if (updateData.qtyAvailable !== undefined) {
+      const oldQty = stock.getQtyAvailable();
+      const newQty = updateData.qtyAvailable;
+      const deltaQty = newQty - oldQty; // Positive = increase, Negative = decrease
+
+      if (deltaQty !== 0) {
+        movements.push(StockMovement.create(deltaQty, reason, createdById));
+      }
+    }
+
+    // Auto-calculate deltaQty for reserved quantity changes
+    if (updateData.qtyReserved !== undefined) {
+      const oldReserved = stock.getQtyReserved();
+      const newReserved = updateData.qtyReserved;
+      const deltaReserved = newReserved - oldReserved;
+
+      if (deltaReserved !== 0) {
+        movements.push(
+          StockMovement.create(
+            -deltaReserved, // Negative because reserving reduces available
+            `Reserved stock: ${reason}`,
+            createdById,
+          ),
+        );
+      }
+    }
+
+    // Update the stock using existing logic
     const updatedStock = StockPerWarehouse.update(stock, updateData);
 
     // Apply domain event
-    this.apply(
-      new StockPerWarehouseUpdatedInWarehouseEvent(updatedStock, this),
-    );
+    this.apply(new StockPerWarehouseUpdatedEvent(updatedStock, this));
 
-    return this;
+    return { updatedWarehouse: this, movements };
   }
 
   public removeStockFromWarehouse(stock: StockPerWarehouse): Warehouse {
     // Apply domain event
-    this.apply(new StockPerWarehouseRemovedFromWarehouseEvent(stock, this));
+    this.apply(new StockPerWarehouseRemovedEvent(stock, this));
 
     return this;
   }

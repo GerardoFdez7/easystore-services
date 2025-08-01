@@ -1,13 +1,3 @@
-import {
-  QtyAvailable,
-  QtyReserved,
-  ShortDescription,
-  EstimatedReplenishmentDate,
-  LotNumber,
-  SerialNumbers,
-} from '../../value-objects';
-import { Id } from '@domains/value-objects';
-
 // Complete stock per warehouse type combining base properties and system properties
 export interface IStockPerWarehouseType extends IStockPerWarehouseSystem {
   qtyAvailable: number;
@@ -35,17 +25,4 @@ export interface IStockPerWarehouseBase {
 // System-generated properties for stock per warehouse
 export interface IStockPerWarehouseSystem {
   id: string;
-}
-
-// Props interface for the StockPerWarehouse entity
-export interface IStockPerWarehouseProps {
-  id: Id;
-  qtyAvailable: QtyAvailable;
-  qtyReserved: QtyReserved;
-  productLocation: ShortDescription;
-  estimatedReplenishmentDate: EstimatedReplenishmentDate;
-  lotNumber: LotNumber;
-  serialNumbers: SerialNumbers;
-  variantId: Id;
-  warehouseId: Id;
 }
