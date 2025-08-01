@@ -1,6 +1,6 @@
 import { AddressTypeEnum } from '../../../aggregates/value-objects';
 
-export class GetAllAddressDTO {
+export class GetAllAddressesDTO {
   constructor(
     public readonly tenantId?: string,
     public readonly customerId?: string,
