@@ -1,18 +1,18 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
 import { LoggerService } from '@winston/winston.service';
-import { StockPerWarehouseRemovedFromWarehouseEvent } from '../../../aggregates/events/stockPerWarehouse/stock-per-warehouse-removed-from-warehouse.event';
+import { StockPerWarehouseRemovedEvent } from '../../../aggregates/events/stockPerWarehouse/stock-per-warehouse-removed.event';
 
 @Injectable()
-@EventsHandler(StockPerWarehouseRemovedFromWarehouseEvent)
+@EventsHandler(StockPerWarehouseRemovedEvent)
 export class StockPerWarehouseRemovedFromWarehouseHandler
-  implements IEventHandler<StockPerWarehouseRemovedFromWarehouseEvent>
+  implements IEventHandler<StockPerWarehouseRemovedEvent>
 {
   constructor(private readonly logger: LoggerService) {}
 
-  handle(event: StockPerWarehouseRemovedFromWarehouseEvent): void {
+  handle(event: StockPerWarehouseRemovedEvent): void {
     this.logger.warn(
-      `StockPerWarehouse removed from warehouse: ${event.stockPerWarehouse.get('id').getValue()} -> ${event.warehouse.get('id').getValue()}`,
+      `StockPerWarehouse ${event.stockPerWarehouse.get('id').getValue()} removed from warehouse: ${event.warehouse.get('id').getValue()}`,
     );
   }
 }

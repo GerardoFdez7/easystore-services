@@ -1,5 +1,6 @@
 // Import shared value objects
 export {
+  Id,
   Name,
   ShortDescription,
   LongDescription,
@@ -12,5 +13,5 @@ export { EstimatedReplenishmentDate } from './stockPerWarehouse/estimated-replen
 export { LotNumber } from './stockPerWarehouse/lot-number.vo';
 export { SerialNumbers } from './stockPerWarehouse/serial-numbers.vo';
 
-// StockMovement value objects
-export { DeltaQty } from './stockMovement/delta-qty.vo';
+// StockMovement value object
+export { StockMovement } from './stockMovement/stock-movement.vo';

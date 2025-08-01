@@ -19,14 +19,3 @@ export {
   IStockPerWarehouseBase,
   IStockPerWarehouseSystem,
 } from './stockPerWarehouse/stock-per-warehouse.attributes';
-
-// StockMovement entity
-export {
-  StockMovement,
-  IStockMovementProps,
-} from './stockMovement/stock-movement.entity';
-export {
-  IStockMovementType,
-  IStockMovementBase,
-  IStockMovementSystem,
-} from './stockMovement/stock-movement.attributes';

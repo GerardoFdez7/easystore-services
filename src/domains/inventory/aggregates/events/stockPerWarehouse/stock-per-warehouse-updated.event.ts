@@ -1,6 +1,9 @@
 import { IEvent } from '@nestjs/cqrs';
-import { StockPerWarehouse } from '../../entities';
+import { StockPerWarehouse, Warehouse } from '../../entities';
 
 export class StockPerWarehouseUpdatedEvent implements IEvent {
-  constructor(public readonly stockPerWarehouse: StockPerWarehouse) {}
+  constructor(
+    public readonly stockPerWarehouse: StockPerWarehouse,
+    public readonly warehouse: Warehouse,
+  ) {}
 }

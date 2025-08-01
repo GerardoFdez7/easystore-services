@@ -12,7 +12,7 @@ export class StockPerWarehouseAddedHandler
 
   handle(event: StockPerWarehouseAddedEvent): void {
     this.logger.log(
-      `StockPerWarehouse added to warehouse: ${event.stockPerWarehouse.get('id').getValue()} -> ${event.warehouse.get('id').getValue()}`,
+      `StockPerWarehouse ${event.stockPerWarehouse.get('id').getValue()} added to warehouse: ${event.warehouse.get('id').getValue()}`,
     );
   }
 }

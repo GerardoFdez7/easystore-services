@@ -1,3 +1,4 @@
+import { Entity, EntityProps, IStockPerWarehouseBase } from '../';
 import {
   QtyAvailable,
   QtyReserved,
@@ -5,10 +6,8 @@ import {
   EstimatedReplenishmentDate,
   LotNumber,
   SerialNumbers,
+  Id,
 } from '../../value-objects';
-import { Id } from '@domains/value-objects';
-import { Entity, EntityProps } from '@domains/entity.base';
-import { IStockPerWarehouseBase } from './stock-per-warehouse.attributes';
 
 export interface IStockPerWarehouseProps extends EntityProps {
   id: Id;
@@ -103,5 +102,19 @@ export class StockPerWarehouse extends Entity<IStockPerWarehouseProps> {
     const updatedStockPerWarehouse = new StockPerWarehouse(props);
 
     return updatedStockPerWarehouse;
+  }
+
+  /**
+   * Gets the available quantity
+   */
+  public getQtyAvailable(): number {
+    return this.props.qtyAvailable.getValue();
+  }
+
+  /**
+   * Gets the reserved quantity
+   */
+  public getQtyReserved(): number {
+    return this.props.qtyReserved.getValue();
   }
 }
