@@ -1,4 +1,8 @@
 import { Resolver, Mutation, Args, ID, Query } from '@nestjs/graphql';
+import { UseGuards } from '@nestjs/common';
+import { CurrentUser } from '@authentication/infrastructure/decorators/current-user.decorator';
+import { JwtPayload } from '@authentication/infrastructure/jwt/jwt-handler';
+import { AuthGuard } from '@authentication/infrastructure/guard/auth.guard';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   AddressType,
@@ -11,10 +15,11 @@ import {
   AddressDeleteDTO,
   UpdateAddressDTO,
 } from '../../application/commands';
-import { GetAddressIdDto, GetAllAddressDTO } from '../../application/queries';
+import { GetAddressIdDto, GetAllAddressesDTO } from '../../application/queries';
 import { AddressTypeEnum } from '../../aggregates/value-objects';
 
-@Resolver()
+@Resolver(() => AddressType)
+@UseGuards(AuthGuard)
 export default class AddressResolver {
   constructor(
     private readonly commandBus: CommandBus,
@@ -29,8 +34,10 @@ export default class AddressResolver {
   async createAddress(
     @Args('input', { type: () => CreateAddressInput })
     input: CreateAddressInput,
+    @CurrentUser() user: JwtPayload,
   ): Promise<AddressType> {
-    return this.commandBus.execute(new CreateAddressDTO(input));
+    const inputWithTenantId = { ...input, tenantId: user.tenantId };
+    return this.commandBus.execute(new CreateAddressDTO(inputWithTenantId));
   }
 
   @Mutation(() => AddressType)
@@ -38,22 +45,20 @@ export default class AddressResolver {
     @Args('id', { type: () => ID }) id: string,
     @Args('input', { type: () => UpdateAddressInput })
     input: UpdateAddressInput,
-    @Args('tenantId', { type: () => ID, nullable: true }) tenantId?: string,
-    @Args('customerId', { type: () => ID, nullable: true }) customerId?: string,
+    @CurrentUser() user: JwtPayload,
   ): Promise<AddressType> {
     return this.commandBus.execute(
-      new UpdateAddressDTO(id, tenantId, customerId, input),
+      new UpdateAddressDTO(id, user.tenantId, user.customerId, input),
     );
   }
 
   @Mutation(() => AddressType)
   async deleteAddress(
     @Args('id', { type: () => ID }) id: string,
-    @Args('tenantId', { type: () => ID, nullable: true }) tenantId?: string,
-    @Args('customerId', { type: () => ID, nullable: true }) customerId?: string,
+    @CurrentUser() user: JwtPayload,
   ): Promise<AddressType> {
     return this.commandBus.execute(
-      new AddressDeleteDTO(id, tenantId, customerId),
+      new AddressDeleteDTO(id, user.tenantId, user.customerId),
     );
   }
 
@@ -64,21 +69,22 @@ export default class AddressResolver {
   @Query(() => AddressType)
   async getAddressById(
     @Args('id', { type: () => ID }) id: string,
-    @Args('tenantId', { type: () => ID, nullable: true }) tenantId?: string,
-    @Args('customerId', { type: () => ID, nullable: true }) customerId?: string,
+    @CurrentUser() user: JwtPayload,
   ): Promise<AddressType> {
-    return this.queryBus.execute(new GetAddressIdDto(id, tenantId, customerId));
+    return this.queryBus.execute(
+      new GetAddressIdDto(id, user.tenantId, user.customerId),
+    );
   }
 
   @Query(() => AddressesType)
-  async getAllAddress(
+  async getAllAddresses(
+    @CurrentUser()
+    user: JwtPayload,
     @Args('addressType', { type: () => AddressTypeEnum, nullable: true })
     addressType?: AddressTypeEnum,
-    @Args('tenantId', { type: () => ID, nullable: true }) tenantId?: string,
-    @Args('customerId', { type: () => ID, nullable: true }) customerId?: string,
   ): Promise<AddressesType> {
     return this.queryBus.execute(
-      new GetAllAddressDTO(tenantId, customerId, { addressType }),
+      new GetAllAddressesDTO(user.tenantId, user.customerId, { addressType }),
     );
   }
 }

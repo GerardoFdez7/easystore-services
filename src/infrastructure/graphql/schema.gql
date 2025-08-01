@@ -32,14 +32,14 @@ type AddressType {
   addressType: AddressTypeEnum!
   city: String!
   countryId: ID!
-  customerId: ID!
   deliveryNum: String!
   name: String!
   postalCode: String!
-  tenantId: ID!
 }
 
-"""Types of addresses"""
+"""
+Types of addresses
+"""
 enum AddressTypeEnum {
   BILLING
   SHIPPING
@@ -47,7 +47,7 @@ enum AddressTypeEnum {
 }
 
 type AddressesType {
-  addresses: [AddressType!]!
+  address: [AddressType!]!
 }
 
 type Attribute {
@@ -94,11 +94,9 @@ input CreateAddressInput {
   addressType: AddressTypeEnum!
   city: String!
   countryId: ID!
-  customerId: ID
   deliveryNum: String
   name: String!
   postalCode: String
-  tenantId: ID
 }
 
 input CreateAttributeInput {
@@ -212,10 +210,11 @@ enum MediaTypeEnum {
 type Mutation {
   addVariant(input: CreateVariantInput!): Product!
   archiveVariant(id: String!, productId: String!): Product!
+  archiveVariant(id: String!, productId: String!): Product!
   createAddress(input: CreateAddressInput!): AddressType!
   createCategory(input: CreateCategoryInput!): Category!
   createProduct(input: CreateProductInput!): Product!
-  deleteAddress(customerId: ID, id: ID!, tenantId: ID): AddressType!
+  deleteAddress(id: ID!): AddressType!
   deleteCategory(id: ID!): Category!
   hardDeleteProduct(id: String!): Product!
   login(input: AuthenticationInput!): Response!
@@ -225,10 +224,14 @@ type Mutation {
   restoreProduct(id: String!): Product!
   restoreVariant(id: String!, productId: String!): Product!
   softDeleteProduct(id: String!): Product!
-  updateAddress(customerId: ID, id: ID!, input: UpdateAddressInput!, tenantId: ID): AddressType!
+  updateAddress(id: ID!, input: UpdateAddressInput!): AddressType!
   updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
   updateProduct(id: String!, input: UpdateProductInput!): Product!
-  updateVariant(id: String!, input: UpdateVariantInput!, productId: String!): Product!
+  updateVariant(
+    id: String!
+    input: UpdateVariantInput!
+    productId: String!
+  ): Product!
 }
 
 type PaginatedCategoriesType {
@@ -266,10 +269,27 @@ type ProductCategory {
 }
 
 type Query {
-  getAddressById(customerId: ID, id: ID!, tenantId: ID): AddressType!
-  getAllAddress(addressType: AddressTypeEnum, customerId: ID, tenantId: ID): AddressesType!
-  getAllCategories(includeSubcategories: Boolean = true, limit: Int = 10, name: String, page: Int = 1, parentId: ID, sortBy: SortBy, sortOrder: SortOrder): PaginatedCategoriesType!
-  getAllProducts(categoriesIds: [Int!], includeSoftDeleted: Boolean = false, limit: Float = 25, name: String, page: Float = 1, sortBy: SortBy, sortOrder: SortOrder, type: TypeEnum): PaginatedProductsType!
+  getAddressById(id: ID!): AddressType!
+  getAllAddresses(addressType: AddressTypeEnum): AddressesType!
+  getAllCategories(
+    includeSubcategories: Boolean = true
+    limit: Int = 10
+    name: String
+    page: Int = 1
+    parentId: ID
+    sortBy: SortBy
+    sortOrder: SortOrder
+  ): PaginatedCategoriesType!
+  getAllProducts(
+    categoriesIds: [Int!]
+    includeSoftDeleted: Boolean = false
+    limit: Float = 25
+    name: String
+    page: Float = 1
+    sortBy: SortBy
+    sortOrder: SortOrder
+    type: TypeEnum
+  ): PaginatedProductsType!
   getCategoryById(id: ID!): Category!
   getProductById(id: String!): Product!
   validateToken: Response!

@@ -33,12 +33,12 @@ export class AddressType {
 
   @Field(() => String)
   deliveryNum: string;
+}
 
-  @Field(() => ID)
-  tenantId: string;
-
-  @Field(() => ID)
-  customerId: string;
+@ObjectType()
+export class AddressesType {
+  @Field(() => [AddressType])
+  address: AddressType[];
 }
 
 //Input type for creating address
@@ -67,12 +67,6 @@ export class CreateAddressInput {
 
   @Field(() => String, { nullable: true })
   deliveryNum?: string;
-
-  @Field(() => ID, { nullable: true })
-  tenantId?: string;
-
-  @Field(() => ID, { nullable: true })
-  customerId?: string;
 }
 
 @InputType()
@@ -100,10 +94,4 @@ export class UpdateAddressInput {
 
   @Field(() => String, { nullable: true })
   deliveryNum?: string;
-}
-
-@ObjectType()
-export class AddressesType {
-  @Field(() => [AddressType])
-  addresses: AddressType[];
 }
