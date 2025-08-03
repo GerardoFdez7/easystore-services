@@ -201,6 +201,11 @@ type Dimension {
   width: Float!
 }
 
+input ForgotPasswordInput {
+  accountType: AccountTypeEnum!
+  email: String!
+}
+
 type Installment {
   interestRate: Float!
   months: Int!
@@ -229,6 +234,7 @@ type Mutation {
   createWarehouse(input: CreateWarehouseInput!): Warehouse!
   deleteAddress(id: ID!): AddressType!
   deleteCategory(id: ID!): Category!
+  forgotPassword(input: ForgotPasswordInput!): Response!
   deleteWarehouse(id: ID!): Warehouse!
   hardDeleteProduct(id: String!): Product!
   login(input: AuthenticationInput!): Response!
