@@ -12,3 +12,6 @@ export { AuthenticationValidateTokenHandler } from './validate-token/validate-to
 
 export { ForgotPasswordDTO } from './forgot-password/forgot-password.dto';
 export { ForgotPasswordHandler } from './forgot-password/forgot-password.handler';
+
+export { UpdatePasswordDTO } from './update-password/update-password.dto';
+export { UpdatePasswordHandler } from './update-password/update-password.handler';

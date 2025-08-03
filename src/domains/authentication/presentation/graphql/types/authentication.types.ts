@@ -72,3 +72,16 @@ export class ForgotPasswordInput {
   @Field(() => AccountTypeEnum)
   accountType: AccountTypeEnum;
 }
+
+// Input for update password request
+@InputType()
+export class UpdatePasswordInput {
+  @Field()
+  email: string;
+
+  @Field(() => AccountTypeEnum)
+  accountType: AccountTypeEnum;
+
+  @Field()
+  password: string;
+}
