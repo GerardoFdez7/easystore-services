@@ -32,10 +32,9 @@ export class EmailService {
 
     try {
       await this.resend.emails.send({
-        from: this.configService.get<string>(
-          'RESEND_FROM_EMAIL',
-          'noreply@easystore.com',
-        ),
+        from:
+          this.configService.get<string>('RESEND_FROM_EMAIL') ||
+          'onboarding@resend.dev',
         to: [email],
         subject: 'Reset Your Password - EasyStore',
         html: htmlContent,

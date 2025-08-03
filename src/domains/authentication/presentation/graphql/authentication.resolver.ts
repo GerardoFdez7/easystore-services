@@ -6,6 +6,7 @@ import {
   AuthenticationInput,
   ResponseType,
   ForgotPasswordInput,
+  UpdatePasswordInput,
 } from './types';
 import {
   AuthenticationRegisterDTO,
@@ -13,6 +14,7 @@ import {
   AuthenticationLogoutDTO,
   AuthenticationValidateTokenDTO,
   ForgotPasswordDTO,
+  UpdatePasswordDTO,
 } from '../../application/commands';
 import { ResponseDTO } from '../../application/mappers';
 import {
@@ -100,6 +102,22 @@ export class AuthenticationResolver {
       ForgotPasswordDTO,
       { message: string }
     >(new ForgotPasswordDTO(input));
+
+    return {
+      success: true,
+      message: result.message,
+    };
+  }
+
+  @Public()
+  @Mutation(() => ResponseType)
+  async updatePassword(
+    @Args('input') input: UpdatePasswordInput,
+  ): Promise<ResponseType> {
+    const result = await this.commandBus.execute<
+      UpdatePasswordDTO,
+      { message: string }
+    >(new UpdatePasswordDTO(input));
 
     return {
       success: true,

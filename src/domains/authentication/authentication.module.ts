@@ -9,6 +9,7 @@ import {
   AuthenticationLogoutHandler,
   AuthenticationValidateTokenHandler,
   ForgotPasswordHandler,
+  UpdatePasswordHandler,
 } from './application/commands';
 import {
   IdentityRegisteredHandler,
@@ -28,6 +29,7 @@ const CommandHandlers = [
   AuthenticationLogoutHandler,
   AuthenticationValidateTokenHandler,
   ForgotPasswordHandler,
+  UpdatePasswordHandler,
 ];
 const EventHandlers = [
   IdentityRegisteredHandler,

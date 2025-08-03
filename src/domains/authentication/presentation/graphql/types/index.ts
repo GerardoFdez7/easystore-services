@@ -3,4 +3,5 @@ export {
   ResponseType,
   AuthenticationInput,
   ForgotPasswordInput,
+  UpdatePasswordInput,
 } from './authentication.types';
