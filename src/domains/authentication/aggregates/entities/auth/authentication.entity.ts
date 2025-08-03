@@ -96,6 +96,11 @@ export class AuthIdentity extends Entity<IAuthIdentityProps> {
     this.apply(new AuthenticationLogoutEvent(this));
   }
 
+  updatePassword(newPassword: string): void {
+    this.props.password = Password.create(newPassword);
+    this.touch();
+  }
+
   private touch(): void {
     this.props.updatedAt = new Date();
   }

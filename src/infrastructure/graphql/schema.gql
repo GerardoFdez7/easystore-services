@@ -247,6 +247,7 @@ type Mutation {
   softDeleteProduct(id: String!): Product!
   updateAddress(id: ID!, input: UpdateAddressInput!): AddressType!
   updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
+  updatePassword(input: UpdatePasswordInput!): Response!
   updateProduct(id: String!, input: UpdateProductInput!): Product!
   updateStockInWarehouse(input: UpdateStockInWarehouseInput!, reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
   updateVariant(id: String!, input: UpdateVariantInput!, productId: String!): Product!
@@ -396,6 +397,12 @@ input UpdateMediaInput {
   mediaType: MediaTypeEnum
   position: Int
   url: String
+}
+
+input UpdatePasswordInput {
+  accountType: AccountTypeEnum!
+  email: String!
+  password: String!
 }
 
 input UpdateProductCategoryInput {
