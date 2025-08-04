@@ -1,6 +1,6 @@
 generator postgresClient {
-  provider        = "prisma-client-js"
-  output          = "../../../node_modules/.prisma/postgres"
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/.prisma/postgres"
 }
 
 datasource postgres {
@@ -334,7 +334,7 @@ model StockMovement {
   createdById         String?
   warehouseId         String
   stockPerWarehouseId String
-  ocurredAt           DateTime          @default(now())
+  occurredAt          DateTime          @default(now())
   warehouse           Warehouse         @relation(fields: [warehouseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   createdBy           Employee?         @relation(fields: [createdById], references: [id], onDelete: SetNull, onUpdate: Cascade)
   StockPerWarehouse   StockPerWarehouse @relation(fields: [stockPerWarehouseId], references: [id])
