@@ -39,6 +39,6 @@ export class UpdateProductHandler implements ICommandHandler<UpdateProductDTO> {
     updatedProduct.commit();
 
     // Return the product as DTO
-    return ProductMapper.toDto(product) as ProductDTO;
+    return ProductMapper.toDto(updatedProduct) as ProductDTO;
   }
 }
