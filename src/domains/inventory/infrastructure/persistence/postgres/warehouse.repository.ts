@@ -282,7 +282,11 @@ export default class WarehouseRepository implements IWarehouseRepository {
             tenantId: tenantIdValue,
           },
           include: {
-            stockPerWarehouses: true,
+            stockPerWarehouses: {
+              include: {
+                stockMovements: true,
+              },
+            },
           },
         });
 
@@ -290,7 +294,19 @@ export default class WarehouseRepository implements IWarehouseRepository {
           throw new ResourceNotFoundError('Warehouse', idValue);
         }
 
-        // Delete stock records first (cascade)
+        // Delete stock movements first to avoid foreign key constraint violations
+        // StockMovement has a RESTRICT constraint on StockPerWarehouse
+        for (const stock of existingWarehouse.stockPerWarehouses) {
+          if (stock.stockMovements.length > 0) {
+            await tx.stockMovement.deleteMany({
+              where: {
+                stockPerWarehouseId: stock.id,
+              },
+            });
+          }
+        }
+
+        // Delete stock records (cascade)
         await tx.stockPerWarehouse.deleteMany({
           where: {
             warehouseId: idValue,

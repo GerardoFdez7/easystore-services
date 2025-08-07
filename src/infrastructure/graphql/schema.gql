@@ -46,9 +46,7 @@ type AddressType {
   postalCode: String!
 }
 
-"""
-Types of addresses
-"""
+"""Types of addresses"""
 enum AddressTypeEnum {
   BILLING
   SHIPPING
@@ -222,14 +220,8 @@ enum MediaTypeEnum {
 }
 
 type Mutation {
-  addStockToWarehouse(
-    input: AddStockToWarehouseInput!
-    reason: String
-    variantId: ID!
-    warehouseId: ID!
-  ): Warehouse!
+  addStockToWarehouse(input: AddStockToWarehouseInput!, reason: String, variantId: ID!, warehouseId: ID!): Warehouse!
   addVariant(input: CreateVariantInput!): Product!
-  archiveVariant(id: String!, productId: String!): Product!
   archiveVariant(id: String!, productId: String!): Product!
   createAddress(input: CreateAddressInput!): AddressType!
   createCategory(input: CreateCategoryInput!): Category!
@@ -242,11 +234,7 @@ type Mutation {
   login(input: AuthenticationInput!): Response!
   logout: Response!
   register(input: AuthenticationInput!): AuthIdentity!
-  removeStockFromWarehouse(
-    reason: String
-    stockId: ID!
-    warehouseId: ID!
-  ): Warehouse!
+  removeStockFromWarehouse(reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
   removeVariant(id: String!, productId: String!): Product!
   restoreProduct(id: String!): Product!
   restoreVariant(id: String!, productId: String!): Product!
@@ -254,17 +242,8 @@ type Mutation {
   updateAddress(id: ID!, input: UpdateAddressInput!): AddressType!
   updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
   updateProduct(id: String!, input: UpdateProductInput!): Product!
-  updateStockInWarehouse(
-    input: UpdateStockInWarehouseInput!
-    reason: String
-    stockId: ID!
-    warehouseId: ID!
-  ): Warehouse!
-  updateVariant(
-    id: String!
-    input: UpdateVariantInput!
-    productId: String!
-  ): Product!
+  updateStockInWarehouse(input: UpdateStockInWarehouseInput!, reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
+  updateVariant(id: String!, input: UpdateVariantInput!, productId: String!): Product!
   updateWarehouse(id: ID!, input: UpdateWarehouseInput!): Warehouse!
 }
 
@@ -317,47 +296,10 @@ type ProductCategory {
 type Query {
   getAddressById(id: ID!): AddressType!
   getAllAddresses(addressType: AddressTypeEnum): AddressesType!
-  getAllCategories(
-    includeSubcategories: Boolean = true
-    limit: Int = 10
-    name: String
-    page: Int = 1
-    parentId: ID
-    sortBy: SortBy
-    sortOrder: SortOrder
-  ): PaginatedCategoriesType!
-  getAllProducts(
-    categoriesIds: [Int!]
-    includeSoftDeleted: Boolean = false
-    limit: Float = 25
-    name: String
-    page: Float = 1
-    sortBy: SortBy
-    sortOrder: SortOrder
-    type: TypeEnum
-  ): PaginatedProductsType!
-  getAllStockMovements(
-    createdById: ID
-    dateFrom: DateTime
-    dateTo: DateTime
-    includeDeleted: Boolean = false
-    limit: Int = 10
-    page: Int = 1
-    sortBy: SortBy
-    sortOrder: SortOrder
-    variantId: ID
-    warehouseId: ID!
-  ): PaginatedStockMovementsType!
-  getAllWarehouses(
-    addressId: ID
-    limit: Int = 10
-    lowStockThreshold: Int
-    name: String
-    page: Int = 1
-    sortBy: SortBy
-    sortOrder: SortOrder
-    variantId: ID
-  ): PaginatedWarehousesType!
+  getAllCategories(includeSubcategories: Boolean = true, limit: Int = 10, name: String, page: Int = 1, parentId: ID, sortBy: SortBy, sortOrder: SortOrder): PaginatedCategoriesType!
+  getAllProducts(categoriesIds: [Int!], includeSoftDeleted: Boolean = false, limit: Float = 25, name: String, page: Float = 1, sortBy: SortBy, sortOrder: SortOrder, type: TypeEnum): PaginatedProductsType!
+  getAllStockMovements(createdById: ID, dateFrom: DateTime, dateTo: DateTime, includeDeleted: Boolean = false, limit: Int = 10, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID, warehouseId: ID!): PaginatedStockMovementsType!
+  getAllWarehouses(addressId: ID, limit: Int = 10, lowStockThreshold: Int, name: String, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID): PaginatedWarehousesType!
   getCategoryById(id: ID!): Category!
   getProductById(id: String!): Product!
   getWarehouseById(id: ID!): Warehouse!
