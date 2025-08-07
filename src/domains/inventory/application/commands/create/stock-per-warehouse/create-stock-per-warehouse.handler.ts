@@ -17,12 +17,12 @@ export class CreateStockPerWarehouseHandler
 
   async execute(command: CreateStockPerWarehouseDTO): Promise<WarehouseDTO> {
     const warehouse = await this.warehouseRepository.findById(
-      Id.create(command.warehouseId),
+      Id.create(command.data.warehouseId),
       Id.create(command.tenantId),
     );
     if (!warehouse) {
       throw new NotFoundException(
-        `Warehouse with id ${command.warehouseId} not found`,
+        `Warehouse with id ${command.data.warehouseId} not found`,
       );
     }
 
@@ -31,9 +31,13 @@ export class CreateStockPerWarehouseHandler
     );
 
     await this.warehouseRepository.update(
-      Id.create(command.warehouseId),
+      Id.create(command.data.warehouseId),
       Id.create(command.tenantId),
       updatedWarehouse,
+      {
+        reason: command.reason || 'Initial stock of this variant',
+        createdById: command.createdById || undefined,
+      },
     );
 
     updatedWarehouse.commit();

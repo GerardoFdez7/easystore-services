@@ -33,6 +33,7 @@ export class UpdateWarehouseHandler
       Id.create(command.id),
       Id.create(command.tenantId),
       updatedWarehouse,
+      {},
     );
 
     updatedWarehouse.commit();

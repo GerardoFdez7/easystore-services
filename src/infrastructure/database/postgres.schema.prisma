@@ -352,10 +352,12 @@ model StockPerWarehouse {
   serialNumbers              String[]
   variantId                  String
   warehouseId                String
+  deletedAt                  DateTime?
   stockMovements             StockMovement[]
   variant                    Variant         @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   warehouse                  Warehouse       @relation(fields: [warehouseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+  @@unique([warehouseId, variantId])
   @@schema("inventory")
 }
 

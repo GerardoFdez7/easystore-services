@@ -35,10 +35,14 @@ export class UpdateStockPerWarehouseHandler
       ),
     );
 
-    await this.warehouseRepository.update(
+    await this.warehouseRepository.updateSingleStock(
+      Id.create(command.stockId),
       Id.create(command.warehouseId),
-      Id.create(command.tenantId),
-      updatedWarehouse,
+      command.data,
+      {
+        reason: command.reason || 'Stock updated in this variant',
+        createdById: command.createdById,
+      },
     );
 
     updatedWarehouse.commit();

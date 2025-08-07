@@ -17,17 +17,17 @@ export default class StockMovementRepository
    * Finds all stock movements with pagination and filtering
    */
   async findAll(
-    tenantId: Id,
+    warehouseId?: Id,
     options?: {
       page?: number;
       limit?: number;
-      warehouseId?: Id;
       variantId?: Id;
       createdById?: Id;
       dateFrom?: Date;
       dateTo?: Date;
       sortBy?: SortBy;
       sortOrder?: SortOrder;
+      includeDeleted?: boolean;
     },
   ): Promise<{ movements: StockMovement[]; total: number; hasMore: boolean }> {
     const page = options?.page || 1;
@@ -41,14 +41,12 @@ export default class StockMovementRepository
       const whereClause: Prisma.StockMovementWhereInput = {
         StockPerWarehouse: {
           warehouse: {
-            tenantId: tenantId.getValue(),
+            id: warehouseId.getValue(),
           },
+          // Filter by soft delete status
+          deletedAt: options?.includeDeleted ? undefined : null,
         },
       };
-
-      if (options?.warehouseId) {
-        whereClause.warehouseId = options.warehouseId.getValue();
-      }
 
       if (options?.variantId) {
         if (!whereClause.StockPerWarehouse) {
