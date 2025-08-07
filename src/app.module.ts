@@ -14,6 +14,7 @@ import { TenantDomain } from './domains/tenant/tenant.module';
 import { ProductDomain } from './domains/product/product.module';
 import { CategoryDomain } from './domains/category/category.module';
 import { AddressDomain } from './domains/address/address.module';
+import { InventoryDomain } from './domains/inventory/inventory.module';
 
 @Global()
 @Module({
@@ -32,6 +33,7 @@ import { AddressDomain } from './domains/address/address.module';
     ProductDomain,
     CategoryDomain,
     AddressDomain,
+    InventoryDomain,
   ],
   providers: [
     {
