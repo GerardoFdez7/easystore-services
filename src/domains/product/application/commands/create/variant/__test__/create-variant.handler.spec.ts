@@ -19,7 +19,7 @@ describe('CreateVariantHandler', () => {
   let mockUpdatedProduct: MockProduct;
 
   let findByIdMock: jest.Mock;
-  let saveMock: jest.Mock;
+  let updateMock: jest.Mock;
   let mergeObjectContextMock: jest.Mock;
   let fromAddVariantDtoMock: jest.SpyInstance;
   let toDtoMock: jest.SpyInstance;
@@ -27,12 +27,12 @@ describe('CreateVariantHandler', () => {
 
   beforeEach(async () => {
     findByIdMock = jest.fn();
-    saveMock = jest.fn();
+    updateMock = jest.fn();
     mergeObjectContextMock = jest.fn();
 
     productRepository = {
       findById: findByIdMock,
-      save: saveMock,
+      update: updateMock,
     } as unknown as jest.Mocked<IProductRepository>;
 
     eventPublisher = {
@@ -113,7 +113,7 @@ describe('CreateVariantHandler', () => {
           { value: baseVariant.tenantId },
           { value: baseVariant.productId },
         );
-        expect(saveMock).not.toHaveBeenCalled();
+        expect(updateMock).not.toHaveBeenCalled();
       });
 
       it('should find product with correct tenant and product IDs', async () => {
@@ -159,25 +159,29 @@ describe('CreateVariantHandler', () => {
         mergeObjectContextMock.mockReturnValue(mockUpdatedProduct as never);
       });
 
-      it('should save the updated product to repository', async () => {
+      it('should update the product in repository', async () => {
         await handler.execute(baseCommand);
 
-        expect(saveMock).toHaveBeenCalledWith(mockUpdatedProduct);
+        expect(updateMock).toHaveBeenCalledWith(
+          { value: baseVariant.tenantId },
+          { value: baseVariant.productId },
+          mockUpdatedProduct,
+        );
       });
 
-      it('should save after mapping and before committing events', async () => {
+      it('should update after mapping and before committing events', async () => {
         await handler.execute(baseCommand);
 
         const fromAddVariantDtoOrder =
           fromAddVariantDtoMock.mock.invocationCallOrder[0];
         const mergeOrder = mergeObjectContextMock.mock.invocationCallOrder[0];
-        const saveOrder = saveMock.mock.invocationCallOrder[0];
+        const updateOrder = updateMock.mock.invocationCallOrder[0];
         const commitOrder =
           mockUpdatedProduct.commit.mock.invocationCallOrder[0];
 
         expect(fromAddVariantDtoOrder).toBeLessThan(mergeOrder);
-        expect(mergeOrder).toBeLessThan(saveOrder);
-        expect(saveOrder).toBeLessThan(commitOrder);
+        expect(mergeOrder).toBeLessThan(updateOrder);
+        expect(updateOrder).toBeLessThan(commitOrder);
       });
     });
 
@@ -187,7 +191,7 @@ describe('CreateVariantHandler', () => {
         mergeObjectContextMock.mockReturnValue(mockUpdatedProduct as never);
       });
 
-      it('should commit events after saving', async () => {
+      it('should commit events after updating', async () => {
         await handler.execute(baseCommand);
 
         expect(mockUpdatedProduct.commit).toHaveBeenCalledTimes(1);
@@ -196,10 +200,10 @@ describe('CreateVariantHandler', () => {
       it('should commit events after all operations', async () => {
         await handler.execute(baseCommand);
 
-        const saveOrder = saveMock.mock.invocationCallOrder[0];
+        const updateOrder = updateMock.mock.invocationCallOrder[0];
         const commitOrder =
           mockUpdatedProduct.commit.mock.invocationCallOrder[0];
-        expect(saveOrder).toBeLessThan(commitOrder);
+        expect(updateOrder).toBeLessThan(commitOrder);
       });
     });
 
@@ -297,13 +301,13 @@ describe('CreateVariantHandler', () => {
         );
       });
 
-      it('should propagate save errors', async () => {
-        const saveError = new Error('Failed to save product');
+      it('should propagate update errors', async () => {
+        const updateError = new Error('Failed to update product');
         findByIdMock.mockResolvedValue(mockProduct as never);
         mergeObjectContextMock.mockReturnValue(mockUpdatedProduct as never);
-        saveMock.mockRejectedValue(saveError);
+        updateMock.mockRejectedValue(updateError);
 
-        await expect(handler.execute(baseCommand)).rejects.toThrow(saveError);
+        await expect(handler.execute(baseCommand)).rejects.toThrow(updateError);
       });
     });
 
@@ -344,11 +348,11 @@ describe('CreateVariantHandler', () => {
         const result = await handler.execute(completeCommand);
 
         // Verify all steps were called in correct order
-        expect(idCreateMock).toHaveBeenCalledTimes(2);
+        expect(idCreateMock).toHaveBeenCalledTimes(4); // Called twice for findById and twice for update
         expect(findByIdMock).toHaveBeenCalledTimes(1);
         expect(fromAddVariantDtoMock).toHaveBeenCalledTimes(1);
         expect(mergeObjectContextMock).toHaveBeenCalledTimes(1);
-        expect(saveMock).toHaveBeenCalledTimes(1);
+        expect(updateMock).toHaveBeenCalledTimes(1);
         expect(mockUpdatedProduct.commit).toHaveBeenCalledTimes(1);
         expect(toDtoMock).toHaveBeenCalledTimes(1);
         expect(result).toEqual(expectedDto);
