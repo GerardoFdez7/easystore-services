@@ -54,7 +54,7 @@ enum AddressTypeEnum {
 }
 
 type AddressesType {
-  address: [AddressType!]!
+  addresses: [AddressType!]!
 }
 
 type Attribute {

@@ -38,7 +38,7 @@ export class AddressType {
 @ObjectType()
 export class AddressesType {
   @Field(() => [AddressType])
-  address: AddressType[];
+  addresses: AddressType[];
 }
 
 //Input type for creating address
