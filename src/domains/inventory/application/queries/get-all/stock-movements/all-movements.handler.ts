@@ -20,17 +20,17 @@ export class GetAllStockMovementsHandler
   async execute(
     query: GetAllStockMovementsDTO,
   ): Promise<PaginatedStockMovementsDTO> {
-    const { tenantId, options } = query;
+    const { warehouseId, options } = query;
     const {
       page,
       limit,
-      warehouseId,
       variantId,
       createdById,
       dateFrom,
       dateTo,
       sortBy,
       sortOrder,
+      includeDeleted,
     } = options || {};
 
     // Validate pagination parameters
@@ -46,17 +46,17 @@ export class GetAllStockMovementsHandler
     }
 
     const result = await this.stockMovementRepository.findAll(
-      Id.create(tenantId),
+      Id.create(warehouseId),
       {
         page,
         limit,
-        warehouseId: Id.create(warehouseId),
-        variantId: Id.create(variantId),
-        createdById: Id.create(createdById),
+        variantId: variantId ? Id.create(variantId) : undefined,
+        createdById: createdById ? Id.create(createdById) : undefined,
         dateFrom,
         dateTo,
         sortBy,
         sortOrder,
+        includeDeleted,
       },
     );
 

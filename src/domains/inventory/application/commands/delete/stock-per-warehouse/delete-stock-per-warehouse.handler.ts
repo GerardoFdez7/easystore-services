@@ -31,10 +31,18 @@ export class DeleteStockPerWarehouseHandler
       WarehouseMapper.fromRemoveStockFromWarehouse(warehouse, command.stockId),
     );
 
-    await this.warehouseRepository.update(
+    await this.warehouseRepository.updateSingleStock(
+      Id.create(command.stockId),
       Id.create(command.warehouseId),
-      Id.create(command.tenantId),
-      updatedWarehouse,
+      {
+        qtyAvailable: 0,
+      },
+      {
+        reason:
+          command.reason ||
+          'This variant is no longer stocked in this warehouse',
+        createdById: command.createdById || undefined,
+      },
     );
 
     updatedWarehouse.commit();
