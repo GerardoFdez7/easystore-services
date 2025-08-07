@@ -18,7 +18,6 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "baseUrl": "./",
-    "resolveJsonModule": true,
     "paths": {
       "@test/*": ["src/test/*"],
       "@config/*": ["src/config/*"],
