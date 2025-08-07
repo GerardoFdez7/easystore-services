@@ -12,7 +12,7 @@ async function bootstrap(): Promise<void> {
 
   // CORS Config
   app.enableCors({
-    origin: ['http://localhost:3000', 'https://easystoredev.vercel.app'],
+    origin: ['http://localhost:3001', 'https://easystoredev.vercel.app'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
   });
@@ -23,7 +23,5 @@ async function bootstrap(): Promise<void> {
 bootstrap().catch((error) => {
   const logger = new LoggerService();
   logger.error('NestJS failed to start:', error);
-  // eslint-disable-next-line no-console
-  console.error(error);
   process.exit(1);
 });

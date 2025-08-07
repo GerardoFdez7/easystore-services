@@ -1,12 +1,20 @@
 import { Resolver, Mutation, Query, Args, Context } from '@nestjs/graphql';
 import { CommandBus } from '@nestjs/cqrs';
 import { Public } from '../../infrastructure/decorators/public.decorator';
-import { AuthIdentityType, AuthenticationInput, ResponseType } from './types';
+import {
+  AuthIdentityType,
+  AuthenticationInput,
+  ResponseType,
+  ForgotPasswordInput,
+  UpdatePasswordInput,
+} from './types';
 import {
   AuthenticationRegisterDTO,
   AuthenticationLoginDTO,
   AuthenticationLogoutDTO,
   AuthenticationValidateTokenDTO,
+  ForgotPasswordDTO,
+  UpdatePasswordDTO,
 } from '../../application/commands';
 import { ResponseDTO } from '../../application/mappers';
 import {
@@ -81,6 +89,38 @@ export class AuthenticationResolver {
 
     return {
       success: result.success,
+      message: result.message,
+    };
+  }
+
+  @Public()
+  @Mutation(() => ResponseType)
+  async forgotPassword(
+    @Args('input') input: ForgotPasswordInput,
+  ): Promise<ResponseType> {
+    const result = await this.commandBus.execute<
+      ForgotPasswordDTO,
+      { message: string }
+    >(new ForgotPasswordDTO(input));
+
+    return {
+      success: true,
+      message: result.message,
+    };
+  }
+
+  @Public()
+  @Mutation(() => ResponseType)
+  async updatePassword(
+    @Args('input') input: UpdatePasswordInput,
+  ): Promise<ResponseType> {
+    const result = await this.commandBus.execute<
+      UpdatePasswordDTO,
+      { message: string }
+    >(new UpdatePasswordDTO(input));
+
+    return {
+      success: true,
       message: result.message,
     };
   }

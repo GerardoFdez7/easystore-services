@@ -191,6 +191,11 @@ type Dimension {
   width: Float!
 }
 
+input ForgotPasswordInput {
+  accountType: AccountTypeEnum!
+  email: String!
+}
+
 type Installment {
   interestRate: Float!
   months: Int!
@@ -217,6 +222,7 @@ type Mutation {
   createProduct(input: CreateProductInput!): Product!
   deleteAddress(customerId: ID, id: ID!, tenantId: ID): AddressType!
   deleteCategory(id: ID!): Category!
+  forgotPassword(input: ForgotPasswordInput!): Response!
   hardDeleteProduct(id: String!): Product!
   login(input: AuthenticationInput!): Response!
   logout: Response!
@@ -227,6 +233,7 @@ type Mutation {
   softDeleteProduct(id: String!): Product!
   updateAddress(customerId: ID, id: ID!, input: UpdateAddressInput!, tenantId: ID): AddressType!
   updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
+  updatePassword(input: UpdatePasswordInput!): Response!
   updateProduct(id: String!, input: UpdateProductInput!): Product!
   updateVariant(id: String!, input: UpdateVariantInput!, productId: String!): Product!
 }
@@ -340,6 +347,12 @@ input UpdateMediaInput {
   mediaType: MediaTypeEnum
   position: Int
   url: String
+}
+
+input UpdatePasswordInput {
+  accountType: AccountTypeEnum!
+  email: String!
+  password: String!
 }
 
 input UpdateProductCategoryInput {

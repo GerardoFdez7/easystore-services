@@ -62,3 +62,26 @@ export class AuthenticationInput {
   @Field(() => AccountTypeEnum)
   accountType: AccountTypeEnum;
 }
+
+// Input for forgot password request
+@InputType()
+export class ForgotPasswordInput {
+  @Field()
+  email: string;
+
+  @Field(() => AccountTypeEnum)
+  accountType: AccountTypeEnum;
+}
+
+// Input for update password request
+@InputType()
+export class UpdatePasswordInput {
+  @Field()
+  email: string;
+
+  @Field(() => AccountTypeEnum)
+  accountType: AccountTypeEnum;
+
+  @Field()
+  password: string;
+}

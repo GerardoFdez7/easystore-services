@@ -2,11 +2,14 @@ import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { PostgresModule } from '@database/postgres.module';
 import { LoggerModule } from '@winston/winston.module';
+import { EmailModule } from '../../shared/email/email.module';
 import {
   AuthenticationRegisterHandler,
   AuthenticationLoginHandler,
   AuthenticationLogoutHandler,
   AuthenticationValidateTokenHandler,
+  ForgotPasswordHandler,
+  UpdatePasswordHandler,
 } from './application/commands';
 import {
   IdentityRegisteredHandler,
@@ -25,6 +28,8 @@ const CommandHandlers = [
   AuthenticationLoginHandler,
   AuthenticationLogoutHandler,
   AuthenticationValidateTokenHandler,
+  ForgotPasswordHandler,
+  UpdatePasswordHandler,
 ];
 const EventHandlers = [
   IdentityRegisteredHandler,
@@ -33,7 +38,7 @@ const EventHandlers = [
 ];
 
 @Module({
-  imports: [CqrsModule, PostgresModule, LoggerModule],
+  imports: [CqrsModule, PostgresModule, LoggerModule, EmailModule],
   providers: [
     {
       provide: 'AuthRepository',
