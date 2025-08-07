@@ -12,7 +12,7 @@ async function bootstrap(): Promise<void> {
 
   // CORS Config
   app.enableCors({
-    origin: ['http://localhost:3000', 'https://easystoredev.vercel.app'],
+    origin: ['http://localhost:3001', 'https://easystoredev.vercel.app'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
   });

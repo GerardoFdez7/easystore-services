@@ -59,7 +59,7 @@ export class EmailService {
   ): string {
     const frontendUrl = this.configService.get<string>(
       'FRONTEND_URL',
-      'http://localhost:3000',
+      'http://localhost:3001',
     );
     const encodedEmail = encodeURIComponent(email);
     const encodedAccountType = encodeURIComponent(accountType);
