@@ -21,39 +21,40 @@ datasource postgres {
 
 // Tenant schema models
 model Tenant {
-  id                       String          @id
-  businessName             String?
-  ownerName                String
-  domain                   String?         @unique
-  logo                     String?
-  description              String?         @postgres.Text
-  currency                 Currency
-  authIdentityId           String          @unique
-  defaultPhoneNumberId     String?         @unique
-  defaultShippingAddressId String?         @unique
-  defaultBillingAddressId  String?         @unique
-  updatedAt                DateTime        @updatedAt
-  createdAt                DateTime        @default(now())
-  roles                    EmployeeRole[]
-  warehouses               Warehouse[]
-  promotions               Promotion[]
-  customers                Customer[]
-  addresses                Address[]
-  phoneNumbers             PhoneNumber[]
-  orders                   Order[]
-  paymentMethods           PaymentMethod[]
-  products                 Product[]
-  variants                 Variant[]
-  categories               Category[]
-  taxRates                 TaxRate[]
-  shippingRules            ShippingRule[]
-  shippmentRates           ShipmentRate[]
-  coupons                  Coupon[]
-  subscription             Subscription?
-  authIdentity             AuthIdentity    @relation("TenantAuth", fields: [authIdentityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  defaultPhoneNumber       PhoneNumber?    @relation("TenantDefaultPhone", fields: [defaultPhoneNumberId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  defaultShippingAddress   Address?        @relation("TenantDefaultShippingAddress", fields: [defaultShippingAddressId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  defaultBillingAddress    Address?        @relation("TenantDefaultBillingAddress", fields: [defaultBillingAddressId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  id                         String                      @id
+  businessName               String                      @unique
+  ownerName                  String
+  domain                     String                      @unique
+  logo                       String?
+  description                String?                     @postgres.Text
+  currency                   Currency
+  authIdentityId             String                      @unique
+  defaultPhoneNumberId       String?                     @unique
+  defaultShippingAddressId   String?                     @unique
+  defaultBillingAddressId    String?                     @unique
+  updatedAt                  DateTime                    @updatedAt
+  createdAt                  DateTime                    @default(now())
+  roles                      EmployeeRole[]
+  warehouses                 Warehouse[]
+  promotions                 Promotion[]
+  customers                  Customer[]
+  addresses                  Address[]
+  phoneNumbers               PhoneNumber[]
+  orders                     Order[]
+  paymentMethods             PaymentMethod[]
+  products                   Product[]
+  variants                   Variant[]
+  categories                 Category[]
+  taxRates                   TaxRate[]
+  shippingRules              ShippingRule[]
+  shippmentRates             ShipmentRate[]
+  coupons                    Coupon[]
+  subscription               Subscription?
+  authIdentity               AuthIdentity                @relation("TenantAuth", fields: [authIdentityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  defaultPhoneNumber         PhoneNumber?                @relation("TenantDefaultPhone", fields: [defaultPhoneNumberId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  defaultShippingAddress     Address?                    @relation("TenantDefaultShippingAddress", fields: [defaultShippingAddressId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  defaultBillingAddress      Address?                    @relation("TenantDefaultBillingAddress", fields: [defaultBillingAddressId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  paymentProviderCredentials PaymentProviderCredential[]
 
   @@schema("tenant")
 }
@@ -858,6 +859,25 @@ enum AcceptedPaymentMethod {
   PAYMENT_ON_DELIVERY
   INSTALLMENTS
 
+  @@schema("sales")
+}
+
+enum ProviderType {
+  PAGADITO
+  VISANET
+  PAYPAL
+}
+
+model PaymentProviderCredential {
+  id          String       @id @default(uuid())
+  tenantId    String
+  provider    ProviderType
+  credentials Json // Encrypted JSON with keys/secrets
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, provider])
   @@schema("sales")
 }
 
