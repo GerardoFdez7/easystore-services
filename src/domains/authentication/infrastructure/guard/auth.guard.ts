@@ -19,7 +19,7 @@ interface RequestWithUser extends Request {
 }
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export default class AuthGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {

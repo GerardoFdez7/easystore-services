@@ -14,7 +14,7 @@ import { ITenantRepository } from '../../../aggregates/repositories/tenant.inter
 import { PrismaErrorUtils } from '@utils/prisma-error-utils';
 
 @Injectable()
-export class TenantRepository implements ITenantRepository {
+export default class TenantRepository implements ITenantRepository {
   constructor(private readonly prisma: PostgreService) {}
 
   async create(tenant: Tenant): Promise<Tenant> {

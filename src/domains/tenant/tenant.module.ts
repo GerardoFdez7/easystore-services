@@ -1,11 +1,14 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { PostgresModule } from '@database/postgres.module';
-import { LoggerModule } from '@winston/winston.module';
-import { TenantRepository } from './infrastructure/persistence/postgres/tenant.repository';
-import { TenantSingUpHandler } from './application/commands/create/sing-up.handler';
-import { TenantCreatedHandler } from './application/events/tenant/tenant-created.handler';
-import { IdentityCreatedHandler } from './application/events/tenant/identity-created.handler';
+
+// Command Handlers
+import { TenantSingUpHandler } from './application/commands';
+// Event Handlers
+import {
+  TenantCreatedHandler,
+  IdentityCreatedHandler,
+} from './application/events';
+import TenantRepository from './infrastructure/persistence/postgres/tenant.repository';
 
 // Command handlers
 const CommandHandlers = [TenantSingUpHandler];
@@ -14,7 +17,7 @@ const CommandHandlers = [TenantSingUpHandler];
 const EventHandlers = [TenantCreatedHandler, IdentityCreatedHandler];
 
 @Module({
-  imports: [CqrsModule, PostgresModule, LoggerModule],
+  imports: [CqrsModule],
   providers: [
     {
       provide: 'TenantRepository',

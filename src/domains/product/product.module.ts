@@ -1,9 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { LoggerModule } from '@winston/winston.module';
-import { PostgresModule } from '@database/postgres.module';
-import { ProductRepository } from './infrastructure/persistence/postgres/product.repository';
-import { ProductResolver } from './presentation/graphql/product.resolver';
+
 // Command Handlers
 import {
   CreateProductHandler,
@@ -35,6 +32,8 @@ import {
   VariantArchivedHandler,
   VariantRestoredHandler,
 } from './application/events';
+import { ProductRepository } from './infrastructure/persistence/postgres/product.repository';
+import { ProductResolver } from './presentation/graphql/product.resolver';
 
 const CommandHandlers = [
   CreateProductHandler,
@@ -65,7 +64,7 @@ const EventHandlers = [
 ];
 
 @Module({
-  imports: [CqrsModule, PostgresModule, LoggerModule],
+  imports: [CqrsModule],
   providers: [
     { provide: 'IProductRepository', useClass: ProductRepository },
     ProductResolver,

@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { PostgresModule } from '@database/postgres.module';
-import { LoggerModule } from '@winston/winston.module';
+
 // Command Handlers
 import {
   CreateCategoryHandler,
@@ -37,7 +36,7 @@ const EventHandlers = [
 ];
 
 @Module({
-  imports: [CqrsModule, PostgresModule, LoggerModule],
+  imports: [CqrsModule],
   providers: [
     { provide: 'ICategoryRepository', useClass: CategoryRepository },
     CategoryResolver,
