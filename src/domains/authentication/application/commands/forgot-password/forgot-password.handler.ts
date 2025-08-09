@@ -3,7 +3,7 @@ import { Inject } from '@nestjs/common';
 import { IAuthRepository } from '../../../aggregates/repositories/authentication.interface';
 import { ForgotPasswordDTO } from './forgot-password.dto';
 import { Email, AccountType } from '../../../aggregates/value-objects';
-import { EmailService } from '../../../../../shared/email/email.service';
+import { AuthEmailService } from '../../../infrastructure/emails/auth-email.service';
 
 @CommandHandler(ForgotPasswordDTO)
 export class ForgotPasswordHandler
@@ -12,7 +12,8 @@ export class ForgotPasswordHandler
   constructor(
     @Inject('AuthRepository')
     private readonly authRepository: IAuthRepository,
-    private readonly emailService: EmailService,
+    @Inject('AuthEmailService')
+    private readonly authEmailService: AuthEmailService,
   ) {}
 
   async execute(command: ForgotPasswordDTO): Promise<{ message: string }> {
@@ -38,7 +39,7 @@ export class ForgotPasswordHandler
     }
 
     // Send password reset email
-    await this.emailService.sendPasswordResetEmail(email, accountType);
+    await this.authEmailService.sendPasswordResetEmail(email);
 
     return {
       message:
