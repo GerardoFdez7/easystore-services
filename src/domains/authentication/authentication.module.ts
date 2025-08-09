@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { PostgresModule } from '@database/postgres.module';
-import { LoggerModule } from '@winston/winston.module';
-import { EmailModule } from '../../shared/email/email.module';
+import { EmailModule } from '@email/index';
+
+// Command Handlers
 import {
   AuthenticationRegisterHandler,
   AuthenticationLoginHandler,
@@ -11,17 +11,24 @@ import {
   ForgotPasswordHandler,
   UpdatePasswordHandler,
 } from './application/commands';
+// Event Handlers
 import {
   IdentityRegisteredHandler,
   IdentityLoggedInHandler,
   IdentityLoggedOutHandler,
 } from './application/events';
-import { AuthenticationRepository } from './infrastructure/persistence/postgres/authentication.repository';
-import { CustomerRepository } from './infrastructure/persistence/postgres/customer.repository';
-import { EmployeeRepository } from './infrastructure/persistence/postgres/employee.repository';
-import { AuthGuard } from './infrastructure/guard/auth.guard';
-import { TenantRepository } from '../tenant/infrastructure/persistence/postgres/tenant.repository';
-import { AuthenticationResolver } from './presentation/graphql/authentication.resolver';
+import {
+  AuthenticationRepository,
+  CustomerRepository,
+  EmployeeRepository,
+} from './infrastructure/persistence/postgres';
+import TenantRepository from '../tenant/infrastructure/persistence/postgres/tenant.repository';
+import AuthGuard from './infrastructure/guard/auth.guard';
+import {
+  AuthEmailService,
+  ForgotPasswordEmailBuilder,
+} from './infrastructure/emails';
+import AuthenticationResolver from './presentation/graphql/authentication.resolver';
 
 const CommandHandlers = [
   AuthenticationRegisterHandler,
@@ -37,8 +44,10 @@ const EventHandlers = [
   IdentityLoggedOutHandler,
 ];
 
+const EmailBuilders = [ForgotPasswordEmailBuilder];
+
 @Module({
-  imports: [CqrsModule, PostgresModule, LoggerModule, EmailModule],
+  imports: [CqrsModule, EmailModule],
   providers: [
     {
       provide: 'AuthRepository',
@@ -56,10 +65,15 @@ const EventHandlers = [
       provide: 'EmployeeRepository',
       useClass: EmployeeRepository,
     },
+    {
+      provide: 'AuthEmailService',
+      useClass: AuthEmailService,
+    },
     AuthenticationResolver,
     AuthGuard,
     ...CommandHandlers,
     ...EventHandlers,
+    ...EmailBuilders,
   ],
   exports: [AuthGuard],
 })

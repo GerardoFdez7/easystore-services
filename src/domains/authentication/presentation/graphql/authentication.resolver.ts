@@ -1,6 +1,12 @@
 import { Resolver, Mutation, Query, Args, Context } from '@nestjs/graphql';
 import { CommandBus } from '@nestjs/cqrs';
+import { Request, Response } from 'express';
 import { Public } from '../../infrastructure/decorators/public.decorator';
+import {
+  setTokenCookies,
+  clearTokenCookies,
+  extractTokenFromCookies,
+} from '../../infrastructure/jwt';
 import {
   AuthIdentityType,
   AuthenticationInput,
@@ -17,15 +23,9 @@ import {
   UpdatePasswordDTO,
 } from '../../application/commands';
 import { ResponseDTO } from '../../application/mappers';
-import {
-  setTokenCookies,
-  clearTokenCookies,
-  extractTokenFromCookies,
-} from '../../infrastructure/jwt';
-import { Request, Response } from 'express';
 
 @Resolver(() => AuthIdentityType)
-export class AuthenticationResolver {
+export default class AuthenticationResolver {
   constructor(private readonly commandBus: CommandBus) {}
 
   ///////////////
