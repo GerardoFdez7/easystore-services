@@ -2,7 +2,7 @@ import { Resolver, Mutation, Args, ID, Query } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { CurrentUser } from '@authentication/infrastructure/decorators/current-user.decorator';
 import { JwtPayload } from '@authentication/infrastructure/jwt/jwt-handler';
-import { AuthGuard } from '@authentication/infrastructure/guard/auth.guard';
+import AuthGuard from '@authentication/infrastructure/guard/auth.guard';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   AddressType,
