@@ -5,10 +5,7 @@ import {
   ForgotPasswordEmailBuilder,
   ForgotPasswordEmailData,
 } from './forgot-password/forgot-password-email.builder';
-
-export enum AuthEmailType {
-  FORGOT_PASSWORD = 'forgot_password',
-}
+import { generatePasswordResetToken } from '../jwt';
 
 /**
  * Comprehensive email service for authentication domain
@@ -30,16 +27,26 @@ export class AuthEmailService extends EmailService {
   }
 
   /**
-   * Sends a password reset email
+   * Sends a password reset email with secure token
    * @param email - The email address to send the reset email to
+   * @param userId - The user's ID for token generation
    * @returns Promise that resolves when the email is sent
    */
-  async sendPasswordResetEmail(email: string): Promise<void> {
-    const resetUrl = this.buildResetPasswordUrl(email);
+  async sendPasswordResetEmail(email: string, userId: string): Promise<void> {
+    // Generate secure reset token with 15-minute expiration
+    const resetToken = generatePasswordResetToken({
+      email,
+      authIdentityId: userId,
+    });
+
+    const resetUrl = this.buildResetPasswordUrl(resetToken);
 
     const emailData: ForgotPasswordEmailData = {
       recipientEmail: email,
       resetUrl,
+      expirationMinutes: 15,
+      securityNotice:
+        'This secure link will expire in 15 minutes for your protection.',
     };
 
     await this.sendEmail({
@@ -51,12 +58,11 @@ export class AuthEmailService extends EmailService {
   }
 
   /**
-   * Builds the password reset URL
-   * @param email - The user's email address
+   * Builds the password reset URL with secure token
+   * @param token - The secure reset token
    * @returns The reset URL
    */
-  private buildResetPasswordUrl(email: string): string {
-    const encodedEmail = encodeURIComponent(email);
-    return `${this.frontendUrl}/reset-password?email=${encodedEmail}`;
+  private buildResetPasswordUrl(token: string): string {
+    return `${this.frontendUrl}/reset-password?token=${encodeURIComponent(token)}`;
   }
 }

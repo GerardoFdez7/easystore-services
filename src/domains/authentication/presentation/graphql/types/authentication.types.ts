@@ -77,10 +77,7 @@ export class ForgotPasswordInput {
 @InputType()
 export class UpdatePasswordInput {
   @Field()
-  email: string;
-
-  @Field(() => AccountTypeEnum)
-  accountType: AccountTypeEnum;
+  token: string;
 
   @Field()
   password: string;

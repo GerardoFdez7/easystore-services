@@ -3,3 +3,5 @@ export { AuthenticationLoginEvent } from './auth/authentication-login.event';
 export { AuthenticationFailedEvent } from './auth/authentication-fail.event';
 export { AuthenticationLockedEvent } from './auth/authentication-lock.event';
 export { AuthenticationLogoutEvent } from './auth/authentication-logout.event';
+export { AuthenticationUpdatePasswordEvent } from './auth/authentication-update-password.event';
+export { AuthenticationUpdateEmailEvent } from './auth/authentication-update-email.event';

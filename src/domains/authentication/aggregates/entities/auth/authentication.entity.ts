@@ -14,6 +14,8 @@ import {
   AuthenticationFailedEvent,
   AuthenticationLockedEvent,
   AuthenticationLogoutEvent,
+  AuthenticationUpdatePasswordEvent,
+  AuthenticationUpdateEmailEvent,
 } from '../../events';
 
 export interface IAuthIdentityProps extends EntityProps {
@@ -64,6 +66,21 @@ export class AuthIdentity extends Entity<IAuthIdentityProps> {
     return auth;
   }
 
+  static updatePassword(auth: AuthIdentity, newPassword: string): AuthIdentity {
+    auth.props.password = Password.create(newPassword);
+    auth.touch();
+    auth.apply(new AuthenticationUpdatePasswordEvent(auth));
+    return auth;
+  }
+
+  static updateEmail(auth: AuthIdentity, newEmail: string): AuthIdentity {
+    auth.props.email = Email.create(newEmail);
+    auth.touch();
+    auth.apply(new AuthenticationUpdateEmailEvent(auth));
+
+    return auth;
+  }
+
   loginSucceeded(): void {
     this.props.failedAttempts = 0;
     this.props.lastLoginAt = new Date();
@@ -94,11 +111,6 @@ export class AuthIdentity extends Entity<IAuthIdentityProps> {
 
   logout(): void {
     this.apply(new AuthenticationLogoutEvent(this));
-  }
-
-  updatePassword(newPassword: string): void {
-    this.props.password = Password.create(newPassword);
-    this.touch();
   }
 
   private touch(): void {

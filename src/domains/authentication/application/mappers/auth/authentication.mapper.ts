@@ -65,4 +65,22 @@ export class AuthenticationMapper {
   static fromRegisterDto(dto: AuthenticationRegisterDTO): AuthIdentity {
     return AuthIdentity.register(dto.data);
   }
+
+  /**
+   * Maps an AuthenticationUpdateDTO to a domain entity
+   * @param dto The authentication update DTO
+   * @returns The mapped AuthIdentity domain entity
+   */
+  static fromUpdateDto(auth: AuthIdentity, dto: string): AuthIdentity {
+    return AuthIdentity.updatePassword(auth, dto);
+  }
+
+  /**
+   * Maps an AuthenticationUpdateEmailDTO to a domain entity
+   * @param dto The authentication update email DTO
+   * @returns The mapped AuthIdentity domain entity
+   */
+  static fromUpdateEmailDto(auth: AuthIdentity, dto: string): AuthIdentity {
+    return AuthIdentity.updateEmail(auth, dto);
+  }
 }
