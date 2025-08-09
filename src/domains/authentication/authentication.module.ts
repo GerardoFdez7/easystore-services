@@ -8,10 +8,11 @@ import {
   AuthenticationRegisterHandler,
   AuthenticationLoginHandler,
   AuthenticationLogoutHandler,
-  AuthenticationValidateTokenHandler,
   ForgotPasswordHandler,
   UpdatePasswordHandler,
 } from './application/commands';
+// Query Handlers
+import { AuthenticationValidateTokenHandler } from './application/queries';
 // Event Handlers
 import {
   IdentityRegisteredHandler,
@@ -39,10 +40,11 @@ const CommandHandlers = [
   AuthenticationRegisterHandler,
   AuthenticationLoginHandler,
   AuthenticationLogoutHandler,
-  AuthenticationValidateTokenHandler,
   ForgotPasswordHandler,
   UpdatePasswordHandler,
 ];
+
+const QueryHandlers = [AuthenticationValidateTokenHandler];
 
 const EventHandlers = [
   IdentityRegisteredHandler,
@@ -84,6 +86,7 @@ const CronServices = [CleanupService];
     AuthenticationResolver,
     AuthGuard,
     ...CommandHandlers,
+    ...QueryHandlers,
     ...EventHandlers,
     ...EmailBuilders,
     ...RateLimiters,

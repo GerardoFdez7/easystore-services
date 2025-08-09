@@ -1,15 +1,15 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { AuthenticationValidateTokenDTO } from './validate-token.dto';
 import { verifyToken } from '../../../infrastructure/jwt';
 import { ResponseDTO } from '../../mappers';
 
-@CommandHandler(AuthenticationValidateTokenDTO)
+@QueryHandler(AuthenticationValidateTokenDTO)
 export class AuthenticationValidateTokenHandler
-  implements ICommandHandler<AuthenticationValidateTokenDTO>
+  implements IQueryHandler<AuthenticationValidateTokenDTO>
 {
-  execute(command: AuthenticationValidateTokenDTO): Promise<ResponseDTO> {
+  execute(query: AuthenticationValidateTokenDTO): Promise<ResponseDTO> {
     try {
-      const { token } = command;
+      const { token } = query;
 
       if (!token) {
         return Promise.resolve({
