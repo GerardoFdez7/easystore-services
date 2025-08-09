@@ -1,5 +1,5 @@
 import { Resolver, Mutation, Query, Args, Context } from '@nestjs/graphql';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Request, Response } from 'express';
 import { Public } from '../../infrastructure/decorators/public.decorator';
 import {
@@ -18,15 +18,18 @@ import {
   AuthenticationRegisterDTO,
   AuthenticationLoginDTO,
   AuthenticationLogoutDTO,
-  AuthenticationValidateTokenDTO,
   ForgotPasswordDTO,
   UpdatePasswordDTO,
 } from '../../application/commands';
+import { AuthenticationValidateTokenDTO } from '../../application/queries';
 import { ResponseDTO } from '../../application/mappers';
 
 @Resolver(() => AuthIdentityType)
 export default class AuthenticationResolver {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
   ///////////////
   // Mutations //
@@ -125,6 +128,10 @@ export default class AuthenticationResolver {
     };
   }
 
+  ///////////////
+  //  Queries  //
+  ///////////////
+
   @Public()
   @Query(() => ResponseType)
   async validateToken(
@@ -140,7 +147,7 @@ export default class AuthenticationResolver {
       };
     }
 
-    const result = await this.commandBus.execute<
+    const result = await this.queryBus.execute<
       AuthenticationValidateTokenDTO,
       ResponseDTO
     >(new AuthenticationValidateTokenDTO(token));
