@@ -3,6 +3,8 @@ import { IEmailBuilder, IEmailTemplateData } from '@email/index';
 
 export interface ForgotPasswordEmailData extends IEmailTemplateData {
   resetUrl: string;
+  expirationMinutes?: number;
+  securityNotice?: string;
 }
 
 /**
@@ -19,8 +21,15 @@ export class ForgotPasswordEmailBuilder
    * @returns HTML content for the email
    */
   buildHtml(data: ForgotPasswordEmailData): string {
-    const { resetUrl, recipientName } = data;
+    const {
+      resetUrl,
+      recipientName,
+      expirationMinutes = 15,
+      securityNotice,
+    } = data;
     const displayName = recipientName || 'User';
+    const defaultSecurityNotice = `This secure link will expire in ${expirationMinutes} minutes for your protection.`;
+    const finalSecurityNotice = securityNotice || defaultSecurityNotice;
 
     return `
       <!DOCTYPE html>
@@ -127,8 +136,12 @@ export class ForgotPasswordEmailBuilder
                 <a href="${resetUrl}" class="button">Reset Password</a>
               </div>
               <div class="security-note">
-                <strong>Security Notice:</strong> This link will expire in 24 hours for your security. 
-                If you didn't request this password reset, please ignore this email.
+                <strong>🔒 Security Notice:</strong> ${finalSecurityNotice}
+                If you didn't request this password reset, please ignore this email and your account will remain secure.
+              </div>
+              <div class="security-note" style="background-color: #e7f3ff; border-color: #b3d9ff; color: #004085; margin-top: 10px;">
+                <strong>⚠️ Important:</strong> For your security, this is a one-time use link that expires in ${expirationMinutes} minutes. 
+                Never share this link with anyone.
               </div>
               <div class="message">
                 If the button doesn't work, you can copy and paste this link into your browser:
@@ -153,8 +166,15 @@ export class ForgotPasswordEmailBuilder
    * @returns Plain text content for the email
    */
   buildText(data: ForgotPasswordEmailData): string {
-    const { resetUrl, recipientName } = data;
+    const {
+      resetUrl,
+      recipientName,
+      expirationMinutes = 15,
+      securityNotice,
+    } = data;
     const displayName = recipientName || 'User';
+    const defaultSecurityNotice = `This secure link will expire in ${expirationMinutes} minutes for your protection.`;
+    const finalSecurityNotice = securityNotice || defaultSecurityNotice;
 
     return `
 Hello ${displayName},
@@ -164,9 +184,11 @@ We received a request to reset your password for your EasyStore account.
 To reset your password, please visit the following link:
 ${resetUrl}
 
-This link will expire in 24 hours for your security.
+SECURITY NOTICE: ${finalSecurityNotice}
 
-If you didn't request this password reset, please ignore this email.
+IMPORTANT: This is a one-time use link that expires in ${expirationMinutes} minutes. Never share this link with anyone.
+
+If you didn't request this password reset, please ignore this email and your account will remain secure.
 
 If you have any questions, please contact our support team.
 

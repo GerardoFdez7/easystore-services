@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
+import { ScheduleModule } from '@nestjs/schedule';
 import { EmailModule } from '@email/index';
 
 // Command Handlers
@@ -16,6 +17,8 @@ import {
   IdentityRegisteredHandler,
   IdentityLoggedInHandler,
   IdentityLoggedOutHandler,
+  IdentityPasswordUpdatedHandler,
+  IdentityEmailUpdatedHandler,
 } from './application/events';
 import {
   AuthenticationRepository,
@@ -28,6 +31,8 @@ import {
   AuthEmailService,
   ForgotPasswordEmailBuilder,
 } from './infrastructure/emails';
+import { PasswordResetRateLimiter } from './infrastructure/rate-limiting/password-reset-rate-limiter';
+import { CleanupService } from './infrastructure/cron';
 import AuthenticationResolver from './presentation/graphql/authentication.resolver';
 
 const CommandHandlers = [
@@ -38,16 +43,23 @@ const CommandHandlers = [
   ForgotPasswordHandler,
   UpdatePasswordHandler,
 ];
+
 const EventHandlers = [
   IdentityRegisteredHandler,
   IdentityLoggedInHandler,
   IdentityLoggedOutHandler,
+  IdentityPasswordUpdatedHandler,
+  IdentityEmailUpdatedHandler,
 ];
 
 const EmailBuilders = [ForgotPasswordEmailBuilder];
 
+const RateLimiters = [PasswordResetRateLimiter];
+
+const CronServices = [CleanupService];
+
 @Module({
-  imports: [CqrsModule, EmailModule],
+  imports: [CqrsModule, ScheduleModule.forRoot(), EmailModule],
   providers: [
     {
       provide: 'AuthRepository',
@@ -74,6 +86,8 @@ const EmailBuilders = [ForgotPasswordEmailBuilder];
     ...CommandHandlers,
     ...EventHandlers,
     ...EmailBuilders,
+    ...RateLimiters,
+    ...CronServices,
   ],
   exports: [AuthGuard],
 })

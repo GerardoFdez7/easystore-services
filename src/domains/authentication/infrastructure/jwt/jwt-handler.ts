@@ -19,6 +19,14 @@ export interface JwtPayload {
   employeeId?: string;
 }
 
+export interface PasswordResetPayload {
+  email: string;
+  authIdentityId: string;
+  purpose: 'password_reset';
+  iat?: number;
+  exp?: number;
+}
+
 export const generateToken = (payload: JwtPayload): string => {
   return jwt.sign(payload, jwtSecret, {
     expiresIn: jwtExpiration,
@@ -50,6 +58,50 @@ export const generateRefreshToken = (payload: JwtPayload): string => {
   return jwt.sign(payload, jwtSecret, {
     expiresIn: refreshTokenExpiration,
   });
+};
+
+// Generate password reset token with 15-minute expiration
+export const generatePasswordResetToken = (
+  payload: Omit<PasswordResetPayload, 'purpose'>,
+): string => {
+  const resetPayload: PasswordResetPayload = {
+    ...payload,
+    purpose: 'password_reset',
+  };
+
+  return jwt.sign(resetPayload, jwtSecret, {
+    expiresIn: '15m',
+  });
+};
+
+// Verify password reset token
+export const verifyPasswordResetToken = (
+  token: string,
+): PasswordResetPayload => {
+  if (blacklistedTokens.has(token)) {
+    throw new Error('Reset token has been invalidated');
+  }
+
+  try {
+    const payload = jwt.verify(token, jwtSecret) as PasswordResetPayload;
+
+    if (payload.purpose !== 'password_reset') {
+      throw new Error('Invalid token purpose');
+    }
+
+    return payload;
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      throw new Error('Invalid reset token');
+    }
+    if (error instanceof jwt.TokenExpiredError) {
+      throw new Error('Reset token has expired');
+    }
+    if (error instanceof jwt.NotBeforeError) {
+      throw new Error('Reset token not active');
+    }
+    throw new Error('Reset token verification failed');
+  }
 };
 
 // Function to invalidate a token by adding it to the blacklist

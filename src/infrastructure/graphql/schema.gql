@@ -400,9 +400,8 @@ input UpdateMediaInput {
 }
 
 input UpdatePasswordInput {
-  accountType: AccountTypeEnum!
-  email: String!
   password: String!
+  token: String!
 }
 
 input UpdateProductCategoryInput {

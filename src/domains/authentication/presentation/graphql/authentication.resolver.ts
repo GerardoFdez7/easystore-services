@@ -100,11 +100,11 @@ export default class AuthenticationResolver {
   ): Promise<ResponseType> {
     const result = await this.commandBus.execute<
       ForgotPasswordDTO,
-      { message: string }
-    >(new ForgotPasswordDTO(input));
+      ResponseDTO
+    >(new ForgotPasswordDTO(input.email, input.accountType));
 
     return {
-      success: true,
+      success: result.success,
       message: result.message,
     };
   }
@@ -116,11 +116,11 @@ export default class AuthenticationResolver {
   ): Promise<ResponseType> {
     const result = await this.commandBus.execute<
       UpdatePasswordDTO,
-      { message: string }
-    >(new UpdatePasswordDTO(input));
+      ResponseDTO
+    >(new UpdatePasswordDTO(input.token, input.password));
 
     return {
-      success: true,
+      success: result.success,
       message: result.message,
     };
   }
