@@ -34,14 +34,14 @@ export class ForgotPasswordHandler
     const emailVO = Email.create(email);
     const accountTypeVO = AccountType.create(accountType);
 
+    // Record the attempt regardless of whether user exists (for security)
+    this.rateLimiter.recordAttempt(email);
+
     // Check if user exists with the provided email and account type
     const existingUser = await this.authRepository.findByEmailAndAccountType(
       emailVO,
       accountTypeVO,
     );
-
-    // Record the attempt regardless of whether user exists (for security)
-    this.rateLimiter.recordAttempt(email);
 
     if (!existingUser) {
       // For security reasons, we don't reveal if the email exists or not

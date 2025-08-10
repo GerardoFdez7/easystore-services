@@ -70,6 +70,7 @@ export class AuthIdentity extends Entity<IAuthIdentityProps> {
     auth.props.password = Password.create(newPassword);
     auth.touch();
     auth.apply(new AuthenticationUpdatePasswordEvent(auth));
+
     return auth;
   }
 

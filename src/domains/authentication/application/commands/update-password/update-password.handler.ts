@@ -65,7 +65,11 @@ export class UpdatePasswordHandler
           'Password updated successfully. All reset tokens have been invalidated.',
       };
     } catch (error) {
-      if (error === 'JsonWebTokenError' || error === 'TokenExpiredError') {
+      if (
+        error instanceof Error &&
+        (error.message === 'JsonWebTokenError' ||
+          error.message === 'TokenExpiredError')
+      ) {
         throw new BadRequestException('Invalid or expired reset token');
       }
       throw error;
