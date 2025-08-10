@@ -12,7 +12,7 @@ import {
   JwtPayload,
   extractTokenFromCookies,
 } from '../jwt/jwt-handler';
-import { IsPublicKey } from '../decorators/public.decorator';
+import { IsPublicKey, IsAuthenticatedKey } from '../decorators';
 
 interface RequestWithUser extends Request {
   user?: JwtPayload;
@@ -23,7 +23,18 @@ export default class AuthGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    // Check if the route is marked as public
+    // Check if the method is explicitly marked as authenticated
+    const isAuthenticated = this.reflector.get<boolean>(
+      IsAuthenticatedKey,
+      context.getHandler(),
+    );
+
+    // If method is explicitly authenticated, require authentication
+    if (isAuthenticated) {
+      return this.requireAuthentication(context);
+    }
+
+    // Check if the route/class is marked as public
     const isPublic = this.reflector.getAllAndOverride<boolean>(IsPublicKey, [
       context.getHandler(),
       context.getClass(),
@@ -33,6 +44,11 @@ export default class AuthGuard implements CanActivate {
       return true;
     }
 
+    // Default behavior: require authentication
+    return this.requireAuthentication(context);
+  }
+
+  private requireAuthentication(context: ExecutionContext): boolean {
     // Get the GraphQL context
     const ctx = GqlExecutionContext.create(context);
     const { req } = ctx.getContext<{ req: RequestWithUser }>();

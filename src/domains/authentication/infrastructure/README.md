@@ -13,7 +13,9 @@ This module provides JWT-based authentication for the EasyStore services backend
 
 ### Public Routes
 
-To mark a resolver method as public (no authentication required), use the `@Public()` decorator:
+To mark a resolver method or entire class as public (no authentication required), use the `@Public()` decorator:
+
+**Method-level:**
 
 ```typescript
 import { Public } from '../infrastructure/decorators/public.decorator';
@@ -22,6 +24,50 @@ import { Public } from '../infrastructure/decorators/public.decorator';
 @Mutation(() => AuthIdentityType)
 async register(@Args('input') input: RegisterAuthInput): Promise<AuthIdentityType> {
   // This endpoint doesn't require authentication
+}
+```
+
+**Class-level (all methods become public):**
+
+```typescript
+import { Public } from '../infrastructure/decorators/public.decorator';
+
+@Public()
+@Resolver(() => AuthIdentityType)
+export class AuthenticationResolver {
+  // All methods in this resolver are public
+  @Mutation(() => AuthIdentityType)
+  async register(
+    @Args('input') input: RegisterAuthInput,
+  ): Promise<AuthIdentityType> {
+    // No authentication required
+  }
+}
+```
+
+### Mixed Authentication (Public Resolver with Authenticated Methods)
+
+For cases where you have a mostly public resolver but need specific methods to require authentication, use the `@Authenticated()` decorator:
+
+```typescript
+import {
+  Public,
+  Authenticated,
+} from '../infrastructure/decorators/public.decorator';
+
+@Public() // Make the entire resolver public by default
+@Resolver(() => SomeType)
+export class SomeResolver {
+  @Mutation(() => SomeType)
+  async publicMethod(): Promise<SomeType> {
+    // No authentication required (inherits from class-level @Public)
+  }
+
+  @Authenticated() // Override class-level @Public for this specific method
+  @Mutation(() => SomeType)
+  async protectedMethod(@CurrentUser() user: JwtPayload): Promise<SomeType> {
+    // Authentication required despite class being marked as public
+  }
 }
 ```
 

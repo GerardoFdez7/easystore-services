@@ -8,6 +8,15 @@ enum AccountTypeEnum {
   TENANT
 }
 
+input AddStockToWarehouseInput {
+  estimatedReplenishmentDate: DateTime
+  lotNumber: String
+  productLocation: String
+  qtyAvailable: Int!
+  qtyReserved: Int
+  serialNumbers: [String!]
+}
+
 input AddVariantToProductInput {
   attributes: [CreateAttributeInput!]!
   barcode: String
@@ -32,11 +41,9 @@ type AddressType {
   addressType: AddressTypeEnum!
   city: String!
   countryId: ID!
-  customerId: ID!
   deliveryNum: String!
   name: String!
   postalCode: String!
-  tenantId: ID!
 }
 
 """Types of addresses"""
@@ -94,11 +101,9 @@ input CreateAddressInput {
   addressType: AddressTypeEnum!
   city: String!
   countryId: ID!
-  customerId: ID
   deliveryNum: String
   name: String!
   postalCode: String
-  tenantId: ID
 }
 
 input CreateAttributeInput {
@@ -174,6 +179,11 @@ input CreateVariantInput {
   weight: Float
 }
 
+input CreateWarehouseInput {
+  addressId: ID!
+  name: String!
+}
+
 input CreateWarrantyInput {
   coverage: String!
   instructions: String!
@@ -215,27 +225,33 @@ enum MediaTypeEnum {
 }
 
 type Mutation {
+  addStockToWarehouse(input: AddStockToWarehouseInput!, reason: String, variantId: ID!, warehouseId: ID!): Warehouse!
   addVariant(input: CreateVariantInput!): Product!
   archiveVariant(id: String!, productId: String!): Product!
   createAddress(input: CreateAddressInput!): AddressType!
   createCategory(input: CreateCategoryInput!): Category!
   createProduct(input: CreateProductInput!): Product!
-  deleteAddress(customerId: ID, id: ID!, tenantId: ID): AddressType!
+  createWarehouse(input: CreateWarehouseInput!): Warehouse!
+  deleteAddress(id: ID!): AddressType!
   deleteCategory(id: ID!): Category!
+  deleteWarehouse(id: ID!): Warehouse!
   forgotPassword(input: ForgotPasswordInput!): Response!
   hardDeleteProduct(id: String!): Product!
   login(input: AuthenticationInput!): Response!
   logout: Response!
   register(input: AuthenticationInput!): AuthIdentity!
+  removeStockFromWarehouse(reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
   removeVariant(id: String!, productId: String!): Product!
   restoreProduct(id: String!): Product!
   restoreVariant(id: String!, productId: String!): Product!
   softDeleteProduct(id: String!): Product!
-  updateAddress(customerId: ID, id: ID!, input: UpdateAddressInput!, tenantId: ID): AddressType!
+  updateAddress(id: ID!, input: UpdateAddressInput!): AddressType!
   updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
   updatePassword(input: UpdatePasswordInput!): Response!
   updateProduct(id: String!, input: UpdateProductInput!): Product!
+  updateStockInWarehouse(input: UpdateStockInWarehouseInput!, reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
   updateVariant(id: String!, input: UpdateVariantInput!, productId: String!): Product!
+  updateWarehouse(id: ID!, input: UpdateWarehouseInput!): Warehouse!
 }
 
 type PaginatedCategoriesType {
@@ -248,6 +264,18 @@ type PaginatedProductsType {
   hasMore: Boolean!
   products: [Product!]!
   total: Int!
+}
+
+type PaginatedStockMovementsType {
+  hasMore: Boolean!
+  stockMovements: [StockMovement!]!
+  total: Int!
+}
+
+type PaginatedWarehousesType {
+  hasMore: Boolean!
+  total: Int!
+  warehouses: [Warehouse!]!
 }
 
 type Product {
@@ -273,12 +301,15 @@ type ProductCategory {
 }
 
 type Query {
-  getAddressById(customerId: ID, id: ID!, tenantId: ID): AddressType!
-  getAllAddress(addressType: AddressTypeEnum, customerId: ID, tenantId: ID): AddressesType!
+  getAddressById(id: ID!): AddressType!
+  getAllAddresses(addressType: AddressTypeEnum): AddressesType!
   getAllCategories(includeSubcategories: Boolean = true, limit: Int = 10, name: String, page: Int = 1, parentId: ID, sortBy: SortBy, sortOrder: SortOrder): PaginatedCategoriesType!
   getAllProducts(categoriesIds: [Int!], includeSoftDeleted: Boolean = false, limit: Float = 25, name: String, page: Float = 1, sortBy: SortBy, sortOrder: SortOrder, type: TypeEnum): PaginatedProductsType!
+  getAllStockMovements(createdById: ID, dateFrom: DateTime, dateTo: DateTime, includeDeleted: Boolean = false, limit: Int = 10, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID, warehouseId: ID!): PaginatedStockMovementsType!
+  getAllWarehouses(addressId: ID, limit: Int = 10, lowStockThreshold: Int, name: String, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID): PaginatedWarehousesType!
   getCategoryById(id: ID!): Category!
   getProductById(id: String!): Product!
+  getWarehouseById(id: ID!): Warehouse!
   validateToken: Response!
 }
 
@@ -296,6 +327,25 @@ enum SortBy {
 enum SortOrder {
   ASC
   DESC
+}
+
+type StockMovement {
+  deltaQty: Int!
+  id: ID!
+  occurredAt: DateTime!
+  reason: String!
+  warehouseId: ID!
+}
+
+type StockPerWarehouse {
+  estimatedReplenishmentDate: DateTime
+  id: ID!
+  lotNumber: String
+  productLocation: String
+  qtyAvailable: Int!
+  qtyReserved: Int!
+  serialNumbers: [String!]
+  warehouseId: ID!
 }
 
 type Sustainability {
@@ -372,6 +422,15 @@ input UpdateProductInput {
   tags: [String!]
 }
 
+input UpdateStockInWarehouseInput {
+  estimatedReplenishmentDate: DateTime
+  lotNumber: String
+  productLocation: String
+  qtyAvailable: Int
+  qtyReserved: Int
+  serialNumbers: [String!]
+}
+
 input UpdateSustainabilityInput {
   certification: String
   recycledPercentage: Float
@@ -393,6 +452,11 @@ input UpdateVariantInput {
   variantMedia: [UpdateMediaInput!]
   warranties: [UpdateWarrantyInput!]
   weight: Float
+}
+
+input UpdateWarehouseInput {
+  addressId: ID
+  name: String
 }
 
 input UpdateWarrantyInput {
@@ -418,6 +482,15 @@ type Variant {
   variantMedia: [Media!]
   warranties: [Warranty!]
   weight: Float
+}
+
+type Warehouse {
+  addressId: ID!
+  createdAt: DateTime!
+  id: ID!
+  name: String!
+  stockPerWarehouses: [StockPerWarehouse!]!
+  updatedAt: DateTime!
 }
 
 type Warranty {

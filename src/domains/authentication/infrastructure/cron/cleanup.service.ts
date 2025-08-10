@@ -30,7 +30,7 @@ export class CleanupService {
       const duration = Date.now() - startTime;
 
       this.logger.log(
-        `Cleanup completed: ${cleanedCount} expired entries removed in ${duration}ms`,
+        `Reset password tokens cleanup completed: ${cleanedCount} expired entries removed in ${duration}ms`,
       );
     } catch (error) {
       this.logger.error(

@@ -1,4 +1,7 @@
 import { SetMetadata } from '@nestjs/common';
 
 export const IsPublicKey = 'isPublic';
-export const Public = (): MethodDecorator => SetMetadata(IsPublicKey, true);
+
+// Public decorator that works for both classes and methods
+export const Public = (): ClassDecorator & MethodDecorator =>
+  SetMetadata(IsPublicKey, true);
