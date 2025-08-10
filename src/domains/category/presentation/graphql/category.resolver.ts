@@ -7,10 +7,8 @@ import {
   Query,
   registerEnumType,
 } from '@nestjs/graphql';
-import { UseGuards } from '@nestjs/common';
-import { CurrentUser } from '@authentication/infrastructure/decorators/current-user.decorator';
-import { JwtPayload } from '@authentication/infrastructure/jwt/jwt-handler';
-import AuthGuard from '@authentication/infrastructure/guard/auth.guard';
+import { CurrentUser } from '@authentication/infrastructure/decorators';
+import { JwtPayload } from '@authentication/infrastructure/jwt';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   CategoryType,
@@ -39,7 +37,6 @@ registerEnumType(SortOrder, {
 });
 
 @Resolver(() => CategoryType)
-@UseGuards(AuthGuard)
 export default class CategoryResolver {
   constructor(
     private readonly commandBus: CommandBus,

@@ -1,8 +1,6 @@
 import { Resolver, Mutation, Args, ID, Query } from '@nestjs/graphql';
-import { UseGuards } from '@nestjs/common';
-import { CurrentUser } from '@authentication/infrastructure/decorators/current-user.decorator';
-import { JwtPayload } from '@authentication/infrastructure/jwt/jwt-handler';
-import AuthGuard from '@authentication/infrastructure/guard/auth.guard';
+import { CurrentUser } from '@authentication/infrastructure/decorators';
+import { JwtPayload } from '@authentication/infrastructure/jwt';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   AddressType,
@@ -19,7 +17,6 @@ import { GetAddressIdDto, GetAllAddressesDTO } from '../../application/queries';
 import { AddressTypeEnum } from '../../aggregates/value-objects';
 
 @Resolver(() => AddressType)
-@UseGuards(AuthGuard)
 export default class AddressResolver {
   constructor(
     private readonly commandBus: CommandBus,

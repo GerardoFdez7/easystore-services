@@ -7,7 +7,7 @@ interface RequestWithUser {
 }
 
 export const CurrentUser = createParamDecorator(
-  (context: ExecutionContext): JwtPayload => {
+  (data: unknown, context: ExecutionContext): JwtPayload => {
     const ctx = GqlExecutionContext.create(context);
     const { req } = ctx.getContext<{ req: RequestWithUser }>();
     return req.user;
