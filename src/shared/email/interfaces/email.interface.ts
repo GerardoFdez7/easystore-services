@@ -33,9 +33,10 @@ export interface IEmailBuilder<TData = unknown> {
   /**
    * Gets the email subject
    * @param data - Data needed to build the subject
+   * @param locale - Locale to use for translation
    * @returns Email subject string
    */
-  getSubject(data: TData): string;
+  getSubject(data: TData, locale: string): string;
 }
 
 /**

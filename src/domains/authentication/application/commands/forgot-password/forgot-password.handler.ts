@@ -20,7 +20,7 @@ export class ForgotPasswordHandler
   ) {}
 
   async execute(command: ForgotPasswordDTO): Promise<ResponseDTO> {
-    const { email, accountType } = command;
+    const { email, accountType, locale } = command;
 
     // Check rate limiting first
     if (this.rateLimiter.isRateLimited(email)) {
@@ -57,6 +57,7 @@ export class ForgotPasswordHandler
     await this.authEmailService.sendPasswordResetEmail(
       email,
       existingUser.get('id').getValue(),
+      locale,
     );
 
     return {

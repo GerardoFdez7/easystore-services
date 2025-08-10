@@ -97,11 +97,15 @@ export default class AuthenticationResolver {
   @Mutation(() => ResponseType)
   async forgotPassword(
     @Args('input') input: ForgotPasswordInput,
+    @Context() context: { req: Request },
   ): Promise<ResponseType> {
+    // Extract locale from NEXT_LOCALE cookie, fallback to 'en' if not provided
+    const locale: string = (context.req.cookies?.NEXT_LOCALE as string) || 'en';
+
     const result = await this.commandBus.execute<
       ForgotPasswordDTO,
       ResponseDTO
-    >(new ForgotPasswordDTO(input.email, input.accountType));
+    >(new ForgotPasswordDTO(input.email, input.accountType, locale));
 
     return {
       success: result.success,

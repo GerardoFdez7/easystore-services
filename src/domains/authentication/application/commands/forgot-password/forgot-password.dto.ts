@@ -4,5 +4,6 @@ export class ForgotPasswordDTO {
   constructor(
     public readonly email: string,
     public readonly accountType: AccountTypeEnum,
+    public readonly locale: string,
   ) {}
 }

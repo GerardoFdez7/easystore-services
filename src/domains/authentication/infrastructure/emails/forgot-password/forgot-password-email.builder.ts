@@ -1,162 +1,177 @@
 import { Injectable } from '@nestjs/common';
 import { IEmailBuilder, IEmailTemplateData } from '@email/index';
+import { translations, SupportedLocale } from './languages';
 
 export interface ForgotPasswordEmailData extends IEmailTemplateData {
   resetUrl: string;
   expirationMinutes?: number;
   securityNotice?: string;
+  locale: string;
 }
 
 /**
  * Email builder for forgot password emails
  * Handles the construction of HTML and text content for password reset emails
+ * Supports internationalization for multiple languages
  */
 @Injectable()
 export class ForgotPasswordEmailBuilder
   implements IEmailBuilder<ForgotPasswordEmailData>
 {
+  private getTranslation(locale: string): typeof translations.en {
+    return translations[locale as SupportedLocale] || translations.en;
+  }
+
+  private formatMessage(
+    message: string,
+    replacements: Record<string, string | number>,
+  ): string {
+    return Object.entries(replacements).reduce(
+      (text, [key, value]) =>
+        text.replace(new RegExp(`\\{${key}\\}`, 'g'), String(value)),
+      message,
+    );
+  }
   /**
    * Builds the HTML content for the password reset email
    * @param data - The email template data
    * @returns HTML content for the email
    */
   buildHtml(data: ForgotPasswordEmailData): string {
-    const {
-      resetUrl,
-      recipientName,
-      expirationMinutes = 15,
-      securityNotice,
-    } = data;
-    const displayName = recipientName || 'User';
-    const defaultSecurityNotice = `This secure link will expire in ${expirationMinutes} minutes for your protection.`;
-    const finalSecurityNotice = securityNotice || defaultSecurityNotice;
+    const { resetUrl, expirationMinutes = 15, locale } = data;
+
+    if (!locale) {
+      throw new Error('Locale is required for email generation');
+    }
+    const t = this.getTranslation(locale);
+    const currentYear = new Date().getFullYear();
 
     return `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <title>Reset Your Password</title>
-          <style>
-            body { 
-              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-              line-height: 1.6; 
-              color: #333; 
-              margin: 0;
-              padding: 0;
-              background-color: #f8f9fa;
-            }
-            .container { 
-              max-width: 600px; 
-              margin: 0 auto; 
-              background-color: white;
-              border-radius: 8px;
-              overflow: hidden;
-              box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            }
-            .header { 
-              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-              padding: 40px 20px; 
-              text-align: center;
-              color: white;
-            }
-            .header h1 {
-              margin: 0;
-              font-size: 28px;
-              font-weight: 600;
-            }
-            .content { 
-              padding: 40px 30px;
-            }
-            .greeting {
-              font-size: 18px;
-              margin-bottom: 20px;
-              color: #2c3e50;
-            }
-            .message {
-              font-size: 16px;
-              margin-bottom: 30px;
-              color: #555;
-            }
-            .button { 
-              display: inline-block; 
-              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-              color: white; 
-              padding: 16px 32px; 
-              text-decoration: none; 
-              border-radius: 6px; 
-              font-weight: 600;
-              font-size: 16px;
-              margin: 20px 0;
-              transition: transform 0.2s ease;
-            }
-            .button:hover {
-              transform: translateY(-2px);
-            }
-            .footer { 
-              background-color: #f8f9fa; 
-              padding: 30px; 
-              text-align: center; 
-              font-size: 14px; 
-              color: #6c757d;
-              border-top: 1px solid #e9ecef;
-            }
-            .security-note {
-              background-color: #fff3cd;
-              border: 1px solid #ffeaa7;
-              border-radius: 6px;
-              padding: 15px;
-              margin: 20px 0;
-              font-size: 14px;
-              color: #856404;
-            }
-            .link-fallback {
-              word-break: break-all;
-              background-color: #f8f9fa;
-              padding: 10px;
-              border-radius: 4px;
-              font-family: monospace;
-              font-size: 12px;
-              margin-top: 15px;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h1>🔐 Password Reset</h1>
-            </div>
-            <div class="content">
-              <div class="greeting">Hello ${displayName},</div>
-              <div class="message">
-                We received a request to reset your password for your EasyStore account. 
-                Click the button below to create a new password:
-              </div>
-              <div style="text-align: center;">
-                <a href="${resetUrl}" class="button">Reset Password</a>
-              </div>
-              <div class="security-note">
-                <strong>🔒 Security Notice:</strong> ${finalSecurityNotice}
-                If you didn't request this password reset, please ignore this email and your account will remain secure.
-              </div>
-              <div class="security-note" style="background-color: #e7f3ff; border-color: #b3d9ff; color: #004085; margin-top: 10px;">
-                <strong>⚠️ Important:</strong> For your security, this is a one-time use link that expires in ${expirationMinutes} minutes. 
-                Never share this link with anyone.
-              </div>
-              <div class="message">
-                If the button doesn't work, you can copy and paste this link into your browser:
-              </div>
-              <div class="link-fallback">
-                ${resetUrl}
-              </div>
-            </div>
-            <div class="footer">
-              <p>This email was sent by EasyStore. If you have any questions, please contact our support team.</p>
-              <p>© ${new Date().getFullYear()} EasyStore. All rights reserved.</p>
-            </div>
-          </div>
-        </body>
-      </html>
+      <!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Reset Your Password</title>
+    <style>
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          'Helvetica Neue', Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        margin: 0;
+        padding: 0;
+        background-color: #f8f9fa;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background: linear-gradient(135deg, #bc5bf5 50%, #6304c3 100%);
+        padding: 40px 20px;
+        text-align: center;
+        color: white;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 600;
+      }
+      .content {
+        padding: 40px 30px;
+      }
+      .greeting {
+        font-size: 18px;
+        margin-bottom: 20px;
+        color: #2c3e50;
+      }
+      .message {
+        font-size: 16px;
+        margin-bottom: 30px;
+        color: #555;
+      }
+      .button {
+        display: inline-block;
+        background: linear-gradient(135deg, #bc5bf5 25%, #6304c3 100%);
+        color: white !important;
+        padding: 16px 32px;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 16px;
+        margin: 20px 0;
+        transition: transform 0.2s ease;
+      }
+      .button:hover {
+        transform: translateY(-2px);
+      }
+      .footer {
+        background-color: #f8f9fa;
+        padding: 30px;
+        text-align: center;
+        font-size: 14px;
+        color: #6c757d;
+        border-top: 1px solid #e9ecef;
+      }
+      .security-note {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 6px;
+        padding: 15px;
+        margin: 20px 0;
+        font-size: 14px;
+        color: #856404;
+      }
+      .link-fallback {
+        word-break: break-all;
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 12px;
+        margin-top: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>${t.title}</h1>
+      </div>
+      <div class="content">
+        <div class="greeting">${t.greeting},</div>
+        <div class="message">
+          ${t.message}
+        </div>
+        <div style="text-align: center">
+          <a href="${resetUrl}" class="button">${t.buttonText}</a>
+        </div>
+        <div
+          class="security-note"
+          style="
+            background-color: #e7f3ff;
+            border-color: #b3d9ff;
+            color: #004085;
+            margin-top: 10px;
+          "
+        >
+          <strong>${t.securityTitle}</strong> ${this.formatMessage(t.securityMessage, { minutes: expirationMinutes })}
+        </div>
+      </div>
+      <div class="footer">
+        <p>
+          ${t.footerText}
+        </p>
+        <p>${this.formatMessage(t.copyright, { year: currentYear })}</p>
+      </div>
+    </div>
+  </body>
+</html>
     `;
   }
 
@@ -166,45 +181,45 @@ export class ForgotPasswordEmailBuilder
    * @returns Plain text content for the email
    */
   buildText(data: ForgotPasswordEmailData): string {
-    const {
-      resetUrl,
-      recipientName,
-      expirationMinutes = 15,
-      securityNotice,
-    } = data;
-    const displayName = recipientName || 'User';
-    const defaultSecurityNotice = `This secure link will expire in ${expirationMinutes} minutes for your protection.`;
-    const finalSecurityNotice = securityNotice || defaultSecurityNotice;
+    const { resetUrl, expirationMinutes = 15, locale } = data;
+
+    if (!locale) {
+      throw new Error('Locale is required for email generation');
+    }
+    const t = this.getTranslation(locale);
+    const currentYear = new Date().getFullYear();
 
     return `
-Hello ${displayName},
+${t.greeting},
 
-We received a request to reset your password for your EasyStore account.
+${t.textMessage}
 
-To reset your password, please visit the following link:
+${t.textInstructions}
 ${resetUrl}
 
-SECURITY NOTICE: ${finalSecurityNotice}
+${this.formatMessage(t.textSecurity, { minutes: expirationMinutes })}
 
-IMPORTANT: This is a one-time use link that expires in ${expirationMinutes} minutes. Never share this link with anyone.
+${t.textIgnore}
 
-If you didn't request this password reset, please ignore this email and your account will remain secure.
+${t.textSupport}
 
-If you have any questions, please contact our support team.
+${t.textSignature}
 
-Best regards,
-The EasyStore Team
-
-© ${new Date().getFullYear()} EasyStore. All rights reserved.
+${this.formatMessage(t.copyright, { year: currentYear })}
     `;
   }
 
   /**
    * Gets the email subject
    * @param data - The email template data
+   * @param locale - The user's preferred language
    * @returns Email subject string
    */
-  getSubject(_data: ForgotPasswordEmailData): string {
-    return 'Reset Your Password - EasyStore';
+  getSubject(data: ForgotPasswordEmailData, locale: string): string {
+    if (!locale) {
+      throw new Error('Locale is required for email generation');
+    }
+    const t = this.getTranslation(locale);
+    return t.subject;
   }
 }

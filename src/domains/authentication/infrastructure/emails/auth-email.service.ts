@@ -30,9 +30,14 @@ export class AuthEmailService extends EmailService {
    * Sends a password reset email with secure token
    * @param email - The email address to send the reset email to
    * @param userId - The user's ID for token generation
+   * @param locale - The user's preferred language (en, es, fr, it, pt)
    * @returns Promise that resolves when the email is sent
    */
-  async sendPasswordResetEmail(email: string, userId: string): Promise<void> {
+  async sendPasswordResetEmail(
+    email: string,
+    userId: string,
+    locale: string,
+  ): Promise<void> {
     // Generate secure reset token with 15-minute expiration
     const resetToken = generatePasswordResetToken({
       email,
@@ -47,11 +52,12 @@ export class AuthEmailService extends EmailService {
       expirationMinutes: 15,
       securityNotice:
         'This secure link will expire in 15 minutes for your protection.',
+      locale,
     };
 
     await this.sendEmail({
       to: email,
-      subject: this.forgotPasswordEmailBuilder.getSubject(emailData),
+      subject: this.forgotPasswordEmailBuilder.getSubject(emailData, locale),
       html: this.forgotPasswordEmailBuilder.buildHtml(emailData),
       text: this.forgotPasswordEmailBuilder.buildText(emailData),
     });
