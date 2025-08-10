@@ -12,7 +12,7 @@ import {
   JwtPayload,
   extractTokenFromCookies,
 } from '../jwt/jwt-handler';
-import { IsPublicKey, IsAuthenticatedKey } from '../decorators';
+import { IsPublicKey, IsAuthenticatedKey } from '../../../../common/decorators';
 
 interface RequestWithUser extends Request {
   user?: JwtPayload;

@@ -6,8 +6,7 @@ import {
   Query,
   registerEnumType,
 } from '@nestjs/graphql';
-import { CurrentUser } from '@authentication/infrastructure/decorators';
-import { JwtPayload } from '@authentication/infrastructure/jwt';
+import { CurrentUser, JwtPayload } from '@common/decorators';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   ProductType,

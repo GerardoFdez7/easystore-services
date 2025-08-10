@@ -1,11 +1,9 @@
-# Authentication Guard
-
-This module provides JWT-based authentication for the EasyStore services backend.
+# Authentication
 
 ## Features
 
 - **Global Authentication**: All GraphQL operations require a valid JWT token by default
-- **Public Routes**: Register and login operations are marked as public and don't require authentication
+- **Public Routes**: Auth operations are marked as public and don't require authentication
 - **JWT Token Validation**: Validates tokens using the existing JWT handler
 - **User Context**: Authenticated user information is available in resolvers
 
@@ -18,7 +16,7 @@ To mark a resolver method or entire class as public (no authentication required)
 **Method-level:**
 
 ```typescript
-import { Public } from '../infrastructure/decorators/public.decorator';
+import { Public } from '@common/decorators';
 
 @Public()
 @Mutation(() => AuthIdentityType)
@@ -30,7 +28,7 @@ async register(@Args('input') input: RegisterAuthInput): Promise<AuthIdentityTyp
 **Class-level (all methods become public):**
 
 ```typescript
-import { Public } from '../infrastructure/decorators/public.decorator';
+import { Public } from '@common/decorators';
 
 @Public()
 @Resolver(() => AuthIdentityType)
@@ -50,10 +48,7 @@ export class AuthenticationResolver {
 For cases where you have a mostly public resolver but need specific methods to require authentication, use the `@Authenticated()` decorator:
 
 ```typescript
-import {
-  Public,
-  Authenticated,
-} from '../infrastructure/decorators/public.decorator';
+import { Public, Authenticated } from '@common/decorators';
 
 @Public() // Make the entire resolver public by default
 @Resolver(() => SomeType)
@@ -76,8 +71,7 @@ export class SomeResolver {
 To access the authenticated user information in a resolver, use the `@CurrentUser()` decorator:
 
 ```typescript
-import { CurrentUser } from '../infrastructure/decorators/current-user.decorator';
-import { JwtPayload } from '../infrastructure/jwt/jwt-handler';
+import { CurrentUser, JwtPayload } from '@common/decorators';
 
 @Mutation(() => SomeType)
 async protectedOperation(
@@ -92,9 +86,9 @@ async protectedOperation(
 ## Authentication Flow
 
 1. **Login**: User provides credentials to the login mutation
-2. **Token Generation**: Server generates and returns a JWT token
-3. **Token Usage**: Client includes the token in the Authorization header: `Bearer <token>`
-4. **Token Validation**: The guard validates the token on each request
+2. **Token Generation**: Server generates a JWT token and sets it in an HTTP-only cookie
+3. **Token Usage**: Client makes requests with the cookie automatically included
+4. **Token Validation**: The guard validates the token from the cookie on each request
 5. **User Context**: User information is attached to the request context
 
 ## Configuration
@@ -117,12 +111,16 @@ All operations that don't have the `@Public()` decorator are protected by defaul
 - Register
 - Login
 - Logout
+- Update password
+- Update email
+- Forgot password
+- Validate token
 
 ## Error Handling
 
 The guard will throw `UnauthorizedException` in the following cases:
 
-- No Authorization header is provided
-- Authorization header doesn't start with 'Bearer '
-- Token is invalid or expired
+- No authentication cookie is present in the request
+- Cookie is malformed or contains invalid data
+- Token stored in cookie is invalid or expired
 - Token has been invalidated (blacklisted)
