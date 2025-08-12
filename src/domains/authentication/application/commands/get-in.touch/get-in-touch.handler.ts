@@ -10,5 +10,12 @@ export class GetInTouchHandler implements ICommandHandler<GetInTouchDTO> {
     private readonly emailService: AuthEmailService,
   ) {}
 
-  async execute(_command: GetInTouchDTO): Promise<void> {}
+  async execute(command: GetInTouchDTO): Promise<{ message: string }> {
+    // Send the get in touch email
+    await this.emailService.sendGetInTouchEmail(command);
+
+    return {
+      message: 'Thank you for contacting us. We will get back to you soon!',
+    };
+  }
 }

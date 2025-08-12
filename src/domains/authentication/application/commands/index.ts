@@ -12,3 +12,6 @@ export { ForgotPasswordHandler } from './forgot-password/forgot-password.handler
 
 export { UpdatePasswordDTO } from './update-password/update-password.dto';
 export { UpdatePasswordHandler } from './update-password/update-password.handler';
+
+export { GetInTouchDTO } from './get-in.touch/get-in-touch.dto';
+export { GetInTouchHandler } from './get-in.touch/get-in-touch.handler';
