@@ -4,4 +4,5 @@ export {
   AuthenticationInput,
   ForgotPasswordInput,
   UpdatePasswordInput,
+  GetInTouchInput,
 } from './authentication.types';

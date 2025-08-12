@@ -13,6 +13,7 @@ import {
   ResponseType,
   ForgotPasswordInput,
   UpdatePasswordInput,
+  GetInTouchInput,
 } from './types';
 import {
   AuthenticationRegisterDTO,
@@ -20,6 +21,7 @@ import {
   AuthenticationLogoutDTO,
   ForgotPasswordDTO,
   UpdatePasswordDTO,
+  GetInTouchDTO,
 } from '../../application/commands';
 import { AuthenticationValidateTokenDTO } from '../../application/queries';
 import { ResponseDTO } from '../../application/mappers';
@@ -121,6 +123,34 @@ export default class AuthenticationResolver {
       UpdatePasswordDTO,
       ResponseDTO
     >(new UpdatePasswordDTO(input.token, input.password));
+
+    return {
+      success: result.success,
+      message: result.message,
+    };
+  }
+
+  @Mutation(() => ResponseType)
+  async getInTouch(
+    @Args('input') input: GetInTouchInput,
+    @Context() context: { req: Request },
+  ): Promise<ResponseType> {
+    // Extract locale from NEXT_LOCALE cookie, fallback to 'en' if not provided
+    const locale: string = (context.req.cookies?.NEXT_LOCALE as string) || 'en';
+
+    const result = await this.commandBus.execute<GetInTouchDTO, ResponseDTO>(
+      new GetInTouchDTO(
+        input.fullName,
+        input.businessEmail,
+        input.businessPhone,
+        input.company,
+        input.websiteUrl,
+        input.country,
+        input.annualRevenue,
+        input.isAgency,
+        locale,
+      ),
+    );
 
     return {
       success: result.success,
