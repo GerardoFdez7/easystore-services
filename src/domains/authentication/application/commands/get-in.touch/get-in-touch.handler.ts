@@ -13,7 +13,7 @@ export class GetInTouchHandler implements ICommandHandler<GetInTouchDTO> {
 
   async execute(command: GetInTouchDTO): Promise<ResponseDTO> {
     // Send the get in touch email with locale
-    await this.emailService.sendGetInTouchEmail(command, command.locale);
+    await this.emailService.sendGetInTouchEmail(command);
 
     return {
       success: true,

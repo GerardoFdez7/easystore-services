@@ -78,10 +78,7 @@ export class AuthEmailService extends EmailService {
     return `${this.frontendUrl}/reset-password?token=${encodeURIComponent(token)}`;
   }
 
-  async sendGetInTouchEmail(
-    data: GetInTouchDTO,
-    locale: string = 'en',
-  ): Promise<void> {
+  async sendGetInTouchEmail(data: GetInTouchDTO): Promise<void> {
     // Define the recipient emails
     const recipientEmails = ['rui23719@uvg.edu.gt', 'josegrg04@gmail.com'];
 
@@ -96,16 +93,12 @@ export class AuthEmailService extends EmailService {
       country: data.country,
       annualRevenue: data.annualRevenue,
       isAgency: data.isAgency,
-      locale: locale,
     };
 
     // Send email to all recipients
     await this.sendEmail({
       to: recipientEmails,
-      subject: this.getInTouchEmailBuilder.getSubject(
-        emailData,
-        emailData.locale,
-      ),
+      subject: this.getInTouchEmailBuilder.getSubject(emailData),
       html: this.getInTouchEmailBuilder.buildHtml(emailData),
       text: this.getInTouchEmailBuilder.buildText(emailData),
     });
