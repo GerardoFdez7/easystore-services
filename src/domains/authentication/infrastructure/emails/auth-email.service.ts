@@ -103,4 +103,34 @@ export class AuthEmailService extends EmailService {
       text: this.getInTouchEmailBuilder.buildText(emailData),
     });
   }
+
+  async sendGetInTouchEmail(data: GetInTouchDTO): Promise<void> {
+    // Define the recipient emails
+    const recipientEmails = ['rui23719@uvg.edu.gt', 'josegrg04@gmail.com'];
+
+    // Prepare email data
+    const emailData: GetInTouchEmailData = {
+      recipientEmail: recipientEmails[0], // Use first recipient as primary
+      fullName: data.fullName,
+      businessEmail: data.businessEmail,
+      businessPhone: data.businessPhone,
+      company: data.company,
+      websiteUrl: data.websiteUrl,
+      country: data.country,
+      annualRevenue: data.annualRevenue,
+      isAgency: data.isAgency,
+      locale: 'en', // Default to English
+    };
+
+    // Send email to all recipients
+    await this.sendEmail({
+      to: recipientEmails,
+      subject: this.getInTouchEmailBuilder.getSubject(
+        emailData,
+        emailData.locale,
+      ),
+      html: this.getInTouchEmailBuilder.buildHtml(emailData),
+      text: this.getInTouchEmailBuilder.buildText(emailData),
+    });
+  }
 }
