@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { IEmailBuilder, IEmailTemplateData } from '@email/index';
+import { translations, TranslationKeys, SupportedLocale } from './languages';
 
 export interface GetInTouchEmailData extends IEmailTemplateData {
   recipientEmail: string;
@@ -23,41 +24,9 @@ export interface GetInTouchEmailData extends IEmailTemplateData {
 export class GetInTouchEmailBuilder
   implements IEmailBuilder<GetInTouchEmailData>
 {
-  private getTranslation(locale: string): {
-    subject: string;
-    greeting: string;
-    newContactMessage: string;
-    contactDetails: string;
-    businessDetails: string;
-    footerText: string;
-    copyright: string;
-  } {
-    // Default translations - you can expand this later
-    const translations = {
-      en: {
-        subject: 'New Business Contact Form Submission - EasyStore',
-        greeting: 'Hello',
-        newContactMessage:
-          'You have received a new business contact form submission:',
-        contactDetails: 'Contact Details',
-        businessDetails: 'Business Details',
-        footerText: 'This email was sent from the EasyStore contact form.',
-        copyright: '© {year} EasyStore. All rights reserved.',
-      },
-      es: {
-        subject: 'Nuevo Mensaje de Contacto Empresarial - EasyStore',
-        greeting: 'Hola',
-        newContactMessage:
-          'Has recibido un nuevo mensaje de contacto empresarial:',
-        contactDetails: 'Detalles de Contacto',
-        businessDetails: 'Detalles del Negocio',
-        footerText:
-          'Este email fue enviado desde el formulario de contacto de EasyStore.',
-        copyright: '© {year} EasyStore. Todos los derechos reservados.',
-      },
-    };
-
-    return translations[locale as keyof typeof translations] || translations.en;
+  private getTranslation(locale: string): TranslationKeys {
+    const supportedLocale = locale as SupportedLocale;
+    return translations[supportedLocale] || translations.en;
   }
 
   private formatMessage(
