@@ -104,7 +104,10 @@ export class AuthEmailService extends EmailService {
     });
   }
 
-  async sendGetInTouchEmail(data: GetInTouchDTO): Promise<void> {
+  async sendGetInTouchEmail(
+    data: GetInTouchDTO,
+    locale: string = 'en',
+  ): Promise<void> {
     // Define the recipient emails
     const recipientEmails = ['rui23719@uvg.edu.gt', 'josegrg04@gmail.com'];
 
@@ -119,7 +122,7 @@ export class AuthEmailService extends EmailService {
       country: data.country,
       annualRevenue: data.annualRevenue,
       isAgency: data.isAgency,
-      locale: 'en', // Default to English
+      locale: locale,
     };
 
     // Send email to all recipients

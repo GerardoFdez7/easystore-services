@@ -8,5 +8,6 @@ export class GetInTouchDTO {
     public country: string,
     public annualRevenue: string,
     public isAgency: string,
+    public locale: string = 'en',
   ) {}
 }
