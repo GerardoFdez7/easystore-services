@@ -10,6 +10,7 @@ import {
   AuthenticationLogoutHandler,
   ForgotPasswordHandler,
   UpdatePasswordHandler,
+  GetInTouchHandler,
 } from './application/commands';
 // Query Handlers
 import { AuthenticationValidateTokenHandler } from './application/queries';
@@ -31,6 +32,7 @@ import AuthGuard from './infrastructure/guard/auth.guard';
 import {
   AuthEmailService,
   ForgotPasswordEmailBuilder,
+  GetInTouchEmailBuilder,
 } from './infrastructure/emails';
 import { PasswordResetRateLimiter } from './infrastructure/rate-limiting/password-reset-rate-limiter';
 import { CleanupService } from './infrastructure/cron';
@@ -42,6 +44,7 @@ const CommandHandlers = [
   AuthenticationLogoutHandler,
   ForgotPasswordHandler,
   UpdatePasswordHandler,
+  GetInTouchHandler,
 ];
 
 const QueryHandlers = [AuthenticationValidateTokenHandler];
@@ -54,7 +57,7 @@ const EventHandlers = [
   IdentityEmailUpdatedHandler,
 ];
 
-const EmailBuilders = [ForgotPasswordEmailBuilder];
+const EmailBuilders = [ForgotPasswordEmailBuilder, GetInTouchEmailBuilder];
 
 const RateLimiters = [PasswordResetRateLimiter];
 
