@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { IEmailBuilder, IEmailTemplateData } from '@email/index';
-import { translations, TranslationKeys, SupportedLocale } from './languages';
 
 export interface GetInTouchEmailData extends IEmailTemplateData {
   recipientEmail: string;
@@ -12,23 +11,16 @@ export interface GetInTouchEmailData extends IEmailTemplateData {
   country: string;
   annualRevenue: string;
   isAgency: string;
-  locale: string;
 }
 
 /**
  * Email builder for get in touch emails
  * Handles the construction of HTML and text content for contact form emails
- * Supports internationalization for multiple languages
  */
 @Injectable()
 export class GetInTouchEmailBuilder
   implements IEmailBuilder<GetInTouchEmailData>
 {
-  private getTranslation(locale: string): TranslationKeys {
-    const supportedLocale = locale as SupportedLocale;
-    return translations[supportedLocale] || translations.en;
-  }
-
   private formatMessage(
     message: string,
     replacements: Record<string, string | number>,
@@ -55,13 +47,8 @@ export class GetInTouchEmailBuilder
       country,
       annualRevenue,
       isAgency,
-      locale,
     } = data;
 
-    if (!locale) {
-      throw new Error('Locale is required for email generation');
-    }
-    const t = this.getTranslation(locale);
     const currentYear = new Date().getFullYear();
 
     return `
@@ -157,16 +144,16 @@ export class GetInTouchEmailBuilder
   <body>
     <div class="container">
       <div class="header">
-        <h1>${t.subject}</h1>
+        <h1>New Business Contact Form Submission</h1>
       </div>
       <div class="content">
-        <div class="greeting">${t.greeting},</div>
+        <div class="greeting">Hello,</div>
         <div class="message">
-          ${t.newContactMessage}
+          A new contact form submission has been received.
         </div>
         
         <div class="contact-details">
-          <h3>${t.contactDetails}</h3>
+          <h3>Contact Details</h3>
           <div class="contact-field">
             <strong>Full Name:</strong> ${fullName}
           </div>
@@ -179,7 +166,7 @@ export class GetInTouchEmailBuilder
         </div>
 
         <div class="business-details">
-          <h3>${t.businessDetails}</h3>
+          <h3>Business Details</h3>
           <div class="contact-field">
             <strong>Company:</strong> ${company}
           </div>
@@ -199,9 +186,9 @@ export class GetInTouchEmailBuilder
       </div>
       <div class="footer">
         <p>
-          ${t.footerText}
+          Thank you for using our service.
         </p>
-        <p>${this.formatMessage(t.copyright, { year: currentYear })}</p>
+        <p>© ${currentYear} EasyStore. All rights reserved.</p>
       </div>
     </div>
   </body>
@@ -224,49 +211,38 @@ export class GetInTouchEmailBuilder
       country,
       annualRevenue,
       isAgency,
-      locale,
     } = data;
 
-    if (!locale) {
-      throw new Error('Locale is required for email generation');
-    }
-    const t = this.getTranslation(locale);
     const currentYear = new Date().getFullYear();
 
     return `
-${t.greeting},
+Hello,
 
-${t.newContactMessage}
+A new contact form submission has been received.
 
-${t.contactDetails}:
+Contact Details:
 - Full Name: ${fullName}
 - Business Email: ${businessEmail}
 - Business Phone: ${businessPhone}
 
-${t.businessDetails}:
+Business Details:
 - Company: ${company}
 - Website URL: ${websiteUrl}
 - Country: ${country}
 - Annual Revenue: ${annualRevenue}
 - Is Agency: ${isAgency}
 
-${t.footerText}
+Thank you for using our service.
 
-${this.formatMessage(t.copyright, { year: currentYear })}
+© ${currentYear} EasyStore. All rights reserved.
     `;
   }
 
   /**
    * Gets the email subject
-   * @param data - The email template data
-   * @param locale - The user's preferred language
    * @returns Email subject string
    */
-  getSubject(data: GetInTouchEmailData, locale: string): string {
-    if (!locale) {
-      throw new Error('Locale is required for email generation');
-    }
-    const t = this.getTranslation(locale);
-    return t.subject;
+  getSubject(_data: GetInTouchEmailData): string {
+    return 'New Business Contact Form Submission';
   }
 }

@@ -133,11 +133,7 @@ export default class AuthenticationResolver {
   @Mutation(() => ResponseType)
   async getInTouch(
     @Args('input') input: GetInTouchInput,
-    @Context() context: { req: Request },
   ): Promise<ResponseType> {
-    // Extract locale from NEXT_LOCALE cookie, fallback to 'en' if not provided
-    const locale: string = (context.req.cookies?.NEXT_LOCALE as string) || 'en';
-
     const result = await this.commandBus.execute<GetInTouchDTO, ResponseDTO>(
       new GetInTouchDTO(
         input.fullName,
@@ -148,7 +144,6 @@ export default class AuthenticationResolver {
         input.country,
         input.annualRevenue,
         input.isAgency,
-        locale,
       ),
     );
 
