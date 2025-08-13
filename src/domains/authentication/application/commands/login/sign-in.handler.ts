@@ -31,7 +31,7 @@ export class AuthenticationLoginHandler
   constructor(
     @Inject('AuthRepository')
     private readonly authRepository: IAuthRepository,
-    @Inject('TenantRepository')
+    @Inject('ITenantRepository')
     private readonly tenantRepository: ITenantRepository,
     @Inject('CustomerRepository')
     private readonly customerRepository: ICustomerRepository,

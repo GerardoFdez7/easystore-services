@@ -71,7 +71,7 @@ const CronServices = [CleanupService];
       useClass: AuthenticationRepository,
     },
     {
-      provide: 'TenantRepository',
+      provide: 'ITenantRepository',
       useClass: TenantRepository,
     },
     {
