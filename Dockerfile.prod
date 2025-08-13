@@ -1,0 +1,93 @@
+# Stage 1: Install dependencies
+FROM node:20-alpine AS deps
+WORKDIR /app
+
+# Install system dependencies for building
+RUN apk add --no-cache python3 make g++ libc6-compat
+
+# Copy package files
+COPY package.json package-lock.json ./
+COPY src ./src
+
+# Install all dependencies for building
+RUN npm ci --include=dev --frozen-lockfile
+
+# Rebuild bcrypt for Alpine
+RUN npm rebuild bcrypt --build-from-source
+
+# Stage 2: Build application
+FROM deps AS builder
+WORKDIR /app
+
+# Copy source code and config files
+COPY tsconfig*.json nest-cli.json ./
+
+# Generate Prisma client and build application
+RUN npm run generate
+RUN npm run build
+
+# Stage 3: Production dependencies
+FROM node:20-alpine AS prod-deps
+WORKDIR /app
+
+# Install system dependencies for production
+RUN apk add --no-cache python3 make g++ libc6-compat dumb-init
+
+# Copy package files
+COPY package.json package-lock.json ./
+COPY src ./src
+
+# Install only production dependencies
+ENV npm_config_ignore_scripts=true
+RUN npm ci --omit=dev --frozen-lockfile --ignore-scripts && npm cache clean --force
+RUN npx prisma generate --schema src/infrastructure/database/postgres.schema.prisma
+
+# Rebuild bcrypt for production
+RUN npm rebuild bcrypt --build-from-source
+
+# Stage 4: Production image
+FROM node:20-alpine AS production
+WORKDIR /app
+
+# Install dumb-init and build tools for bcrypt
+RUN apk add --no-cache dumb-init curl python3 make g++ libc6-compat
+
+# Set production environment
+ENV NODE_ENV=production
+ENV NODE_OPTIONS="--max-old-space-size=1024"
+
+# Create non-root user
+RUN addgroup -S app && adduser -S app -G app
+
+# Copy built application
+COPY --from=builder --chown=app:app /app/dist ./dist
+COPY --from=builder --chown=app:app /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=prod-deps --chown=app:app /app/node_modules ./node_modules
+COPY --chown=app:app package.json ./
+
+# Rebuild bcrypt for Alpine Linux in production
+RUN npm rebuild bcrypt --build-from-source
+
+# Create logs and src directories with proper permissions
+RUN mkdir -p /app/logs /app/src && chown -R app:app /app/logs /app/src
+
+# Create healthcheck script
+RUN echo '#!/bin/sh\nset -e\ncurl -f http://localhost:3000/health || exit 1' > healthcheck.js && \
+    chmod +x healthcheck.js && \
+    chown app:app healthcheck.js
+
+# Switch to non-root user
+USER app
+
+# Expose port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:3000/health || exit 1
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
+
+# Start application
+CMD ["node", "dist/main.js"]

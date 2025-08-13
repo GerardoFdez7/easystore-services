@@ -1,18 +1,21 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: development
     ports:
       - '3000:3000'
     volumes:
       - .:/app
       - /app/node_modules
-    command: npm run start
+    command: npm run dev
     env_file:
       - .env
     environment:
       - HUSKY=0
       - NODE_ENV=${NODE_ENV}
-      - DATABASE_URL_POSTGRES=${DATABASE_URL_POSTGRES}
+      - DATABASE_URL_POSTGRES_DOCKER=${DATABASE_URL_POSTGRES_DOCKER}
     depends_on:
       - postgres
     networks:

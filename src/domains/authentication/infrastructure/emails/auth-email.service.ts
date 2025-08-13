@@ -69,6 +69,6 @@ export class AuthEmailService extends EmailService {
    * @returns The reset URL
    */
   private buildResetPasswordUrl(token: string): string {
-    return `${this.frontendUrl}/reset-password?token=${encodeURIComponent(token)}`;
+    return `${this.frontendUrl}/login?token=${encodeURIComponent(token)}`;
   }
 }

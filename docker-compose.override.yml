@@ -1,6 +1,0 @@
-version: '3.8'
-
-services:
-  app:
-    environment:
-      - DATABASE_URL_POSTGRES=postgresql://postgres:gerardo04@postgres:5432/EasyStore

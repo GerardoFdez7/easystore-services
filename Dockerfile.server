@@ -1,0 +1,23 @@
+FROM node:20-alpine
+WORKDIR /app
+
+# Install system dependencies
+RUN apk add --no-cache python3 make g++ libc6-compat curl
+
+# Copy dependency files
+COPY package*.json ./
+COPY src ./src
+
+# Install dependencies and build
+RUN npm ci --include=dev --frozen-lockfile
+RUN npm run generate
+RUN npm run build
+
+# Clean up development dependencies
+RUN npm ci --omit=dev --frozen-lockfile && npm cache clean --force
+RUN npm rebuild bcrypt --build-from-source
+
+ENV NODE_ENV=production
+
+EXPOSE 3000
+CMD ["node", "dist/main.js"]

@@ -1,0 +1,96 @@
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - app
+    networks:
+      - easystore-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+      target: production
+    expose:
+      - '3000'
+    env_file:
+      - .env.prod
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL_POSTGRES_DOCKER=${DATABASE_URL_POSTGRES_DOCKER}
+    depends_on:
+      - postgres
+    networks:
+      - easystore-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2.5'
+          memory: 8G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    healthcheck:
+      test: ['CMD', 'node', 'healthcheck.js']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    env_file:
+      - .env.prod
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - '${POSTGRES_PORT}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d
+    networks:
+      - easystore-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  easystore-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

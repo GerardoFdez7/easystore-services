@@ -9,15 +9,15 @@ datasource postgres {
   schemas  = ["tenant", "inventory", "product", "shipping", "pricing", "sales", "customer", "common", "geography"]
 }
 
-generator erd {
-  provider                  = "prisma-erd-generator"
-  output                    = "./erd.svg"
-  theme                     = "default"
-  ignoreEnums               = true
-  includeRelationFromFields = true
-  disabled                  = true
-  tableOnly                 = false
-}
+// generator erd {
+//   provider                  = "prisma-erd-generator"
+//   output                    = "./erd.svg"
+//   theme                     = "default"
+//   ignoreEnums               = true
+//   includeRelationFromFields = true
+//   disabled                  = true
+//   tableOnly                 = false
+// }
 
 // Tenant schema models
 model Tenant {
