@@ -66,6 +66,9 @@ export class Tenant extends Entity<ITenantProps> {
     if (props.ownerName) {
       this.props.ownerName = Name.create(props.ownerName);
     }
+    if (props.businessName) {
+      this.props.businessName = Name.create(props.businessName);
+    }
     if (props.domain) {
       this.props.domain = Domain.create(props.domain);
     }
