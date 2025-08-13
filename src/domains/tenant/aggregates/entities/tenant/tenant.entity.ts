@@ -61,4 +61,24 @@ export class Tenant extends Entity<ITenantProps> {
   }
 
   // Domain logic methods would go here (CUD operations)
+
+  update(props: Partial<ITenantType>): void {
+    if (props.ownerName) {
+      this.props.ownerName = Name.create(props.ownerName);
+    }
+    if (props.domain) {
+      this.props.domain = Domain.create(props.domain);
+    }
+    if (props.logo) {
+      this.props.logo = Logo.create(props.logo);
+    }
+    if (props.description) {
+      this.props.description = LongDescription.create(props.description);
+    }
+    if (props.currency) {
+      this.props.currency = Currency.create(props.currency);
+    }
+
+    this.props.updatedAt = new Date();
+  }
 }
