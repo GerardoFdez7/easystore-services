@@ -108,11 +108,10 @@ export default class TenantRepository implements ITenantRepository {
 
   async findByAuthIdentityId(authIdentityId: Id): Promise<Tenant | null> {
     const authIdentityIdValue = authIdentityId.getValue();
-
     try {
       const tenant = await this.prisma.tenant.findFirst({
         where: {
-          authIdentityId: authIdentityIdValue,
+          id: authIdentityIdValue,
         },
       });
 
