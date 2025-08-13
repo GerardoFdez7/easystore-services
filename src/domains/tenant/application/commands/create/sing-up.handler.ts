@@ -7,7 +7,7 @@ import { Inject } from '@nestjs/common';
 @CommandHandler(TenantSingUpDTO)
 export class TenantSingUpHandler implements ICommandHandler<TenantSingUpDTO> {
   constructor(
-    @Inject('TenantRepository')
+    @Inject('ITenantRepository')
     private readonly tenantRepository: ITenantRepository,
     private readonly eventPublisher: EventPublisher,
   ) {}
