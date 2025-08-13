@@ -5,24 +5,12 @@
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="40" alt="Nest Logo" /></a>
   <a href="https://graphql.org/" target="_blank" rel="noreferrer">
     <img src="https://www.vectorlogo.zone/logos/graphql/graphql-icon.svg" alt="graphql" width="40" height="40"/>
-  </a>      
-  <a href="https://kafka.apache.org/" target="_blank" rel="noreferrer">
-    <img src="https://www.vectorlogo.zone/logos/apache_kafka/apache_kafka-icon.svg" alt="kafka" width="60" height="40"/>
-  </a>
+  </a> 
   <a href="https://www.elastic.co/" target="_blank" rel="noreferrer">
     <img src="https://www.vectorlogo.zone/logos/elastic/elastic-icon.svg" alt="elasticsearch" width="40" height="40"/>
   </a>
-  <a href="https://www.elastic.co/logstash/" target="_blank" rel="noreferrer">
-    <img src="https://www.vectorlogo.zone/logos/elasticco_logstash/elasticco_logstash-icon.svg" alt="logstash" width="40" height="40"/>
-  </a>
-  <a href="https://www.elastic.co/kibana/" target="_blank" rel="noreferrer">
-    <img src="https://www.vectorlogo.zone/logos/elasticco_kibana/elasticco_kibana-icon.svg" alt="kibana" width="40" height="40"/>
-  </a>
   <a href="https://redis.io/" target="_blank" rel="noreferrer">
     <img src="https://raw.githubusercontent.com/gilbarbara/logos/92bb74e98bca1ea1ad794442676ebc4e75038adc/logos/redis.svg" alt="redis" width="40" height="40"/>
-  </a>
-  <a href="https://grpc.io/" target="_blank" rel="noreferrer">
-    <img src="https://www.vectorlogo.zone/logos/grpcio/grpcio-ar21.svg" alt="grpc" width="80" height="40"/>
   </a>
   <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
     <img src="https://www.vectorlogo.zone/logos/docker/docker-icon.svg" alt="docker" width="50" height="50"/>
@@ -88,31 +76,11 @@ Follow these instructions to set up and run the EasyStore backend application:
    ```
 
 > [!TIP]
-> Alternatively, you can use Docker for development:
-
-```bash
-npm run docker:dev
-```
-
-#### Testing Kafka
-
-1. Start services:
-
-```bash
-  npm run docker:kafka:up
-```
-
-2. Send test messages:
-
-```bash
-npm run kafka:producer:test
-```
-
-3. Verify processing:
-
-```bash
-npm run kafka:consumer:test
-```
+> Alternatively, you can use Docker:
+>
+> ```bash
+> npm run docker
+> ```
 
 ### Production Environment
 
@@ -121,13 +89,6 @@ To run the application in production mode:
 ```bash
 npm run build
 npm run start
-```
-
-> [!TIP]
-> Alternatively, you can use Docker for production:
-
-```bash
-npm run docker
 ```
 
 > [!NOTE]
@@ -161,14 +122,12 @@ The Apollo Playground provides an interactive environment to:
 ### Key Patterns
 
 1. **Command Query Responsibility Segregation (CQRS)**
-
    - Separate models for:
      - Commands (write operations with business validation)
      - Queries (read operations with optimized projections)
    - Event sourcing for critical domain operations
 
 2. **Repository Pattern**
-
    - Abstract data access through `IRepository` interfaces
    - Database-agnostic domain layer
    - Concrete implementations in infrastructure layer
