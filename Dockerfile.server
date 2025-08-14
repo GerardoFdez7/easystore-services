@@ -19,12 +19,12 @@ RUN npm ci --include=dev --frozen-lockfile
 RUN npm run generate
 RUN npm run build
 
+# Rebuild bcrypt BEFORE cleaning up dev dependencies
+RUN npm rebuild bcrypt --build-from-source
+
 # Clean up development dependencies
 ENV npm_config_ignore_scripts=true
 RUN npm ci --omit=dev --frozen-lockfile --ignore-scripts
-
-# Rebuild bcrypt
-RUN npm rebuild bcrypt --build-from-source
 
 # Generate Prisma client again
 RUN npx prisma generate --schema src/infrastructure/database/postgres.schema.prisma

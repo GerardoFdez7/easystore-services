@@ -1,0 +1,16 @@
+name: Deploy to OCI 
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to OCI
+        run: |
+          curl -X POST "${{ secrets.OCI_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{"ref": "refs/heads/main"}'
