@@ -4,12 +4,18 @@ WORKDIR /app
 # Install system dependencies
 RUN apk add --no-cache python3 make g++ libc6-compat curl
 
-# Copy dependency files
+# Copy configuration files
 COPY package*.json ./
+COPY tsconfig*.json ./
+COPY nest-cli.json ./
+
+# Copy source code
 COPY src ./src
 
-# Install dependencies and build
+# Install dependencies
 RUN npm ci --include=dev --frozen-lockfile
+
+# Generate Prisma client and build
 RUN npm run generate
 RUN npm run build
 
