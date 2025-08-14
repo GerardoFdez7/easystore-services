@@ -95,14 +95,12 @@ const winstonLogger = createLogger({
   exitOnError: false,
 });
 
-if (environment !== 'production') {
-  winstonLogger.add(
-    new transports.Console({
-      format: consoleFormat,
-      level: 'debug',
-    }),
-  );
-}
+winstonLogger.add(
+  new transports.Console({
+    format: consoleFormat,
+    level: environment === 'production' ? 'info' : 'debug',
+  }),
+);
 
 @Injectable()
 export class LoggerService implements NestLoggerService {
