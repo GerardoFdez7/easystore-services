@@ -112,13 +112,11 @@ export const invalidateToken = (token: string): void => {
 
 // Function to set JWT tokens as httpOnly secure cookies
 export const setTokenCookies = (res: Response, accessToken: string): void => {
-  const isDevelopment = process.env.NODE_ENV === 'development';
-
   // Set access token cookie
   res.cookie('accessToken', accessToken, {
     httpOnly: true,
     secure: true,
-    sameSite: isDevelopment ? 'none' : 'strict', // Use 'none' for development to support Apollo Playground
+    sameSite: 'none', // (frontend on Vercel, backend on OCI)
     maxAge: 24 * 60 * 60 * 1000, // 1 day in milliseconds
     path: '/',
   });
@@ -126,11 +124,10 @@ export const setTokenCookies = (res: Response, accessToken: string): void => {
 
 // Function to clear JWT token cookies
 export const clearTokenCookies = (res: Response): void => {
-  const isDevelopment = process.env.NODE_ENV === 'development';
   res.clearCookie('accessToken', {
     httpOnly: true,
     secure: true,
-    sameSite: isDevelopment ? 'none' : 'strict',
+    sameSite: 'none', // Use 'none' for cross-origin requests
     path: '/',
   });
 };

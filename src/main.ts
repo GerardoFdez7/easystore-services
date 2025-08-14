@@ -26,16 +26,14 @@ async function bootstrap(): Promise<void> {
   try {
     const prisma = app.get(PostgreService);
     await prisma.$queryRaw`SELECT 1`;
-    logger.log(`✅ Database connection successful`);
+    logger.log(`Postgres connection successful`);
   } catch (error) {
-    logger.error(`❌ Database connection failed:`, error);
+    logger.error(`❌ Postgres connection failed:`, error);
   }
 }
 
 bootstrap().catch((error) => {
   const logger = new LoggerService();
   logger.error('NestJS failed to start:', error);
-  // eslint-disable-next-line no-console
-  console.log('NestJS failed to start:', error);
   process.exit(1);
 });
