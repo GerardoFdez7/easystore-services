@@ -5,6 +5,10 @@
   "author": "EasyStore Team",
   "private": true,
   "license": "",
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
   "scripts": {
     "build": "npx nest build",
     "start": "node dist/src/main.js",
