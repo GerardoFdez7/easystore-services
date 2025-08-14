@@ -26,5 +26,8 @@ RUN npm ci --omit=dev --frozen-lockfile --ignore-scripts
 # Rebuild bcrypt
 RUN npm rebuild bcrypt --build-from-source
 
+# Generate Prisma client again
+RUN npx prisma generate --schema src/infrastructure/database/postgres.schema.prisma
+
 EXPOSE 3000
 CMD ["node", "dist/main.js"]
