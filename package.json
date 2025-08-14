@@ -8,6 +8,7 @@
   "scripts": {
     "build": "npx nest build",
     "start": "node dist/src/main",
+    "start:prod": "node dist/main.js",
     "dev": "npx nest start --watch",
     "debug": "npx nest start --debug --watch",
     "docker": "set npm_config_ignore_scripts=true && docker-compose -f docker-compose.dev.yml up",
