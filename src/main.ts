@@ -12,12 +12,12 @@ async function bootstrap(): Promise<void> {
 
   // CORS Config
   app.enableCors({
-    origin: [process.env.FRONTEND_URL, 'https://easystoredev.vercel.app'],
+    origin: [process.env.FRONTEND_URL],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
   });
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT);
 }
 
 bootstrap().catch((error) => {
