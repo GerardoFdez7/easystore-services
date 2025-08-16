@@ -93,4 +93,18 @@ export class TenantMapper {
     // Create a new tenant using the factory method
     return Tenant.create(dto.data as ITenantType);
   }
+
+  /**
+   * Maps an update DTO to update an existing Tenant domain entity
+   * @param tenant The existing tenant domain entity
+   * @param dto The update DTO containing the fields to update
+   * @returns The updated Tenant domain entity
+   */
+  static fromUpdateDto(
+    tenant: Tenant,
+    dto: { data: Partial<ITenantType> },
+  ): Tenant {
+    tenant.update(dto.data);
+    return tenant;
+  }
 }

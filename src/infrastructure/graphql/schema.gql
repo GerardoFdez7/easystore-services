@@ -206,6 +206,17 @@ input ForgotPasswordInput {
   email: String!
 }
 
+input GetInTouchInput {
+  annualRevenue: String!
+  businessEmail: String!
+  businessPhone: String!
+  company: String!
+  country: String!
+  fullName: String!
+  isAgency: String!
+  websiteUrl: String!
+}
+
 type Installment {
   interestRate: Float!
   months: Int!
@@ -236,6 +247,7 @@ type Mutation {
   deleteCategory(id: ID!): Category!
   deleteWarehouse(id: ID!): Warehouse!
   forgotPassword(input: ForgotPasswordInput!): Response!
+  getInTouch(input: GetInTouchInput!): Response!
   hardDeleteProduct(id: String!): Product!
   login(input: AuthenticationInput!): Response!
   logout: Response!

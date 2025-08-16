@@ -82,3 +82,31 @@ export class UpdatePasswordInput {
   @Field()
   password: string;
 }
+
+// Input for get in touch request
+@InputType()
+export class GetInTouchInput {
+  @Field()
+  fullName: string;
+
+  @Field()
+  businessEmail: string;
+
+  @Field()
+  businessPhone: string;
+
+  @Field()
+  company: string;
+
+  @Field()
+  websiteUrl: string;
+
+  @Field()
+  country: string;
+
+  @Field()
+  annualRevenue: string;
+
+  @Field()
+  isAgency: string;
+}
