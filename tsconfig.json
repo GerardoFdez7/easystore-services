@@ -31,6 +31,7 @@
       "@microservices/*": ["src/infrastructure/microservices/*"],
       "@domains/*": ["src/shared/domains/*"],
       "@email/*": ["src/shared/email/*"],
+      "@media/*": ["src/shared/media/*"],
       "@elastic/*": ["src/shared/elastic/*"],
       "@event-store/*": ["src/shared/event-store/*"],
       "@kafka/*": ["src/shared/kafka/*"],

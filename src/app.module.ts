@@ -4,6 +4,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { LoggerModule } from '@winston/winston.module';
 import { GraphqlModule } from '@graphql/graphql.module';
 import { PostgresModule } from '@database/postgres.module';
+import MediaModule from '@media/media.module';
 import { AuthenticationDomain } from './domains/authentication/authentication.module';
 import AuthGuard from './domains/authentication/infrastructure/guard/auth.guard';
 import { TenantDomain } from './domains/tenant/tenant.module';
@@ -22,6 +23,7 @@ import { InventoryDomain } from './domains/inventory/inventory.module';
     LoggerModule,
     GraphqlModule,
     PostgresModule,
+    MediaModule,
     AuthenticationDomain,
     TenantDomain,
     ProductDomain,

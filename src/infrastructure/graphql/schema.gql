@@ -230,6 +230,12 @@ type Media {
   variantId: ID
 }
 
+type MediaAuthResponse {
+  expire: Float!
+  signature: String!
+  token: String!
+}
+
 enum MediaTypeEnum {
   IMAGE
   VIDEO
@@ -320,6 +326,7 @@ type Query {
   getAllStockMovements(createdById: ID, dateFrom: DateTime, dateTo: DateTime, includeDeleted: Boolean = false, limit: Int = 10, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID, warehouseId: ID!): PaginatedStockMovementsType!
   getAllWarehouses(addressId: ID, limit: Int = 10, lowStockThreshold: Int, name: String, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID): PaginatedWarehousesType!
   getCategoryById(id: ID!): Category!
+  getMediaUploadToken: MediaAuthResponse!
   getProductById(id: String!): Product!
   getWarehouseById(id: ID!): Warehouse!
   validateToken: Response!
