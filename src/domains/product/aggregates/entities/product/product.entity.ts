@@ -4,7 +4,7 @@ import {
   Name,
   ShortDescription,
   LongDescription,
-  Cover,
+  Media as MediaVO,
   Type,
   Tags,
   Brand,
@@ -39,7 +39,7 @@ export interface IProductProps extends EntityProps {
   shortDescription: ShortDescription;
   longDescription?: LongDescription;
   productType: Type;
-  cover?: Cover;
+  cover?: MediaVO;
   tags?: Tags[];
   brand?: Brand;
   manufacturer?: Manufacturer;
@@ -101,9 +101,9 @@ export class Product extends Entity<IProductProps> {
         ? LongDescription.create(props.longDescription)
         : null,
       productType: Type.create(props.productType || 'PHYSICAL'),
-      cover: props.cover
-        ? Cover.create(props.cover)
-        : Cover.create('https://easystore.com/default-cover.jpg'),
+      cover: props.media
+        ? MediaVO.create(props.cover)
+        : MediaVO.create('https://easystore.com/default-media.jpg'),
       tags: (props.tags || []).map((tag) => Tags.create([tag])),
       brand: props.brand ? Brand.create(props.brand) : null,
       manufacturer: props.manufacturer
@@ -197,7 +197,7 @@ export class Product extends Entity<IProductProps> {
     }
 
     if (updates.cover !== undefined) {
-      props.cover = Cover.create(updates.cover);
+      props.cover = MediaVO.create(updates.cover);
     }
 
     if (updates.tags !== undefined) {

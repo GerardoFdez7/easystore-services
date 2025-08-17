@@ -8,7 +8,7 @@ import {
   Id,
   Attribute,
   Price,
-  Cover,
+  Media,
   PersonalizationOptions,
   Weight,
   Dimension,
@@ -47,7 +47,7 @@ export class VariantMapper {
         Attribute.create(attr.key, attr.value),
       ),
       price: Price.create(Number(model.price)),
-      variantCover: Cover.create(model.variantCover),
+      variantCover: Media.create(model.variantCover),
       personalizationOptions: model.personalizationOptions
         ? model.personalizationOptions.map((opt) =>
             PersonalizationOptions.create(opt),

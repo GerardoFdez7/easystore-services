@@ -1,9 +1,9 @@
-import { Id, Url, Position, MediaType } from '../../value-objects';
+import { Id, Media as MediaVO, Position, MediaType } from '../../value-objects';
 import { IMediaBase, Entity, EntityProps } from '../';
 
 export interface IMediaProps extends EntityProps {
   id: Id;
-  url: Url;
+  url: MediaVO;
   position: Position;
   mediaType: MediaType;
   productId?: Id;
@@ -17,7 +17,7 @@ export class Media extends Entity<IMediaProps> {
 
   public static create(props: IMediaBase): Media {
     const transformedProps = {
-      url: Url.create(props.url),
+      url: MediaVO.create(props.url),
       position: Position.create(props.position),
       mediaType: MediaType.create(props.mediaType),
       productId: props.productId ? Id.create(props.productId) : null,
@@ -36,7 +36,7 @@ export class Media extends Entity<IMediaProps> {
     data: Partial<Omit<IMediaBase, 'productId' | 'variantId'>>,
   ): void {
     if (data.url !== undefined) {
-      this.props.url = Url.create(data.url);
+      this.props.url = MediaVO.create(data.url);
     }
     if (data.position !== undefined) {
       this.props.position = Position.create(data.position);

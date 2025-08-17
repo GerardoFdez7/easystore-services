@@ -1,7 +1,7 @@
 export {
   Id,
   Name,
-  Cover,
+  Media,
   ShortDescription,
   SortBy,
   SortOrder,

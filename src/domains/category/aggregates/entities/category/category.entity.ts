@@ -1,5 +1,5 @@
 import { Entity, EntityProps, ICategoryBase } from '../';
-import { Id, Name, Cover, ShortDescription } from '../../value-objects';
+import { Id, Name, Media, ShortDescription } from '../../value-objects';
 import {
   CategoryCreatedEvent,
   CategoryDeletedEvent,
@@ -9,7 +9,7 @@ import {
 export interface ICategoryProps extends EntityProps {
   id: Id;
   name: Name;
-  cover?: Cover;
+  media?: Media;
   description?: ShortDescription;
   subCategories?: ICategoryProps[];
   parentId?: Id;
@@ -42,8 +42,8 @@ export class Category extends Entity<ICategoryProps> {
     const transformedProps = {
       name: Name.create(props.name),
       cover: props.cover
-        ? Cover.create(props.cover)
-        : Cover.create('https://easystore.com/default-cover.jpg'),
+        ? Media.create(props.cover)
+        : Media.create('https://easystore.com/default-media.jpg'),
       description: props.description
         ? ShortDescription.create(props.description)
         : null,
@@ -89,7 +89,7 @@ export class Category extends Entity<ICategoryProps> {
     }
 
     if (updates.cover !== undefined) {
-      props.cover = Cover.create(updates.cover);
+      props.cover = Media.create(updates.cover);
     }
 
     if (updates.description !== undefined) {

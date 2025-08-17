@@ -2,7 +2,7 @@ import { Entity } from '@domains/entity.base';
 import { Media, IMediaProps, IMediaType } from '../../../aggregates/entities';
 import {
   Id,
-  Url,
+  Media as MediaVO,
   Position,
   MediaType,
 } from '../../../aggregates/value-objects';
@@ -24,7 +24,7 @@ export class MediaMapper {
       persistenceMedia,
       (model) => ({
         id: Id.create(model.id),
-        url: Url.create(model.url),
+        url: MediaVO.create(model.url),
         position: Position.create(model.position),
         mediaType: MediaType.create(model.mediaType),
         productId: model.productId ? Id.create(model.productId) : null,

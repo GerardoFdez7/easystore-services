@@ -1,7 +1,7 @@
 import { Entity, EntityProps } from '@domains/entity.base';
 import { Id, Name, LongDescription, Currency } from '../../value-objects';
 import { ITenantType } from '..';
-import { Domain, Logo } from '../../value-objects';
+import { Domain, Media } from '../../value-objects';
 import { TenantCreatedEvent } from '../../events/tenant-created.event';
 
 export interface ITenantProps extends EntityProps {
@@ -9,7 +9,7 @@ export interface ITenantProps extends EntityProps {
   businessName: Name;
   ownerName: Name;
   domain?: Domain;
-  logo?: Logo;
+  logo?: Media;
   description?: LongDescription;
   currency: Currency;
   authIdentityId: Id;
@@ -34,7 +34,7 @@ export class Tenant extends Entity<ITenantProps> {
       domain: props.domain
         ? Domain.create(props.domain)
         : Domain.createDefault(businessName.getValue()),
-      logo: props.logo ? Logo.create(props.logo) : null,
+      logo: props.logo ? Media.create(props.logo) : null,
       description: props.description
         ? LongDescription.create(props.description)
         : null,

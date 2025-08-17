@@ -7,7 +7,7 @@ import {
 import {
   Id,
   Name,
-  Cover,
+  Media,
   ShortDescription,
 } from '../../../aggregates/value-objects';
 import { CategoryDTO, PaginatedCategoriesDTO } from './category.dto';
@@ -27,7 +27,7 @@ export class CategoryMapper {
     const categoryProps: ICategoryProps = {
       id: Id.create(persistenceCategory.id),
       name: Name.create(persistenceCategory.name),
-      cover: Cover.create(persistenceCategory.cover),
+      cover: Media.create(persistenceCategory.cover),
       description: persistenceCategory.description
         ? ShortDescription.create(persistenceCategory.description)
         : null,
@@ -57,7 +57,7 @@ export class CategoryMapper {
     return category.toDTO<CategoryDTO>((entity) => ({
       id: entity.get('id')?.getValue(),
       name: entity.get('name').getValue(),
-      cover: entity.get('cover')?.getValue(),
+      media: entity.get('media')?.getValue(),
       description: entity.get('description')?.getValue(),
       subCategories:
         entity.get('subCategories')?.map((subCategoryProps) => {

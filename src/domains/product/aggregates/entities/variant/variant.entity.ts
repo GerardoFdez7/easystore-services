@@ -2,7 +2,7 @@ import {
   Id,
   Attribute,
   Price,
-  Cover,
+  Media as MediaVO,
   PersonalizationOptions,
   Weight,
   Dimension,
@@ -27,7 +27,7 @@ export interface IVariantProps extends EntityProps {
   id: Id;
   attributes: Attribute[];
   price: Price;
-  variantCover?: Cover;
+  variantCover?: MediaVO;
   personalizationOptions: PersonalizationOptions[];
   weight?: Weight;
   dimension?: Dimension;
@@ -59,8 +59,8 @@ export class Variant extends Entity<IVariantProps> {
       ),
       price: Price.create(props.price),
       variantCover: props.variantCover
-        ? Cover.create(props.variantCover)
-        : Cover.create('https://easystore.com/default-variant-cover.jpg'),
+        ? MediaVO.create(props.variantCover)
+        : MediaVO.create('https://easystore.com/default-variant-media.jpg'),
       personalizationOptions: props.personalizationOptions
         ? props.personalizationOptions.map((opt) =>
             PersonalizationOptions.create(opt),
@@ -135,8 +135,8 @@ export class Variant extends Entity<IVariantProps> {
     }
     if (data.variantCover !== undefined) {
       newProps.variantCover = data.variantCover
-        ? Cover.create(data.variantCover)
-        : Cover.create('https://easystore.com/default-cover.jpg');
+        ? MediaVO.create(data.variantCover)
+        : MediaVO.create('https://easystore.com/default-media.jpg');
     }
     if (data.personalizationOptions) {
       newProps.personalizationOptions = data.personalizationOptions.map((opt) =>

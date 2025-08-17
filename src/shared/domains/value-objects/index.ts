@@ -1,6 +1,6 @@
 export { Id, IdSchema } from './id.vo';
 export { Name } from './name.vo';
-export { Cover } from './cover.vo';
+export { Media } from './media.vo';
 export { ShortDescription } from './short-description.vo';
 export { MediumDescription } from './medium-description.vo';
 export { LongDescription } from './long-description.vo';

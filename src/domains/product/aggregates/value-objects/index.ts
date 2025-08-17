@@ -4,7 +4,7 @@ export {
   Id,
   IdSchema,
   Name,
-  Cover,
+  Media,
   ShortDescription,
   MediumDescription,
   LongDescription,

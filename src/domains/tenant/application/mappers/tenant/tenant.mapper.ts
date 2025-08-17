@@ -9,7 +9,7 @@ import {
   Name,
   LongDescription,
   Domain,
-  Logo,
+  Media,
   Currency,
 } from '../../../aggregates/value-objects';
 import { TenantDTO } from '..';
@@ -37,7 +37,7 @@ export class TenantMapper {
       domain: model.domain
         ? Domain.create(model.domain)
         : Domain.createDefault(model.businessName),
-      logo: model.logo ? Logo.create(model.logo) : null,
+      logo: model.logo ? Media.create(model.logo) : null,
       description: model.description
         ? LongDescription.create(model.description)
         : null,
