@@ -98,7 +98,7 @@ export class GetInTouchInput {
   @Field()
   company: string;
 
-  @Field()
+  @Field({ nullable: true })
   websiteUrl: string;
 
   @Field()
