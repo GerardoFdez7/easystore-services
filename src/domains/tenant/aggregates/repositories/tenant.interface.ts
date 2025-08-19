@@ -33,4 +33,11 @@ export interface ITenantRepository {
    * @returns The tenant entity or null if not found.
    */
   findByAuthIdentityId(authIdentityId: Id): Promise<Tenant | null>;
+
+  /**
+   * Finds a tenant by its ID.
+   * @param id The unique identifier of the tenant.
+   * @returns The tenant entity or null if not found.
+   */
+  findById(id: Id): Promise<Tenant | null>;
 }

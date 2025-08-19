@@ -14,10 +14,8 @@ export class UpdateTenantHandler implements ICommandHandler<UpdateTenantDTO> {
   ) {}
 
   async execute(command: UpdateTenantDTO): Promise<TenantDTO> {
-    // Find the tenant by auth identity ID
-    const tenant = await this.tenantRepository.findByAuthIdentityId(
-      Id.create(command.id),
-    );
+    // Find the tenant by ID
+    const tenant = await this.tenantRepository.findById(Id.create(command.id));
     if (!tenant) {
       throw new NotFoundException(`Tenant with ID ${command.id} not found`);
     }

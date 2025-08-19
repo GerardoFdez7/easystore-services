@@ -121,6 +121,21 @@ export default class TenantRepository implements ITenantRepository {
     }
   }
 
+  async findById(id: Id): Promise<Tenant | null> {
+    const idValue = id.getValue();
+    try {
+      const tenant = await this.prisma.tenant.findUnique({
+        where: {
+          id: idValue,
+        },
+      });
+
+      return tenant ? this.mapToDomain(tenant) : null;
+    } catch (error) {
+      return this.handleDatabaseError(error, 'find tenant by id');
+    }
+  }
+
   private handleDatabaseError(error: unknown, operation: string): never {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       switch (error.code) {
