@@ -18,12 +18,13 @@ export default class MediaService {
    * Generates secure ImageKit upload token for authenticated users
    * This is a secure wrapper around ImageKit's getAuthenticationParameters
    * @param user - The authenticated user from JWT token
-   * @returns ImageKit authentication parameters (token, expire, signature)
+   * @returns ImageKit authentication parameters (token, expire, signature, publicKey)
    */
   generateSecureUploadToken(user: JwtPayload): {
     token: string;
     expire: number;
     signature: string;
+    publicKey: string;
   } {
     if (!user) {
       throw new UnauthorizedException(
@@ -33,6 +34,11 @@ export default class MediaService {
 
     // Generate ImageKit authentication parameters
     // Client will use these to authenticate uploads directly to ImageKit
-    return this.imagekit.getAuthenticationParameters();
+    const authParams = this.imagekit.getAuthenticationParameters();
+
+    return {
+      ...authParams,
+      publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+    };
   }
 }

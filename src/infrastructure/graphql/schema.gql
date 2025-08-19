@@ -232,6 +232,7 @@ type Media {
 
 type MediaAuthResponse {
   expire: Float!
+  publicKey: String!
   signature: String!
   token: String!
 }

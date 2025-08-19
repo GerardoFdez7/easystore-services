@@ -25,13 +25,7 @@ export class CleanupService {
   @Cron(CronExpression.EVERY_HOUR)
   cleanupExpiredRateLimits(): void {
     try {
-      const startTime = Date.now();
-      const cleanedCount = this.passwordResetRateLimiter.cleanup();
-      const duration = Date.now() - startTime;
-
-      this.logger.log(
-        `Reset password tokens cleanup completed: ${cleanedCount} expired entries removed in ${duration}ms`,
-      );
+      this.passwordResetRateLimiter.cleanup();
     } catch (error) {
       this.logger.error(
         'Failed to cleanup expired rate limiting entries',

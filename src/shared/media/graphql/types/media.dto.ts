@@ -10,4 +10,7 @@ export class MediaAuthResponse {
 
   @Field()
   signature: string;
+
+  @Field()
+  publicKey: string;
 }
