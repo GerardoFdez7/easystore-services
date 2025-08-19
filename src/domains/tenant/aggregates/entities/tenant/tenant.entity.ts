@@ -2,7 +2,7 @@ import { Entity, EntityProps } from '@domains/entity.base';
 import { Id, Name, LongDescription, Currency } from '../../value-objects';
 import { ITenantType } from '..';
 import { Domain, Media } from '../../value-objects';
-import { TenantCreatedEvent } from '../../events/tenant-created.event';
+import { TenantCreatedEvent, TenantUpdatedEvent } from '../../events';
 
 export interface ITenantProps extends EntityProps {
   id: Id;
@@ -60,7 +60,7 @@ export class Tenant extends Entity<ITenantProps> {
     return tenant;
   }
 
-  update(props: Partial<ITenantType>): void {
+  update(props: Partial<ITenantType>): Tenant {
     if (props.ownerName) {
       this.props.ownerName = Name.create(props.ownerName);
     }
@@ -81,5 +81,10 @@ export class Tenant extends Entity<ITenantProps> {
     }
 
     this.props.updatedAt = new Date();
+
+    // Apply domain event
+    this.apply(new TenantUpdatedEvent(this));
+
+    return this;
   }
 }
