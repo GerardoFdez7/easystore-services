@@ -106,7 +106,11 @@ export class AuthEmailService extends EmailService {
 
   async sendGetInTouchEmail(data: GetInTouchDTO): Promise<void> {
     // Define the recipient emails
-    const recipientEmails = ['rui23719@uvg.edu.gt', 'josegrg04@gmail.com'];
+    const recipientEmails = [
+      'rui23719@uvg.edu.gt',
+      'gerardofernandezcruzmt@gmail.com',
+      'hadelacruz77@gmail.com',
+    ];
 
     // Prepare email data
     const emailData: GetInTouchEmailData = {
