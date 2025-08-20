@@ -1,7 +1,6 @@
 import {
   Field,
   Int,
-  ID,
   ObjectType,
   InputType,
   registerEnumType,
@@ -14,9 +13,6 @@ registerEnumType(CurrencyCodes, {
 
 @ObjectType('Tenant')
 export class TenantType {
-  @Field(() => ID)
-  id: string;
-
   @Field()
   ownerName: string;
 

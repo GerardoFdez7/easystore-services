@@ -10,6 +10,9 @@ registerEnumType(AddressTypeEnum, {
 
 @ObjectType()
 export class AddressType {
+  @Field(() => ID)
+  id: string;
+
   @Field(() => String)
   name: string;
 

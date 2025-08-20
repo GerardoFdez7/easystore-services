@@ -4,6 +4,7 @@ import {
   InputType,
   Int,
   registerEnumType,
+  ID,
 } from '@nestjs/graphql';
 import {
   VariantType,
@@ -27,6 +28,9 @@ registerEnumType(TypeEnum, {
 
 @ObjectType('Product')
 export class ProductType {
+  @Field(() => ID)
+  id: string;
+
   @Field()
   name: string;
 

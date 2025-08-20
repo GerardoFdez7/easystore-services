@@ -47,6 +47,9 @@ export class DimensionType {
 
 @ObjectType('Variant')
 export class VariantType {
+  @Field(() => ID)
+  id: string;
+
   @Field(() => [AttributeType])
   attributes: AttributeType[];
 
