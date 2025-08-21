@@ -557,7 +557,6 @@ type Tenant {
   defaultShippingAddressId: Int!
   description: String!
   domain: String!
-  id: ID!
   logo: String!
   ownerName: String!
   updatedAt: DateTime!
