@@ -502,6 +502,7 @@ type Query {
   getCategoryById(id: ID!): Category!
   getMediaUploadToken: MediaAuthResponse!
   getProductById(id: String!): Product!
+  getTenantById: Tenant!
   getWarehouseById(id: ID!): Warehouse!
   validateToken: Response!
 }
