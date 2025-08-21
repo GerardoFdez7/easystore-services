@@ -111,7 +111,7 @@ export default class TenantRepository implements ITenantRepository {
     try {
       const tenant = await this.prisma.tenant.findFirst({
         where: {
-          id: authIdentityIdValue,
+          authIdentityId: authIdentityIdValue,
         },
       });
 
