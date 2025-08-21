@@ -13,9 +13,13 @@ import {
 } from './application/events';
 import TenantRepository from './infrastructure/persistence/postgres/tenant.repository';
 import { TenantResolver } from './presentation/graphql/resolvers/tenant.resolver';
+import { GetTenantByIdHandler } from './application/queries/get-tenant/get-tenant-by-id.handler';
 
 // Command handlers
 const CommandHandlers = [TenantSingUpHandler, UpdateTenantHandler];
+
+// Query handlers
+const QueryHandlers = [GetTenantByIdHandler];
 
 // Event handlers
 const EventHandlers = [TenantCreatedHandler, IdentityCreatedHandler];
@@ -29,6 +33,7 @@ const EventHandlers = [TenantCreatedHandler, IdentityCreatedHandler];
     },
     TenantResolver,
     ...CommandHandlers,
+    ...QueryHandlers,
     ...EventHandlers,
   ],
 })
