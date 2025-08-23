@@ -70,7 +70,7 @@ export class Tenant extends Entity<ITenantProps> {
       this.props.domain = Domain.create(props.domain);
     }
     if (props.logo) {
-      this.props.logo = Logo.create(props.logo);
+      this.props.logo = Media.create(props.logo);
     }
     if (props.description) {
       this.props.description = LongDescription.create(props.description);

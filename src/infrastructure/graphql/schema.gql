@@ -42,6 +42,7 @@ type AddressType {
   city: String!
   countryId: ID!
   deliveryNum: String!
+  id: ID!
   name: String!
   postalCode: String!
 }
@@ -84,6 +85,7 @@ type Category {
   cover: String!
   createdAt: DateTime!
   description: String!
+  id: ID!
   name: String!
   subCategories: [Category!]!
   updatedAt: DateTime!
@@ -302,6 +304,7 @@ type Product {
   categories: [ProductCategory!]
   cover: String!
   createdAt: DateTime!
+  id: ID!
   isArchived: Boolean!
   longDescription: String
   manufacturer: String
@@ -491,6 +494,7 @@ type Variant {
   condition: ConditionEnum!
   dimension: Dimension
   ean: String
+  id: ID!
   installmentPayments: [Installment!]
   isArchived: Boolean
   isbn: String
