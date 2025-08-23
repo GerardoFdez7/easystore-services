@@ -440,7 +440,7 @@ type Mutation {
   updatePassword(input: UpdatePasswordInput!): Response!
   updateProduct(id: String!, input: UpdateProductInput!): Product!
   updateStockInWarehouse(input: UpdateStockInWarehouseInput!, reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
-  updateTenant(id: String!, input: UpdateTenantInput!): Tenant!
+  updateTenant(input: UpdateTenantInput!): Tenant!
   updateVariant(id: String!, input: UpdateVariantInput!, productId: String!): Product!
   updateWarehouse(id: ID!, input: UpdateWarehouseInput!): Warehouse!
 }
@@ -548,16 +548,15 @@ type Sustainability {
 }
 
 type Tenant {
-  authIdentityId: Int!
   businessName: String!
   createdAt: DateTime!
   currency: CurrencyCodes!
-  defaultBillingAddressId: Int!
-  defaultPhoneNumberId: Int!
-  defaultShippingAddressId: Int!
-  description: String!
+  defaultBillingAddressId: ID
+  defaultPhoneNumberId: ID
+  defaultShippingAddressId: ID
+  description: String
   domain: String!
-  logo: String!
+  logo: String
   ownerName: String!
   updatedAt: DateTime!
 }
@@ -646,12 +645,11 @@ input UpdateSustainabilityInput {
 }
 
 input UpdateTenantInput {
-  authIdentityId: Int
   businessName: String
   currency: CurrencyCodes
-  defaultBillingAddressId: Int
-  defaultPhoneNumberId: Int
-  defaultShippingAddressId: Int
+  defaultBillingAddressId: ID
+  defaultPhoneNumberId: ID
+  defaultShippingAddressId: ID
   description: String
   domain: String
   logo: String

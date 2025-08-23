@@ -1,12 +1,12 @@
 import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { TenantType, UpdateTenantInput } from '../types/tenant.types';
-import { UpdateTenantDTO } from '../../../application/commands/update/update-tenant.dto';
-import { GetTenantByIdDTO } from '../../../application/queries/get-tenant/get-tenant-by-id.dto';
+import { TenantType, UpdateTenantInput } from './types/tenant.types';
+import { UpdateTenantDTO } from '../../application/commands';
+import { GetTenantByIdDTO } from '../../application/queries';
 import { CurrentUser, JwtPayload } from '@common/decorators';
 
 @Resolver(() => TenantType)
-export class TenantResolver {
+export default class TenantResolver {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
@@ -14,17 +14,10 @@ export class TenantResolver {
 
   @Mutation(() => TenantType)
   async updateTenant(
-    @Args('id') id: string,
+    @CurrentUser() user: JwtPayload,
     @Args('input') input: UpdateTenantInput,
   ): Promise<TenantType> {
-    const command = new UpdateTenantDTO(id, {
-      ownerName: input.ownerName,
-      businessName: input.businessName,
-      domain: input.domain,
-      logo: input.logo,
-      description: input.description,
-      currency: input.currency,
-    });
+    const command = new UpdateTenantDTO(user.tenantId, { ...input });
 
     return this.commandBus.execute(command);
   }

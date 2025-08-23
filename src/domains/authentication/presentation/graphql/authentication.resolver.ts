@@ -135,16 +135,7 @@ export default class AuthenticationResolver {
     @Args('input') input: GetInTouchInput,
   ): Promise<ResponseType> {
     const result = await this.commandBus.execute<GetInTouchDTO, ResponseDTO>(
-      new GetInTouchDTO(
-        input.fullName,
-        input.businessEmail,
-        input.businessPhone,
-        input.company,
-        input.websiteUrl,
-        input.country,
-        input.annualRevenue,
-        input.isAgency,
-      ),
+      new GetInTouchDTO(input),
     );
 
     return {

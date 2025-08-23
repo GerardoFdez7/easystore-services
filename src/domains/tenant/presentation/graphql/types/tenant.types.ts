@@ -1,6 +1,6 @@
 import {
   Field,
-  Int,
+  ID,
   ObjectType,
   InputType,
   registerEnumType,
@@ -22,56 +22,32 @@ export class TenantType {
   @Field()
   domain: string;
 
-  @Field()
+  @Field({ nullable: true })
   logo: string;
 
-  @Field()
+  @Field({ nullable: true })
   description: string;
 
   @Field(() => CurrencyCodes)
   currency: CurrencyCodes;
 
-  @Field(() => Int)
-  authIdentityId: number;
+  @Field(() => ID, { nullable: true })
+  defaultPhoneNumberId?: string;
 
-  @Field(() => Int)
-  defaultPhoneNumberId: number;
+  @Field(() => ID, { nullable: true })
+  defaultShippingAddressId?: string;
 
-  @Field(() => Int)
-  defaultShippingAddressId: number;
+  @Field(() => ID, { nullable: true })
+  defaultBillingAddressId?: string;
 
-  @Field(() => Int)
-  defaultBillingAddressId: number;
-
-  @Field()
+  @Field(() => Date)
   updatedAt: Date;
 
-  @Field()
+  @Field(() => Date)
   createdAt: Date;
 }
 
-// Input types for creating and updating tenants
-
-@InputType()
-export class CreateTenantInput {
-  @Field()
-  ownerName: string;
-
-  @Field()
-  businessName: string;
-
-  @Field({ nullable: true })
-  domain?: string;
-
-  @Field({ nullable: true })
-  logo?: string;
-
-  @Field({ nullable: true })
-  description?: string;
-
-  @Field(() => CurrencyCodes, { nullable: true })
-  currency: CurrencyCodes;
-}
+// Input type for update
 
 @InputType()
 export class UpdateTenantInput {
@@ -91,17 +67,14 @@ export class UpdateTenantInput {
   description?: string;
 
   @Field(() => CurrencyCodes, { nullable: true })
-  currency: CurrencyCodes;
+  currency?: CurrencyCodes;
 
-  @Field(() => Int, { nullable: true })
-  authIdentityId?: number;
+  @Field(() => ID, { nullable: true })
+  defaultPhoneNumberId?: string;
 
-  @Field(() => Int, { nullable: true })
-  defaultPhoneNumberId?: number;
+  @Field(() => ID, { nullable: true })
+  defaultShippingAddressId?: string;
 
-  @Field(() => Int, { nullable: true })
-  defaultShippingAddressId?: number;
-
-  @Field(() => Int, { nullable: true })
-  defaultBillingAddressId?: number;
+  @Field(() => ID, { nullable: true })
+  defaultBillingAddressId?: string;
 }
