@@ -6,14 +6,16 @@ import {
   TenantSingUpHandler,
   UpdateTenantHandler,
 } from './application/commands';
+// Query Handlers
+import { GetTenantByIdHandler } from './application/queries';
 // Event Handlers
 import {
   TenantCreatedHandler,
+  TenantUpdatedHandler,
   IdentityCreatedHandler,
 } from './application/events';
 import TenantRepository from './infrastructure/persistence/postgres/tenant.repository';
-import { TenantResolver } from './presentation/graphql/resolvers/tenant.resolver';
-import { GetTenantByIdHandler } from './application/queries/get-tenant/get-tenant-by-id.handler';
+import TenantResolver from './presentation/graphql/tenant.resolver';
 
 // Command handlers
 const CommandHandlers = [TenantSingUpHandler, UpdateTenantHandler];
@@ -22,7 +24,11 @@ const CommandHandlers = [TenantSingUpHandler, UpdateTenantHandler];
 const QueryHandlers = [GetTenantByIdHandler];
 
 // Event handlers
-const EventHandlers = [TenantCreatedHandler, IdentityCreatedHandler];
+const EventHandlers = [
+  IdentityCreatedHandler,
+  TenantCreatedHandler,
+  TenantUpdatedHandler,
+];
 
 @Module({
   imports: [CqrsModule],

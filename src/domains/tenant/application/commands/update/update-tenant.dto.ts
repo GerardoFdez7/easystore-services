@@ -1,7 +1,7 @@
 import { ITenantType } from '../../../aggregates/entities';
 
 type UpdatableTenantFields = Partial<
-  Omit<ITenantType, 'id' | 'authIdentityId'>
+  Omit<ITenantType, 'id' | 'authIdentityId' | 'createdAt' | 'updatedAt'>
 >;
 
 /**

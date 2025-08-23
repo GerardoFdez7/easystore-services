@@ -79,6 +79,19 @@ export class Tenant extends Entity<ITenantProps> {
     if (props.currency) {
       this.props.currency = Currency.create(props.currency);
     }
+    if (props.defaultPhoneNumberId) {
+      this.props.defaultPhoneNumberId = Id.create(props.defaultPhoneNumberId);
+    }
+    if (props.defaultShippingAddressId) {
+      this.props.defaultShippingAddressId = Id.create(
+        props.defaultShippingAddressId,
+      );
+    }
+    if (props.defaultBillingAddressId) {
+      this.props.defaultBillingAddressId = Id.create(
+        props.defaultBillingAddressId,
+      );
+    }
 
     this.props.updatedAt = new Date();
 

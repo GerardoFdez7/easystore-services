@@ -10,7 +10,7 @@ import {
   GetInTouchEmailData,
 } from './get-in-touch/get-in-touch.builder';
 import { generatePasswordResetToken } from '../jwt';
-import { GetInTouchDTO } from '@authentication/application/commands/get-in.touch/get-in-touch.dto';
+import { GetInTouchDTO } from '@authentication/application/commands/get-in-touch/get-in-touch.dto';
 
 /**
  * Comprehensive email service for authentication domain
@@ -76,32 +76,6 @@ export class AuthEmailService extends EmailService {
    */
   private buildResetPasswordUrl(token: string): string {
     return `${this.frontendUrl}/login?token=${encodeURIComponent(token)}`;
-  }
-
-  async sendGetInTouchEmail(data: GetInTouchDTO): Promise<void> {
-    // Define the recipient emails
-    const recipientEmails = ['rui23719@uvg.edu.gt', 'josegrg04@gmail.com'];
-
-    // Prepare email data
-    const emailData: GetInTouchEmailData = {
-      recipientEmail: recipientEmails[0], // Use first recipient as primary
-      fullName: data.fullName,
-      businessEmail: data.businessEmail,
-      businessPhone: data.businessPhone,
-      company: data.company,
-      websiteUrl: data.websiteUrl,
-      country: data.country,
-      annualRevenue: data.annualRevenue,
-      isAgency: data.isAgency,
-    };
-
-    // Send email to all recipients
-    await this.sendEmail({
-      to: recipientEmails,
-      subject: this.getInTouchEmailBuilder.getSubject(emailData),
-      html: this.getInTouchEmailBuilder.buildHtml(emailData),
-      text: this.getInTouchEmailBuilder.buildText(emailData),
-    });
   }
 
   async sendGetInTouchEmail(data: GetInTouchDTO): Promise<void> {

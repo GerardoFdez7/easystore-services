@@ -21,17 +21,6 @@ export interface GetInTouchEmailData extends IEmailTemplateData {
 export class GetInTouchEmailBuilder
   implements IEmailBuilder<GetInTouchEmailData>
 {
-  private formatMessage(
-    message: string,
-    replacements: Record<string, string | number>,
-  ): string {
-    return Object.entries(replacements).reduce(
-      (text, [key, value]) =>
-        text.replace(new RegExp(`\\{${key}\\}`, 'g'), String(value)),
-      message,
-    );
-  }
-
   /**
    * Builds the HTML content for the get in touch email
    * @param data - The email template data
