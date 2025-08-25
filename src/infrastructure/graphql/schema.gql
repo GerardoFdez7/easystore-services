@@ -548,14 +548,15 @@ type Sustainability {
 }
 
 type Tenant {
-  businessName: String!
+  businessName: String
   createdAt: DateTime!
   currency: CurrencyCodes!
   defaultBillingAddressId: ID
   defaultPhoneNumberId: ID
   defaultShippingAddressId: ID
   description: String
-  domain: String!
+  domain: String
+  email: String!
   logo: String
   ownerName: String!
   updatedAt: DateTime!

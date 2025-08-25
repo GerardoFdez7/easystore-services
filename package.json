@@ -36,7 +36,6 @@
   },
   "dependencies": {
     "@elastic/elasticsearch": "^8.17.1",
-    "@faker-js/faker": "^9.9.0",
     "@nestjs/apollo": "^13.0.4",
     "@nestjs/common": "^11.0.20",
     "@nestjs/config": "^4.0.2",

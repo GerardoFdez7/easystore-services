@@ -1,6 +1,6 @@
 import { z } from 'zod/v4';
 
-const mediaSchema = z.url({ message: 'Invalid media URL' });
+const mediaSchema = z.url({ message: 'Invalid media URL' }).nullable();
 
 export class Media {
   private readonly value: string;

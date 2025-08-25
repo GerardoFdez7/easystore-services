@@ -4,6 +4,7 @@ import { TenantType, UpdateTenantInput } from './types/tenant.types';
 import { UpdateTenantDTO } from '../../application/commands';
 import { GetTenantByIdDTO } from '../../application/queries';
 import { CurrentUser, JwtPayload } from '@common/decorators';
+import { TenantDTO } from '../../application/mappers';
 
 @Resolver(() => TenantType)
 export default class TenantResolver {
@@ -28,6 +29,12 @@ export default class TenantResolver {
 
   @Query(() => TenantType)
   async getTenantById(@CurrentUser() user: JwtPayload): Promise<TenantType> {
-    return this.queryBus.execute(new GetTenantByIdDTO(user.tenantId));
+    const tenant: TenantDTO = await this.queryBus.execute(
+      new GetTenantByIdDTO(user.tenantId),
+    );
+    return {
+      ...tenant,
+      email: user.email,
+    } as TenantType;
   }
 }

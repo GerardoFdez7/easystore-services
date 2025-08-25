@@ -22,9 +22,9 @@ datasource postgres {
 // Tenant schema models
 model Tenant {
   id                       String          @id
-  businessName             String          @unique
+  businessName             String?         @unique
   ownerName                String
-  domain                   String          @unique
+  domain                   String?         @unique
   logo                     String?
   description              String?         @postgres.Text
   currency                 Currency

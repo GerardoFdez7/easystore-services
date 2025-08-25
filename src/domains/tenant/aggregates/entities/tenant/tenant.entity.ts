@@ -6,7 +6,7 @@ import { TenantCreatedEvent, TenantUpdatedEvent } from '../../events';
 
 export interface ITenantProps extends EntityProps {
   id: Id;
-  businessName: Name;
+  businessName?: Name;
   ownerName: Name;
   domain?: Domain;
   logo?: Media;
@@ -27,13 +27,10 @@ export class Tenant extends Entity<ITenantProps> {
 
   // Factory method to create a new Tenant
   static create(props: ITenantType): Tenant {
-    const businessName = Name.generate();
     const transformedProps = {
-      businessName: businessName,
       ownerName: Name.create(props.ownerName),
-      domain: props.domain
-        ? Domain.create(props.domain)
-        : Domain.createDefault(businessName.getValue()),
+      businessName: props.businessName ? Name.create(props.businessName) : null,
+      domain: props.domain ? Domain.create(props.domain) : null,
       logo: props.logo ? Media.create(props.logo) : null,
       description: props.description
         ? LongDescription.create(props.description)
@@ -70,7 +67,7 @@ export class Tenant extends Entity<ITenantProps> {
     if (props.domain) {
       this.props.domain = Domain.create(props.domain);
     }
-    if (props.logo) {
+    if (props.logo !== undefined) {
       this.props.logo = Media.create(props.logo);
     }
     if (props.description) {

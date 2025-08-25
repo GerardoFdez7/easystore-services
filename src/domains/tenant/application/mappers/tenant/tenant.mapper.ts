@@ -32,12 +32,10 @@ export class TenantMapper {
       Tenant
     >(Tenant, persistenceTenant, (model) => ({
       id: Id.create(model.id),
-      businessName: Name.create(model.businessName),
+      businessName: model.businessName ? Name.create(model.businessName) : null,
       ownerName: Name.create(model.ownerName),
-      domain: model.domain
-        ? Domain.create(model.domain)
-        : Domain.createDefault(model.businessName),
-      logo: model.logo ? Media.create(model.logo) : null,
+      domain: model.domain ? Domain.create(model.domain) : null,
+      logo: Media.create(model.logo),
       description: model.description
         ? LongDescription.create(model.description)
         : null,
@@ -66,8 +64,9 @@ export class TenantMapper {
     return tenant.toDTO<TenantDTO>((entity) => ({
       id: entity.get('id')?.getValue() || undefined,
       ownerName: entity.get('ownerName').getValue(),
-      businessName: entity.get('businessName').getValue(),
-      domain: entity.get('domain').getValue(),
+      businessName: entity.get('businessName')?.getValue(),
+      email: '', // Email will be provided by the resolver from JWT payload
+      domain: entity.get('domain')?.getValue(),
       logo: entity.get('logo')?.getValue(),
       description: entity.get('description')?.getValue(),
       currency: entity.get('currency').getValue(),

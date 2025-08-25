@@ -1,7 +1,7 @@
 import { CurrencyCodes } from '../../value-objects';
 
 export interface ITenantType extends ITenantBase, ITenantSystem {
-  businessName: string;
+  businessName?: string;
   currency: CurrencyCodes;
   domain?: string;
   logo?: string;

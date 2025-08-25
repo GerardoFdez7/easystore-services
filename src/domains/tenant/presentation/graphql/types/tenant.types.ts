@@ -16,17 +16,20 @@ export class TenantType {
   @Field()
   ownerName: string;
 
-  @Field()
-  businessName: string;
-
-  @Field()
-  domain: string;
+  @Field({ nullable: true })
+  businessName?: string;
 
   @Field({ nullable: true })
-  logo: string;
+  domain?: string;
+
+  @Field()
+  email: string;
 
   @Field({ nullable: true })
-  description: string;
+  logo?: string;
+
+  @Field({ nullable: true })
+  description?: string;
 
   @Field(() => CurrencyCodes)
   currency: CurrencyCodes;
@@ -48,7 +51,6 @@ export class TenantType {
 }
 
 // Input type for update
-
 @InputType()
 export class UpdateTenantInput {
   @Field({ nullable: true })
