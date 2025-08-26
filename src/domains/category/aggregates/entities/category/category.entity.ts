@@ -9,7 +9,7 @@ import {
 export interface ICategoryProps extends EntityProps {
   id: Id;
   name: Name;
-  media?: Media;
+  cover: Media;
   description?: ShortDescription;
   subCategories?: ICategoryProps[];
   parentId?: Id;

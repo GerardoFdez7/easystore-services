@@ -57,7 +57,7 @@ export class CategoryMapper {
     return category.toDTO<CategoryDTO>((entity) => ({
       id: entity.get('id')?.getValue(),
       name: entity.get('name').getValue(),
-      media: entity.get('media')?.getValue(),
+      cover: entity.get('cover')?.getValue(),
       description: entity.get('description')?.getValue(),
       subCategories:
         entity.get('subCategories')?.map((subCategoryProps) => {

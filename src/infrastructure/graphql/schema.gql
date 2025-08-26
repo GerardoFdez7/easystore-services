@@ -114,7 +114,7 @@ input CreateAttributeInput {
 }
 
 input CreateCategoryInput {
-  cover: String
+  cover: String!
   description: String
   name: String!
   parentId: ID
@@ -490,13 +490,14 @@ type Product {
 
 type ProductCategory {
   categoryId: ID!
+  categoryName: String
 }
 
 type Query {
   getAddressById(id: ID!): AddressType!
   getAllAddresses(addressType: AddressTypeEnum): AddressesType!
   getAllCategories(includeSubcategories: Boolean = true, limit: Int = 10, name: String, page: Int = 1, parentId: ID, sortBy: SortBy, sortOrder: SortOrder): PaginatedCategoriesType!
-  getAllProducts(categoriesIds: [Int!], includeSoftDeleted: Boolean = false, limit: Float = 25, name: String, page: Float = 1, sortBy: SortBy, sortOrder: SortOrder, type: TypeEnum): PaginatedProductsType!
+  getAllProducts(categoriesIds: [ID!], includeSoftDeleted: Boolean = false, limit: Float = 25, name: String, page: Float = 1, sortBy: SortBy, sortOrder: SortOrder, type: TypeEnum): PaginatedProductsType!
   getAllStockMovements(createdById: ID, dateFrom: DateTime, dateTo: DateTime, includeDeleted: Boolean = false, limit: Int = 10, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID, warehouseId: ID!): PaginatedStockMovementsType!
   getAllWarehouses(addressId: ID, limit: Int = 10, lowStockThreshold: Int, name: String, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID): PaginatedWarehousesType!
   getCategoryById(id: ID!): Category!

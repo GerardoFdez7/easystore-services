@@ -45,8 +45,8 @@ export class CreateCategoryInput {
   @Field(() => String, { nullable: true })
   description?: string;
 
-  @Field(() => String, { nullable: true })
-  cover?: string;
+  @Field(() => String)
+  cover: string;
 
   @Field(() => [CreateCategoryInput], { nullable: true })
   subCategories?: CreateCategoryInput[];

@@ -5,6 +5,9 @@ import { Field, ObjectType, InputType, ID } from '@nestjs/graphql';
 export class ProductCategoryType {
   @Field(() => ID)
   categoryId: string;
+
+  @Field({ nullable: true })
+  categoryName?: string;
 }
 
 // Input types for creating product categories

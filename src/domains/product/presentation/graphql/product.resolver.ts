@@ -1,5 +1,5 @@
 import {
-  Int,
+  ID,
   Resolver,
   Mutation,
   Args,
@@ -175,7 +175,7 @@ export class ProductResolver {
     @Args('page', { defaultValue: 1, nullable: true }) page?: number,
     @Args('limit', { defaultValue: 25, nullable: true }) limit?: number,
     @Args('name', { nullable: true }) name?: string,
-    @Args('categoriesIds', { nullable: true, type: () => [Int] })
+    @Args('categoriesIds', { nullable: true, type: () => [ID] })
     categoriesIds?: string[],
     @Args('type', { nullable: true, type: () => TypeEnum }) type?: TypeEnum,
     @Args('sortBy', { nullable: true, type: () => SortBy }) sortBy?: SortBy,

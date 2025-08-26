@@ -338,7 +338,11 @@ export class ProductRepository implements IProductRepository {
                 installmentPayments: true,
               },
             },
-            categories: true,
+            categories: {
+              include: {
+                category: true,
+              },
+            },
             sustainabilities: true,
           },
         });
@@ -377,7 +381,11 @@ export class ProductRepository implements IProductRepository {
                 installmentPayments: true,
               },
             },
-            categories: true,
+            categories: {
+              include: {
+                category: true,
+              },
+            },
             sustainabilities: true,
           },
         });
@@ -503,7 +511,11 @@ export class ProductRepository implements IProductRepository {
               installmentPayments: true,
             },
           },
-          categories: true,
+          categories: {
+            include: {
+              category: true,
+            },
+          },
           sustainabilities: true,
         },
       });
@@ -603,7 +615,11 @@ export class ProductRepository implements IProductRepository {
           include: {
             media: true,
             variants: true,
-            categories: true,
+            categories: {
+              include: {
+                category: true,
+              },
+            },
             sustainabilities: true,
           },
         }),

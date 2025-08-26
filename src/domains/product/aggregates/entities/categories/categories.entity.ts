@@ -5,6 +5,7 @@ export interface IProductCategoriesProps extends EntityProps {
   id: Id;
   productId: Id;
   categoryId: Id;
+  category?: { name: string } | null;
 }
 
 export class ProductCategories extends Entity<IProductCategoriesProps> {
@@ -20,6 +21,7 @@ export class ProductCategories extends Entity<IProductCategoriesProps> {
       id: Id.generate(),
       productId,
       categoryId,
+      categoryName: props.category.name,
     });
 
     return productCategories;

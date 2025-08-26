@@ -28,6 +28,7 @@ export class ProductCategoriesMapper {
       id: Id.create(model.id),
       productId: Id.create(model.productId),
       categoryId: Id.create(model.categoryId),
+      categoryName: model.category.name,
     }));
   }
 
@@ -41,6 +42,7 @@ export class ProductCategoriesMapper {
       id: entity.get('id')?.getValue() || undefined,
       productId: entity.get('productId')?.getValue(),
       categoryId: entity.get('categoryId')?.getValue(),
+      categoryName: entity.get('categoryName'),
     }));
   }
 }
