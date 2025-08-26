@@ -614,7 +614,15 @@ export class ProductRepository implements IProductRepository {
           orderBy,
           include: {
             media: true,
-            variants: true,
+            variants: {
+              include: {
+                attributes: true,
+                dimension: true,
+                variantMedia: true,
+                warranties: true,
+                installmentPayments: true,
+              },
+            },
             categories: {
               include: {
                 category: true,
