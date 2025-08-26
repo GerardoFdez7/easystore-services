@@ -22,7 +22,7 @@ datasource postgres {
 // Tenant schema models
 model Tenant {
   id                       String          @id
-  businessName             String?         @unique
+  businessName             String?
   ownerName                String
   domain                   String?         @unique
   logo                     String?
