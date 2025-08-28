@@ -28,7 +28,7 @@ export class ProductCategoriesMapper {
       id: Id.create(model.id),
       productId: Id.create(model.productId),
       categoryId: Id.create(model.categoryId),
-      categoryName: model.category.name,
+      categoryName: model.category?.name || 'Unknown Category',
     }));
   }
 

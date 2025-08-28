@@ -11,6 +11,7 @@ interface ValueObject {
 function isValueObject(obj: unknown): obj is ValueObject {
   return (
     obj !== null &&
+    obj !== undefined &&
     typeof obj === 'object' &&
     'getValue' in obj &&
     typeof (obj as ValueObject).getValue === 'function'

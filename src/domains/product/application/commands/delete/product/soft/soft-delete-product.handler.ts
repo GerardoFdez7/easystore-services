@@ -40,8 +40,8 @@ export class SoftDeleteProductHandler
 
     // Save the updated product
     await this.productRepository.update(
-      Id.create(command.id),
       Id.create(command.tenantId),
+      Id.create(command.id),
       deletedProduct,
     );
 
