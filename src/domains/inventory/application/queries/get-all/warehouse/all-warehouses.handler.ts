@@ -4,6 +4,7 @@ import { IWarehouseRepository } from '../../../../aggregates/repositories';
 import { GetAllWarehousesDTO } from './all-warehouses.dto';
 import { WarehouseMapper, PaginatedWarehousesDTO } from '../../../mappers';
 import { Id } from '../../../../aggregates/value-objects';
+import IProductAdapter from '../../../ports/product.port';
 
 @QueryHandler(GetAllWarehousesDTO)
 export class GetAllWarehousesHandler
@@ -12,6 +13,8 @@ export class GetAllWarehousesHandler
   constructor(
     @Inject('IWarehouseRepository')
     private readonly warehouseRepository: IWarehouseRepository,
+    @Inject('IProductAdapter')
+    private readonly productAdapter: IProductAdapter,
   ) {}
 
   async execute(query: GetAllWarehousesDTO): Promise<PaginatedWarehousesDTO> {
@@ -25,6 +28,7 @@ export class GetAllWarehousesHandler
       lowStockThreshold,
       sortBy,
       sortOrder,
+      isArchived,
     } = options || {};
 
     // Validate pagination parameters
@@ -54,6 +58,48 @@ export class GetAllWarehousesHandler
       throw new NotFoundException(`No warehouses found`);
     }
 
-    return WarehouseMapper.toPaginatedDto(result);
+    // Collect unique variantIds
+    const variantIdsSet = new Set<string>();
+    result.warehouses.forEach((warehouse) => {
+      warehouse.get('stocks').forEach((stock) => {
+        variantIdsSet.add(stock.get('variantId').getValue());
+      });
+    });
+    const variantIds = Array.from(variantIdsSet);
+
+    // Fetch variant details
+    const variantsDetails =
+      await this.productAdapter.getVariantsDetails(variantIds);
+    const detailsMap = new Map(
+      variantsDetails.map((detail) => [detail.variantId, detail]),
+    );
+
+    // Get paginated DTO
+    const paginated = WarehouseMapper.toPaginatedDto(result);
+
+    // Enrich DTOs
+    paginated.warehouses = paginated.warehouses.map((dto) => {
+      dto.stockPerWarehouses = dto.stockPerWarehouses
+        .filter((stockDto) => {
+          if (isArchived === undefined) return true;
+          const detail = detailsMap.get(stockDto.variantId);
+          return detail ? detail.isArchived === isArchived : false;
+        })
+        .map((stockDto) => {
+          const detail = detailsMap.get(stockDto.variantId);
+          if (detail) {
+            return {
+              ...stockDto,
+              productName: detail.productName,
+              variantSku: detail.sku,
+              variantFirstAttribute: detail.firstAttribute,
+            };
+          }
+          return stockDto;
+        });
+      return dto;
+    });
+
+    return paginated;
   }
 }

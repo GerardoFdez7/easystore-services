@@ -1,5 +1,14 @@
 import { ObjectType, Field, ID, Int, InputType } from '@nestjs/graphql';
 
+@ObjectType('VariantAttribute')
+export class VariantAttributeType {
+  @Field()
+  key: string;
+
+  @Field()
+  value: string;
+}
+
 @ObjectType('StockPerWarehouse')
 export class StockPerWarehouseType {
   @Field(() => ID)
@@ -25,6 +34,18 @@ export class StockPerWarehouseType {
 
   @Field(() => ID)
   warehouseId: string;
+
+  @Field(() => ID)
+  variantId: string;
+
+  @Field({ nullable: true })
+  productName?: string;
+
+  @Field({ nullable: true })
+  variantSku?: string;
+
+  @Field(() => VariantAttributeType, { nullable: true })
+  variantFirstAttribute?: VariantAttributeType;
 }
 
 // Input type for adding stock to warehouse

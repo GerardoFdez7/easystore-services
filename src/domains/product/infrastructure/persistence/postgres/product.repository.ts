@@ -652,6 +652,44 @@ export class ProductRepository implements IProductRepository {
     }
   }
 
+  async findVariantsByIds(ids: Id[]): Promise<
+    Array<{
+      id: string;
+      sku: string;
+      attributes: Array<{ key: string; value: string }>;
+      product: { name: string };
+      isArchived: boolean;
+    }>
+  > {
+    const idValues = ids.map((id) => id.getValue());
+
+    try {
+      const variants = await this.prisma.variant.findMany({
+        where: {
+          id: { in: idValues },
+        },
+        include: {
+          attributes: true,
+          product: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      });
+
+      return variants.map((v) => ({
+        id: v.id,
+        sku: v.sku || '',
+        attributes: v.attributes.map((a) => ({ key: a.key, value: a.value })),
+        product: { name: v.product.name },
+        isArchived: v.isArchived,
+      }));
+    } catch (error) {
+      return this.handleDatabaseError(error, 'find variants by ids');
+    }
+  }
+
   /**
    * Centralized error handling for database operations
    */

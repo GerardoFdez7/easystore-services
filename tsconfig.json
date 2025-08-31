@@ -25,6 +25,7 @@
       "@common/*": ["src/common/*"],
       "@utils/*": ["src/common/utils/*"],
       "@authentication/*": ["src/domains/authentication/*"],
+      "@product/*": ["src/domains/product/*"],
       "@database/*": ["src/infrastructure/database/*"],
       "@graphql/*": ["src/infrastructure/graphql/*"],
       "@metrics/*": ["src/infrastructure/metrics/*"],

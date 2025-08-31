@@ -1,3 +1,7 @@
 import { IStockPerWarehouseType } from '../../../aggregates/entities';
 
-export type StockPerWarehouseDTO = IStockPerWarehouseType;
+export interface StockPerWarehouseDTO extends IStockPerWarehouseType {
+  productName?: string;
+  variantSku?: string;
+  variantFirstAttribute?: { key: string; value: string };
+}

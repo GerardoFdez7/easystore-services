@@ -12,6 +12,7 @@ export class GetAllWarehousesDTO {
       lowStockThreshold?: number;
       sortBy?: SortBy;
       sortOrder?: SortOrder;
+      isArchived?: boolean;
     },
   ) {}
 }

@@ -18,6 +18,7 @@ import {
 import {
   GetProductByIdHandler,
   GetAllProductsHandler,
+  GetVariantsDetailsHandler,
 } from './application/queries';
 // Event Handlers
 import {
@@ -48,7 +49,11 @@ const CommandHandlers = [
   RestoreVariantHandler,
 ];
 
-const QueryHandlers = [GetProductByIdHandler, GetAllProductsHandler];
+const QueryHandlers = [
+  GetProductByIdHandler,
+  GetAllProductsHandler,
+  GetVariantsDetailsHandler,
+];
 
 const EventHandlers = [
   ProductCreatedHandler,
@@ -72,5 +77,6 @@ const EventHandlers = [
     ...QueryHandlers,
     ...EventHandlers,
   ],
+  exports: [GetVariantsDetailsHandler],
 })
 export class ProductDomain {}

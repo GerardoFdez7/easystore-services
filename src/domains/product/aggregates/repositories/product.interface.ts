@@ -66,4 +66,20 @@ export interface IProductRepository {
       includeSoftDeleted?: boolean;
     },
   ): Promise<{ products: Product[]; total: number; hasMore: boolean }>;
+
+  /**
+   * Finds variants by their IDs, returning minimal data including SKU, attributes, and product name.
+   * @param ids Array of variant IDs
+   * @returns Promise of array of variant details
+   * @throws {Error} If there is an error during the search
+   */
+  findVariantsByIds(ids: Id[]): Promise<
+    Array<{
+      id: string;
+      sku: string;
+      attributes: Array<{ key: string; value: string }>;
+      product: { name: string };
+      isArchived: boolean;
+    }>
+  >;
 }

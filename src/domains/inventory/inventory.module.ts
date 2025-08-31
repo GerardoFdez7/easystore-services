@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
+import { ProductDomain } from '@product/product.module';
 
 // Commands Handlers
 import {
@@ -30,6 +31,7 @@ import {
   StockMovementRepository,
 } from './infrastructure/persistence/postgres';
 import InventoryResolver from './presentation/graphql/inventory.resolver';
+import ProductAdapter from './infrastructure/adapters/product.adapter';
 
 const CommandHandlers = [
   CreateWarehouseHandler,
@@ -54,10 +56,11 @@ const EventHandlers = [
 ];
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, ProductDomain],
   providers: [
     { provide: 'IWarehouseRepository', useClass: WarehouseRepository },
     { provide: 'IStockMovementRepository', useClass: StockMovementRepository },
+    { provide: 'IProductAdapter', useClass: ProductAdapter },
     InventoryResolver,
     ...CommandHandlers,
     ...QueryHandlers,
