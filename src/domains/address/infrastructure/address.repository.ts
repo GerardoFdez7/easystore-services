@@ -15,6 +15,7 @@ import {
 } from '../aggregates/repositories/address.interface';
 import { AddressMapper } from '../application/mappers';
 import { Id, AddressType } from '../aggregates/value-objects';
+import { AddressDetailsDTO } from '@domains/dtos';
 
 @Injectable()
 export default class AddressRepository implements IAddressRepository {
@@ -197,6 +198,29 @@ export default class AddressRepository implements IAddressRepository {
       return mappedAddress;
     } catch (error) {
       return this.handleDatabaseError(error, 'find address by id');
+    }
+  }
+
+  async findDetailsByIds(ids: Id[]): Promise<AddressDetailsDTO[]> {
+    try {
+      const idValues = ids.map((id) => id.getValue());
+      const addresses = await this.prisma.address.findMany({
+        where: { id: { in: idValues } },
+        include: { country: true },
+      });
+
+      return addresses.map((addr) => ({
+        addressId: addr.id,
+        addressLine1: addr.addressLine1,
+        city: addr.city,
+        countryCode: addr.country?.code || '',
+        postalCode: addr.postalCode || '',
+      }));
+    } catch (error) {
+      return this.handleDatabaseError(
+        error,
+        'find address details by multiple ids',
+      );
     }
   }
 

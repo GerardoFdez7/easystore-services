@@ -13,6 +13,7 @@ export class GetAllWarehousesDTO {
       sortBy?: SortBy;
       sortOrder?: SortOrder;
       isArchived?: boolean;
+      includeAddresses?: boolean;
     },
   ) {}
 }

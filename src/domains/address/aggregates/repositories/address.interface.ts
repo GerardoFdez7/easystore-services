@@ -1,5 +1,6 @@
 import { Id, AddressType } from '../value-objects';
 import { Address } from '../entities';
+import { AddressDetailsDTO } from '@domains/dtos';
 
 export type Owner = { tenantId: Id } | { customerId: Id };
 export interface IAddressRepository {
@@ -48,4 +49,12 @@ export interface IAddressRepository {
     owner: Owner,
     options?: { addressType?: AddressType },
   ): Promise<Address[]>;
+
+  /**
+   * Finds address details by their unique identifiers.
+   * @param ids - Array of unique identifiers of the addresses
+   * @returns Promise that resolves to an array of AddressDetailsDTO
+   * @throws {Error} When repository operation fails
+   */
+  findDetailsByIds(ids: Id[]): Promise<AddressDetailsDTO[]>;
 }

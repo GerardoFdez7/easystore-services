@@ -172,6 +172,12 @@ export default class InventoryResolver {
     sortOrder?: SortOrder,
     @Args('isArchived', { nullable: true, type: () => Boolean })
     isArchived?: boolean,
+    @Args('includeAddresses', {
+      nullable: true,
+      type: () => Boolean,
+      defaultValue: false,
+    })
+    includeAddresses?: boolean,
   ): Promise<PaginatedWarehousesDTO> {
     return this.queryBus.execute(
       new GetAllWarehousesDTO(user.tenantId, {
@@ -184,6 +190,7 @@ export default class InventoryResolver {
         sortBy,
         sortOrder,
         isArchived,
+        includeAddresses,
       }),
     );
   }

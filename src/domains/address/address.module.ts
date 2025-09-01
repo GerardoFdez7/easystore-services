@@ -12,6 +12,7 @@ import {
 import {
   GetAddressByIdHandler,
   GetAllAddressesHandler,
+  GetAddressesDetailsHandler,
 } from './application/queries';
 
 //Event Handlers
@@ -28,7 +29,11 @@ const CommandHanldlers = [
   DeleteAddressHandler,
   UpdateAddressHandler,
 ];
-const QueryHandlers = [GetAddressByIdHandler, GetAllAddressesHandler];
+const QueryHandlers = [
+  GetAddressByIdHandler,
+  GetAllAddressesHandler,
+  GetAddressesDetailsHandler,
+];
 const EventHandlers = [
   AddressCreatedHandler,
   AddressDeletedHandler,
@@ -39,12 +44,11 @@ const EventHandlers = [
   imports: [CqrsModule],
   providers: [
     { provide: 'IAddressRepository', useClass: AddressRepository },
-    AddressRepository,
     AddressResolver,
     ...CommandHanldlers,
     ...EventHandlers,
     ...QueryHandlers,
   ],
-  exports: [AddressRepository],
+  exports: [GetAddressesDetailsHandler],
 })
 export class AddressDomain {}

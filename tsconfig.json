@@ -24,6 +24,7 @@
       "@config/*": ["src/config/*"],
       "@common/*": ["src/common/*"],
       "@utils/*": ["src/common/utils/*"],
+      "@address/*": ["src/domains/address/*"],
       "@authentication/*": ["src/domains/authentication/*"],
       "@product/*": ["src/domains/product/*"],
       "@database/*": ["src/infrastructure/database/*"],

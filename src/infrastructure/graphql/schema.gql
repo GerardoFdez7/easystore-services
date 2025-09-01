@@ -499,7 +499,7 @@ type Query {
   getAllCategories(includeSubcategories: Boolean = true, limit: Int = 10, name: String, page: Int = 1, parentId: ID, sortBy: SortBy, sortOrder: SortOrder): PaginatedCategoriesType!
   getAllProducts(categoriesIds: [ID!], includeSoftDeleted: Boolean = false, limit: Float = 25, name: String, page: Float = 1, sortBy: SortBy, sortOrder: SortOrder, type: TypeEnum): PaginatedProductsType!
   getAllStockMovements(createdById: ID, dateFrom: DateTime, dateTo: DateTime, includeDeleted: Boolean = false, limit: Int = 10, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID, warehouseId: ID!): PaginatedStockMovementsType!
-  getAllWarehouses(addressId: ID, isArchived: Boolean, limit: Int = 10, lowStockThreshold: Int, name: String, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID): PaginatedWarehousesType!
+  getAllWarehouses(addressId: ID, includeAddresses: Boolean = false, isArchived: Boolean, limit: Int = 10, lowStockThreshold: Int, name: String, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID): PaginatedWarehousesType!
   getCategoryById(id: ID!): Category!
   getMediaUploadToken: MediaAuthResponse!
   getProductById(id: String!): Product!
@@ -718,9 +718,13 @@ type VariantAttribute {
 
 type Warehouse {
   addressId: ID!
+  addressLine1: String
+  city: String
+  countryCode: String
   createdAt: DateTime!
   id: ID!
   name: String!
+  postalCode: String
   stockPerWarehouses: [StockPerWarehouse!]!
   updatedAt: DateTime!
 }

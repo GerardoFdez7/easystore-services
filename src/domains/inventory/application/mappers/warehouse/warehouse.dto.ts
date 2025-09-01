@@ -1,6 +1,11 @@
 import { IWarehouseType } from '../../../aggregates/entities';
 
-export type WarehouseDTO = IWarehouseType;
+export interface WarehouseDTO extends IWarehouseType {
+  addressLine1?: string;
+  city?: string;
+  countryCode?: string;
+  postalCode?: string;
+}
 
 /**
  * Interface for paginated warehouse results

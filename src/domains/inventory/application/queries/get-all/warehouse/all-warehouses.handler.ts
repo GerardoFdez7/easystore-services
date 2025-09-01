@@ -4,7 +4,7 @@ import { IWarehouseRepository } from '../../../../aggregates/repositories';
 import { GetAllWarehousesDTO } from './all-warehouses.dto';
 import { WarehouseMapper, PaginatedWarehousesDTO } from '../../../mappers';
 import { Id } from '../../../../aggregates/value-objects';
-import IProductAdapter from '../../../ports/product.port';
+import { IProductAdapter, IAddressAdapter } from '../../../ports';
 
 @QueryHandler(GetAllWarehousesDTO)
 export class GetAllWarehousesHandler
@@ -15,6 +15,8 @@ export class GetAllWarehousesHandler
     private readonly warehouseRepository: IWarehouseRepository,
     @Inject('IProductAdapter')
     private readonly productAdapter: IProductAdapter,
+    @Inject('IAddressAdapter')
+    private readonly addressAdapter: IAddressAdapter,
   ) {}
 
   async execute(query: GetAllWarehousesDTO): Promise<PaginatedWarehousesDTO> {
@@ -29,6 +31,7 @@ export class GetAllWarehousesHandler
       sortBy,
       sortOrder,
       isArchived,
+      includeAddresses,
     } = options || {};
 
     // Validate pagination parameters
@@ -74,6 +77,23 @@ export class GetAllWarehousesHandler
       variantsDetails.map((detail) => [detail.variantId, detail]),
     );
 
+    // Address details
+    const addressMap = new Map(
+      includeAddresses
+        ? await (async () => {
+            const addressIdsSet = new Set<string>();
+            result.warehouses.forEach((warehouse) => {
+              addressIdsSet.add(warehouse.get('addressId').getValue());
+            });
+            const addressIds = Array.from(addressIdsSet);
+
+            const addressesDetails =
+              await this.addressAdapter.getAddressDetails(addressIds);
+            return addressesDetails.map((detail) => [detail.addressId, detail]);
+          })()
+        : [],
+    );
+
     // Get paginated DTO
     const paginated = WarehouseMapper.toPaginatedDto(result);
 
@@ -97,6 +117,16 @@ export class GetAllWarehousesHandler
           }
           return stockDto;
         });
+
+      // Enrich with address details
+      const addressDetail = addressMap.get(dto.addressId);
+      if (addressDetail) {
+        dto.addressLine1 = addressDetail.addressLine1;
+        dto.city = addressDetail.city;
+        dto.countryCode = addressDetail.countryCode;
+        dto.postalCode = addressDetail.postalCode;
+      }
+
       return dto;
     });
 
