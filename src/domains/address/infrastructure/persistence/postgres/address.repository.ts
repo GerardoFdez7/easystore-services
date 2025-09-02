@@ -8,13 +8,13 @@ import {
   ForeignKeyConstraintViolationError,
   DatabaseOperationError,
 } from '@domains/errors';
-import { Address, IAddressType } from '../aggregates/entities';
+import { Address, IAddressType } from '../../../aggregates/entities';
 import {
   IAddressRepository,
   Owner,
-} from '../aggregates/repositories/address.interface';
-import { AddressMapper } from '../application/mappers';
-import { Id, AddressType } from '../aggregates/value-objects';
+} from '../../../aggregates/repositories/address.interface';
+import { AddressMapper } from '../../../application/mappers';
+import { Id, AddressType } from '../../../aggregates/value-objects';
 import { AddressDetailsDTO } from '@domains/dtos';
 
 @Injectable()

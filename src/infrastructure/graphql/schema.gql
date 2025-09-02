@@ -99,6 +99,12 @@ enum ConditionEnum {
   USED
 }
 
+type CountryType {
+  code: String!
+  id: ID!
+  name: String!
+}
+
 input CreateAddressInput {
   addressLine1: String!
   addressLine2: String
@@ -501,12 +507,14 @@ type Query {
   getAddressById(id: ID!): AddressType!
   getAllAddresses(addressType: AddressTypeEnum): AddressesType!
   getAllCategories(includeSubcategories: Boolean = true, limit: Int = 10, name: String, page: Int = 1, parentId: ID, sortBy: SortBy, sortOrder: SortOrder): PaginatedCategoriesType!
+  getAllCountries: [CountryType!]!
   getAllProducts(categoriesIds: [ID!], includeSoftDeleted: Boolean = false, limit: Float = 25, name: String, page: Float = 1, sortBy: SortBy, sortOrder: SortOrder, type: TypeEnum): PaginatedProductsType!
   getAllStockMovements(createdById: ID, dateFrom: DateTime, dateTo: DateTime, includeDeleted: Boolean = false, limit: Int = 10, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID, warehouseId: ID!): PaginatedStockMovementsType!
   getAllWarehouses(addressId: ID, includeAddresses: Boolean = false, isArchived: Boolean, limit: Int = 10, lowStockThreshold: Int, name: String, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID): PaginatedWarehousesType!
   getCategoryById(id: ID!): Category!
   getMediaUploadToken: MediaAuthResponse!
   getProductById(id: String!): Product!
+  getStatesByCountryId(countryId: ID!): [StateType!]!
   getTenantById: Tenant!
   getWarehouseById(id: ID!): Warehouse!
   validateToken: Response!
@@ -526,6 +534,11 @@ enum SortBy {
 enum SortOrder {
   ASC
   DESC
+}
+
+type StateType {
+  code: String!
+  name: String!
 }
 
 type StockMovement {

@@ -13,6 +13,8 @@ import {
   GetAddressByIdHandler,
   GetAllAddressesHandler,
   GetAddressesDetailsHandler,
+  GetAllCountriesHandler,
+  GetStatesByCountryIdHandler,
 } from './application/queries';
 
 //Event Handlers
@@ -21,7 +23,9 @@ import {
   AddressDeletedHandler,
   AddressUpdatedHandler,
 } from './application/events';
-import AddressRepository from './infrastructure/address.repository';
+import AddressRepository from './infrastructure/persistence/postgres/address.repository';
+import CountryRepository from './infrastructure/persistence/postgres/country.repository';
+import StateRepository from './infrastructure/persistence/postgres/state.repository';
 import AddressResolver from './presentation/graphql/address.resolver';
 
 const CommandHanldlers = [
@@ -33,6 +37,8 @@ const QueryHandlers = [
   GetAddressByIdHandler,
   GetAllAddressesHandler,
   GetAddressesDetailsHandler,
+  GetAllCountriesHandler,
+  GetStatesByCountryIdHandler,
 ];
 const EventHandlers = [
   AddressCreatedHandler,
@@ -44,6 +50,8 @@ const EventHandlers = [
   imports: [CqrsModule],
   providers: [
     { provide: 'IAddressRepository', useClass: AddressRepository },
+    CountryRepository,
+    StateRepository,
     AddressResolver,
     ...CommandHanldlers,
     ...EventHandlers,

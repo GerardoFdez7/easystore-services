@@ -6,13 +6,20 @@ import {
   CreateAddressInput,
   UpdateAddressInput,
   AddressesType,
+  CountryType,
+  StateType,
 } from './types';
 import {
   CreateAddressDTO,
   AddressDeleteDTO,
   UpdateAddressDTO,
 } from '../../application/commands';
-import { GetAddressIdDto, GetAllAddressesDTO } from '../../application/queries';
+import {
+  GetAddressIdDto,
+  GetAllAddressesDTO,
+  GetAllCountriesDTO,
+  GetStatesByCountryIdDTO,
+} from '../../application/queries';
 import { AddressTypeEnum } from '../../aggregates/value-objects';
 
 @Resolver(() => AddressType)
@@ -82,5 +89,17 @@ export default class AddressResolver {
     return this.queryBus.execute(
       new GetAllAddressesDTO(user.tenantId, user.customerId, { addressType }),
     );
+  }
+
+  @Query(() => [CountryType])
+  async getAllCountries(): Promise<CountryType[]> {
+    return this.queryBus.execute(new GetAllCountriesDTO());
+  }
+
+  @Query(() => [StateType])
+  async getStatesByCountryId(
+    @Args('countryId', { type: () => ID }) countryId: string,
+  ): Promise<StateType[]> {
+    return this.queryBus.execute(new GetStatesByCountryIdDTO(countryId));
   }
 }

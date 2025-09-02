@@ -324,6 +324,7 @@ model Warehouse {
   stockPerWarehouses StockPerWarehouse[]
 
   @@unique([tenantId, name])
+  @@unique([tenantId, addressId])
   @@schema("inventory")
 }
 
