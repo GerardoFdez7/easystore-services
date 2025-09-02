@@ -13,6 +13,7 @@ import {
   DeliveryNum,
   AddressType,
   City,
+  ShortDescription,
 } from '../../../aggregates/value-objects';
 import { AddressDTO, AllAddressDTO } from './address.dto';
 import { UpdateAddressDTO } from '../../commands';
@@ -31,14 +32,14 @@ export class AddressMapper {
       addressLine2: persitenceAddress.addressLine2
         ? AddressLine2.create(persitenceAddress.addressLine2)
         : null,
-      postalCode: persitenceAddress.postalCode
-        ? PostalCode.create(persitenceAddress.postalCode)
-        : null,
+      postalCode: PostalCode.create(persitenceAddress.postalCode),
       city: City.create(persitenceAddress.city),
+      stateId: Id.create(persitenceAddress.stateId),
       countryId: Id.create(persitenceAddress.countryId),
       addressType: AddressType.create(persitenceAddress.addressType),
-      deliveryNum: persitenceAddress.deliveryNum
-        ? DeliveryNum.create(persitenceAddress.deliveryNum)
+      deliveryNum: DeliveryNum.create(persitenceAddress.deliveryNum),
+      deliveryInstructions: persitenceAddress.deliveryInstructions
+        ? ShortDescription.create(persitenceAddress.deliveryInstructions)
         : null,
       tenantId: persitenceAddress.tenantId
         ? Id.create(persitenceAddress.tenantId)
@@ -62,11 +63,13 @@ export class AddressMapper {
       name: entity.get('name').getValue(),
       addressLine1: entity.get('addressLine1').getValue(),
       addressLine2: entity.get('addressLine2')?.getValue(),
-      postalCode: entity.get('postalCode')?.getValue(),
+      postalCode: entity.get('postalCode').getValue(),
       city: entity.get('city').getValue(),
+      stateId: entity.get('stateId').getValue(),
       countryId: entity.get('countryId').getValue(),
       addressType: entity.get('addressType').getValue(),
-      deliveryNum: entity.get('deliveryNum')?.getValue(),
+      deliveryNum: entity.get('deliveryNum').getValue(),
+      deliveryInstructions: entity.get('deliveryInstructions')?.getValue(),
       tenantId: entity.get('tenantId')?.getValue(),
       customerId: entity.get('customerId')?.getValue(),
     }));

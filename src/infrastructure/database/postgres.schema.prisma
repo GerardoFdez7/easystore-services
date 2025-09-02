@@ -932,16 +932,19 @@ model Address {
   name                       String
   addressLine1               String
   addressLine2               String?
-  postalCode                 String?
+  postalCode                 String
   city                       String
   countryId                  String
+  stateId                    String
   addressType                AddressTypes
-  deliveryNum                String?
+  deliveryNum                String
+  deliveryInstructions       String?
   tenantId                   String?
   customerId                 String?
   warehouses                 Warehouse[]
   orders                     Order[]
   country                    Country      @relation(fields: [countryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  state                      State        @relation(fields: [stateId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   tenant                     Tenant?      @relation(fields: [tenantId], references: [id])
   customer                   Customer?    @relation(fields: [customerId], references: [id])
   defaultShippingForTenant   Tenant?      @relation("TenantDefaultShippingAddress")
@@ -949,6 +952,8 @@ model Address {
   defaultShippingForCustomer Customer?    @relation("CustomerDefaultShippingAddress")
   defaultBillingForCustomer  Customer?    @relation("CustomerDefaultBillingAddress")
 
+  @@unique([name, tenantId])
+  @@unique([name, customerId])
   @@schema("common")
 }
 
@@ -991,8 +996,8 @@ enum AccountType {
 // Geography schema models
 model Country {
   id             String         @id
-  name           String
-  code           String
+  name           String         @unique
+  code           String         @unique
   states         State[]
   addresses      Address[]
   taxRates       TaxRate[]
@@ -1006,6 +1011,7 @@ model State {
   name           String
   code           String
   countryId      String
+  addresses      Address[]
   taxRates       TaxRate[]
   shippmentRates ShipmentRate[]
   country        Country        @relation(fields: [countryId], references: [id], onDelete: Cascade, onUpdate: Cascade)

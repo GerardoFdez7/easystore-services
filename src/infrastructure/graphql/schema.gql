@@ -40,11 +40,13 @@ type AddressType {
   addressLine2: String!
   addressType: AddressTypeEnum!
   city: String!
-  countryId: ID!
+  countryId: String!
+  deliveryInstructions: String
   deliveryNum: String!
   id: ID!
   name: String!
   postalCode: String!
+  stateId: String!
 }
 
 """Types of addresses"""
@@ -102,10 +104,12 @@ input CreateAddressInput {
   addressLine2: String
   addressType: AddressTypeEnum!
   city: String!
-  countryId: ID!
-  deliveryNum: String
+  countryId: String!
+  deliveryInstructions: String
+  deliveryNum: String!
   name: String!
-  postalCode: String
+  postalCode: String!
+  stateId: String!
 }
 
 input CreateAttributeInput {
@@ -577,10 +581,12 @@ input UpdateAddressInput {
   addressLine2: String
   addressType: AddressTypeEnum
   city: String
-  countryId: ID
+  countryId: String
+  deliveryInstructions: String
   deliveryNum: String
   name: String
   postalCode: String
+  stateId: String
 }
 
 input UpdateAttributeInput {

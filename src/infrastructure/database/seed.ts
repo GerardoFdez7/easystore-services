@@ -1,5 +1,5 @@
 import { PostgreService } from './postgres.service';
-// Remove import { Id } from '../../shared/domains/value-objects/id.vo';
+import { Id } from '../../shared/domains/value-objects/id.vo';
 import { LoggerService } from '../../shared/winston/winston.service';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -36,7 +36,24 @@ async function main(): Promise<void> {
       ) as CountryFileData;
       const { country, states } = data;
 
-      const countryId = country.code;
+      // Check if country exists by code
+      const existingCountry = await prisma.country.findFirst({
+        where: { code: country.code },
+      });
+
+      let countryId: string;
+      if (existingCountry) {
+        countryId = existingCountry.id;
+      } else {
+        countryId = Id.generate().getValue();
+        await prisma.country.create({
+          data: {
+            id: countryId,
+            name: country.name,
+            code: country.code,
+          },
+        });
+      }
 
       await prisma.country.upsert({
         where: { id: countryId },
@@ -49,17 +66,25 @@ async function main(): Promise<void> {
       });
 
       for (const state of states) {
-        const stateId = `${country.code}-${state.code}`;
-        await prisma.state.upsert({
-          where: { id: stateId },
-          update: {},
-          create: {
-            id: stateId,
-            name: state.name,
+        // Check if state exists by code and countryId
+        const existingState = await prisma.state.findFirst({
+          where: {
             code: state.code,
-            countryId,
+            countryId: countryId,
           },
         });
+
+        if (!existingState) {
+          const stateId = Id.generate().getValue();
+          await prisma.state.create({
+            data: {
+              id: stateId,
+              name: state.name,
+              code: state.code,
+              countryId: countryId,
+            },
+          });
+        }
       }
     }
 

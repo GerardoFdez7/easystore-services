@@ -34,8 +34,10 @@ export default class AddressRepository implements IAddressRepository {
             postalCode: addressDto.postalCode,
             city: addressDto.city,
             countryId: addressDto.countryId,
+            stateId: addressDto.stateId,
             addressType: addressDto.addressType,
             deliveryNum: addressDto.deliveryNum,
+            deliveryInstructions: addressDto.deliveryInstructions,
             tenantId: addressDto.tenantId,
             customerId: addressDto.customerId,
           },
@@ -75,8 +77,10 @@ export default class AddressRepository implements IAddressRepository {
             postalCode: updatesDto.postalCode,
             city: updatesDto.city,
             countryId: updatesDto.countryId,
+            stateId: updatesDto.stateId,
             addressType: updatesDto.addressType,
             deliveryNum: updatesDto.deliveryNum,
+            deliveryInstructions: updatesDto.deliveryInstructions,
           },
         });
 

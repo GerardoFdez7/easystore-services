@@ -13,6 +13,7 @@ import {
   DeliveryNum,
   AddressType,
   City,
+  ShortDescription,
 } from '../../value-objects';
 
 export interface IAddressProps extends EntityProps {
@@ -20,11 +21,13 @@ export interface IAddressProps extends EntityProps {
   name: Name;
   addressLine1: AddressLine1;
   addressLine2?: AddressLine2;
-  postalCode?: PostalCode;
+  postalCode: PostalCode;
   city: City;
   countryId: Id;
+  stateId: Id;
   addressType: AddressType;
-  deliveryNum?: DeliveryNum;
+  deliveryNum: DeliveryNum;
+  deliveryInstructions?: ShortDescription;
   tenantId?: Id;
   customerId?: Id;
 }
@@ -51,12 +54,14 @@ export class Address extends Entity<IAddressProps> {
       addressLine2: props.addressLine2
         ? AddressLine2.create(props.addressLine2)
         : null,
-      postalCode: props.postalCode ? PostalCode.create(props.postalCode) : null,
+      postalCode: PostalCode.create(props.postalCode),
       city: City.create(props.city),
       countryId: Id.create(props.countryId),
+      stateId: Id.create(props.stateId),
       addressType: AddressType.create(props.addressType),
-      deliveryNum: props.deliveryNum
-        ? DeliveryNum.create(props.deliveryNum)
+      deliveryNum: DeliveryNum.create(props.deliveryNum),
+      deliveryInstructions: props.deliveryInstructions
+        ? ShortDescription.create(props.deliveryInstructions)
         : null,
       tenantId: props.tenantId ? Id.create(props.tenantId) : null,
       customerId: props.customerId ? Id.create(props.customerId) : null,
@@ -109,12 +114,22 @@ export class Address extends Entity<IAddressProps> {
       props.countryId = Id.create(updates.countryId);
     }
 
+    if (updates.stateId !== undefined) {
+      props.stateId = Id.create(updates.stateId);
+    }
+
     if (updates.addressType !== undefined) {
       props.addressType = AddressType.create(updates.addressType);
     }
 
     if (updates.deliveryNum !== undefined) {
       props.deliveryNum = DeliveryNum.create(updates.deliveryNum);
+    }
+
+    if (updates.deliveryInstructions !== undefined) {
+      props.deliveryInstructions = ShortDescription.create(
+        updates.deliveryInstructions,
+      );
     }
 
     const updateAddress = new Address(props);

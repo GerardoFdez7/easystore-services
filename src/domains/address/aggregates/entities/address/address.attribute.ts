@@ -5,11 +5,13 @@ export interface IAddressBase {
   name: string;
   addressLine1: string;
   addressLine2?: string;
-  postalCode?: string;
+  postalCode: string;
   city: string;
   countryId: string;
+  stateId: string;
   addressType: AddressTypeEnum;
-  deliveryNum?: string;
+  deliveryNum: string;
+  deliveryInstructions?: string;
   tenantId?: string;
   customerId?: string;
 }

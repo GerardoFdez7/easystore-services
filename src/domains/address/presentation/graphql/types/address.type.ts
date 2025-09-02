@@ -1,5 +1,4 @@
 import { ObjectType, Field, ID, InputType } from '@nestjs/graphql';
-
 import { registerEnumType } from '@nestjs/graphql';
 import { AddressTypeEnum } from '../../../aggregates/value-objects';
 
@@ -28,7 +27,10 @@ export class AddressType {
   @Field(() => String)
   city: string;
 
-  @Field(() => ID)
+  @Field(() => String)
+  stateId: string;
+
+  @Field(() => String)
   countryId: string;
 
   @Field(() => AddressTypeEnum)
@@ -36,6 +38,9 @@ export class AddressType {
 
   @Field(() => String)
   deliveryNum: string;
+
+  @Field(() => String, { nullable: true })
+  deliveryInstructions?: string;
 }
 
 @ObjectType()
@@ -56,20 +61,26 @@ export class CreateAddressInput {
   @Field(() => String, { nullable: true })
   addressLine2?: string;
 
-  @Field(() => String, { nullable: true })
-  postalCode?: string;
+  @Field(() => String)
+  postalCode: string;
 
   @Field(() => String)
   city: string;
 
-  @Field(() => ID)
+  @Field(() => String)
   countryId: string;
+
+  @Field(() => String)
+  stateId: string;
 
   @Field(() => AddressTypeEnum)
   addressType: AddressTypeEnum;
 
+  @Field(() => String)
+  deliveryNum: string;
+
   @Field(() => String, { nullable: true })
-  deliveryNum?: string;
+  deliveryInstructions?: string;
 }
 
 @InputType()
@@ -89,12 +100,18 @@ export class UpdateAddressInput {
   @Field(() => String, { nullable: true })
   city?: string;
 
-  @Field(() => ID, { nullable: true })
+  @Field(() => String, { nullable: true })
   countryId?: string;
+
+  @Field(() => String, { nullable: true })
+  stateId?: string;
 
   @Field(() => AddressTypeEnum, { nullable: true })
   addressType?: AddressTypeEnum;
 
   @Field(() => String, { nullable: true })
   deliveryNum?: string;
+
+  @Field(() => String, { nullable: true })
+  deliveryInstructions?: string;
 }
