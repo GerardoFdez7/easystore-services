@@ -866,6 +866,8 @@ enum ProviderType {
   PAGADITO
   VISANET
   PAYPAL
+
+  @@schema("sales")
 }
 
 model PaymentProviderCredential {

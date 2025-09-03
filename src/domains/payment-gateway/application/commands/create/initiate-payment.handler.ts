@@ -8,18 +8,20 @@ export class InitiatePaymentHandler {
   constructor(private readonly paymentGatewayService: PaymentGatewayService) {}
 
   async handle(dto: InitiatePaymentDto): Promise<PaymentResult> {
-    return this.paymentGatewayService.initiatePayment(
-      dto.tenantId,
-      dto.providerType,
-      {
-        amount: dto.amount,
-        currency: dto.currency,
-        orderId: dto.orderId,
-        details: dto.details,
-        customParams: dto.customParams,
-        allowPendingPayments: dto.allowPendingPayments,
-        externalReferenceNumber: dto.externalReferenceNumber,
-      },
-    );
+    const result: PaymentResult =
+      await this.paymentGatewayService.initiatePayment(
+        dto.tenantId,
+        dto.providerType,
+        {
+          amount: dto.amount,
+          currency: dto.currency,
+          orderId: dto.orderId,
+          details: dto.details,
+          customParams: dto.customParams,
+          allowPendingPayments: dto.allowPendingPayments,
+          externalReferenceNumber: dto.externalReferenceNumber,
+        },
+      );
+    return result;
   }
 }
