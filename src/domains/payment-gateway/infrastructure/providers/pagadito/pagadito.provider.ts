@@ -208,7 +208,7 @@ export class PagaditoProvider implements PaymentProvider {
   }
 
   refundPayment(params: RefundPaymentParams): Promise<PaymentResult> {
-    // TODO: Implement refund functionality for Pagadito
+    // Pagadito refund functionality not yet available
     return Promise.resolve({
       success: false,
       error: 'Refund functionality not implemented for Pagadito',

@@ -79,16 +79,20 @@ export class PaypalProvider implements PaymentProvider {
   }
 
   async completePayment(params: CompletePaymentParams): Promise<PaymentResult> {
-    // TODO: Implement as needed for PayPal
-    return new Promise((resolve) => {
-      resolve({ success: true, raw: params });
+    // PayPal implementation not yet available
+    return Promise.resolve({
+      success: false,
+      error: 'PayPal complete payment not implemented',
+      raw: params,
     });
   }
 
   async refundPayment(params: RefundPaymentParams): Promise<PaymentResult> {
-    // TODO: Implement as needed for PayPal
-    return new Promise((resolve) => {
-      resolve({ success: true, raw: params });
+    // PayPal implementation not yet available
+    return Promise.resolve({
+      success: false,
+      error: 'PayPal refund not implemented',
+      raw: params,
     });
   }
 }

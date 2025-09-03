@@ -81,16 +81,20 @@ export class VisanetProvider implements PaymentProvider {
   }
 
   async completePayment(params: CompletePaymentParams): Promise<PaymentResult> {
-    // TODO: Implement as needed for Visanet
-    return new Promise((resolve) => {
-      resolve({ success: true, raw: params });
+    // Visanet implementation not yet available
+    return Promise.resolve({
+      success: false,
+      error: 'Visanet complete payment not implemented',
+      raw: params,
     });
   }
 
   async refundPayment(params: RefundPaymentParams): Promise<PaymentResult> {
-    // TODO: Implement as needed for Visanet
-    return new Promise((resolve) => {
-      resolve({ success: true, raw: params });
+    // Visanet implementation not yet available
+    return Promise.resolve({
+      success: false,
+      error: 'Visanet refund not implemented',
+      raw: params,
     });
   }
 }
