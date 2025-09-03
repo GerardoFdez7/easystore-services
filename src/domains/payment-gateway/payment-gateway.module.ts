@@ -8,9 +8,7 @@ import { PaymentGatewayResolver } from './presentation/graphql/payment-gateway.r
 import { PaymentProviderCredentialPostgresRepository } from './infrastructure/persistence/postgres/payment-provider-credential.repository';
 
 @Module({
-  imports: [
-    // Add imports here (e.g., infrastructure, application modules)
-  ],
+  imports: [],
   providers: [
     PaymentGatewayService,
     PaymentProviderFactoryService,
