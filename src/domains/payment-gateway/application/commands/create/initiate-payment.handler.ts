@@ -8,7 +8,6 @@ export class InitiatePaymentHandler {
   constructor(private readonly paymentGatewayService: PaymentGatewayService) {}
 
   async handle(dto: InitiatePaymentDto): Promise<PaymentResult> {
-    // Assume dto contains tenantId, providerType, amount, currency, orderId
     return this.paymentGatewayService.initiatePayment(
       dto.tenantId,
       dto.providerType,
@@ -16,6 +15,10 @@ export class InitiatePaymentHandler {
         amount: dto.amount,
         currency: dto.currency,
         orderId: dto.orderId,
+        details: dto.details,
+        customParams: dto.customParams,
+        allowPendingPayments: dto.allowPendingPayments,
+        externalReferenceNumber: dto.externalReferenceNumber,
       },
     );
   }

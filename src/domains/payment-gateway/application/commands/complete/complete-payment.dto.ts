@@ -1,3 +1,7 @@
 export class CompletePaymentDto {
-  // TODO: Add DTO properties (paymentId, status, etc.)
+  constructor(
+    public readonly tenantId: string,
+    public readonly providerType: string,
+    public readonly paymentId: string,
+  ) {}
 }

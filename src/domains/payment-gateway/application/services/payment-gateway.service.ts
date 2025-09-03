@@ -3,6 +3,7 @@ import { PaymentProviderFactoryService } from './payment-provider-factory.servic
 import { PaymentProviderCredentialRepository } from '../../aggregates/repositories/payment-provider-credential.interface';
 import {
   InitiatePaymentParams,
+  CompletePaymentParams,
   PaymentResult,
 } from '../../aggregates/entities/provider/payment-provider.interface';
 
@@ -23,6 +24,18 @@ export class PaymentGatewayService {
       providerType,
     );
     return provider.initiatePayment(params);
+  }
+
+  async completePayment(
+    tenantId: string,
+    providerType: string,
+    params: CompletePaymentParams,
+  ): Promise<PaymentResult> {
+    const provider = await this.providerFactory.getProvider(
+      tenantId,
+      providerType,
+    );
+    return provider.completePayment(params);
   }
 
   async saveOrUpdateProviderKeys(

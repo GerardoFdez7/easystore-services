@@ -2,7 +2,15 @@ export interface InitiatePaymentParams {
   amount: number;
   currency: string;
   orderId: string;
-  // ...other common params
+  details?: Array<{
+    quantity: number;
+    description: string;
+    price: number;
+    urlProduct?: string;
+  }>;
+  customParams?: Record<string, unknown>;
+  allowPendingPayments?: boolean;
+  externalReferenceNumber?: string;
 }
 
 export interface CompletePaymentParams {
@@ -19,6 +27,7 @@ export interface RefundPaymentParams {
 export interface PaymentResult {
   success: boolean;
   transactionId?: string;
+  checkoutUrl?: string;
   error?: string;
   raw?: unknown;
 }
