@@ -39,6 +39,32 @@ function decrypt(data: string): string {
   return decrypted;
 }
 
+type ProviderType = 'PAGADITO' | 'VISANET' | 'PAYPAL';
+
+interface PaymentProviderCredentialRecord {
+  id: string;
+  tenantId: string;
+  provider: ProviderType;
+  credentials: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface PrismaClient {
+  paymentProviderCredential: {
+    findFirst: (params: {
+      where: { tenantId: string; provider: ProviderType };
+    }) => Promise<PaymentProviderCredentialRecord | null>;
+    upsert: (params: {
+      where: {
+        tenantId_provider: { tenantId: string; provider: ProviderType };
+      };
+      update: { credentials: string };
+      create: { tenantId: string; provider: ProviderType; credentials: string };
+    }) => Promise<unknown>;
+  };
+}
+
 @Injectable()
 export class PaymentProviderCredentialPostgresRepository
   implements PaymentProviderCredentialRepository
@@ -49,24 +75,46 @@ export class PaymentProviderCredentialPostgresRepository
     tenantId: string,
     providerType: string,
   ): Promise<PagaditoCredentials | VisanetCredentials | PaypalCredentials> {
-    const record = await this.prisma.paymentProviderCredential.findFirst({
-      where: { tenantId, provider: providerType },
+    const prismaClient = this.prisma as unknown as PrismaClient;
+    const record = await prismaClient.paymentProviderCredential.findFirst({
+      where: {
+        tenantId,
+        provider: providerType as ProviderType,
+      },
     });
-    if (!record) throw new Error('Provider credentials not found');
+
+    if (!record) {
+      throw new Error('Provider credentials not found');
+    }
+
     const decrypted = decrypt(record.credentials);
-    return JSON.parse(decrypted);
+    return JSON.parse(decrypted) as
+      | PagaditoCredentials
+      | VisanetCredentials
+      | PaypalCredentials;
   }
 
   async saveCredentials(
     tenantId: string,
     providerType: string,
-    credentials: any,
+    credentials: Record<string, unknown>,
   ): Promise<void> {
     const encrypted = encrypt(JSON.stringify(credentials));
-    await this.prisma.paymentProviderCredential.upsert({
-      where: { tenantId_provider: { tenantId, provider: providerType } },
+    const prismaClient = this.prisma as unknown as PrismaClient;
+
+    await prismaClient.paymentProviderCredential.upsert({
+      where: {
+        tenantId_provider: {
+          tenantId,
+          provider: providerType as ProviderType,
+        },
+      },
       update: { credentials: encrypted },
-      create: { tenantId, provider: providerType, credentials: encrypted },
+      create: {
+        tenantId,
+        provider: providerType as ProviderType,
+        credentials: encrypted,
+      },
     });
   }
 }
