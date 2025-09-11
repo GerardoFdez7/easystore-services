@@ -538,6 +538,7 @@ enum SortOrder {
 
 type StateType {
   code: String!
+  id: ID!
   name: String!
 }
 
