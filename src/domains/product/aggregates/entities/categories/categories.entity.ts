@@ -21,7 +21,7 @@ export class ProductCategories extends Entity<IProductCategoriesProps> {
       id: Id.generate(),
       productId,
       categoryId,
-      categoryName: props.category.name,
+      category: props.category || null,
     });
 
     return productCategories;
