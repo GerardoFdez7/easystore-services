@@ -7,6 +7,7 @@ import {
   PaginatedStockMovementsDTO,
 } from '../../../mappers';
 import { Id } from '../../../../aggregates/value-objects';
+import { IProductAdapter } from '../../../ports';
 
 @QueryHandler(GetAllStockMovementsDTO)
 export class GetAllStockMovementsHandler
@@ -15,6 +16,8 @@ export class GetAllStockMovementsHandler
   constructor(
     @Inject('IStockMovementRepository')
     private readonly stockMovementRepository: IStockMovementRepository,
+    @Inject('IProductAdapter')
+    private readonly productAdapter: IProductAdapter,
   ) {}
 
   async execute(
@@ -45,7 +48,7 @@ export class GetAllStockMovementsHandler
       );
     }
 
-    const result = await this.stockMovementRepository.findAll(
+    const stockMovements = await this.stockMovementRepository.findAll(
       Id.create(warehouseId),
       {
         page,
@@ -60,10 +63,53 @@ export class GetAllStockMovementsHandler
       },
     );
 
-    if (!result || result.total === 0) {
+    if (!stockMovements || stockMovements.total === 0) {
       throw new NotFoundException(`No stock movements found`);
     }
 
-    return StockMovementMapper.toPaginatedDto(result);
+    // Collect unique variant IDs from stock movements
+    const variantIds = new Set<string>();
+    stockMovements.movements.forEach((movement) => {
+      const variantId = movement.getVariantId();
+      if (variantId) {
+        variantIds.add(variantId);
+      }
+    });
+
+    // Fetch variant details if we have variant IDs
+    let detailsMap = new Map<
+      string,
+      {
+        productName: string;
+        variantSku: string;
+        variantFirstAttribute: { key: string; value: string };
+      }
+    >();
+    if (variantIds.size > 0) {
+      const variantDetails = await this.productAdapter.getVariantsDetails(
+        Array.from(variantIds),
+      );
+
+      // Create a map for quick lookup
+      detailsMap = new Map(
+        variantDetails.map((detail) => [
+          detail.variantId,
+          {
+            productName: detail.productName,
+            variantSku: detail.sku,
+            variantFirstAttribute: detail.firstAttribute,
+          },
+        ]),
+      );
+    }
+
+    // Convert to paginated DTO with variant details
+    const paginatedResult = StockMovementMapper.toPaginatedDto(
+      stockMovements,
+      undefined,
+      detailsMap,
+    );
+
+    return paginatedResult;
   }
 }

@@ -83,6 +83,9 @@ export default class StockMovementRepository
           orderBy,
           skip,
           take: limit,
+          include: {
+            StockPerWarehouse: true,
+          },
         }),
         this.prisma.stockMovement.count({
           where: whereClause,
@@ -90,7 +93,7 @@ export default class StockMovementRepository
       ]);
 
       const mappedMovements = movements.map((movement) =>
-        this.mapToDomain(movement),
+        this.mapToDomain(movement, movement.StockPerWarehouse?.variantId),
       );
 
       const hasMore = skip + movements.length < total;
@@ -121,7 +124,12 @@ export default class StockMovementRepository
   /**
    * Maps Prisma stock movement to domain value object
    */
-  private mapToDomain(prismaMovement: PrismaStockMovement): StockMovement {
-    return StockMovementMapper.fromPersistence(prismaMovement);
+  private mapToDomain(
+    prismaMovement: PrismaStockMovement & {
+      StockPerWarehouse?: { variantId: string } | null;
+    },
+    variantId?: string,
+  ): StockMovement {
+    return StockMovementMapper.fromPersistence(prismaMovement, variantId);
   }
 }

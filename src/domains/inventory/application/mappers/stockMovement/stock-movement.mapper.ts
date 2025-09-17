@@ -23,42 +23,69 @@ export class StockMovementMapper {
   /**
    * Maps a persistence StockMovement model to a domain StockMovement value object
    * @param persistenceStockMovement The persistence StockMovement model
+   * @param variantId The variant ID from the StockPerWarehouse relationship
    * @returns The mapped StockMovement domain value object
    */
   static fromPersistence(
     persistenceStockMovement: PersistenceStockMovement,
+    variantId?: string,
   ): StockMovement {
-    return StockMovement.create(
+    const stockMovement = StockMovement.create(
       persistenceStockMovement.deltaQty,
       persistenceStockMovement.reason,
       persistenceStockMovement.createdById,
       persistenceStockMovement.occurredAt,
     );
+
+    // Store variantId in the domain object if provided
+    if (variantId) {
+      stockMovement.setVariantId(variantId);
+    }
+
+    return stockMovement;
   }
 
   /**
    * Maps a StockMovement domain value object to a StockMovementDTO
    * @param stockMovement The StockMovement domain value object
+   * @param warehouseId The warehouse ID
+   * @param detailsMap Optional map containing product details by variant ID
    * @returns The StockMovement DTO
    */
   static toDto(
     stockMovement: StockMovement,
     warehouseId?: string,
+    detailsMap?: Map<
+      string,
+      {
+        productName: string;
+        variantSku: string;
+        variantFirstAttribute: { key: string; value: string };
+      }
+    >,
   ): StockMovementDTO {
+    const variantId = stockMovement.getVariantId();
+    const details = detailsMap?.get(variantId || '');
+
     return {
       id: stockMovement.getId().getValue(),
       deltaQty: stockMovement.getDeltaQty(),
       reason: stockMovement.getReason().getValue(),
-      warehouseId: warehouseId,
+      warehouseId: warehouseId || '',
       occurredAt: stockMovement.getOccurredAt(),
       createdById: stockMovement.getCreatedById(),
+      variantId: variantId || '',
+      productName: details?.productName,
+      variantSku: details?.variantSku || '',
+      variantFirstAttribute: details?.variantFirstAttribute,
     };
   }
 
   /**
-   * Maps paginated StockMovement results from repository to PaginatedStockMovementsDTO
-   * @param paginatedResult The paginated result from repository
+   * Maps paginated StockMovement domain value objects to a paginated DTO
+   * @param paginatedResult The paginated result with movements
    * @param movementsWithMetadata Array of movements with additional metadata
+   * @param detailsMap Optional map containing product details by variant ID
    * @returns The paginated StockMovements DTO
    */
   static toPaginatedDto(
@@ -72,13 +99,23 @@ export class StockMovementMapper {
       warehouseId: string;
       stockPerWarehouseId: string | null;
     }>,
+    detailsMap?: Map<
+      string,
+      {
+        productName: string;
+        variantSku: string;
+        variantFirstAttribute: { key: string; value: string };
+      }
+    >,
   ): PaginatedStockMovementsDTO {
     return {
       stockMovements: movementsWithMetadata
         ? movementsWithMetadata.map((item) =>
-            this.toDto(item.movement, item.warehouseId),
+            this.toDto(item.movement, item.warehouseId, detailsMap),
           )
-        : paginatedResult.movements.map((movement) => this.toDto(movement)),
+        : paginatedResult.movements.map((movement) =>
+            this.toDto(movement, undefined, detailsMap),
+          ),
       total: paginatedResult.total,
       hasMore: paginatedResult.hasMore,
     };

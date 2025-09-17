@@ -11,6 +11,7 @@ export {
   StockPerWarehouseType,
   AddStockToWarehouseInput,
   UpdateStockInWarehouseInput,
+  VariantAttributeType,
 } from './stock-per-warehouse.types';
 
 // Stock movement types

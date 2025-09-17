@@ -516,7 +516,7 @@ type Query {
   getProductById(id: String!): Product!
   getStatesByCountryId(countryId: ID!): [StateType!]!
   getTenantById: Tenant!
-  getWarehouseById(id: ID!): Warehouse!
+  getWarehouseById(id: ID!, isArchived: Boolean): Warehouse!
   validateToken: Response!
 }
 
@@ -546,7 +546,10 @@ type StockMovement {
   deltaQty: Int!
   id: ID!
   occurredAt: DateTime!
+  productName: String
   reason: String!
+  variantFirstAttribute: VariantAttribute
+  variantSku: String
   warehouseId: ID!
 }
 

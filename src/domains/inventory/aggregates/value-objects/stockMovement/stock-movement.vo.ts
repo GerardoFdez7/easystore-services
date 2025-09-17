@@ -10,6 +10,7 @@ export type StockMovementProps = {
 
 export class StockMovement {
   private readonly props: StockMovementProps;
+  private variantId: string;
 
   private constructor(props: StockMovementProps) {
     this.props = props;
@@ -48,6 +49,14 @@ export class StockMovement {
 
   public getCreatedById(): string {
     return this.props.createdById;
+  }
+
+  public getVariantId(): string {
+    return this.variantId;
+  }
+
+  public setVariantId(variantId: string): void {
+    this.variantId = variantId;
   }
 
   public getMovement(): {

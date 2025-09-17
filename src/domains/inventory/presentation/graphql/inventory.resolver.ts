@@ -148,8 +148,12 @@ export default class InventoryResolver {
   async getWarehouseById(
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: JwtPayload,
+    @Args('isArchived', { nullable: true, type: () => Boolean })
+    isArchived?: boolean,
   ): Promise<WarehouseType> {
-    return this.queryBus.execute(new GetWarehouseByIdDTO(id, user.tenantId));
+    return this.queryBus.execute(
+      new GetWarehouseByIdDTO(id, user.tenantId, isArchived),
+    );
   }
 
   @Query(() => PaginatedWarehousesType)

@@ -1,4 +1,5 @@
 import { ObjectType, Field, ID, Int } from '@nestjs/graphql';
+import { VariantAttributeType } from './';
 
 @ObjectType('StockMovement')
 export class StockMovementType {
@@ -16,6 +17,15 @@ export class StockMovementType {
 
   @Field()
   occurredAt: Date;
+
+  @Field({ nullable: true })
+  productName?: string;
+
+  @Field({ nullable: true })
+  variantSku?: string;
+
+  @Field(() => VariantAttributeType, { nullable: true })
+  variantFirstAttribute?: VariantAttributeType;
 }
 
 @ObjectType()

@@ -1,6 +1,5 @@
 /**
  * Data Transfer Object for StockMovement entity
- * Follows the same structure as IStockMovementType
  */
 export interface StockMovementDTO {
   id: string;
@@ -9,6 +8,13 @@ export interface StockMovementDTO {
   warehouseId: string;
   occurredAt: Date;
   createdById: string | null;
+  variantId?: string;
+  productName?: string;
+  variantSku?: string;
+  variantFirstAttribute?: {
+    key: string;
+    value: string;
+  };
 }
 
 /**
