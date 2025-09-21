@@ -1,8 +1,8 @@
 import { OnModuleInit, OnModuleDestroy, Inject } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
 import { Consumer, EachMessagePayload, Kafka, KafkaMessage } from 'kafkajs';
-import { EventSerializer } from '@kafka/serializers/event-serializer';
-import { LoggerService } from '@winston/winston.service';
+import { EventSerializer } from '../serializers/event-serializer';
+import { LoggerService } from '@logger/winston.service';
 import { CircuitBreaker } from '@redis/circuit-breaker';
 
 export abstract class BaseConsumer implements OnModuleInit, OnModuleDestroy {

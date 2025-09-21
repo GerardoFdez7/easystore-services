@@ -1,4 +1,4 @@
-import { Entity, EntityProps } from '@domains/entity.base';
+import { Entity, EntityProps } from '@shared/entity.base';
 import { Id, Name, LongDescription, Currency } from '../../value-objects';
 import { ITenantType } from '..';
 import { Domain, Media } from '../../value-objects';

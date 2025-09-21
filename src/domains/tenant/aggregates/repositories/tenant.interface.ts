@@ -1,5 +1,5 @@
 import { Tenant } from '../entities/tenant/tenant.entity';
-import { Id } from '@domains/value-objects';
+import { Id } from '@shared/value-objects';
 
 /**
  * Repository interface for Tenant aggregate.

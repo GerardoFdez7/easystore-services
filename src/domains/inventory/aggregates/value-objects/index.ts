@@ -6,7 +6,7 @@ export {
   LongDescription,
   SortBy,
   SortOrder,
-} from '@domains/value-objects';
+} from '@shared/value-objects';
 
 // StockPerWarehouse value objects
 export { QtyAvailable } from './stockPerWarehouse/qty-available.vo';

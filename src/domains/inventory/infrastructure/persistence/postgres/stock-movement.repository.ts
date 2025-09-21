@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PostgreService } from '@database/postgres.service';
 import { Prisma, StockMovement as PrismaStockMovement } from '.prisma/postgres';
-import { DatabaseOperationError } from '@domains/errors';
+import { DatabaseOperationError } from '@shared/errors';
 import { StockMovement, Id } from '../../../aggregates/value-objects';
 import { SortBy, SortOrder } from '../../../aggregates/value-objects';
 import { StockMovementMapper } from '../../../application/mappers';

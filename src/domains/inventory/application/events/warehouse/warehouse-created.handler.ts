@@ -1,6 +1,6 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
-import { LoggerService } from '@winston/winston.service';
+import { LoggerService } from '@logger/winston.service';
 import { WarehouseCreatedEvent } from '../../../aggregates/events/warehouse/warehouse-created.event';
 
 @Injectable()

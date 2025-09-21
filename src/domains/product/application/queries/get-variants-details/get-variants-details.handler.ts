@@ -3,7 +3,7 @@ import { Inject, NotFoundException } from '@nestjs/common';
 import { IProductRepository } from '../../../aggregates/repositories/product.interface';
 import { Id } from '../../../aggregates/value-objects';
 import { GetVariantsDetailsDTO } from './get-variants-details.dto';
-import { VariantDetailsDTO } from '@domains/dtos';
+import { VariantDetailsDTO } from '@shared/dtos';
 
 @QueryHandler(GetVariantsDetailsDTO)
 export class GetVariantsDetailsHandler

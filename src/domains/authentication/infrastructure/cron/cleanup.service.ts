@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { LoggerService } from '@winston/winston.service';
+import { LoggerService } from '@logger/winston.service';
 import { PasswordResetRateLimiter } from '../rate-limiting/password-reset-rate-limiter';
 
 /**

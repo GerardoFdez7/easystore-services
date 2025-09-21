@@ -1,9 +1,9 @@
 import { Module, Global, DynamicModule } from '@nestjs/common';
 import { ClientsModule } from '@nestjs/microservices';
-import { KafkaConfigModule } from '@kafka/config/kafka-config.module';
-import { KafkaConfigService } from '@kafka/config/kafka-config.service';
-import { KafkaHealthIndicator } from '@kafka/health/kafka-health.indicator';
-import { EventSerializer } from '@kafka/serializers/event-serializer';
+import { KafkaConfigModule } from '../config/kafka-config.module';
+import { KafkaConfigService } from '../config/kafka-config.service';
+import { KafkaHealthIndicator } from '../health/kafka-health.indicator';
+import { EventSerializer } from '../serializers/event-serializer';
 
 @Global()
 @Module({})

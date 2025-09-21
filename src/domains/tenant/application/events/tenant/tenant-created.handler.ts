@@ -1,7 +1,7 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
 import { TenantCreatedEvent } from '../../../aggregates/events/tenant/tenant-created.event';
-import { LoggerService } from '@winston/winston.service';
+import { LoggerService } from '@logger/winston.service';
 
 @Injectable()
 @EventsHandler(TenantCreatedEvent)

@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { LoggerService } from '@winston/winston.service';
+import { LoggerService } from '@logger/winston.service';
 import { PostgreService } from '@database/postgres.service';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';

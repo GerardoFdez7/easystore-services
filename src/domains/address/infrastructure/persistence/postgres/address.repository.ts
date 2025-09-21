@@ -7,7 +7,7 @@ import {
   UniqueConstraintViolationError,
   ForeignKeyConstraintViolationError,
   DatabaseOperationError,
-} from '@domains/errors';
+} from '@shared/errors';
 import { Address, IAddressType } from '../../../aggregates/entities';
 import {
   IAddressRepository,
@@ -15,7 +15,7 @@ import {
 } from '../../../aggregates/repositories/address.interface';
 import { AddressMapper } from '../../../application/mappers';
 import { Id, AddressType } from '../../../aggregates/value-objects';
-import { AddressDetailsDTO } from '@domains/dtos';
+import { AddressDetailsDTO } from '@shared/dtos';
 
 @Injectable()
 export default class AddressRepository implements IAddressRepository {

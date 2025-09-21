@@ -8,13 +8,13 @@ import {
   ForeignKeyConstraintViolationError,
   DatabaseOperationError,
   DomainError,
-} from '@domains/errors';
+} from '@shared/errors';
 import {
   Warehouse,
   IStockPerWarehouseBase,
 } from '../../../aggregates/entities';
 import { WarehouseMapper } from '../../../application/mappers';
-import { Id, SortBy, SortOrder } from '@domains/value-objects';
+import { Id, SortBy, SortOrder } from '@shared/value-objects';
 import { StockMovement } from '../../../aggregates/value-objects/stockMovement/stock-movement.vo';
 import IWarehouseRepository from '../../../aggregates/repositories/warehouse.interface';
 

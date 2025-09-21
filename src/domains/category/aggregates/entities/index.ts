@@ -1,5 +1,5 @@
 // Shared
-export { Entity, EntityProps } from '@domains/entity.base';
+export { Entity, EntityProps } from '@shared/entity.base';
 
 // Category entity
 export { Category, ICategoryProps } from './category/category.entity';

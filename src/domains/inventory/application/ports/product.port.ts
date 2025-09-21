@@ -1,4 +1,4 @@
-import { VariantDetailsDTO } from '@domains/dtos';
+import { VariantDetailsDTO } from '@shared/dtos';
 
 export interface IProductAdapter {
   getVariantsDetails(variantIds: string[]): Promise<VariantDetailsDTO[]>;

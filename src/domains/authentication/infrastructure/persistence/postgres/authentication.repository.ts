@@ -6,7 +6,7 @@ import {
   ResourceNotFoundError,
   UniqueConstraintViolationError,
   DatabaseOperationError,
-} from '@domains/errors';
+} from '@shared/errors';
 import { PrismaErrorUtils } from '@utils/prisma-error-utils';
 import { AuthenticationMapper } from '../../../application/mappers';
 import { AuthIdentity, IAuthIdentityType } from '../../../aggregates/entities';

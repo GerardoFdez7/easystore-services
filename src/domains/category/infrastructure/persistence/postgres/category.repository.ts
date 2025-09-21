@@ -7,7 +7,7 @@ import {
   UniqueConstraintViolationError,
   ForeignKeyConstraintViolationError,
   DatabaseOperationError,
-} from '@domains/errors';
+} from '@shared/errors';
 import { Category, ICategoryType } from '../../../aggregates/entities';
 import { CategoryMapper } from '../../../application/mappers';
 import { Id, SortBy, SortOrder } from '../../../aggregates/value-objects';

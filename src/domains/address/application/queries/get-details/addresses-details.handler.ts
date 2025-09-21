@@ -3,7 +3,7 @@ import { GetAddressesDetailsDTO } from './addresses-details.dto';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { IAddressRepository } from '../../../aggregates/repositories/address.interface';
 import { Id } from '../../../aggregates/value-objects';
-import { AddressDetailsDTO } from '@domains/dtos';
+import { AddressDetailsDTO } from '@shared/dtos';
 
 @QueryHandler(GetAddressesDetailsDTO)
 export class GetAddressesDetailsHandler

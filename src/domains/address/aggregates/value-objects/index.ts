@@ -1,5 +1,5 @@
-export { Id, ShortDescription } from '@domains/value-objects';
-export { Name } from '@domains/value-objects';
+export { Id, ShortDescription } from '@shared/value-objects';
+export { Name } from '@shared/value-objects';
 export { AddressLine1 } from './address-line1.vo';
 export { AddressLine2 } from './address-line2.vo';
 export { AddressType } from './address-type.vo';

@@ -10,7 +10,7 @@ export {
   LongDescription,
   SortBy,
   SortOrder,
-} from '@domains/value-objects';
+} from '@shared/value-objects';
 
 // Product value objects
 export { Type, TypeEnum } from './product/type.vo';

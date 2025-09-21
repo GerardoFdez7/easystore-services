@@ -3,7 +3,7 @@ import { Inject, NotFoundException } from '@nestjs/common';
 import { IWarehouseRepository } from '../../../../aggregates/repositories';
 import { CreateStockPerWarehouseDTO } from './create-stock-per-warehouse.dto';
 import { WarehouseMapper, WarehouseDTO } from '../../../mappers';
-import { Id } from '@domains/value-objects';
+import { Id } from '@shared/value-objects';
 
 @CommandHandler(CreateStockPerWarehouseDTO)
 export class CreateStockPerWarehouseHandler

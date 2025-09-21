@@ -1,7 +1,7 @@
 import { AuthenticationLogoutEvent } from '../../../aggregates/events';
 import { IEventHandler, EventsHandler } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
-import { LoggerService } from '@winston/winston.service';
+import { LoggerService } from '@logger/winston.service';
 
 @Injectable()
 @EventsHandler(AuthenticationLogoutEvent)

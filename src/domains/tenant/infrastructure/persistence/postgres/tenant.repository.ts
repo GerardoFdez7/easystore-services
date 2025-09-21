@@ -5,8 +5,8 @@ import {
   DatabaseOperationError,
   ResourceNotFoundError,
   ForeignKeyConstraintViolationError,
-} from '@domains/errors';
-import { Id } from '@domains/value-objects';
+} from '@shared/errors';
+import { Id } from '@shared/value-objects';
 import { TenantMapper } from '../../../application/mappers';
 import { Tenant, ITenantType } from '../../../aggregates/entities';
 import { Prisma, Tenant as PrismaTenant } from '.prisma/postgres';

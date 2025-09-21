@@ -3,7 +3,7 @@ import {
   HealthIndicatorService,
   HealthIndicatorResult,
 } from '@nestjs/terminus';
-import { LoggerService } from '@winston/winston.service';
+import { LoggerService } from '@logger/winston.service';
 import Redis from 'ioredis';
 
 @Injectable()

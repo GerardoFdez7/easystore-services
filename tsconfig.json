@@ -31,14 +31,14 @@
       "@graphql/*": ["src/infrastructure/graphql/*"],
       "@metrics/*": ["src/infrastructure/metrics/*"],
       "@microservices/*": ["src/infrastructure/microservices/*"],
-      "@domains/*": ["src/shared/domains/*"],
-      "@email/*": ["src/shared/email/*"],
-      "@media/*": ["src/shared/media/*"],
-      "@elastic/*": ["src/shared/elastic/*"],
-      "@event-store/*": ["src/shared/event-store/*"],
-      "@kafka/*": ["src/shared/kafka/*"],
-      "@redis/*": ["src/shared/redis/*"],
-      "@winston/*": ["src/shared/winston/*"]
+      "@shared/*": ["src/domains/shared/*"],
+      "@email/*": ["src/infrastructure/email/*"],
+      "@media/*": ["src/infrastructure/media/*"],
+      "@elastic/*": ["src/infrastructure/elastic/*"],
+      "@event-store/*": ["src/infrastructure/event-store/*"],
+      "@kafka/*": ["src/infrastructure/kafka/*"],
+      "@redis/*": ["src/infrastructure/redis/*"],
+      "@logger/*": ["src/infrastructure/logger/*"]
     }
   }
 }

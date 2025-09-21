@@ -16,7 +16,7 @@ import {
   UniqueConstraintViolationError,
   ForeignKeyConstraintViolationError,
   DatabaseOperationError,
-} from '@domains/errors';
+} from '@shared/errors';
 import { Product, IProductType } from '../../../aggregates/entities';
 import { IProductRepository } from '../../../aggregates/repositories/product.interface';
 import {

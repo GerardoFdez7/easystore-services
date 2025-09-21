@@ -1,7 +1,7 @@
 import { Module, Global, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
-import { LoggerModule } from '@winston/winston.module';
+import { LoggerModule } from 'src/infrastructure/logger/winston.module';
 import { GraphqlModule } from '@graphql/graphql.module';
 import { PostgresModule } from '@database/postgres.module';
 import MediaModule from '@media/media.module';

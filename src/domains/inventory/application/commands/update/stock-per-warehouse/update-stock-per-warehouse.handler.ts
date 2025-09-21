@@ -3,7 +3,7 @@ import { Inject } from '@nestjs/common';
 import { IWarehouseRepository } from '../../../../aggregates/repositories';
 import { UpdateStockPerWarehouseDTO } from './update-stock-per-warehouse.dto';
 import { WarehouseMapper, WarehouseDTO } from '../../../mappers';
-import { Id } from '@domains/value-objects';
+import { Id } from '@shared/value-objects';
 import { NotFoundException } from '@nestjs/common';
 
 @CommandHandler(UpdateStockPerWarehouseDTO)

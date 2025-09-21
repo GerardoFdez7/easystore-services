@@ -1,4 +1,4 @@
-import { Entity } from '@domains/entity.base';
+import { Entity } from '@shared/entity.base';
 import { Media, IMediaProps, IMediaType } from '../../../aggregates/entities';
 import {
   Id,

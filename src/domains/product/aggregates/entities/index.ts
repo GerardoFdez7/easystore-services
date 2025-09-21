@@ -1,5 +1,5 @@
 // Shared
-export { Entity, EntityProps } from '@domains/entity.base';
+export { Entity, EntityProps } from '@shared/entity.base';
 
 // Product entity
 export { Product, IProductProps } from './product/product.entity';

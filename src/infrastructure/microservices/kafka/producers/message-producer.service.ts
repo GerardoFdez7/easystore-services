@@ -13,10 +13,10 @@ import {
   CompressionTypes,
 } from 'kafkajs';
 import { ConfigService } from '@nestjs/config';
-import { EventSerializer } from '@kafka/serializers/event-serializer';
+import { EventSerializer } from '../serializers/event-serializer';
 import { MessageProducerPort } from './base.producer';
 import { CircuitBreaker } from '@redis/circuit-breaker';
-import { LoggerService } from '@winston/winston.service';
+import { LoggerService } from '@logger/winston.service';
 
 @Injectable()
 export class MessageProducerService

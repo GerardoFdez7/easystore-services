@@ -1,4 +1,4 @@
-import { Entity, EntityProps } from '@domains/entity.base';
+import { Entity, EntityProps } from '@shared/entity.base';
 import { IAuthIdentityBaseType } from '../';
 import {
   Email,

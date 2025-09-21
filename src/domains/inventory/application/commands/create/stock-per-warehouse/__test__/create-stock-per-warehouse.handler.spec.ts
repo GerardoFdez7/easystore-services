@@ -5,7 +5,7 @@ import { CreateStockPerWarehouseHandler } from '../create-stock-per-warehouse.ha
 import { CreateStockPerWarehouseDTO } from '../create-stock-per-warehouse.dto';
 import { IWarehouseRepository } from '../../../../../aggregates/repositories';
 import { WarehouseMapper, WarehouseDTO } from '../../../../mappers';
-import { Id } from '@domains/value-objects';
+import { Id } from '@shared/value-objects';
 
 interface MockWarehouse {
   commit: jest.Mock;
