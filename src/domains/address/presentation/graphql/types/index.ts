@@ -2,7 +2,7 @@ export {
   AddressType,
   CreateAddressInput,
   UpdateAddressInput,
-  AddressesType,
+  PaginatedAddressesType,
 } from './address.type';
 export { CountryType } from './country.type';
 export { StateType } from './state.type';

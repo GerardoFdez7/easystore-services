@@ -56,10 +56,6 @@ enum AddressTypeEnum {
   WAREHOUSE
 }
 
-type AddressesType {
-  addresses: [AddressType!]!
-}
-
 type Attribute {
   key: String!
   value: String!
@@ -455,6 +451,12 @@ type Mutation {
   updateWarehouse(id: ID!, input: UpdateWarehouseInput!): Warehouse!
 }
 
+type PaginatedAddressesType {
+  addresses: [AddressType!]!
+  hasMore: Boolean!
+  total: Int!
+}
+
 type PaginatedCategoriesType {
   categories: [Category!]!
   hasMore: Boolean!
@@ -505,7 +507,7 @@ type ProductCategory {
 
 type Query {
   getAddressById(id: ID!): AddressType!
-  getAllAddresses(addressType: AddressTypeEnum): AddressesType!
+  getAllAddresses(addressType: AddressTypeEnum, limit: Int, name: String, page: Int): PaginatedAddressesType!
   getAllCategories(includeSubcategories: Boolean = true, limit: Int = 10, name: String, page: Int = 1, parentId: ID, sortBy: SortBy, sortOrder: SortOrder): PaginatedCategoriesType!
   getAllCountries: [CountryType!]!
   getAllProducts(categoriesIds: [ID!], includeSoftDeleted: Boolean = false, limit: Float = 25, name: String, page: Float = 1, sortBy: SortBy, sortOrder: SortOrder, type: TypeEnum): PaginatedProductsType!

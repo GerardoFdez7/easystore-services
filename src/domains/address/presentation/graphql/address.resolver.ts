@@ -1,11 +1,11 @@
-import { Resolver, Mutation, Args, ID, Query } from '@nestjs/graphql';
+import { Resolver, Mutation, Args, ID, Query, Int } from '@nestjs/graphql';
 import { CurrentUser, JwtPayload } from '@common/decorators';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   AddressType,
   CreateAddressInput,
   UpdateAddressInput,
-  AddressesType,
+  PaginatedAddressesType,
   CountryType,
   StateType,
 } from './types';
@@ -79,15 +79,26 @@ export default class AddressResolver {
     );
   }
 
-  @Query(() => AddressesType)
+  @Query(() => PaginatedAddressesType)
   async getAllAddresses(
     @CurrentUser()
     user: JwtPayload,
+    @Args('page', { type: () => Int, nullable: true })
+    page?: number,
+    @Args('limit', { type: () => Int, nullable: true })
+    limit?: number,
+    @Args('name', { type: () => String, nullable: true })
+    name?: string,
     @Args('addressType', { type: () => AddressTypeEnum, nullable: true })
     addressType?: AddressTypeEnum,
-  ): Promise<AddressesType> {
+  ): Promise<PaginatedAddressesType> {
     return this.queryBus.execute(
-      new GetAllAddressesDTO(user.tenantId, user.customerId, { addressType }),
+      new GetAllAddressesDTO(user.tenantId, user.customerId, {
+        page,
+        limit,
+        name,
+        addressType,
+      }),
     );
   }
 

@@ -6,7 +6,7 @@ export { GetAddressesDetailsDTO } from './get-details/addresses-details.dto';
 export { GetAddressesDetailsHandler } from './get-details/addresses-details.handler';
 
 // Geography
-export { GetAllCountriesDTO } from './geography/get-all-countries/all-countries.dto';
-export { GetAllCountriesHandler } from './geography/get-all-countries/all-countries.handler';
-export { GetStatesByCountryIdDTO } from './geography/get-states-by-country/states-by-country.dto';
-export { GetStatesByCountryIdHandler } from './geography/get-states-by-country/states-by-country.handler';
+export { GetAllCountriesDTO } from './geo/get-all-countries/all-countries.dto';
+export { GetAllCountriesHandler } from './geo/get-all-countries/all-countries.handler';
+export { GetStatesByCountryIdDTO } from './geo/get-states-by-country/states-by-country.dto';
+export { GetStatesByCountryIdHandler } from './geo/get-states-by-country/states-by-country.handler';

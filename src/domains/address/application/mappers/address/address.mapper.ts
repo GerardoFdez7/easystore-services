@@ -107,13 +107,19 @@ export class AddressMapper {
   }
 
   /**
-   * Maps an array of Address domain entities to AllAddressDTO
-   * @param addresses Array of Address domain entities
-   * @returns AllAddressDTO containing an array of AddressDTO objects
+   * Maps paginated Address domain entities to AllAddressDTO
+   * @param result Paginated result containing addresses, total count, and hasMore flag
+   * @returns AllAddressDTO containing an array of AddressDTO objects with pagination metadata
    */
-  static fromAllAddress(addresses: Address[]): AllAddressDTO {
+  static fromAllAddress(result: {
+    addresses: Address[];
+    total: number;
+    hasMore: boolean;
+  }): AllAddressDTO {
     return {
-      addresses: addresses.map((address) => this.toDto(address)),
+      addresses: result.addresses.map((address) => this.toDto(address)),
+      total: result.total,
+      hasMore: result.hasMore,
     };
   }
 }

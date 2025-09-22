@@ -5,6 +5,9 @@ export class GetAllAddressesDTO {
     public readonly tenantId?: string,
     public readonly customerId?: string,
     public readonly options?: {
+      page?: number;
+      limit?: number;
+      name?: string;
       addressType?: AddressTypeEnum;
     },
   ) {}

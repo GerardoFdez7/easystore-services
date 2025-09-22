@@ -168,17 +168,22 @@ export default class AddressRepository implements IAddressRepository {
   }
 
   /**
-   * Finds all addresses for a given owner and address type
+   * Finds all addresses for a given owner with pagination and filtering options
    * @param owner - The owner (tenant or customer) of the addresses
-   * @param addressType - The type of address to find (BILLING, SHIPPING, WAREHOUSE)
-   * @returns The found addresses
+   * @param options - Optional query parameters for pagination and filtering
+   * @returns Promise that resolves to paginated addresses with total count and hasMore flag
    */
   async findAll(
     owner: Owner,
-    options?: { addressType?: AddressType },
-  ): Promise<Address[]> {
+    options?: {
+      page?: number;
+      limit?: number;
+      name?: string;
+      addressType?: AddressType;
+    },
+  ): Promise<{ addresses: Address[]; total: number; hasMore: boolean }> {
     try {
-      //find all addresses
+      // Build where clause
       const whereClause: Prisma.AddressWhereInput = {
         ...('tenantId' in owner ? { tenantId: owner.tenantId.getValue() } : {}),
         ...('customerId' in owner
@@ -190,18 +195,48 @@ export default class AddressRepository implements IAddressRepository {
         whereClause.addressType = options.addressType.getValue();
       }
 
-      const addresses = await this.prisma.address.findMany({
+      if (options?.name) {
+        whereClause.OR = [
+          { name: { contains: options.name, mode: 'insensitive' } },
+          { addressLine1: { contains: options.name, mode: 'insensitive' } },
+          { addressLine2: { contains: options.name, mode: 'insensitive' } },
+          { city: { contains: options.name, mode: 'insensitive' } },
+        ];
+      }
+
+      // Get total count
+      const total = await this.prisma.address.count({
         where: whereClause,
       });
 
-      //map to domain entity
-      const mappedAddress = addresses.map((address) =>
+      // Set default pagination values
+      const page = options?.page || 1;
+      const limit = options?.limit || 10;
+      const skip = (page - 1) * limit;
+
+      // Get paginated addresses
+      const addresses = await this.prisma.address.findMany({
+        where: whereClause,
+        skip,
+        take: limit,
+        orderBy: { name: 'asc' },
+      });
+
+      // Map to domain entities
+      const mappedAddresses = addresses.map((address) =>
         this.mapToDomain(address),
       );
 
-      return mappedAddress;
+      // Calculate hasMore
+      const hasMore = skip + addresses.length < total;
+
+      return {
+        addresses: mappedAddresses,
+        total,
+        hasMore,
+      };
     } catch (error) {
-      return this.handleDatabaseError(error, 'find address by id');
+      return this.handleDatabaseError(error, 'find all addresses');
     }
   }
 

@@ -40,15 +40,25 @@ export interface IAddressRepository {
   findById(id: Id, owner: Owner): Promise<Address | null>;
 
   /**
-   * Finds all addresses for a given owner and address type
+   * Finds all addresses for a given owner with pagination and filtering options
    * @param owner - The owner(tenant or customer) of the addresses
-   * @param addressType - The type of address to find (BILLING, SHIPPING, WAREHOUSE)
-   * @returns The found addresses
+   * @param options - Optional query parameters for pagination and filtering
+   * @param options.page The page number for pagination (e.g., 1 for the first page).
+   * @param options.limit The number of items per page.
+   * @param options.name Optional. The name of the address to search for.
+   * @param options.addressType Optional. The type of address to find (BILLING, SHIPPING, WAREHOUSE)
+   * @returns Promise that resolves to paginated addresses with total count and hasMore flag
+   * @throws {Error} When repository operation fails
    */
   findAll(
     owner: Owner,
-    options?: { addressType?: AddressType },
-  ): Promise<Address[]>;
+    options?: {
+      page?: number;
+      limit?: number;
+      name?: string;
+      addressType?: AddressType;
+    },
+  ): Promise<{ addresses: Address[]; total: number; hasMore: boolean }>;
 
   /**
    * Finds address details by their unique identifiers.

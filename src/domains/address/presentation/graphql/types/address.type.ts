@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID, InputType } from '@nestjs/graphql';
+import { ObjectType, Field, ID, InputType, Int } from '@nestjs/graphql';
 import { registerEnumType } from '@nestjs/graphql';
 import { AddressTypeEnum } from '../../../aggregates/value-objects';
 
@@ -44,9 +44,15 @@ export class AddressType {
 }
 
 @ObjectType()
-export class AddressesType {
+export class PaginatedAddressesType {
   @Field(() => [AddressType])
   addresses: AddressType[];
+
+  @Field(() => Int)
+  total: number;
+
+  @Field(() => Boolean)
+  hasMore: boolean;
 }
 
 //Input type for creating address
