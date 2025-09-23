@@ -10,7 +10,7 @@ import {
   AddressLine1,
   AddressLine2,
   PostalCode,
-  DeliveryNum,
+  PhoneNumber,
   AddressType,
   City,
   ShortDescription,
@@ -37,7 +37,7 @@ export class AddressMapper {
       stateId: Id.create(persitenceAddress.stateId),
       countryId: Id.create(persitenceAddress.countryId),
       addressType: AddressType.create(persitenceAddress.addressType),
-      deliveryNum: DeliveryNum.create(persitenceAddress.deliveryNum),
+      deliveryNum: PhoneNumber.create(persitenceAddress.deliveryNum),
       deliveryInstructions: persitenceAddress.deliveryInstructions
         ? ShortDescription.create(persitenceAddress.deliveryInstructions)
         : null,

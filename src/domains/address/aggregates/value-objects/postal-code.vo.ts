@@ -1,10 +1,14 @@
 import { z } from 'zod';
 
-const postalCodeSchema = z
+export const postalCodeSchema = z
   .string()
-  .length(5, { message: 'Postal code must be exactly 5 digits' })
-  .regex(/^[0-9]+$/, { message: 'Postal code can only contain digits' })
-  .nullable();
+  .nullable()
+  .refine((val) => {
+    if (val === null || val === undefined) {
+      return true;
+    }
+    return /^[a-zA-Z0-9\s-]{2,10}$/.test(val);
+  }, 'Invalid postal code format. Must be alphanumeric, spaces, or hyphens, between 2 and 10 characters.');
 
 export class PostalCode {
   private readonly value: string;

@@ -4,6 +4,7 @@ export { Media } from './media.vo';
 export { ShortDescription } from './short-description.vo';
 export { MediumDescription } from './medium-description.vo';
 export { LongDescription } from './long-description.vo';
+export { PhoneNumber } from './phone-number.vo';
 export enum SortBy {
   CREATED_AT = 'createdAt',
   UPDATED_AT = 'updatedAt',

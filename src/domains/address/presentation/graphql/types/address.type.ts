@@ -18,8 +18,8 @@ export class AddressType {
   @Field(() => String)
   addressLine1: string;
 
-  @Field(() => String)
-  addressLine2: string;
+  @Field(() => String, { nullable: true })
+  addressLine2?: string;
 
   @Field(() => String)
   postalCode: string;

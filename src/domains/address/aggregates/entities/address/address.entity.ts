@@ -10,7 +10,7 @@ import {
   AddressLine1,
   AddressLine2,
   PostalCode,
-  DeliveryNum,
+  PhoneNumber,
   AddressType,
   City,
   ShortDescription,
@@ -26,7 +26,7 @@ export interface IAddressProps extends EntityProps {
   countryId: Id;
   stateId: Id;
   addressType: AddressType;
-  deliveryNum: DeliveryNum;
+  deliveryNum: PhoneNumber;
   deliveryInstructions?: ShortDescription;
   tenantId?: Id;
   customerId?: Id;
@@ -59,7 +59,7 @@ export class Address extends Entity<IAddressProps> {
       countryId: Id.create(props.countryId),
       stateId: Id.create(props.stateId),
       addressType: AddressType.create(props.addressType),
-      deliveryNum: DeliveryNum.create(props.deliveryNum),
+      deliveryNum: PhoneNumber.create(props.deliveryNum),
       deliveryInstructions: props.deliveryInstructions
         ? ShortDescription.create(props.deliveryInstructions)
         : null,
@@ -123,7 +123,7 @@ export class Address extends Entity<IAddressProps> {
     }
 
     if (updates.deliveryNum !== undefined) {
-      props.deliveryNum = DeliveryNum.create(updates.deliveryNum);
+      props.deliveryNum = PhoneNumber.create(updates.deliveryNum);
     }
 
     if (updates.deliveryInstructions !== undefined) {
