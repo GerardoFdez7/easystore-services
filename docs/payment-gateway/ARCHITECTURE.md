@@ -7,18 +7,21 @@ The Payment Gateway domain implements a sophisticated, enterprise-grade payment 
 ## Architecture Principles
 
 ### 1. Domain-Driven Design (DDD)
+
 - **Bounded Context**: Payment Gateway as a distinct domain with clear boundaries
 - **Aggregates**: Payment, Provider, and Credential aggregates with defined consistency boundaries
 - **Value Objects**: Immutable objects representing domain concepts (PaymentDetailsVO, PagaditoCredentialsVO)
 - **Domain Events**: PaymentInitiatedEvent, PaymentCompletedEvent for event-driven communication
 
 ### 2. Clean Architecture
+
 - **Dependency Inversion**: High-level modules don't depend on low-level modules
 - **Single Responsibility**: Each class has one reason to change
 - **Open/Closed Principle**: Open for extension, closed for modification
 - **Interface Segregation**: Clients depend only on interfaces they use
 
 ### 3. Event Sourcing & CQRS
+
 - **Event Store**: All payment state changes captured as events
 - **Command/Query Separation**: Write operations (commands) separate from read operations (queries)
 - **Projections**: Multiple read models for different use cases
@@ -29,6 +32,7 @@ The Payment Gateway domain implements a sophisticated, enterprise-grade payment 
 ### Core Aggregates
 
 #### Payment Aggregate
+
 ```typescript
 interface Payment {
   id: PaymentIdVO;
@@ -44,6 +48,7 @@ interface Payment {
 ```
 
 #### Provider Aggregate
+
 ```typescript
 interface PaymentProvider {
   type: ProviderType;
@@ -56,18 +61,21 @@ interface PaymentProvider {
 ### Value Objects
 
 #### PaymentDetailsVO
+
 - **Purpose**: Encapsulate payment item details
 - **Properties**: quantity, description, price, urlProduct
 - **Validation**: Ensures positive quantities and prices
 - **Immutability**: All properties readonly
 
 #### PagaditoCredentialsVO
+
 - **Purpose**: Secure credential management for Pagadito
 - **Properties**: uid, wsk, sandbox
 - **Security**: Encrypted storage, secure transmission
 - **Environment**: Automatic endpoint selection based on sandbox flag
 
 #### ExternalReferenceNumberVO
+
 - **Purpose**: Generate and manage external reference numbers
 - **Generation**: Time-based unique identifier
 - **Format**: ERN-{timestamp}
@@ -183,17 +191,17 @@ input PaymentDetailInput {
 
 ```typescript
 // Payment Operations
-POST /api/v1/payments/initiate
-POST /api/v1/payments/complete
-POST /api/v1/payments/refund
+POST / api / v1 / payments / initiate;
+POST / api / v1 / payments / complete;
+POST / api / v1 / payments / refund;
 
 // Provider Management
-POST /api/v1/providers/credentials
-GET /api/v1/providers/status
+POST / api / v1 / providers / credentials;
+GET / api / v1 / providers / status;
 
 // Webhooks
-POST /api/v1/webhooks/pagadito
-POST /api/v1/webhooks/paypal
+POST / api / v1 / webhooks / pagadito;
+POST / api / v1 / webhooks / paypal;
 ```
 
 ## Integration Patterns
@@ -201,6 +209,7 @@ POST /api/v1/webhooks/paypal
 ### Provider Integration
 
 #### Adapter Pattern
+
 ```typescript
 interface PaymentProvider {
   initiatePayment(params: InitiatePaymentParams): Promise<PaymentResult>;
@@ -210,13 +219,20 @@ interface PaymentProvider {
 ```
 
 #### Factory Pattern
+
 ```typescript
 class PaymentProviderFactory {
-  createProvider(type: ProviderType, credentials: ProviderCredentials): PaymentProvider {
+  createProvider(
+    type: ProviderType,
+    credentials: ProviderCredentials,
+  ): PaymentProvider {
     switch (type) {
-      case 'PAGADITO': return new PagaditoProvider(credentials);
-      case 'PAYPAL': return new PayPalProvider(credentials);
-      default: throw new UnsupportedProviderError(type);
+      case 'PAGADITO':
+        return new PagaditoProvider(credentials);
+      case 'PAYPAL':
+        return new PayPalProvider(credentials);
+      default:
+        throw new UnsupportedProviderError(type);
     }
   }
 }
@@ -225,6 +241,7 @@ class PaymentProviderFactory {
 ### Event-Driven Architecture
 
 #### Domain Events
+
 ```typescript
 interface PaymentInitiatedEvent {
   aggregateId: PaymentId;
@@ -241,6 +258,7 @@ interface PaymentInitiatedEvent {
 ```
 
 #### Event Handlers
+
 ```typescript
 @EventHandler(PaymentInitiatedEvent)
 class PaymentInitiatedHandler {
@@ -255,22 +273,27 @@ class PaymentInitiatedHandler {
 ## Security & Compliance
 
 ### Data Protection
+
 - **Encryption**: AES-256 for sensitive data at rest
 - **Transmission**: TLS 1.3 for all external communications
 - **Key Management**: Hardware Security Modules (HSM) for credential storage
 - **Access Control**: Role-based access control (RBAC)
 
 ### Compliance Standards
+
 - **PCI DSS**: Payment Card Industry Data Security Standard
 - **SOX**: Sarbanes-Oxley Act compliance
 - **GDPR**: General Data Protection Regulation
 - **SOC 2**: Service Organization Control 2
 
 ### Security Measures
+
 ```typescript
 // Credential Encryption
 class CredentialEncryptionService {
-  async encrypt(credentials: ProviderCredentials): Promise<EncryptedCredentials> {
+  async encrypt(
+    credentials: ProviderCredentials,
+  ): Promise<EncryptedCredentials> {
     const key = await this.getEncryptionKey();
     return this.cryptoService.encrypt(credentials, key);
   }
@@ -289,18 +312,21 @@ class PaymentValidationService {
 ## Operational Excellence
 
 ### Monitoring & Observability
+
 - **Metrics**: Payment success rate, response times, error rates
 - **Logging**: Structured logging with correlation IDs
 - **Tracing**: Distributed tracing across payment flow
 - **Alerting**: Real-time alerts for payment failures
 
 ### Performance Optimization
+
 - **Caching**: Redis for frequently accessed data
 - **Connection Pooling**: Database and external API connections
 - **Async Processing**: Non-blocking payment operations
 - **Load Balancing**: Horizontal scaling across multiple instances
 
 ### Resilience Patterns
+
 - **Circuit Breaker**: Prevent cascade failures
 - **Retry Logic**: Exponential backoff for transient failures
 - **Fallback Mechanisms**: Alternative providers on failure
@@ -309,6 +335,7 @@ class PaymentValidationService {
 ## Testing Strategy
 
 ### Test Pyramid
+
 ```
     ┌─────────────┐
     │   E2E Tests │ 10%
@@ -323,6 +350,7 @@ class PaymentValidationService {
 ```
 
 ### Test Types
+
 - **Unit Tests**: Individual component testing
 - **Integration Tests**: Provider API integration
 - **End-to-End Tests**: Complete payment flow
@@ -331,6 +359,7 @@ class PaymentValidationService {
 ## Deployment & Monitoring
 
 ### Infrastructure as Code
+
 ```yaml
 # Docker Compose
 version: '3.8'
@@ -341,10 +370,11 @@ services:
       - NODE_ENV=production
       - DATABASE_URL=${DATABASE_URL}
     ports:
-      - "3000:3000"
+      - '3000:3000'
 ```
 
 ### Kubernetes Deployment
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -361,15 +391,16 @@ spec:
         app: payment-gateway
     spec:
       containers:
-      - name: payment-gateway
-        image: payment-gateway:latest
-        ports:
-        - containerPort: 3000
+        - name: payment-gateway
+          image: payment-gateway:latest
+          ports:
+            - containerPort: 3000
 ```
 
 ## Implementation Guidelines
 
 ### Code Organization
+
 ```
 src/domains/payment-gateway/
 ├── aggregates/
@@ -394,16 +425,21 @@ src/domains/payment-gateway/
 ```
 
 ### Naming Conventions
+
 - **Aggregates**: PascalCase (Payment, Provider)
 - **Value Objects**: PascalCase with VO suffix (PaymentDetailsVO)
 - **Events**: PascalCase with Event suffix (PaymentInitiatedEvent)
 - **Services**: PascalCase with Service suffix (PaymentGatewayService)
 
 ### Error Handling
+
 ```typescript
 // Domain Errors
 class PaymentFailedError extends DomainError {
-  constructor(message: string, public readonly paymentId: string) {
+  constructor(
+    message: string,
+    public readonly paymentId: string,
+  ) {
     super(message);
   }
 }
@@ -418,4 +454,4 @@ class ProviderUnavailableError extends ApplicationError {
 
 ---
 
-*This architecture document serves as the foundation for building a robust, scalable, and maintainable payment processing system that meets enterprise-grade requirements.*
+_This architecture document serves as the foundation for building a robust, scalable, and maintainable payment processing system that meets enterprise-grade requirements._

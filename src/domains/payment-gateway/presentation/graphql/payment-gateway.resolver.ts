@@ -5,61 +5,93 @@ import {
   CompletePaymentParams,
   PaymentResult,
 } from '../../aggregates/entities/provider/payment-provider.interface';
+import {
+  InitiatePaymentInput,
+  PaymentResultOutput,
+} from './types/payment.types';
 
 @Resolver()
 export class PaymentGatewayResolver {
   constructor(private readonly paymentGatewayService: PaymentGatewayService) {}
 
-  @Mutation(() => String)
+  @Mutation(() => PaymentResultOutput)
   async initiatePayment(
-    @Args('tenantId') tenantId: string,
-    @Args('providerType') providerType: string,
-    @Args('amount') amount: number,
-    @Args('currency') currency: string,
-    @Args('orderId') orderId: string,
-    @Args('details', { nullable: true }) details?: string,
-    @Args('customParams', { nullable: true }) customParams?: string,
-    @Args('allowPendingPayments', { nullable: true })
-    allowPendingPayments?: boolean,
-    @Args('externalReferenceNumber', { nullable: true })
-    externalReferenceNumber?: string,
-  ): Promise<string> {
+    @Args('input') input: InitiatePaymentInput,
+  ): Promise<PaymentResultOutput> {
+    let customParams: Record<string, unknown> = {};
+
+    // Handle VisaNet card information
+    if (input.providerType === 'VISANET' && input.visanetCard) {
+      customParams = {
+        cardNumber: input.visanetCard.cardNumber,
+        expirationDate: input.visanetCard.expirationDate,
+        cvv: input.visanetCard.cvv,
+        capture: input.visanetCard.capture,
+        firstName: input.visanetCard.firstName,
+        lastName: input.visanetCard.lastName,
+        email: input.visanetCard.email,
+        address: input.visanetCard.address,
+        city: input.visanetCard.city,
+        state: input.visanetCard.state,
+        postalCode: input.visanetCard.postalCode,
+        country: input.visanetCard.country,
+        phoneNumber: input.visanetCard.phoneNumber,
+      };
+    } else if (input.customParams) {
+      // Fallback to existing customParams parsing
+      customParams = JSON.parse(input.customParams) as Record<string, unknown>;
+    }
+
     const params: InitiatePaymentParams = {
-      amount,
-      currency,
-      orderId,
-      details: details
-        ? (JSON.parse(details) as Array<{
-            quantity: number;
-            description: string;
-            price: number;
-            urlProduct?: string;
-          }>)
-        : undefined,
-      customParams: customParams
-        ? (JSON.parse(customParams) as Record<string, unknown>)
-        : undefined,
-      allowPendingPayments,
-      externalReferenceNumber,
+      amount: input.amount,
+      currency: input.currency,
+      orderId: input.orderId,
+      details: input.details,
+      customParams,
+      allowPendingPayments: input.allowPendingPayments,
+      externalReferenceNumber: input.externalReferenceNumber,
     };
 
     const result: PaymentResult =
       await this.paymentGatewayService.initiatePayment(
-        tenantId,
-        providerType,
+        input.tenantId,
+        input.providerType,
         params,
       );
 
-    if (!result.success) throw new Error(result.error || 'Payment failed');
-    return result.checkoutUrl || result.transactionId || 'OK';
+    // Extract additional information from raw response for VisaNet
+    let correlationId: string | undefined;
+    let status: string | undefined;
+    let environment: string | undefined;
+
+    if (result.raw && typeof result.raw === 'object' && result.raw !== null) {
+      const rawData = result.raw as {
+        correlationId?: string;
+        status?: string;
+        environment?: string;
+      };
+      correlationId = rawData.correlationId;
+      status = rawData.status;
+      environment = rawData.environment;
+    }
+
+    return {
+      success: result.success,
+      transactionId: result.transactionId,
+      checkoutUrl: result.checkoutUrl,
+      error: result.error,
+      correlationId,
+      status,
+      environment,
+    };
   }
 
-  @Mutation(() => String)
+  @Mutation(() => PaymentResultOutput)
   async completePayment(
     @Args('tenantId') tenantId: string,
     @Args('providerType') providerType: string,
     @Args('paymentId') paymentId: string,
-  ): Promise<string> {
+  ): Promise<PaymentResultOutput> {
     const params: CompletePaymentParams = { paymentId };
     const result: PaymentResult =
       await this.paymentGatewayService.completePayment(
@@ -68,9 +100,73 @@ export class PaymentGatewayResolver {
         params,
       );
 
-    if (!result.success)
-      throw new Error(result.error || 'Payment completion failed');
-    return result.transactionId || 'OK';
+    // Extract additional information from raw response for VisaNet
+    let correlationId: string | undefined;
+    let status: string | undefined;
+    let environment: string | undefined;
+
+    if (result.raw && typeof result.raw === 'object' && result.raw !== null) {
+      const rawData = result.raw as {
+        correlationId?: string;
+        status?: string;
+        environment?: string;
+      };
+      correlationId = rawData.correlationId;
+      status = rawData.status;
+      environment = rawData.environment;
+    }
+
+    return {
+      success: result.success,
+      transactionId: result.transactionId,
+      checkoutUrl: result.checkoutUrl,
+      error: result.error,
+      correlationId,
+      status,
+      environment,
+    };
+  }
+
+  @Mutation(() => PaymentResultOutput)
+  async refundPayment(
+    @Args('tenantId') tenantId: string,
+    @Args('providerType') providerType: string,
+    @Args('paymentId') paymentId: string,
+    @Args('amount', { nullable: true }) amount?: number,
+  ): Promise<PaymentResultOutput> {
+    const params = { paymentId, amount };
+    const result: PaymentResult =
+      (await this.paymentGatewayService.refundPayment?.(
+        tenantId,
+        providerType,
+        params,
+      )) || { success: false, error: 'Refund not supported for this provider' };
+
+    // Extract additional information from raw response for VisaNet
+    let correlationId: string | undefined;
+    let status: string | undefined;
+    let environment: string | undefined;
+
+    if (result.raw && typeof result.raw === 'object' && result.raw !== null) {
+      const rawData = result.raw as {
+        correlationId?: string;
+        status?: string;
+        environment?: string;
+      };
+      correlationId = rawData.correlationId;
+      status = rawData.status;
+      environment = rawData.environment;
+    }
+
+    return {
+      success: result.success,
+      transactionId: result.transactionId,
+      checkoutUrl: result.checkoutUrl,
+      error: result.error,
+      correlationId,
+      status,
+      environment,
+    };
   }
 
   @Mutation(() => Boolean)
