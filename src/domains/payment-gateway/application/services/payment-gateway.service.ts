@@ -4,6 +4,7 @@ import { PaymentProviderCredentialRepository } from '../../aggregates/repositori
 import {
   InitiatePaymentParams,
   CompletePaymentParams,
+  RefundPaymentParams,
   PaymentResult,
 } from '../../aggregates/entities/provider/payment-provider.interface';
 
@@ -36,6 +37,27 @@ export class PaymentGatewayService {
       providerType,
     );
     return provider.completePayment(params);
+  }
+
+  async refundPayment(
+    tenantId: string,
+    providerType: string,
+    params: RefundPaymentParams,
+  ): Promise<PaymentResult> {
+    const provider = await this.providerFactory.getProvider(
+      tenantId,
+      providerType,
+    );
+
+    if (!provider.refundPayment) {
+      return {
+        success: false,
+        error: 'Refund not supported for this provider',
+        raw: params,
+      };
+    }
+
+    return provider.refundPayment(params);
   }
 
   async saveOrUpdateProviderKeys(

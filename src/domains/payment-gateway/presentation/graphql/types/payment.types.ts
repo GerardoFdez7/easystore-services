@@ -16,6 +16,48 @@ export class PaymentDetailInput {
 }
 
 @InputType()
+export class VisanetCardInput {
+  @Field()
+  cardNumber: string;
+
+  @Field()
+  expirationDate: string; // Format: MM/YYYY
+
+  @Field()
+  cvv: string;
+
+  @Field({ nullable: true })
+  capture?: boolean; // true for sale, false for auth only
+
+  @Field({ nullable: true })
+  firstName?: string;
+
+  @Field({ nullable: true })
+  lastName?: string;
+
+  @Field({ nullable: true })
+  email?: string;
+
+  @Field({ nullable: true })
+  address?: string;
+
+  @Field({ nullable: true })
+  city?: string;
+
+  @Field({ nullable: true })
+  state?: string;
+
+  @Field({ nullable: true })
+  postalCode?: string;
+
+  @Field({ nullable: true })
+  country?: string;
+
+  @Field({ nullable: true })
+  phoneNumber?: string;
+}
+
+@InputType()
 export class InitiatePaymentInput {
   @Field()
   tenantId: string;
@@ -43,6 +85,10 @@ export class InitiatePaymentInput {
 
   @Field({ nullable: true })
   externalReferenceNumber?: string;
+
+  // VisaNet specific fields
+  @Field(() => VisanetCardInput, { nullable: true })
+  visanetCard?: VisanetCardInput;
 }
 
 @ObjectType()
@@ -58,4 +104,13 @@ export class PaymentResultOutput {
 
   @Field({ nullable: true })
   error?: string;
+
+  @Field({ nullable: true })
+  correlationId?: string;
+
+  @Field({ nullable: true })
+  status?: string;
+
+  @Field({ nullable: true })
+  environment?: string;
 }

@@ -13,6 +13,7 @@ import { AddressDomain } from './domains/address/address.module';
 import { InventoryDomain } from './domains/inventory/inventory.module';
 import { CartDomain } from './domains/cart/cart.module';
 import { LoggerConfig } from './config/logger/logger.config';
+import { PaymentGatewayModule } from './domains/payment-gateway/payment-gateway.module';
 
 @Global()
 @Module({
@@ -32,6 +33,7 @@ import { LoggerConfig } from './config/logger/logger.config';
     AddressDomain,
     InventoryDomain,
     CartDomain,
+    PaymentGatewayModule,
   ],
   providers: [
     {

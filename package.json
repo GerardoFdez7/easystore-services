@@ -55,6 +55,7 @@
     "bcrypt": "^5.1.1",
     "compression": "^1.8.0",
     "cookie-parser": "^1.4.7",
+    "cybersource-rest-client": "^0.0.70",
     "graphql": "^16.11.0",
     "helmet": "^8.1.0",
     "imagekit": "^6.0.0",
