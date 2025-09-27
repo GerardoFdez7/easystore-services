@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PaymentProviderCredentialRepository } from '../../../aggregates/repositories/payment-provider-credential.interface';
-import { PostgreService } from 'src/infrastructure/database/postgres.service';
+import { PostgreService } from '../../../../../infrastructure/database/postgres.service';
 import * as crypto from 'crypto';
 import { PagaditoCredentials } from '../../providers/pagadito/pagadito.provider';
 import { VisanetCredentials } from '../../providers/visanet/visanet.provider';
@@ -45,7 +45,7 @@ interface PaymentProviderCredentialRecord {
   id: string;
   tenantId: string;
   provider: ProviderType;
-  credentials: string;
+  credentials: string; // This will be the encrypted JSON string
   createdAt: Date;
   updatedAt: Date;
 }

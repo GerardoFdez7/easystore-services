@@ -418,6 +418,19 @@ input GetInTouchInput {
   websiteUrl: String
 }
 
+input InitiatePaymentInput {
+  allowPendingPayments: Boolean
+  amount: Float!
+  currency: String!
+  customParams: String
+  details: [PaymentDetailInput!]
+  externalReferenceNumber: String
+  orderId: String!
+  providerType: String!
+  tenantId: String!
+  visanetCard: VisanetCardInput
+}
+
 type Installment {
   interestRate: Float!
   months: Int!
@@ -448,6 +461,7 @@ type Mutation {
   addStockToWarehouse(input: AddStockToWarehouseInput!, reason: String, variantId: ID!, warehouseId: ID!): Warehouse!
   addVariant(input: CreateVariantInput!): Product!
   archiveVariant(id: String!, productId: String!): Product!
+  completePayment(paymentId: String!, providerType: String!, tenantId: String!): PaymentResultOutput!
   createAddress(input: CreateAddressInput!): AddressType!
   createCart(input: CreateCartInput!): Cart!
   createCategory(input: CreateCategoryInput!): Category!
@@ -459,8 +473,10 @@ type Mutation {
   forgotPassword(input: ForgotPasswordInput!): Response!
   getInTouch(input: GetInTouchInput!): Response!
   hardDeleteProduct(id: String!): Product!
+  initiatePayment(input: InitiatePaymentInput!): PaymentResultOutput!
   login(input: AuthenticationInput!): Response!
   logout: Response!
+  refundPayment(amount: Float, paymentId: String!, providerType: String!, tenantId: String!): PaymentResultOutput!
   register(input: AuthenticationInput!): AuthIdentity!
   removeItemFromCart(input: RemoveItemFromCartInput!): Cart!
   removeManyItemsFromCart(input: RemoveManyItemFromCartInput!): Cart!
@@ -468,6 +484,7 @@ type Mutation {
   removeVariant(id: String!, productId: String!): Product!
   restoreProduct(id: String!): Product!
   restoreVariant(id: String!, productId: String!): Product!
+  saveOrUpdateProviderKeys(credentials: String!, providerType: String!, tenantId: String!): Boolean!
   softDeleteProduct(id: String!): Product!
   updateAddress(id: ID!, input: UpdateAddressInput!): AddressType!
   updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
@@ -508,6 +525,23 @@ type PaginatedWarehousesType {
   hasMore: Boolean!
   total: Int!
   warehouses: [Warehouse!]!
+}
+
+input PaymentDetailInput {
+  description: String!
+  price: Float!
+  quantity: Float!
+  urlProduct: String
+}
+
+type PaymentResultOutput {
+  checkoutUrl: String
+  correlationId: String
+  environment: String
+  error: String
+  status: String
+  success: Boolean!
+  transactionId: String
 }
 
 type Product {
@@ -782,6 +816,22 @@ type Variant {
 type VariantAttribute {
   key: String!
   value: String!
+}
+
+input VisanetCardInput {
+  address: String
+  capture: Boolean
+  cardNumber: String!
+  city: String
+  country: String
+  cvv: String!
+  email: String
+  expirationDate: String!
+  firstName: String
+  lastName: String
+  phoneNumber: String
+  postalCode: String
+  state: String
 }
 
 type Warehouse {
