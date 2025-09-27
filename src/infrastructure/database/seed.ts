@@ -1,6 +1,6 @@
 import { PostgreService } from './postgres.service';
-import { Id } from '@shared/value-objects/id.vo';
-import { LoggerService } from '@logger/winston.service';
+import { Id } from '../../domains/shared/value-objects/id.vo';
+import { LoggerService } from '../logger/winston.service';
 import * as fs from 'fs';
 import * as path from 'path';
 
