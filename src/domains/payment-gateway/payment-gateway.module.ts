@@ -6,9 +6,10 @@ import { InitiatePaymentHandler } from './application/commands/create/initiate-p
 import { CompletePaymentHandler } from './application/commands/complete/complete-payment.handler';
 import { PaymentGatewayResolver } from './presentation/graphql/payment-gateway.resolver';
 import { PaymentProviderCredentialPostgresRepository } from './infrastructure/persistence/postgres/payment-provider-credential.repository';
+import { PostgresModule } from '../../infrastructure/database/postgres.module';
 
 @Module({
-  imports: [],
+  imports: [PostgresModule],
   providers: [
     PaymentGatewayService,
     PaymentProviderFactoryService,
@@ -16,7 +17,10 @@ import { PaymentProviderCredentialPostgresRepository } from './infrastructure/pe
     InitiatePaymentHandler,
     CompletePaymentHandler,
     PaymentGatewayResolver,
-    PaymentProviderCredentialPostgresRepository,
+    {
+      provide: 'PaymentProviderCredentialRepository',
+      useClass: PaymentProviderCredentialPostgresRepository,
+    },
   ],
   exports: [PaymentGatewayService, PaymentProviderFactoryService],
 })

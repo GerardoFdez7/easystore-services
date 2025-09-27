@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { PaymentProvider } from '../../aggregates/entities/provider/payment-provider.interface';
 import {
   PagaditoCredentials,
@@ -17,6 +17,7 @@ import { PaymentProviderCredentialRepository } from '../../aggregates/repositori
 @Injectable()
 export class PaymentProviderFactoryService {
   constructor(
+    @Inject('PaymentProviderCredentialRepository')
     private readonly credentialRepo: PaymentProviderCredentialRepository,
   ) {}
 

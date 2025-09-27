@@ -874,7 +874,7 @@ model PaymentProviderCredential {
   id          String       @id @default(uuid())
   tenantId    String
   provider    ProviderType
-  credentials Json // Encrypted JSON with keys/secrets
+  credentials String // Encrypted JSON with keys/secrets
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
