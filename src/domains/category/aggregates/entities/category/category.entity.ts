@@ -41,9 +41,7 @@ export class Category extends Entity<ICategoryProps> {
   static create(props: ICategoryBase): Category {
     const transformedProps = {
       name: Name.create(props.name),
-      cover: props.cover
-        ? Media.create(props.cover)
-        : Media.create('https://easystore.com/default-media.jpg'),
+      cover: Media.createCover(props.cover),
       description: props.description
         ? ShortDescription.create(props.description)
         : null,

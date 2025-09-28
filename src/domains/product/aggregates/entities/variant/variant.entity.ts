@@ -58,9 +58,7 @@ export class Variant extends Entity<IVariantProps> {
         Attribute.create(attr.key, attr.value),
       ),
       price: Price.create(props.price),
-      variantCover: props.variantCover
-        ? MediaVO.create(props.variantCover)
-        : MediaVO.create('https://easystore.com/default-variant-media.jpg'),
+      variantCover: MediaVO.create(props.variantCover),
       personalizationOptions: props.personalizationOptions
         ? props.personalizationOptions.map((opt) =>
             PersonalizationOptions.create(opt),
@@ -134,9 +132,7 @@ export class Variant extends Entity<IVariantProps> {
       newProps.price = Price.create(data.price);
     }
     if (data.variantCover !== undefined) {
-      newProps.variantCover = data.variantCover
-        ? MediaVO.create(data.variantCover)
-        : MediaVO.create('https://easystore.com/default-media.jpg');
+      newProps.variantCover = MediaVO.create(data.variantCover);
     }
     if (data.personalizationOptions) {
       newProps.personalizationOptions = data.personalizationOptions.map((opt) =>

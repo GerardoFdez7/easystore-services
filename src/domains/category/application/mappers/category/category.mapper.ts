@@ -27,7 +27,7 @@ export class CategoryMapper {
     const categoryProps: ICategoryProps = {
       id: Id.create(persistenceCategory.id),
       name: Name.create(persistenceCategory.name),
-      cover: Media.create(persistenceCategory.cover),
+      cover: Media.createCover(persistenceCategory.cover),
       description: persistenceCategory.description
         ? ShortDescription.create(persistenceCategory.description)
         : null,

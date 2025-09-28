@@ -151,7 +151,7 @@ input CreateProductCategoryInput {
 input CreateProductInput {
   brand: String
   categories: [CreateProductCategoryInput!]
-  cover: String
+  cover: String!
   longDescription: String
   manufacturer: String
   media: [CreateMediaInput!]

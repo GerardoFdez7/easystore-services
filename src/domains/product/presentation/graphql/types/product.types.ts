@@ -107,8 +107,8 @@ export class CreateProductInput {
   @Field(() => TypeEnum, { nullable: true })
   productType: TypeEnum;
 
-  @Field({ nullable: true })
-  cover?: string;
+  @Field()
+  cover: string;
 
   @Field(() => [String], { nullable: true })
   tags?: string[];

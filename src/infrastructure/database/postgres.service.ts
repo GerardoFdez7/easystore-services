@@ -7,10 +7,16 @@ export class PostgreService
   implements OnModuleInit, OnModuleDestroy
 {
   constructor() {
+    // Use Docker database URL only when explicitly running in Docker
+    const databaseUrl =
+      process.env.DOCKER_ENV === 'true'
+        ? process.env.DATABASE_URL_POSTGRES_DOCKER
+        : process.env.DATABASE_URL_POSTGRES;
+
     super({
       datasources: {
         postgres: {
-          url: process.env.DATABASE_URL_POSTGRES,
+          url: databaseUrl,
         },
       },
     });

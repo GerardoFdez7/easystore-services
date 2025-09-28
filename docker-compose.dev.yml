@@ -16,6 +16,7 @@ services:
       - HUSKY=0
       - NODE_ENV=${NODE_ENV}
       - DATABASE_URL_POSTGRES_DOCKER=${DATABASE_URL_POSTGRES_DOCKER}
+      - DOCKER_ENV=true
     depends_on:
       - postgres
     networks:

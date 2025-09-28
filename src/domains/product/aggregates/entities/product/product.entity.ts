@@ -39,7 +39,7 @@ export interface IProductProps extends EntityProps {
   shortDescription: ShortDescription;
   longDescription?: LongDescription;
   productType: Type;
-  cover?: MediaVO;
+  cover: MediaVO;
   tags?: Tags[];
   brand?: Brand;
   manufacturer?: Manufacturer;
@@ -101,9 +101,7 @@ export class Product extends Entity<IProductProps> {
         ? LongDescription.create(props.longDescription)
         : null,
       productType: Type.create(props.productType || 'PHYSICAL'),
-      cover: props.media
-        ? MediaVO.create(props.cover)
-        : MediaVO.create('https://easystore.com/default-media.jpg'),
+      cover: MediaVO.createCover(props.cover),
       tags: (props.tags || []).map((tag) => Tags.create([tag])),
       brand: props.brand ? Brand.create(props.brand) : null,
       manufacturer: props.manufacturer
@@ -197,7 +195,7 @@ export class Product extends Entity<IProductProps> {
     }
 
     if (updates.cover !== undefined) {
-      props.cover = MediaVO.create(updates.cover);
+      props.cover = MediaVO.createCover(updates.cover);
     }
 
     if (updates.tags !== undefined) {

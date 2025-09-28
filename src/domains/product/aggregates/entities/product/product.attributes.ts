@@ -16,7 +16,7 @@ export interface IProductType extends IProductSystem {
   shortDescription: string;
   longDescription?: string;
   productType: TypeEnum;
-  cover?: string;
+  cover: string;
   brand?: string;
   manufacturer?: string;
   tags: string[];
@@ -33,7 +33,7 @@ export interface IProductBase {
   shortDescription: string;
   longDescription?: string;
   productType: TypeEnum;
-  cover?: string;
+  cover: string;
   brand?: string;
   manufacturer?: string;
   tags?: string[];
