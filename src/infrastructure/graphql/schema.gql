@@ -27,7 +27,7 @@ input AddVariantToProductInput {
   isbn: String
   personalizationOptions: [String!]
   price: Float!
-  sku: String
+  sku: String!
   upc: String
   variantCover: String
   variantMedia: [CreateMediaInput!]
@@ -179,7 +179,7 @@ input CreateVariantInput {
   personalizationOptions: [String!]
   price: Float!
   productId: ID!
-  sku: String
+  sku: String!
   upc: String
   variantCover: String
   variantMedia: [CreateMediaInput!]
@@ -728,7 +728,7 @@ type Variant {
   isbn: String
   personalizationOptions: [String!]
   price: Float!
-  sku: String
+  sku: String!
   upc: String
   variantCover: String
   variantMedia: [Media!]

@@ -3,6 +3,7 @@ export interface ICategoryType extends ICategorySystem, ICategoryBase {}
 
 // Base properties for a Category
 export interface ICategoryBase {
+  id?: string;
   name: string;
   cover: string;
   description?: string;
@@ -13,7 +14,6 @@ export interface ICategoryBase {
 
 // System-generated properties for a Category
 export interface ICategorySystem {
-  id: string;
   updatedAt: Date;
   createdAt: Date;
 }

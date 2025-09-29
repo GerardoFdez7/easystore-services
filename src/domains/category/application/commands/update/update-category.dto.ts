@@ -1,7 +1,7 @@
 import { ICategoryBase } from '../../../aggregates/entities';
 
 type UpdatableCategoryFields = Partial<
-  Omit<ICategoryBase, 'tenantId' | 'subCategories'>
+  Omit<ICategoryBase, 'tenantId' | 'subCategories' | 'id'>
 >;
 
 /**

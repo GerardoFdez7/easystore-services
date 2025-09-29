@@ -58,7 +58,7 @@ export class Category extends Entity<ICategoryProps> {
     };
 
     const category = new Category({
-      id: Id.generate(),
+      id: props.id ? Id.create(props.id) : Id.generate(),
       ...transformedProps,
       updatedAt: new Date(),
       createdAt: new Date(),
