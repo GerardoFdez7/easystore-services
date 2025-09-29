@@ -680,7 +680,7 @@ export class ProductRepository implements IProductRepository {
 
       return variants.map((v) => ({
         id: v.id,
-        sku: v.sku || '',
+        sku: v.sku,
         attributes: v.attributes.map((a) => ({ key: a.key, value: a.value })),
         product: { name: v.product.name },
         isArchived: v.isArchived,

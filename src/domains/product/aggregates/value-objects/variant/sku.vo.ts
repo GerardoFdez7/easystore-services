@@ -2,22 +2,21 @@ import { z } from 'zod';
 
 const skuSchema = z
   .string()
-  .min(1, { message: 'SKU must be a non-empty string' })
-  .nullable();
+  .min(1, { message: 'SKU must be a non-empty string' });
 
 export class SKU {
-  private readonly value: string | null;
+  private readonly value: string;
 
-  private constructor(value: string | null) {
+  private constructor(value: string) {
     this.value = value;
   }
 
-  public static create(value: string | null): SKU {
+  public static create(value: string): SKU {
     skuSchema.parse(value);
     return new SKU(value);
   }
 
-  public getValue(): string | null {
+  public getValue(): string {
     return this.value;
   }
 

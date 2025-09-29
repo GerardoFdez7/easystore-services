@@ -71,8 +71,8 @@ export class VariantType {
   @Field(() => DimensionType, { nullable: true })
   dimension?: DimensionType;
 
-  @Field({ nullable: true })
-  sku?: string;
+  @Field()
+  sku: string;
 
   @Field({ nullable: true })
   upc?: string;
@@ -147,8 +147,8 @@ export class AddVariantToProductInput {
   })
   condition: ConditionEnum;
 
-  @Field({ nullable: true })
-  sku?: string;
+  @Field()
+  sku: string;
 
   @Field({ nullable: true })
   upc?: string;
@@ -198,8 +198,8 @@ export class CreateVariantInput {
   })
   condition: ConditionEnum;
 
-  @Field({ nullable: true })
-  sku?: string;
+  @Field()
+  sku: string;
 
   @Field({ nullable: true })
   upc?: string;

@@ -22,7 +22,7 @@ export interface IVariantBase {
   condition: ConditionEnum;
   upc?: string;
   ean?: string;
-  sku?: string;
+  sku: string;
   barcode?: string;
   isbn?: string;
   productId: string;
@@ -49,7 +49,7 @@ export interface IVariantType extends IVariantSystem {
   condition: ConditionEnum;
   upc?: string;
   ean?: string;
-  sku?: string;
+  sku: string;
   barcode?: string;
   isbn?: string;
   productId: string;

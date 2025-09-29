@@ -58,7 +58,7 @@ export class VariantMapper {
       condition: Condition.create(model.condition),
       upc: model.upc ? UPC.create(model.upc) : null,
       ean: model.ean ? EAN.create(model.ean) : null,
-      sku: model.sku ? SKU.create(model.sku) : null,
+      sku: SKU.create(model.sku),
       barcode: model.barcode ? Barcode.create(model.barcode) : null,
       isbn: model.isbn ? ISBN.create(model.isbn) : null,
       isArchived: model.isArchived,

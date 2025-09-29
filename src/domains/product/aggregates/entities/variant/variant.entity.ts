@@ -34,7 +34,7 @@ export interface IVariantProps extends EntityProps {
   condition: Condition;
   upc?: UPC;
   ean?: EAN;
-  sku?: SKU;
+  sku: SKU;
   barcode?: Barcode;
   isbn?: ISBN;
   isArchived: boolean;
@@ -71,7 +71,7 @@ export class Variant extends Entity<IVariantProps> {
         : Condition.create('NEW'),
       upc: props.upc ? UPC.create(props.upc) : null,
       ean: props.ean ? EAN.create(props.ean) : null,
-      sku: props.sku ? SKU.create(props.sku) : null,
+      sku: SKU.create(props.sku),
       barcode: props.barcode ? Barcode.create(props.barcode) : null,
       isbn: props.isbn ? ISBN.create(props.isbn) : null,
       productId: props.productId ? Id.create(props.productId) : null,
@@ -158,7 +158,7 @@ export class Variant extends Entity<IVariantProps> {
       newProps.ean = data.ean ? EAN.create(data.ean) : null;
     }
     if (data.sku !== undefined) {
-      newProps.sku = data.sku ? SKU.create(data.sku) : null;
+      newProps.sku = SKU.create(data.sku);
     }
     if (data.barcode !== undefined) {
       newProps.barcode = data.barcode ? Barcode.create(data.barcode) : null;
