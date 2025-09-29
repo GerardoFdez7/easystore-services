@@ -1,14 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventPublisher } from '@nestjs/cqrs';
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { CreateVariantHandler } from '../create-variant.handler';
 import { CreateVariantDTO } from '../create-variant.dto';
 import { IProductRepository } from '../../../../../aggregates/repositories/product.interface';
 import { ProductMapper, ProductDTO } from '../../../../mappers';
-import { Id } from '../../../../../aggregates/value-objects';
+import { Id, TypeEnum } from '../../../../../aggregates/value-objects';
 
 interface MockProduct {
   commit: jest.Mock;
+  get: jest.Mock;
 }
 
 describe('CreateVariantHandler', () => {
@@ -41,10 +42,12 @@ describe('CreateVariantHandler', () => {
 
     mockProduct = {
       commit: jest.fn(),
+      get: jest.fn(),
     };
 
     mockUpdatedProduct = {
       commit: jest.fn(),
+      get: jest.fn(),
     };
 
     idCreateMock = jest
@@ -86,7 +89,7 @@ describe('CreateVariantHandler', () => {
       price: 29.99,
       stock: 100,
       weight: 1.5,
-      dimensions: {
+      dimension: {
         height: 10,
         width: 20,
         depth: 30,
@@ -118,6 +121,7 @@ describe('CreateVariantHandler', () => {
 
       it('should find product with correct tenant and product IDs', async () => {
         findByIdMock.mockResolvedValue(mockProduct as never);
+        mockProduct.get.mockReturnValue({ getValue: () => TypeEnum.PHYSICAL });
         mergeObjectContextMock.mockReturnValue(mockUpdatedProduct as never);
 
         await handler.execute(baseCommand);
@@ -131,9 +135,436 @@ describe('CreateVariantHandler', () => {
       });
     });
 
+    describe('Product type validation', () => {
+      describe('Digital products', () => {
+        beforeEach(() => {
+          findByIdMock.mockResolvedValue(mockProduct as never);
+          mockProduct.get.mockReturnValue({ getValue: () => TypeEnum.DIGITAL });
+        });
+
+        it('should throw BadRequestException when digital product variant has weight', async () => {
+          const digitalVariantWithWeight: CreateVariantDTO = {
+            variant: {
+              ...baseVariant,
+              weight: 1.5,
+              dimension: undefined,
+            },
+          } as unknown as CreateVariantDTO;
+
+          await expect(
+            handler.execute(digitalVariantWithWeight),
+          ).rejects.toThrow(
+            new BadRequestException(
+              'Digital products cannot have weight or dimensions.',
+            ),
+          );
+
+          expect(mockProduct.get).toHaveBeenCalledWith('productType');
+          expect(updateMock).not.toHaveBeenCalled();
+        });
+
+        it('should throw BadRequestException when digital product variant has dimensions', async () => {
+          const digitalVariantWithDimensions: CreateVariantDTO = {
+            variant: {
+              ...baseVariant,
+              weight: undefined,
+              dimension: {
+                height: 10,
+                width: 20,
+                length: 30,
+              },
+            },
+          } as unknown as CreateVariantDTO;
+
+          await expect(
+            handler.execute(digitalVariantWithDimensions),
+          ).rejects.toThrow(
+            new BadRequestException(
+              'Digital products cannot have weight or dimensions.',
+            ),
+          );
+
+          expect(mockProduct.get).toHaveBeenCalledWith('productType');
+          expect(updateMock).not.toHaveBeenCalled();
+        });
+
+        it('should throw BadRequestException when digital product variant has both weight and dimensions', async () => {
+          const digitalVariantWithBoth: CreateVariantDTO = {
+            variant: {
+              ...baseVariant,
+              weight: 1.5,
+              dimension: {
+                height: 10,
+                width: 20,
+                length: 30,
+              },
+            },
+          } as unknown as CreateVariantDTO;
+
+          await expect(handler.execute(digitalVariantWithBoth)).rejects.toThrow(
+            new BadRequestException(
+              'Digital products cannot have weight or dimensions.',
+            ),
+          );
+
+          expect(mockProduct.get).toHaveBeenCalledWith('productType');
+          expect(updateMock).not.toHaveBeenCalled();
+        });
+
+        it('should successfully create variant for digital product without weight and dimensions', async () => {
+          const digitalVariant: CreateVariantDTO = {
+            variant: {
+              ...baseVariant,
+              weight: undefined,
+              dimension: undefined,
+            },
+          } as unknown as CreateVariantDTO;
+
+          mergeObjectContextMock.mockReturnValue(mockUpdatedProduct as never);
+
+          const result = await handler.execute(digitalVariant);
+
+          expect(mockProduct.get).toHaveBeenCalledWith('productType');
+          expect(fromAddVariantDtoMock).toHaveBeenCalledWith(
+            mockProduct,
+            digitalVariant.variant,
+          );
+          expect(result).toEqual({ id: 'product-id' });
+        });
+      });
+
+      describe('Physical products', () => {
+        beforeEach(() => {
+          findByIdMock.mockResolvedValue(mockProduct as never);
+          mockProduct.get.mockReturnValue({
+            getValue: () => TypeEnum.PHYSICAL,
+          });
+          mergeObjectContextMock.mockReturnValue(mockUpdatedProduct as never);
+        });
+
+        it('should throw BadRequestException when physical product variant has no weight', async () => {
+          const physicalVariantNoWeight: CreateVariantDTO = {
+            variant: {
+              ...baseVariant,
+              weight: null,
+              dimension: {
+                height: 10,
+                width: 20,
+                length: 30,
+              },
+            },
+          } as unknown as CreateVariantDTO;
+
+          await expect(
+            handler.execute(physicalVariantNoWeight),
+          ).rejects.toThrow(
+            new BadRequestException(
+              'Weight property is required for physical products',
+            ),
+          );
+
+          expect(mockProduct.get).toHaveBeenCalledWith('productType');
+          expect(updateMock).not.toHaveBeenCalled();
+        });
+
+        it('should throw BadRequestException when physical product variant has undefined weight', async () => {
+          const physicalVariantUndefinedWeight: CreateVariantDTO = {
+            variant: {
+              ...baseVariant,
+              weight: undefined,
+              dimension: {
+                height: 10,
+                width: 20,
+                length: 30,
+              },
+            },
+          } as unknown as CreateVariantDTO;
+
+          await expect(
+            handler.execute(physicalVariantUndefinedWeight),
+          ).rejects.toThrow(
+            new BadRequestException(
+              'Weight property is required for physical products',
+            ),
+          );
+
+          expect(mockProduct.get).toHaveBeenCalledWith('productType');
+          expect(updateMock).not.toHaveBeenCalled();
+        });
+
+        it('should throw BadRequestException when physical product variant has no dimensions', async () => {
+          const physicalVariantNoDimensions: CreateVariantDTO = {
+            variant: {
+              ...baseVariant,
+              weight: 1.5,
+              dimension: null,
+            },
+          } as unknown as CreateVariantDTO;
+
+          await expect(
+            handler.execute(physicalVariantNoDimensions),
+          ).rejects.toThrow(
+            new BadRequestException(
+              'Dimension property is required for physical products',
+            ),
+          );
+
+          expect(mockProduct.get).toHaveBeenCalledWith('productType');
+          expect(updateMock).not.toHaveBeenCalled();
+        });
+
+        it('should throw BadRequestException when physical product variant has undefined dimensions', async () => {
+          const physicalVariantUndefinedDimensions: CreateVariantDTO = {
+            variant: {
+              ...baseVariant,
+              weight: 1.5,
+              dimension: undefined,
+            },
+          } as unknown as CreateVariantDTO;
+
+          await expect(
+            handler.execute(physicalVariantUndefinedDimensions),
+          ).rejects.toThrow(
+            new BadRequestException(
+              'Dimension property is required for physical products',
+            ),
+          );
+
+          expect(mockProduct.get).toHaveBeenCalledWith('productType');
+          expect(updateMock).not.toHaveBeenCalled();
+        });
+
+        it('should throw BadRequestException when physical product variant has zero weight', async () => {
+          const physicalVariantZeroWeight: CreateVariantDTO = {
+            variant: {
+              ...baseVariant,
+              weight: 0,
+              dimension: {
+                height: 10,
+                width: 20,
+                length: 30,
+              },
+            },
+          } as unknown as CreateVariantDTO;
+
+          await expect(
+            handler.execute(physicalVariantZeroWeight),
+          ).rejects.toThrow(
+            new BadRequestException(
+              'Weight must be a positive value for physical products.',
+            ),
+          );
+
+          expect(mockProduct.get).toHaveBeenCalledWith('productType');
+          expect(updateMock).not.toHaveBeenCalled();
+        });
+
+        it('should throw BadRequestException when physical product variant has negative weight', async () => {
+          const physicalVariantNegativeWeight: CreateVariantDTO = {
+            variant: {
+              ...baseVariant,
+              weight: -1.5,
+              dimension: {
+                height: 10,
+                width: 20,
+                length: 30,
+              },
+            },
+          } as unknown as CreateVariantDTO;
+
+          await expect(
+            handler.execute(physicalVariantNegativeWeight),
+          ).rejects.toThrow(
+            new BadRequestException(
+              'Weight must be a positive value for physical products.',
+            ),
+          );
+
+          expect(mockProduct.get).toHaveBeenCalledWith('productType');
+          expect(updateMock).not.toHaveBeenCalled();
+        });
+
+        it('should throw BadRequestException when physical product variant has zero height', async () => {
+          const physicalVariantZeroHeight: CreateVariantDTO = {
+            variant: {
+              ...baseVariant,
+              weight: 1.5,
+              dimension: {
+                height: 0,
+                width: 20,
+                length: 30,
+              },
+            },
+          } as unknown as CreateVariantDTO;
+
+          await expect(
+            handler.execute(physicalVariantZeroHeight),
+          ).rejects.toThrow(
+            new BadRequestException(
+              'Dimension height must be a positive value for physical products.',
+            ),
+          );
+
+          expect(mockProduct.get).toHaveBeenCalledWith('productType');
+          expect(updateMock).not.toHaveBeenCalled();
+        });
+
+        it('should throw BadRequestException when physical product variant has negative height', async () => {
+          const physicalVariantNegativeHeight: CreateVariantDTO = {
+            variant: {
+              ...baseVariant,
+              weight: 1.5,
+              dimension: {
+                height: -10,
+                width: 20,
+                length: 30,
+              },
+            },
+          } as unknown as CreateVariantDTO;
+
+          await expect(
+            handler.execute(physicalVariantNegativeHeight),
+          ).rejects.toThrow(
+            new BadRequestException(
+              'Dimension height must be a positive value for physical products.',
+            ),
+          );
+
+          expect(mockProduct.get).toHaveBeenCalledWith('productType');
+          expect(updateMock).not.toHaveBeenCalled();
+        });
+
+        it('should throw BadRequestException when physical product variant has zero width', async () => {
+          const physicalVariantZeroWidth: CreateVariantDTO = {
+            variant: {
+              ...baseVariant,
+              weight: 1.5,
+              dimension: {
+                height: 10,
+                width: 0,
+                length: 30,
+              },
+            },
+          } as unknown as CreateVariantDTO;
+
+          await expect(
+            handler.execute(physicalVariantZeroWidth),
+          ).rejects.toThrow(
+            new BadRequestException(
+              'Dimension width must be a positive value for physical products.',
+            ),
+          );
+
+          expect(mockProduct.get).toHaveBeenCalledWith('productType');
+          expect(updateMock).not.toHaveBeenCalled();
+        });
+
+        it('should throw BadRequestException when physical product variant has negative width', async () => {
+          const physicalVariantNegativeWidth: CreateVariantDTO = {
+            variant: {
+              ...baseVariant,
+              weight: 1.5,
+              dimension: {
+                height: 10,
+                width: -20,
+                length: 30,
+              },
+            },
+          } as unknown as CreateVariantDTO;
+
+          await expect(
+            handler.execute(physicalVariantNegativeWidth),
+          ).rejects.toThrow(
+            new BadRequestException(
+              'Dimension width must be a positive value for physical products.',
+            ),
+          );
+
+          expect(mockProduct.get).toHaveBeenCalledWith('productType');
+          expect(updateMock).not.toHaveBeenCalled();
+        });
+
+        it('should throw BadRequestException when physical product variant has zero length', async () => {
+          const physicalVariantZeroLength: CreateVariantDTO = {
+            variant: {
+              ...baseVariant,
+              weight: 1.5,
+              dimension: {
+                height: 10,
+                width: 20,
+                length: 0,
+              },
+            },
+          } as unknown as CreateVariantDTO;
+
+          await expect(
+            handler.execute(physicalVariantZeroLength),
+          ).rejects.toThrow(
+            new BadRequestException(
+              'Dimension length must be a positive value for physical products.',
+            ),
+          );
+
+          expect(mockProduct.get).toHaveBeenCalledWith('productType');
+          expect(updateMock).not.toHaveBeenCalled();
+        });
+
+        it('should throw BadRequestException when physical product variant has negative length', async () => {
+          const physicalVariantNegativeLength: CreateVariantDTO = {
+            variant: {
+              ...baseVariant,
+              weight: 1.5,
+              dimension: {
+                height: 10,
+                width: 20,
+                length: -30,
+              },
+            },
+          } as unknown as CreateVariantDTO;
+
+          await expect(
+            handler.execute(physicalVariantNegativeLength),
+          ).rejects.toThrow(
+            new BadRequestException(
+              'Dimension length must be a positive value for physical products.',
+            ),
+          );
+
+          expect(mockProduct.get).toHaveBeenCalledWith('productType');
+          expect(updateMock).not.toHaveBeenCalled();
+        });
+
+        it('should successfully create variant for physical product with valid weight and dimensions', async () => {
+          const validPhysicalVariant: CreateVariantDTO = {
+            variant: {
+              ...baseVariant,
+              weight: 2.5,
+              dimension: {
+                height: 15,
+                width: 25,
+                length: 35,
+              },
+            },
+          } as unknown as CreateVariantDTO;
+
+          const result = await handler.execute(validPhysicalVariant);
+
+          expect(mockProduct.get).toHaveBeenCalledWith('productType');
+          expect(fromAddVariantDtoMock).toHaveBeenCalledWith(
+            mockProduct,
+            validPhysicalVariant.variant,
+          );
+          expect(updateMock).toHaveBeenCalled();
+          expect(mockUpdatedProduct.commit).toHaveBeenCalled();
+          expect(result).toEqual({ id: 'product-id' });
+        });
+      });
+    });
+
     describe('Variant mapping and processing', () => {
       beforeEach(() => {
         findByIdMock.mockResolvedValue(mockProduct as never);
+        mockProduct.get.mockReturnValue({ getValue: () => TypeEnum.PHYSICAL });
         mergeObjectContextMock.mockReturnValue(mockUpdatedProduct as never);
       });
 
@@ -156,6 +587,7 @@ describe('CreateVariantHandler', () => {
     describe('Repository persistence', () => {
       beforeEach(() => {
         findByIdMock.mockResolvedValue(mockProduct as never);
+        mockProduct.get.mockReturnValue({ getValue: () => TypeEnum.PHYSICAL });
         mergeObjectContextMock.mockReturnValue(mockUpdatedProduct as never);
       });
 
@@ -188,6 +620,7 @@ describe('CreateVariantHandler', () => {
     describe('Event handling', () => {
       beforeEach(() => {
         findByIdMock.mockResolvedValue(mockProduct as never);
+        mockProduct.get.mockReturnValue({ getValue: () => TypeEnum.PHYSICAL });
         mergeObjectContextMock.mockReturnValue(mockUpdatedProduct as never);
       });
 
@@ -210,6 +643,7 @@ describe('CreateVariantHandler', () => {
     describe('DTO conversion and return', () => {
       beforeEach(() => {
         findByIdMock.mockResolvedValue(mockProduct as never);
+        mockProduct.get.mockReturnValue({ getValue: () => TypeEnum.PHYSICAL });
         mergeObjectContextMock.mockReturnValue(mockUpdatedProduct as never);
       });
 
@@ -246,6 +680,7 @@ describe('CreateVariantHandler', () => {
         } as unknown as CreateVariantDTO;
 
         findByIdMock.mockResolvedValue(mockProduct as never);
+        mockProduct.get.mockReturnValue({ getValue: () => TypeEnum.DIGITAL });
         mergeObjectContextMock.mockReturnValue(mockUpdatedProduct as never);
 
         const result = await handler.execute(minimalCommand);
@@ -266,7 +701,7 @@ describe('CreateVariantHandler', () => {
             price: 99.99,
             stock: 100,
             weight: 2.5,
-            dimensions: {
+            dimension: {
               height: 15,
               width: 25,
               depth: 35,
@@ -281,6 +716,7 @@ describe('CreateVariantHandler', () => {
         } as unknown as CreateVariantDTO;
 
         findByIdMock.mockResolvedValue(mockProduct as never);
+        mockProduct.get.mockReturnValue({ getValue: () => TypeEnum.PHYSICAL });
         mergeObjectContextMock.mockReturnValue(mockUpdatedProduct as never);
 
         const result = await handler.execute(fullCommand);
@@ -304,6 +740,7 @@ describe('CreateVariantHandler', () => {
       it('should propagate update errors', async () => {
         const updateError = new Error('Failed to update product');
         findByIdMock.mockResolvedValue(mockProduct as never);
+        mockProduct.get.mockReturnValue({ getValue: () => TypeEnum.PHYSICAL });
         mergeObjectContextMock.mockReturnValue(mockUpdatedProduct as never);
         updateMock.mockRejectedValue(updateError);
 
@@ -321,7 +758,7 @@ describe('CreateVariantHandler', () => {
             price: 49.99,
             stock: 50,
             weight: 1.0,
-            dimensions: {
+            dimension: {
               height: 5,
               width: 10,
               depth: 15,
@@ -342,6 +779,7 @@ describe('CreateVariantHandler', () => {
         } as unknown as ProductDTO;
 
         findByIdMock.mockResolvedValue(mockProduct as never);
+        mockProduct.get.mockReturnValue({ getValue: () => TypeEnum.PHYSICAL });
         mergeObjectContextMock.mockReturnValue(mockUpdatedProduct as never);
         toDtoMock.mockReturnValue(expectedDto);
 

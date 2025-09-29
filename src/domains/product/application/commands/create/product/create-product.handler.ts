@@ -22,26 +22,60 @@ export class CreateProductHandler implements ICommandHandler<CreateProductDTO> {
       ? variants.map((variant) => {
           const processedVariant = { ...variant };
           if (productType === TypeEnum.DIGITAL) {
-            processedVariant.weight = null;
-            processedVariant.dimension = null;
+            if (
+              variant.weight !== undefined ||
+              variant.dimension !== undefined
+            ) {
+              throw new BadRequestException(
+                'Digital products cannot have weight or dimensions.',
+              );
+            }
           } else if (productType === TypeEnum.PHYSICAL) {
             // Check if weight and dimension exists for physical products
-            if (
-              processedVariant.dimension === null ||
-              processedVariant.dimension === undefined
-            ) {
+            if (variant.dimension === null || variant.dimension === undefined) {
               throw new BadRequestException(
                 'Dimension property is required for physical products',
               );
             }
 
-            if (
-              processedVariant.weight === null ||
-              processedVariant.weight === undefined
-            ) {
+            if (variant.weight === null || variant.weight === undefined) {
               throw new BadRequestException(
                 'Weight property is required for physical products',
               );
+            }
+
+            // Check if weight and dimension are positive values for physical products
+            if (variant.weight <= 0) {
+              throw new BadRequestException(
+                'Weight must be a positive value for physical products.',
+              );
+            }
+
+            if (variant.dimension) {
+              if (
+                variant.dimension.height !== undefined &&
+                variant.dimension.height <= 0
+              ) {
+                throw new BadRequestException(
+                  'Dimension height must be a positive value for physical products.',
+                );
+              }
+              if (
+                variant.dimension.width !== undefined &&
+                variant.dimension.width <= 0
+              ) {
+                throw new BadRequestException(
+                  'Dimension width must be a positive value for physical products.',
+                );
+              }
+              if (
+                variant.dimension.length !== undefined &&
+                variant.dimension.length <= 0
+              ) {
+                throw new BadRequestException(
+                  'Dimension length must be a positive value for physical products.',
+                );
+              }
             }
           }
 
