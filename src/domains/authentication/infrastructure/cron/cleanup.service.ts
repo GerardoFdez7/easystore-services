@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { LoggerService } from '@logger/winston.service';
 import { PasswordResetRateLimiter } from '../rate-limiting/password-reset-rate-limiter';
 
 /**
@@ -9,14 +8,9 @@ import { PasswordResetRateLimiter } from '../rate-limiting/password-reset-rate-l
  */
 @Injectable()
 export class CleanupService {
-  private readonly logger: LoggerService;
-
   constructor(
     private readonly passwordResetRateLimiter: PasswordResetRateLimiter,
-    loggerService: LoggerService,
-  ) {
-    this.logger = loggerService;
-  }
+  ) {}
 
   /**
    * Runs every hour to clean up expired rate limiting entries.
@@ -27,10 +21,7 @@ export class CleanupService {
     try {
       this.passwordResetRateLimiter.cleanup();
     } catch (error) {
-      this.logger.error(
-        'Failed to cleanup expired rate limiting entries',
-        error,
-      );
+      logger.error('Failed to cleanup expired rate limiting entries', error);
     }
   }
 
@@ -41,12 +32,10 @@ export class CleanupService {
   manualCleanup(): number {
     try {
       const cleanedCount = this.passwordResetRateLimiter.cleanup();
-      this.logger.log(
-        `Manual cleanup: ${cleanedCount} expired entries removed`,
-      );
+      logger.log(`Manual cleanup: ${cleanedCount} expired entries removed`);
       return cleanedCount;
     } catch (error) {
-      this.logger.error('Failed to perform manual cleanup', error);
+      logger.error('Failed to perform manual cleanup', error);
       throw error;
     }
   }

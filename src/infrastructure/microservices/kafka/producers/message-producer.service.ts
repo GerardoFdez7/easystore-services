@@ -3,6 +3,7 @@ import {
   OnModuleInit,
   OnModuleDestroy,
   Inject,
+  Logger,
 } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
 import {
@@ -16,7 +17,6 @@ import { ConfigService } from '@nestjs/config';
 import { EventSerializer } from '../serializers/event-serializer';
 import { MessageProducerPort } from './base.producer';
 import { CircuitBreaker } from '@redis/circuit-breaker';
-import { LoggerService } from '@logger/winston.service';
 
 @Injectable()
 export class MessageProducerService
@@ -27,12 +27,12 @@ export class MessageProducerService
   private readonly acks: number;
   private readonly compression: CompressionTypes;
   private ready = false;
+  private readonly logger = new Logger(MessageProducerService.name);
 
   constructor(
     @Inject('KAFKA_CLIENT') private readonly kafkaClient: ClientKafka,
     private readonly configService: ConfigService,
     private readonly serializer: EventSerializer,
-    private readonly logger: LoggerService,
   ) {
     this.acks = this.configService.get<number>('KAFKA_ACKS', -1);
     this.compression = this.getCompressionType();

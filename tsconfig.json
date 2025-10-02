@@ -39,6 +39,7 @@
       "@kafka/*": ["src/infrastructure/kafka/*"],
       "@redis/*": ["src/infrastructure/redis/*"],
       "@logger/*": ["src/infrastructure/logger/*"]
-    }
+    },
+    "typeRoots": ["./node_modules/@types", "src/common/types"]
   }
 }

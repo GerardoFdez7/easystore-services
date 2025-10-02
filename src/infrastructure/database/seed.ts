@@ -1,10 +1,10 @@
 import { PostgreService } from './postgres.service';
 import { Id } from '../../domains/shared/value-objects/id.vo';
-import { LoggerService } from '../logger/winston.service';
+import { Logger } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const logger = new LoggerService();
+const logger = new Logger();
 const dataDir = path.join(__dirname, 'countries');
 
 interface StateData {

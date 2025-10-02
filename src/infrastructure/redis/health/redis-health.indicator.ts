@@ -3,15 +3,12 @@ import {
   HealthIndicatorService,
   HealthIndicatorResult,
 } from '@nestjs/terminus';
-import { LoggerService } from '@logger/winston.service';
+
 import Redis from 'ioredis';
 
 @Injectable()
 export class RedisHealthIndicator extends HealthIndicatorService {
-  constructor(
-    @Inject('REDIS_CLIENT') private readonly redis: Redis,
-    private readonly logger: LoggerService,
-  ) {
+  constructor(@Inject('REDIS_CLIENT') private readonly redis: Redis) {
     super();
   }
 
@@ -23,10 +20,9 @@ export class RedisHealthIndicator extends HealthIndicatorService {
         responseTime: await this.measureResponseTime(),
       });
     } catch (err: unknown) {
-      this.logger.error('HealthCheck Redis falló', err);
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      logger.error('HealthCheck Redis falló', err);
       return {
-        [key]: { status: 'down', error: errorMessage },
+        [key]: { status: 'down', error: err },
       };
     }
   }

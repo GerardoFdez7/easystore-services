@@ -2,7 +2,6 @@ import { OnModuleInit, OnModuleDestroy, Inject } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
 import { Consumer, EachMessagePayload, Kafka, KafkaMessage } from 'kafkajs';
 import { EventSerializer } from '../serializers/event-serializer';
-import { LoggerService } from '@logger/winston.service';
 import { CircuitBreaker } from '@redis/circuit-breaker';
 
 export abstract class BaseConsumer implements OnModuleInit, OnModuleDestroy {
@@ -13,22 +12,21 @@ export abstract class BaseConsumer implements OnModuleInit, OnModuleDestroy {
   constructor(
     @Inject('KAFKA_CLIENT') protected readonly kafkaClient: ClientKafka,
     protected readonly serializer: EventSerializer,
-    protected readonly logger: LoggerService,
   ) {
     this.circuitBreaker = new CircuitBreaker({
       name: `kafka-consumer-${this.getTopic()}`,
       failureThreshold: 5,
       resetTimeout: 10000,
       onOpen: () =>
-        this.logger.warn(
+        logger.warn(
           `Kafka consumer circuit breaker opened for topic ${this.getTopic()}`,
         ),
       onClose: () =>
-        this.logger.log(
+        logger.log(
           `Kafka consumer circuit breaker closed for topic ${this.getTopic()}`,
         ),
       onHalfOpen: () =>
-        this.logger.log(
+        logger.log(
           `Kafka consumer circuit breaker half-open for topic ${this.getTopic()}`,
         ),
     });
@@ -63,13 +61,13 @@ export abstract class BaseConsumer implements OnModuleInit, OnModuleDestroy {
       });
 
       this.ready = true;
-      this.logger.log(
+      logger.log(
         `Kafka consumer connected to topic ${this.getTopic()} with group ${consumerGroupId}`,
       );
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error occurred';
-      this.logger.error(
+      logger.error(
         `Failed to initialize Kafka consumer for topic ${this.getTopic()}: ${errorMessage}`,
         error,
       );
@@ -81,9 +79,7 @@ export abstract class BaseConsumer implements OnModuleInit, OnModuleDestroy {
     if (this.consumer) {
       await this.consumer.disconnect();
       this.ready = false;
-      this.logger.log(
-        `Kafka consumer disconnected from topic ${this.getTopic()}`,
-      );
+      logger.log(`Kafka consumer disconnected from topic ${this.getTopic()}`);
     }
   }
 
@@ -106,7 +102,7 @@ export abstract class BaseConsumer implements OnModuleInit, OnModuleDestroy {
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error occurred';
-      this.logger.error(
+      logger.error(
         `Error processing message from topic ${topic}, partition ${partition}, offset ${offset}: ${errorMessage}`,
         error,
       );

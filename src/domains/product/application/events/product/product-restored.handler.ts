@@ -1,6 +1,5 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
-import { LoggerService } from '@logger/winston.service';
 import { ProductRestoredEvent } from '../../../aggregates/events/product/product-restored.event';
 
 @Injectable()
@@ -8,10 +7,8 @@ import { ProductRestoredEvent } from '../../../aggregates/events/product/product
 export class ProductRestoredHandler
   implements IEventHandler<ProductRestoredEvent>
 {
-  constructor(private readonly logger: LoggerService) {}
-
   handle(event: ProductRestoredEvent): void {
-    this.logger.log(
+    logger.log(
       `Product restored: ${event.product.get('name').getValue()}, with id: ${event.product.get('id').getValue()}`,
     );
   }

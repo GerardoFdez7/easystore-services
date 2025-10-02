@@ -1,4 +1,4 @@
-import { OnModuleInit, OnModuleDestroy, Inject, Logger } from '@nestjs/common';
+import { OnModuleInit, OnModuleDestroy, Inject } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
 import {
   Producer,
@@ -19,7 +19,6 @@ export abstract class BaseProducer
   protected readonly acks: number;
   protected readonly compression: CompressionTypes;
   protected ready = false;
-  protected readonly logger = new Logger(this.constructor.name);
 
   constructor(
     @Inject('KAFKA_CLIENT') protected readonly kafkaClient: ClientKafka,
@@ -33,10 +32,9 @@ export abstract class BaseProducer
       name: `kafka-producer-${this.constructor.name}`,
       failureThreshold: 3,
       resetTimeout: 10000,
-      onOpen: () => this.logger.warn('Kafka producer circuit breaker opened'),
-      onClose: () => this.logger.log('Kafka producer circuit breaker closed'),
-      onHalfOpen: () =>
-        this.logger.log('Kafka producer circuit breaker half-open'),
+      onOpen: () => logger.warn('Kafka producer circuit breaker opened'),
+      onClose: () => logger.log('Kafka producer circuit breaker closed'),
+      onHalfOpen: () => logger.log('Kafka producer circuit breaker half-open'),
     });
   }
   sendTransaction<T>(
@@ -55,12 +53,12 @@ export abstract class BaseProducer
     try {
       await this.producer.connect();
       this.ready = true;
-      this.logger.log('Kafka producer connected successfully');
+      logger.log('Kafka producer connected successfully');
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
       const errorStack = error instanceof Error ? error.stack : undefined;
-      this.logger.error(
+      logger.error(
         `Failed to connect Kafka producer: ${errorMessage}`,
         errorStack,
       );
@@ -124,7 +122,7 @@ export abstract class BaseProducer
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
       const errorStack = error instanceof Error ? error.stack : undefined;
-      this.logger.error(
+      logger.error(
         `Error sending message to topic ${topic}: ${errorMessage}`,
         errorStack,
       );
@@ -164,7 +162,7 @@ export abstract class BaseProducer
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
       const errorStack = error instanceof Error ? error.stack : undefined;
-      this.logger.error(
+      logger.error(
         `Error sending batch to topic ${topic}: ${errorMessage}`,
         errorStack,
       );

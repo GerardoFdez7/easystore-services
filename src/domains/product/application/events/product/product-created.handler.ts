@@ -1,6 +1,5 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
-import { LoggerService } from '@logger/winston.service';
 import { ProductCreatedEvent } from '../../../aggregates/events/product/product-created.event';
 
 @Injectable()
@@ -8,10 +7,8 @@ import { ProductCreatedEvent } from '../../../aggregates/events/product/product-
 export class ProductCreatedHandler
   implements IEventHandler<ProductCreatedEvent>
 {
-  constructor(private readonly logger: LoggerService) {}
-
   handle(event: ProductCreatedEvent): void {
-    this.logger.log(
+    logger.log(
       `Product created: ${event.product.get('name').getValue()}, with id: ${event.product.get('id').getValue()}`,
     );
   }

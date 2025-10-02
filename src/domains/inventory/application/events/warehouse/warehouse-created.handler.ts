@@ -1,6 +1,5 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
-import { LoggerService } from '@logger/winston.service';
 import { WarehouseCreatedEvent } from '../../../aggregates/events/warehouse/warehouse-created.event';
 
 @Injectable()
@@ -8,10 +7,8 @@ import { WarehouseCreatedEvent } from '../../../aggregates/events/warehouse/ware
 export class WarehouseCreatedHandler
   implements IEventHandler<WarehouseCreatedEvent>
 {
-  constructor(private readonly logger: LoggerService) {}
-
   handle(event: WarehouseCreatedEvent): void {
-    this.logger.log(
+    logger.log(
       `Warehouse created: ${event.warehouse.get('name').getValue()} (ID: ${event.warehouse.get('id').getValue()})`,
     );
   }

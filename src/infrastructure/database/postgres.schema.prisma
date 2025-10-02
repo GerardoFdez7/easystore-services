@@ -953,8 +953,8 @@ model Address {
   defaultShippingForCustomer Customer?    @relation("CustomerDefaultShippingAddress")
   defaultBillingForCustomer  Customer?    @relation("CustomerDefaultBillingAddress")
 
-  @@unique([name, tenantId])
-  @@unique([name, customerId])
+  @@unique([tenantId, name])
+  @@unique([customerId, name])
   @@schema("common")
 }
 

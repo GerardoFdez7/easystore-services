@@ -3,10 +3,11 @@ import {
   Inject,
   OnModuleInit,
   OnModuleDestroy,
+  Logger,
 } from '@nestjs/common';
 import Redis from 'ioredis';
 import { CircuitBreaker } from '@redis/circuit-breaker';
-import { LoggerService } from '@logger/winston.service';
+
 import { CacheInvalidationService } from 'src/infrastructure/redis/pubsub/cache-invalidation.service';
 import { ConfigService } from '@nestjs/config';
 
@@ -14,6 +15,7 @@ import { ConfigService } from '@nestjs/config';
 export class RedisCacheAdapter
   implements CachePort, OnModuleInit, OnModuleDestroy
 {
+  private readonly logger = new Logger(RedisCacheAdapter.name);
   private readonly breaker = new CircuitBreaker({
     name: 'redis-cache',
     failureThreshold: 5,
@@ -31,7 +33,6 @@ export class RedisCacheAdapter
     @Inject('REDIS_CLIENT') private readonly redis: Redis,
     private readonly invalidationService: CacheInvalidationService,
     private readonly config: ConfigService,
-    private readonly logger: LoggerService,
   ) {}
 
   onModuleInit(): void {

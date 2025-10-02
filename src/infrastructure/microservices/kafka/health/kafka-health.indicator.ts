@@ -10,7 +10,6 @@ import {
 } from '@nestjs/terminus';
 import { ClientKafka } from '@nestjs/microservices';
 import { Kafka, Admin } from 'kafkajs';
-import { Logger } from '@nestjs/common';
 
 @Injectable()
 export class KafkaHealthIndicator
@@ -18,8 +17,6 @@ export class KafkaHealthIndicator
   implements OnModuleInit, OnModuleDestroy
 {
   private admin: Admin;
-  private readonly logger = new Logger(KafkaHealthIndicator.name);
-
   constructor(
     @Inject('KAFKA_CLIENT') private readonly kafkaClient: ClientKafka,
   ) {
@@ -51,7 +48,7 @@ export class KafkaHealthIndicator
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
-      this.logger.error(
+      logger.error(
         `Kafka health check failed: ${errorMessage}`,
         error instanceof Error ? error.stack : undefined,
       );

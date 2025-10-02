@@ -137,7 +137,7 @@ Aggregates: Root entities managing consistency boundaries:
 
 ESLint Configuration (STRICTLY ENFORCED):
 
-- No console logs ( no-console: error ) (use import { LoggerService } from '@logger/winston.service/winston.service'; )
+- No console logs ( no-console: error ) (use global logger instead just with logger.log(), logger.error(), etc. )
 - Strict equality ( eqeqeq: always )
 - No explicit any types ( @typescript-eslint/no-explicit-any: error )
 - Proper promise handling ( @typescript-eslint/no-floating-promises: error )
@@ -214,10 +214,13 @@ Error Handling: Custom exception hierarchy:
 - ResourceNotFoundError for missing entities
 - ForeignKeyConstraintViolationError for referential integrity
 - Proper error propagation with meaningful messages
-  Logging: Winston logger with structured logging:
+  Logging: Global logger implementation with Pino:
 
+- Use global logger instead of console.log()
+- Available methods: `logger.log()`, `logger.error()`, `logger.warn()`, `logger.debug()`
+- Structured logging with automatic file output in development and production
 - Daily rotating files for production
-- Console output for development
+- Console output for development with pretty formatting
 - Correlation IDs for request tracing
 
 ### DOMAIN-SPECIFIC BUSINESS RULES

@@ -1,7 +1,6 @@
 import { Module, Global, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
-import { LoggerModule } from 'src/infrastructure/logger/winston.module';
 import { GraphqlModule } from '@graphql/graphql.module';
 import { PostgresModule } from '@database/postgres.module';
 import MediaModule from '@media/media.module';
@@ -12,6 +11,7 @@ import { ProductDomain } from './domains/product/product.module';
 import { CategoryDomain } from './domains/category/category.module';
 import { AddressDomain } from './domains/address/address.module';
 import { InventoryDomain } from './domains/inventory/inventory.module';
+import { LoggerConfig } from './config/logger/logger.config';
 
 @Global()
 @Module({
@@ -20,7 +20,7 @@ import { InventoryDomain } from './domains/inventory/inventory.module';
       isGlobal: true,
       envFilePath: ['.env', `.env.${process.env.NODE_ENV || 'development'}`],
     }),
-    LoggerModule,
+    LoggerConfig(),
     GraphqlModule,
     PostgresModule,
     MediaModule,
