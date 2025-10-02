@@ -38,7 +38,7 @@ lerna-debug.log*
 
 # dotenv environment variable files
 .env*
-!.env.example
+!.env.*.example
 
 # temp directory
 .temp
@@ -54,3 +54,4 @@ pids
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 .trae/
+test/load/results/

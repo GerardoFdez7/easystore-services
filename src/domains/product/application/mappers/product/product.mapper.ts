@@ -47,7 +47,7 @@ export class ProductMapper {
         ? LongDescription.create(persistenceProduct.longDescription)
         : null,
       productType: Type.create(persistenceProduct.productType),
-      cover: Media.create(persistenceProduct.cover),
+      cover: Media.createCover(persistenceProduct.cover),
       tags: persistenceProduct.tags
         ? persistenceProduct.tags.map((tag) => Tags.create([tag]))
         : [],

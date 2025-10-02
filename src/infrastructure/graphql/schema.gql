@@ -82,7 +82,7 @@ input AuthenticationInput {
 type Category {
   cover: String!
   createdAt: DateTime!
-  description: String!
+  description: String
   id: ID!
   name: String!
   subCategories: [Category!]!

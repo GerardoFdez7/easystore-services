@@ -15,6 +15,7 @@ const ignorePatterns = [
   '*.config.mjs',
   'dist',
   'node_modules',
+  'test/',
 ];
 
 const eslintConfig = [

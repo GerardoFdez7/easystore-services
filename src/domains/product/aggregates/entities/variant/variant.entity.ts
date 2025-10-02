@@ -58,7 +58,9 @@ export class Variant extends Entity<IVariantProps> {
         Attribute.create(attr.key, attr.value),
       ),
       price: Price.create(props.price),
-      variantCover: MediaVO.create(props.variantCover),
+      variantCover: props.variantCover
+        ? MediaVO.create(props.variantCover)
+        : null,
       personalizationOptions: props.personalizationOptions
         ? props.personalizationOptions.map((opt) =>
             PersonalizationOptions.create(opt),
