@@ -54,7 +54,9 @@ type AddressType {
   stateId: String!
 }
 
-"""Types of addresses"""
+"""
+Types of addresses
+"""
 enum AddressTypeEnum {
   BILLING
   SHIPPING
@@ -415,6 +417,13 @@ type Dimension {
   width: Float!
 }
 
+input FiltersWarehouseInput {
+  isArchived: Boolean
+  lowStockThreshold: Float
+  orderBy: OrderBy
+  variantId: String
+}
+
 input ForgotPasswordInput {
   accountType: AccountTypeEnum!
   email: String!
@@ -471,10 +480,19 @@ enum MediaTypeEnum {
 
 type Mutation {
   addItemToCart(input: AddItemToCartInput!): Cart!
-  addStockToWarehouse(input: AddStockToWarehouseInput!, reason: String, variantId: ID!, warehouseId: ID!): Warehouse!
+  addStockToWarehouse(
+    input: AddStockToWarehouseInput!
+    reason: String
+    variantId: ID!
+    warehouseId: ID!
+  ): Warehouse!
   addVariant(input: CreateVariantInput!): Product!
   archiveVariant(id: String!, productId: String!): Product!
-  completePayment(paymentId: String!, providerType: String!, tenantId: String!): PaymentResultOutput!
+  completePayment(
+    paymentId: String!
+    providerType: String!
+    tenantId: String!
+  ): PaymentResultOutput!
   createAddress(input: CreateAddressInput!): AddressType!
   createCart(input: CreateCartInput!): Cart!
   createCategory(input: CreateCategoryInput!): Category!
@@ -491,11 +509,20 @@ type Mutation {
   initiatePayment(input: InitiatePaymentInput!): PaymentResultOutput!
   login(input: AuthenticationInput!): Response!
   logout: Response!
-  refundPayment(amount: Float, paymentId: String!, providerType: String!, tenantId: String!): PaymentResultOutput!
+  refundPayment(
+    amount: Float
+    paymentId: String!
+    providerType: String!
+    tenantId: String!
+  ): PaymentResultOutput!
   register(input: AuthenticationInput!): AuthIdentity!
   removeItemFromCart(input: RemoveItemFromCartInput!): Cart!
   removeManyItemsFromCart(input: RemoveManyItemFromCartInput!): Cart!
-  removeStockFromWarehouse(reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
+  removeStockFromWarehouse(
+    reason: String
+    stockId: ID!
+    warehouseId: ID!
+  ): Warehouse!
   removeVariant(id: String!, productId: String!): Product!
   restoreProduct(id: String!): Product!
   restoreVariant(id: String!, productId: String!): Product!
@@ -506,10 +533,26 @@ type Mutation {
   updatePassword(input: UpdatePasswordInput!): Response!
   updatePaymentCredentials(input: UpdatePaymentCredentialsInput!): Boolean!
   updateProduct(id: String!, input: UpdateProductInput!): Product!
-  updateStockInWarehouse(input: UpdateStockInWarehouseInput!, reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
+  updateStockInWarehouse(
+    input: UpdateStockInWarehouseInput!
+    reason: String
+    stockId: ID!
+    warehouseId: ID!
+  ): Warehouse!
   updateTenant(input: UpdateTenantInput!): Tenant!
-  updateVariant(id: String!, input: UpdateVariantInput!, productId: String!): Product!
+  updateVariant(
+    id: String!
+    input: UpdateVariantInput!
+    productId: String!
+  ): Product!
   updateWarehouse(id: ID!, input: UpdateWarehouseInput!): Warehouse!
+}
+
+input OrderBy {
+  available: String
+  date: String
+  product: String
+  reserved: String
 }
 
 input PagaditoCredentialsInput {
@@ -621,17 +664,63 @@ type ProductCategory {
 
 type Query {
   getAddressById(id: ID!): AddressType!
-  getAllAddresses(addressType: AddressTypeEnum, limit: Int, name: String, page: Int): PaginatedAddressesType!
-  getAllCategories(includeSubcategories: Boolean = true, limit: Int = 10, name: String, page: Int = 1, parentId: ID, sortBy: SortBy, sortOrder: SortOrder): PaginatedCategoriesType!
+  getAllAddresses(
+    addressType: AddressTypeEnum
+    limit: Int
+    name: String
+    page: Int
+  ): PaginatedAddressesType!
+  getAllCategories(
+    includeSubcategories: Boolean = true
+    limit: Int = 10
+    name: String
+    page: Int = 1
+    parentId: ID
+    sortBy: SortBy
+    sortOrder: SortOrder
+  ): PaginatedCategoriesType!
   getAllCountries: [CountryType!]!
-  getAllProducts(categoriesIds: [ID!], includeSoftDeleted: Boolean = false, limit: Float = 25, name: String, page: Float = 1, sortBy: SortBy, sortOrder: SortOrder, type: TypeEnum): PaginatedProductsType!
-  getAllStockMovements(createdById: ID, dateFrom: DateTime, dateTo: DateTime, includeDeleted: Boolean = false, limit: Int = 10, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID, warehouseId: ID!): PaginatedStockMovementsType!
-  getAllWarehouses(addressId: ID, includeAddresses: Boolean = false, isArchived: Boolean, limit: Int = 10, lowStockThreshold: Int, name: String, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID): PaginatedWarehousesType!
+  getAllProducts(
+    categoriesIds: [ID!]
+    includeSoftDeleted: Boolean = false
+    limit: Float = 25
+    name: String
+    page: Float = 1
+    sortBy: SortBy
+    sortOrder: SortOrder
+    type: TypeEnum
+  ): PaginatedProductsType!
+  getAllStockMovements(
+    createdById: ID
+    dateFrom: DateTime
+    dateTo: DateTime
+    includeDeleted: Boolean = false
+    limit: Int = 10
+    page: Int = 1
+    sortBy: SortBy
+    sortOrder: SortOrder
+    variantId: ID
+    warehouseId: ID!
+  ): PaginatedStockMovementsType!
+
   getCart: Cart!
+  getAllWarehouses(
+    addressId: ID
+    filters: FiltersWarehouseInput
+    includeAddresses: Boolean = false
+    limit: Int = 10
+    name: String
+    page: Int = 1
+    sortBy: SortBy
+    sortOrder: SortOrder
+  ): PaginatedWarehousesType!
   getCategoryById(id: ID!): Category!
   getMediaUploadToken: MediaAuthResponse!
   getPayment(paymentId: String!, tenantId: String!): String
-  getPaymentCredentials(providerType: String, tenantId: String!): [PaymentCredentialsResponse!]!
+  getPaymentCredentials(
+    providerType: String
+    tenantId: String!
+  ): [PaymentCredentialsResponse!]!
   getProductById(id: String!): Product!
   getStatesByCountryId(countryId: ID!): [StateType!]!
   getTenantById: Tenant!
