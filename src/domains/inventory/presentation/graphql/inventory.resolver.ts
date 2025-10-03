@@ -17,7 +17,7 @@ import {
   AddStockToWarehouseInput,
   UpdateStockInWarehouseInput,
   PaginatedStockMovementsType,
-  FiltersWarehouseInput,
+  StockPerWarehouseFilterInput,
 } from './types';
 import {
   CreateWarehouseDTO,
@@ -177,8 +177,11 @@ export default class InventoryResolver {
       defaultValue: false,
     })
     includeAddresses?: boolean,
-    @Args('filters', { nullable: true, type: () => FiltersWarehouseInput })
-    filters?: FiltersWarehouseInput,
+    @Args('filters', {
+      nullable: true,
+      type: () => StockPerWarehouseFilterInput,
+    })
+    filters?: StockPerWarehouseFilterInput,
   ): Promise<PaginatedWarehousesDTO> {
     return this.queryBus.execute(
       new GetAllWarehousesDTO(user.tenantId, {

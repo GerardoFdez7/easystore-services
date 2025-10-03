@@ -417,13 +417,6 @@ type Dimension {
   width: Float!
 }
 
-input FiltersWarehouseInput {
-  isArchived: Boolean
-  lowStockThreshold: Float
-  orderBy: OrderBy
-  variantId: String
-}
-
 input ForgotPasswordInput {
   accountType: AccountTypeEnum!
   email: String!
@@ -546,13 +539,6 @@ type Mutation {
     productId: String!
   ): Product!
   updateWarehouse(id: ID!, input: UpdateWarehouseInput!): Warehouse!
-}
-
-input OrderBy {
-  available: String
-  date: String
-  product: String
-  reserved: String
 }
 
 input PagaditoCredentialsInput {
@@ -783,6 +769,20 @@ type StockPerWarehouse {
   variantId: ID!
   variantSku: String
   warehouseId: ID!
+}
+
+input StockPerWarehouseFilterInput {
+  isArchived: Boolean
+  lowStockThreshold: Float
+  sortBy: StockPerWarehouseSortBy
+  variantId: String
+}
+
+input StockPerWarehouseSortBy {
+  available: String
+  date: String
+  reserved: String
+  variantFirstAttribute: String
 }
 
 type Sustainability {
