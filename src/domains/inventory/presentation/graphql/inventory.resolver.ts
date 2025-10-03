@@ -17,6 +17,7 @@ import {
   AddStockToWarehouseInput,
   UpdateStockInWarehouseInput,
   PaginatedStockMovementsType,
+  FiltersWarehouseInput,
 } from './types';
 import {
   CreateWarehouseDTO,
@@ -166,22 +167,18 @@ export default class InventoryResolver {
     @Args('name', { nullable: true, type: () => String }) name?: string,
     @Args('addressId', { nullable: true, type: () => ID })
     addressId?: string,
-    @Args('variantId', { nullable: true, type: () => ID })
-    variantId?: string,
-    @Args('lowStockThreshold', { nullable: true, type: () => Int })
-    lowStockThreshold?: number,
     @Args('sortBy', { nullable: true, type: () => SortBy })
     sortBy?: SortBy,
     @Args('sortOrder', { nullable: true, type: () => SortOrder })
     sortOrder?: SortOrder,
-    @Args('isArchived', { nullable: true, type: () => Boolean })
-    isArchived?: boolean,
     @Args('includeAddresses', {
       nullable: true,
       type: () => Boolean,
       defaultValue: false,
     })
     includeAddresses?: boolean,
+    @Args('filters', { nullable: true, type: () => FiltersWarehouseInput })
+    filters?: FiltersWarehouseInput,
   ): Promise<PaginatedWarehousesDTO> {
     return this.queryBus.execute(
       new GetAllWarehousesDTO(user.tenantId, {
@@ -189,11 +186,11 @@ export default class InventoryResolver {
         limit,
         name,
         addressId,
-        variantId,
-        lowStockThreshold,
+        variantId: filters?.variantId,
+        lowStockThreshold: filters?.lowStockThreshold,
         sortBy,
         sortOrder,
-        isArchived,
+        isArchived: filters?.isArchived,
         includeAddresses,
       }),
     );
