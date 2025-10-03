@@ -579,10 +579,10 @@ input StockPerWarehouseFilterInput {
 }
 
 input StockPerWarehouseSortBy {
-  available: String
-  date: String
-  reserved: String
-  variantFirstAttribute: String
+  available: SortOrder
+  date: SortOrder
+  reserved: SortOrder
+  variantFirstAttribute: SortOrder
 }
 
 type Sustainability {
