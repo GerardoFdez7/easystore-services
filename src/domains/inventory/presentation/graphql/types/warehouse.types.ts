@@ -65,3 +65,33 @@ export class UpdateWarehouseInput {
   @Field(() => ID, { nullable: true })
   addressId?: string;
 }
+
+@InputType()
+export class OrderBy {
+  @Field({ nullable: true })
+  product?: string;
+
+  @Field({ nullable: true })
+  available?: string;
+
+  @Field({ nullable: true })
+  reserved?: string;
+
+  @Field({ nullable: true })
+  date?: string;
+}
+
+@InputType()
+export class FiltersWarehouseInput {
+  @Field({ nullable: true })
+  variantId?: string;
+
+  @Field({ nullable: true })
+  isArchived?: boolean;
+
+  @Field({ nullable: true })
+  lowStockThreshold?: number;
+
+  @Field(() => OrderBy, { nullable: true })
+  orderBy?: OrderBy;
+}

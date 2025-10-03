@@ -4,6 +4,8 @@ export {
   PaginatedWarehousesType,
   CreateWarehouseInput,
   UpdateWarehouseInput,
+  FiltersWarehouseInput,
+  OrderBy,
 } from './warehouse.types';
 
 // Stock per warehouse types
