@@ -85,6 +85,7 @@ type Category {
   description: String
   id: ID!
   name: String!
+  parentId: ID
   subCategories: [Category!]!
   updatedAt: DateTime!
 }

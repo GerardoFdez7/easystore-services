@@ -10,8 +10,12 @@ export class CategoryType {
 
   @Field(() => String, { nullable: true })
   description?: string;
+
   @Field(() => String)
   cover: string;
+
+  @Field(() => ID, { nullable: true })
+  parentId?: string;
 
   @Field(() => [CategoryType])
   subCategories: CategoryType[];
