@@ -3,8 +3,9 @@ import { Inject, NotFoundException, BadRequestException } from '@nestjs/common';
 import { IWarehouseRepository } from '../../../../aggregates/repositories';
 import { GetAllWarehousesDTO } from './all-warehouses.dto';
 import { WarehouseMapper, PaginatedWarehousesDTO } from '../../../mappers';
-import { Id } from '../../../../aggregates/value-objects';
+import { Id, SortOrder } from '../../../../aggregates/value-objects';
 import { IProductAdapter, IAddressAdapter } from '../../../ports';
+import { IStockPerWarehouseType } from '../../../../aggregates/entities/stockPerWarehouse/stock-per-warehouse.attributes';
 
 @QueryHandler(GetAllWarehousesDTO)
 export class GetAllWarehousesHandler
@@ -32,6 +33,7 @@ export class GetAllWarehousesHandler
       sortOrder,
       isArchived,
       includeAddresses,
+      stockSortBy,
     } = options || {};
 
     // Validate pagination parameters
@@ -117,6 +119,71 @@ export class GetAllWarehousesHandler
           }
           return stockDto;
         });
+
+      // Apply sorting to stockPerWarehouses if stockSortBy is provided
+      if (stockSortBy) {
+        dto.stockPerWarehouses.sort((a, b) => {
+          // Sort by variantFirstAttribute
+          if (stockSortBy.variantFirstAttribute) {
+            const aVariantAttr = (
+              a as IStockPerWarehouseType & {
+                variantFirstAttribute?: { key: string; value: string };
+              }
+            ).variantFirstAttribute;
+            const bVariantAttr = (
+              b as IStockPerWarehouseType & {
+                variantFirstAttribute?: { key: string; value: string };
+              }
+            ).variantFirstAttribute;
+            const aKey = aVariantAttr?.key || '';
+            const bKey = bVariantAttr?.key || '';
+            const comparison = aKey.localeCompare(bKey);
+            if (comparison !== 0) {
+              return stockSortBy.variantFirstAttribute === SortOrder.ASC
+                ? comparison
+                : -comparison;
+            }
+          }
+
+          // Sort by available quantity
+          if (stockSortBy.available) {
+            const comparison = a.qtyAvailable - b.qtyAvailable;
+            if (comparison !== 0) {
+              return stockSortBy.available === SortOrder.ASC
+                ? comparison
+                : -comparison;
+            }
+          }
+
+          // Sort by reserved quantity
+          if (stockSortBy.reserved) {
+            const comparison = a.qtyReserved - b.qtyReserved;
+            if (comparison !== 0) {
+              return stockSortBy.reserved === SortOrder.ASC
+                ? comparison
+                : -comparison;
+            }
+          }
+
+          // Sort by date (estimatedReplenishmentDate)
+          if (stockSortBy.date) {
+            const aDate = a.estimatedReplenishmentDate
+              ? new Date(a.estimatedReplenishmentDate).getTime()
+              : 0;
+            const bDate = b.estimatedReplenishmentDate
+              ? new Date(b.estimatedReplenishmentDate).getTime()
+              : 0;
+            const comparison = aDate - bDate;
+            if (comparison !== 0) {
+              return stockSortBy.date === SortOrder.ASC
+                ? comparison
+                : -comparison;
+            }
+          }
+
+          return 0;
+        });
+      }
 
       // Enrich with address details
       const addressDetail = addressMap.get(dto.addressId);
