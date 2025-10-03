@@ -167,13 +167,19 @@ export class GetAllWarehousesHandler
 
           // Sort by date (estimatedReplenishmentDate)
           if (stockSortBy.date) {
-            const aDate = a.estimatedReplenishmentDate
-              ? new Date(a.estimatedReplenishmentDate).getTime()
-              : 0;
-            const bDate = b.estimatedReplenishmentDate
-              ? new Date(b.estimatedReplenishmentDate).getTime()
-              : 0;
-            const comparison = aDate - bDate;
+            const aDate = a.estimatedReplenishmentDate;
+            const bDate = b.estimatedReplenishmentDate;
+
+            // Handle null values - put them at the end regardless of sort order
+            if (!aDate && !bDate) return 0;
+            if (!aDate) return 1; // a goes to end
+            if (!bDate) return -1; // b goes to end
+
+            // Both dates exist, compare them
+            const aTime = new Date(aDate).getTime();
+            const bTime = new Date(bDate).getTime();
+            const comparison = aTime - bTime;
+
             if (comparison !== 0) {
               return stockSortBy.date === SortOrder.ASC
                 ? comparison
