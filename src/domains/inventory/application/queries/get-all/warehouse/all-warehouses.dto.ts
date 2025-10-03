@@ -1,5 +1,12 @@
 import { SortBy, SortOrder } from '../../../../aggregates/value-objects';
 
+export interface StockPerWarehouseSortBy {
+  variantFirstAttribute?: SortOrder;
+  available?: SortOrder;
+  reserved?: SortOrder;
+  date?: SortOrder;
+}
+
 export class GetAllWarehousesDTO {
   constructor(
     public readonly tenantId: string,
@@ -14,6 +21,7 @@ export class GetAllWarehousesDTO {
       sortOrder?: SortOrder;
       isArchived?: boolean;
       includeAddresses?: boolean;
+      stockSortBy?: StockPerWarehouseSortBy;
     },
   ) {}
 }

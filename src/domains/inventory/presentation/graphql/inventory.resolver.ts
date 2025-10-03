@@ -195,6 +195,7 @@ export default class InventoryResolver {
         sortOrder,
         isArchived: filters?.isArchived,
         includeAddresses,
+        stockSortBy: filters?.sortBy,
       }),
     );
   }
