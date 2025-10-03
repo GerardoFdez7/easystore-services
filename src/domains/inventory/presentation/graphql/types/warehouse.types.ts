@@ -1,5 +1,6 @@
 import { ObjectType, Field, ID, Int, InputType } from '@nestjs/graphql';
 import { StockPerWarehouseType } from './';
+import { SortBy } from '@shared/value-objects';
 
 @ObjectType('Warehouse')
 export class WarehouseType {
@@ -67,22 +68,22 @@ export class UpdateWarehouseInput {
 }
 
 @InputType()
-export class OrderBy {
+export class StockPerWarehouseSortBy {
   @Field({ nullable: true })
-  product?: string;
+  variantFirstAttribute?: SortBy;
 
   @Field({ nullable: true })
-  available?: string;
+  available?: SortBy;
 
   @Field({ nullable: true })
-  reserved?: string;
+  reserved?: SortBy;
 
   @Field({ nullable: true })
-  date?: string;
+  date?: SortBy;
 }
 
 @InputType()
-export class FiltersWarehouseInput {
+export class StockPerWarehouseFilterInput {
   @Field({ nullable: true })
   variantId?: string;
 
@@ -92,6 +93,6 @@ export class FiltersWarehouseInput {
   @Field({ nullable: true })
   lowStockThreshold?: number;
 
-  @Field(() => OrderBy, { nullable: true })
-  orderBy?: OrderBy;
+  @Field(() => StockPerWarehouseSortBy, { nullable: true })
+  sortBy?: StockPerWarehouseSortBy;
 }
