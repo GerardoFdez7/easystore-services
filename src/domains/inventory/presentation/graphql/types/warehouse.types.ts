@@ -69,16 +69,16 @@ export class UpdateWarehouseInput {
 
 @InputType()
 export class StockPerWarehouseSortBy {
-  @Field({ nullable: true })
+  @Field(() => SortOrder, { nullable: true })
   variantFirstAttribute?: SortOrder;
 
-  @Field({ nullable: true })
+  @Field(() => SortOrder, { nullable: true })
   available?: SortOrder;
 
-  @Field({ nullable: true })
+  @Field(() => SortOrder, { nullable: true })
   reserved?: SortOrder;
 
-  @Field({ nullable: true })
+  @Field(() => SortOrder, { nullable: true })
   date?: SortOrder;
 }
 
