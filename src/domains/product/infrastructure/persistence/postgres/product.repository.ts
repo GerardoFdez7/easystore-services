@@ -652,7 +652,10 @@ export class ProductRepository implements IProductRepository {
     }
   }
 
-  async findVariantsByIds(ids: Id[]): Promise<
+  async findVariantsByIds(
+    ids: Id[],
+    search?: string,
+  ): Promise<
     Array<{
       id: string;
       sku: string;
@@ -664,12 +667,51 @@ export class ProductRepository implements IProductRepository {
     const idValues = ids.map((id) => id.getValue());
 
     try {
+      const whereConditions: Prisma.VariantWhereInput = {};
+
+      // If specific IDs are provided, filter by them
+      if (idValues.length > 0) {
+        whereConditions.id = { in: idValues };
+      }
+
+      // If search parameter is provided, add search conditions
+      if (search) {
+        whereConditions.OR = [
+          {
+            sku: {
+              contains: search,
+              mode: 'insensitive',
+            },
+          },
+          {
+            product: {
+              name: {
+                contains: search,
+                mode: 'insensitive',
+              },
+            },
+          },
+          {
+            attributes: {
+              some: {
+                value: {
+                  contains: search,
+                  mode: 'insensitive',
+                },
+              },
+            },
+          },
+        ];
+      }
+
       const variants = await this.prisma.variant.findMany({
-        where: {
-          id: { in: idValues },
-        },
+        where: whereConditions,
         include: {
-          attributes: true,
+          attributes: {
+            orderBy: {
+              key: 'asc',
+            },
+          },
           product: {
             select: {
               name: true,

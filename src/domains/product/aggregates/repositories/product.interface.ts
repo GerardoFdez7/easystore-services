@@ -68,12 +68,16 @@ export interface IProductRepository {
   ): Promise<{ products: Product[]; total: number; hasMore: boolean }>;
 
   /**
-   * Finds variants by their IDs, returning minimal data including SKU, attributes, and product name.
-   * @param ids Array of variant IDs
-   * @returns Promise of array of variant details
+   * Find variants by their IDs or search criteria
+   * @param ids Array of variant IDs to search for
+   * @param search Optional search string to filter variants by name, sku, or attributes
+   * @returns Promise that resolves to an array of variant details
    * @throws {Error} If there is an error during the search
    */
-  findVariantsByIds(ids: Id[]): Promise<
+  findVariantsByIds(
+    ids: Id[],
+    search?: string,
+  ): Promise<
     Array<{
       id: string;
       sku: string;
