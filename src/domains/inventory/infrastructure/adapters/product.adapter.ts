@@ -8,7 +8,10 @@ import { GetVariantsDetailsDTO } from '@product/application/queries';
 export class ProductAdapter implements IProductAdapter {
   constructor(private queryBus: QueryBus) {}
 
-  async getVariantsDetails(variantIds: string[]): Promise<VariantDetailsDTO[]> {
-    return this.queryBus.execute(new GetVariantsDetailsDTO(variantIds));
+  async getVariantsDetails(
+    variantIds: string[],
+    search?: string,
+  ): Promise<VariantDetailsDTO[]> {
+    return this.queryBus.execute(new GetVariantsDetailsDTO(variantIds, search));
   }
 }

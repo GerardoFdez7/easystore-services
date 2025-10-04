@@ -34,6 +34,7 @@ export class GetAllWarehousesHandler
       isArchived,
       includeAddresses,
       stockSortBy,
+      search,
     } = options || {};
 
     // Validate pagination parameters
@@ -73,8 +74,10 @@ export class GetAllWarehousesHandler
     const variantIds = Array.from(variantIdsSet);
 
     // Fetch variant details
-    const variantsDetails =
-      await this.productAdapter.getVariantsDetails(variantIds);
+    const variantsDetails = await this.productAdapter.getVariantsDetails(
+      variantIds,
+      search,
+    );
     const detailsMap = new Map(
       variantsDetails.map((detail) => [detail.variantId, detail]),
     );
