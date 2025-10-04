@@ -22,6 +22,7 @@ export class GetAllWarehousesDTO {
       isArchived?: boolean;
       includeAddresses?: boolean;
       stockSortBy?: StockPerWarehouseSortBy;
+      search?: string;
     },
   ) {}
 }
