@@ -450,7 +450,7 @@ model Category {
   createdAt     DateTime            @default(now())
   taxRate       TaxRate[]
   products      ProductCategories[]
-  parent        Category?           @relation("Subcategory", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  parent        Category?           @relation("Subcategory", fields: [parentId], references: [id], onDelete: SetNull, onUpdate: NoAction)
   tenant        Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@unique([tenantId, name])

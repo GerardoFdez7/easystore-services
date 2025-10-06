@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PostgreService } from '@database/postgres.service';
 import { PrismaErrorUtils } from '@utils/prisma-error-utils';
 import { Prisma, Category as PrismaCategory } from '.prisma/postgres';
@@ -25,6 +25,16 @@ export default class CategoryRepository implements ICategoryRepository {
 
     try {
       const prismaCategory = await this.prisma.$transaction(async (tx) => {
+        // Validate depth before creating if subcategories exist
+        if (categoryDto.subCategories && categoryDto.subCategories.length > 0) {
+          await this.validateCategoryDepth(
+            categoryDto.parentId,
+            categoryDto.tenantId,
+            categoryDto.subCategories,
+            tx,
+          );
+        }
+
         // Create the main category
         const createdCategory = await tx.category.create({
           data: {
@@ -100,6 +110,16 @@ export default class CategoryRepository implements ICategoryRepository {
 
         // Handle subcategories updates if provided
         if (updatesDto.subCategories !== undefined) {
+          // Validate depth before updating subcategories
+          if (updatesDto.subCategories.length > 0) {
+            await this.validateCategoryDepth(
+              idValue,
+              tenantIdValue,
+              updatesDto.subCategories,
+              tx,
+            );
+          }
+
           // Delete existing subcategories
           await tx.category.deleteMany({
             where: {
@@ -233,10 +253,10 @@ export default class CategoryRepository implements ICategoryRepository {
   ): Promise<{ categories: Category[]; total: number; hasMore: boolean }> {
     const tenantIdValue = tenantId.getValue();
     const page = options?.page || 1;
-    const limit = options?.limit || 10;
+    const limit = options?.limit || 25;
     const skip = (page - 1) * limit;
-    const sortBy = options?.sortBy || SortBy.CREATED_AT;
-    const sortOrder = options?.sortOrder || SortOrder.DESC;
+    const sortBy = options?.sortBy || SortBy.NAME;
+    const sortOrder = options?.sortOrder || SortOrder.ASC;
     const includeSubcategories = options?.includeSubcategories ?? true;
 
     try {
@@ -246,19 +266,52 @@ export default class CategoryRepository implements ICategoryRepository {
       };
 
       if (options?.name) {
-        whereClause.name = {
-          contains: options.name,
-          mode: 'insensitive',
-        };
+        whereClause.OR = [
+          {
+            name: {
+              contains: options.name,
+              mode: 'insensitive',
+            },
+          },
+          {
+            description: {
+              contains: options.name,
+              mode: 'insensitive',
+            },
+          },
+        ];
       }
 
       if (options?.parentId) {
         whereClause.parentId = options.parentId.getValue();
+      } else if (includeSubcategories) {
+        // When includeSubcategories is true and no parentId is specified,
+        // only return root categories to build proper tree structure
+        whereClause.parentId = null;
       }
 
       // Build order by clause
       const orderBy: Prisma.CategoryOrderByWithRelationInput = {};
       orderBy[sortBy] = sortOrder;
+
+      // Type for recursive include structure
+      type RecursiveInclude =
+        | boolean
+        | {
+            include: {
+              subCategories: RecursiveInclude;
+            };
+          };
+
+      // Create recursive include structure for deep nesting
+      const createRecursiveInclude = (depth: number): RecursiveInclude => {
+        if (depth <= 0) return true;
+        return {
+          include: {
+            subCategories: createRecursiveInclude(depth - 1),
+          },
+        };
+      };
 
       // Execute queries in parallel
       const [categories, total] = await Promise.all([
@@ -266,11 +319,7 @@ export default class CategoryRepository implements ICategoryRepository {
           where: whereClause,
           include: {
             subCategories: includeSubcategories
-              ? {
-                  include: {
-                    subCategories: true,
-                  },
-                }
+              ? createRecursiveInclude(10) // Support up to 10 levels deep
               : false,
             parent: true,
           },
@@ -296,6 +345,105 @@ export default class CategoryRepository implements ICategoryRepository {
       };
     } catch (error) {
       return this.handleDatabaseError(error, 'find all categories');
+    }
+  }
+
+  /**
+   * Calculates the depth of a category from its root parent (parentId = null)
+   */
+  private async calculateCategoryDepth(
+    categoryId: string,
+    tenantId: string,
+    tx?: Prisma.TransactionClient,
+  ): Promise<number> {
+    const prismaClient = tx || this.prisma;
+    let depth = 1;
+    let currentCategoryId = categoryId;
+
+    while (currentCategoryId) {
+      const category = await prismaClient.category.findUnique({
+        where: {
+          id: currentCategoryId,
+          tenantId: tenantId,
+        },
+        select: {
+          parentId: true,
+        },
+      });
+
+      if (!category) {
+        break;
+      }
+
+      if (category.parentId === null) {
+        // Found the root parent
+        break;
+      }
+
+      currentCategoryId = category.parentId;
+      depth++;
+
+      // Safety check to prevent infinite loops
+      if (depth > 20) {
+        throw new DatabaseOperationError(
+          'calculate category depth',
+          'Category hierarchy is too deep or contains circular references',
+        );
+      }
+    }
+
+    return depth;
+  }
+
+  /**
+   * Calculates the maximum depth of subcategories recursively
+   */
+  private calculateSubcategoriesDepth(subCategories: ICategoryType[]): number {
+    if (!subCategories || subCategories.length === 0) {
+      return 0;
+    }
+
+    let maxDepth = 0;
+    for (const subCategory of subCategories) {
+      const subDepth = this.calculateSubcategoriesDepth(
+        subCategory.subCategories || [],
+      );
+      maxDepth = Math.max(maxDepth, subDepth + 1);
+    }
+
+    return maxDepth;
+  }
+
+  /**
+   * Validates that adding subcategories won't exceed the 10-level limit
+   */
+  private async validateCategoryDepth(
+    parentId: string | null,
+    tenantId: string,
+    subCategories: ICategoryType[],
+    tx?: Prisma.TransactionClient,
+  ): Promise<void> {
+    const maxDepth = 10;
+
+    // Calculate current depth from root parent
+    let currentDepth = 1;
+    if (parentId) {
+      currentDepth = await this.calculateCategoryDepth(parentId, tenantId, tx);
+      currentDepth++; // Add 1 for the new category being created
+    }
+
+    // Calculate the depth of the subcategories being added
+    const subcategoriesDepth = this.calculateSubcategoriesDepth(subCategories);
+
+    // Total depth would be current depth + subcategories depth
+    const totalDepth = currentDepth + subcategoriesDepth;
+
+    if (totalDepth > maxDepth) {
+      throw new BadRequestException(
+        `Category hierarchy cannot exceed ${maxDepth} levels. ` +
+          `Current depth: ${currentDepth}, Subcategories depth: ${subcategoriesDepth}, ` +
+          `Total would be: ${totalDepth}`,
+      );
     }
   }
 
