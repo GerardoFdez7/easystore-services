@@ -36,4 +36,33 @@ export class CartItem {
     cartItemSchema.parse(props);
     return new CartItem(props);
   }
+
+  // Getter methods for mapper
+  public getId(): Id {
+    return this.id;
+  }
+
+  public getQty(): Qty {
+    return this.qty;
+  }
+
+  public getVariantId(): Id {
+    return this.variantId;
+  }
+
+  public getPromotionId(): Id | null {
+    return this.promotionId || null;
+  }
+
+  public getUpdatedAt(): Date {
+    return this.updatedAt;
+  }
+
+  public getVariantIdValue(): string {
+    return this.variantId.getValue();
+  }
+
+  public equals(other: CartItem): boolean {
+    return this.id.equals(other.getId());
+  }
 }
