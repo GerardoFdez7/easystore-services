@@ -1,13 +1,17 @@
 import jwt from 'jsonwebtoken';
 import { Response, Request } from 'express';
 
-const jwtSecret = process.env.JWT_SECRET;
 const jwtExpiration = '1d';
 const refreshTokenExpiration = '30d';
 
-if (!jwtSecret) {
-  throw new Error('JWT_SECRET environment variable is required');
-}
+// Lazy initialization of JWT secret to avoid startup issues
+const getJwtSecret = (): string => {
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    throw new Error('JWT_SECRET environment variable is required');
+  }
+  return jwtSecret;
+};
 
 const blacklistedTokens = new Set<string>();
 
@@ -28,7 +32,7 @@ export interface PasswordResetPayload {
 }
 
 export const generateToken = (payload: JwtPayload): string => {
-  return jwt.sign(payload, jwtSecret, {
+  return jwt.sign(payload, getJwtSecret(), {
     expiresIn: jwtExpiration,
   });
 };
@@ -39,7 +43,7 @@ export const verifyToken = (token: string): JwtPayload => {
   }
 
   try {
-    return jwt.verify(token, jwtSecret) as JwtPayload;
+    return jwt.verify(token, getJwtSecret()) as JwtPayload;
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
       throw new Error('Invalid token');
@@ -55,7 +59,7 @@ export const verifyToken = (token: string): JwtPayload => {
 };
 
 export const generateRefreshToken = (payload: JwtPayload): string => {
-  return jwt.sign(payload, jwtSecret, {
+  return jwt.sign(payload, getJwtSecret(), {
     expiresIn: refreshTokenExpiration,
   });
 };
@@ -69,7 +73,7 @@ export const generatePasswordResetToken = (
     purpose: 'password_reset',
   };
 
-  return jwt.sign(resetPayload, jwtSecret, {
+  return jwt.sign(resetPayload, getJwtSecret(), {
     expiresIn: '15m',
   });
 };
@@ -83,7 +87,7 @@ export const verifyPasswordResetToken = (
   }
 
   try {
-    const payload = jwt.verify(token, jwtSecret) as PasswordResetPayload;
+    const payload = jwt.verify(token, getJwtSecret()) as PasswordResetPayload;
 
     if (payload.purpose !== 'password_reset') {
       throw new Error('Invalid token purpose');

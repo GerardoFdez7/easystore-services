@@ -1,6 +1,5 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PaymentProviderFactoryService } from './payment-provider-factory.service';
-import { PaymentProviderCredentialRepository } from '../../aggregates/repositories/payment-provider-credential.interface';
 import {
   InitiatePaymentParams,
   CompletePaymentParams,
@@ -12,8 +11,6 @@ import {
 export class PaymentGatewayService {
   constructor(
     private readonly providerFactory: PaymentProviderFactoryService,
-    @Inject('PaymentProviderCredentialRepository')
-    private readonly credentialRepo: PaymentProviderCredentialRepository,
   ) {}
 
   async initiatePayment(
@@ -59,17 +56,5 @@ export class PaymentGatewayService {
     }
 
     return provider.refundPayment(params);
-  }
-
-  async saveOrUpdateProviderKeys(
-    tenantId: string,
-    providerType: string,
-    credentials: Record<string, unknown>,
-  ): Promise<void> {
-    await this.credentialRepo.saveCredentials(
-      tenantId,
-      providerType,
-      credentials,
-    );
   }
 }

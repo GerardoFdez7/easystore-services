@@ -12,10 +12,8 @@ async function bootstrap(): Promise<void> {
   });
   app.useLogger(app.get(Logger));
 
-  // Cookie parser middleware
   app.use(cookieParser());
 
-  // CORS Config
   app.enableCors({
     origin: [process.env.FRONTEND_URL],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -30,7 +28,7 @@ async function bootstrap(): Promise<void> {
   try {
     const prisma = app.get(PostgreService);
     await prisma.$queryRaw`SELECT 1`;
-    logger.log(`Postgres connection successful`);
+    logger.log('Database connection verified successfully');
   } catch (error) {
     logger.fatal(`Postgres connection failed:`, error);
   }

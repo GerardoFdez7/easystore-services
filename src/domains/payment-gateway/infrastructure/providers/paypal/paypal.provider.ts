@@ -5,7 +5,7 @@ import {
   RefundPaymentParams,
   PaymentResult,
 } from '../../../aggregates/entities/provider/payment-provider.interface';
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 
 export interface PaypalCredentials {
   clientId: string;
@@ -17,7 +17,7 @@ export class PaypalProvider implements PaymentProvider {
 
   async initiatePayment(params: InitiatePaymentParams): Promise<PaymentResult> {
     try {
-      const response: AxiosResponse<string, unknown> = await axios.post(
+      const response = await axios.post(
         'https://api.paypal.com/v1/payments/payment',
         {
           amount: params.amount,

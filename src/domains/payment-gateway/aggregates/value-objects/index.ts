@@ -4,5 +4,7 @@ export * from './payment/payment-amount.vo';
 export * from './payment/payment-details.vo';
 export * from './payment/external-reference-number.vo';
 export * from './provider/provider-type.vo';
+export * from './provider/visanet-credentials.vo';
 export * from './provider/provider-config.vo';
 export * from './provider/pagadito-credentials.vo';
+export * from './provider/paypal-credentials.vo';
