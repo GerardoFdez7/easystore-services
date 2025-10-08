@@ -20,8 +20,10 @@ export interface CompletePaymentParams {
 
 export interface RefundPaymentParams {
   paymentId: string;
+  transactionId: string;
   amount?: number;
   currency?: string;
+  reason?: string;
   // ...other common params
 }
 
