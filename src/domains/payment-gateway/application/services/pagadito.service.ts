@@ -1,5 +1,5 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { PaymentProviderCredentialRepository } from '../../aggregates/repositories/payment-provider-credential.interface';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
+import { PaymentCredentialsService } from '../../../tenant/application/services/payment-credentials.service';
 import {
   PagaditoCredentials,
   PagaditoProvider,
@@ -8,24 +8,26 @@ import {
   InitiatePaymentParams,
   PaymentResult,
 } from '../../aggregates/entities/provider/payment-provider.interface';
-import { PaymentProviderType } from '../../aggregates/entities';
+import { PaymentProviderTypeVO } from '../../../tenant/aggregates/value-objects/payment-provider-type.vo';
 
 @Injectable()
 export class PagaditoService {
   constructor(
-    @Inject('PaymentProviderCredentialRepository')
-    private readonly credentialRepo: PaymentProviderCredentialRepository,
+    @Inject(forwardRef(() => PaymentCredentialsService))
+    private readonly credentialsService: PaymentCredentialsService,
   ) {}
 
   async initiatePayment(
     tenantId: string,
     params: InitiatePaymentParams,
   ): Promise<PaymentResult> {
-    const credentials = await this.credentialRepo.getCredentials(
+    const credentials = await this.credentialsService.getDecryptedCredentials(
       tenantId,
-      PaymentProviderType.PAGADITO,
+      PaymentProviderTypeVO.PAGADITO,
     );
-    const provider = new PagaditoProvider(credentials as PagaditoCredentials);
+    const provider = new PagaditoProvider(
+      credentials as unknown as PagaditoCredentials,
+    );
     return provider.initiatePayment(params);
   }
 }

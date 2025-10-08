@@ -1,15 +1,14 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { PaymentGatewayService } from './application/services/payment-gateway.service';
 import { PaymentProviderFactoryService } from './application/services/payment-provider-factory.service';
 import { PagaditoService } from './application/services/pagadito.service';
 import { InitiatePaymentHandler } from './application/commands/create/initiate-payment.handler';
 import { CompletePaymentHandler } from './application/commands/complete/complete-payment.handler';
 import { PaymentGatewayResolver } from './presentation/graphql/payment-gateway.resolver';
-import { PaymentProviderCredentialPostgresRepository } from './infrastructure/persistence/postgres/payment-provider-credential.repository';
-import { PostgresModule } from '../../infrastructure/database/postgres.module';
+import { TenantDomain } from '../tenant/tenant.module';
 
 @Module({
-  imports: [PostgresModule],
+  imports: [forwardRef(() => TenantDomain)],
   providers: [
     PaymentGatewayService,
     PaymentProviderFactoryService,
@@ -17,10 +16,6 @@ import { PostgresModule } from '../../infrastructure/database/postgres.module';
     InitiatePaymentHandler,
     CompletePaymentHandler,
     PaymentGatewayResolver,
-    {
-      provide: 'PaymentProviderCredentialRepository',
-      useClass: PaymentProviderCredentialPostgresRepository,
-    },
   ],
   exports: [PaymentGatewayService, PaymentProviderFactoryService],
 })

@@ -6,8 +6,10 @@ import {
   PaymentResult,
 } from '../../../aggregates/entities/provider/payment-provider.interface';
 import { VisanetCredentialsVO } from '../../../aggregates/value-objects/provider/visanet-credentials.vo';
-import * as cybersourceRestApi from 'cybersource-rest-client';
-import path from 'node:path';
+
+// Dynamic import to avoid initialization issues
+let cybersourceRestApi: typeof import('cybersource-rest-client');
+import * as path from 'path';
 
 export interface VisanetCredentials {
   merchantId: string;
@@ -18,19 +20,39 @@ export interface VisanetCredentials {
 
 export class VisanetProvider implements PaymentProvider {
   private readonly credentials: VisanetCredentialsVO;
-  private readonly apiClient: cybersourceRestApi.ApiClient;
-  private readonly paymentsApi: cybersourceRestApi.PaymentsApi;
+  private apiClient?: InstanceType<typeof cybersourceRestApi.ApiClient>;
+  private paymentsApi?: InstanceType<typeof cybersourceRestApi.PaymentsApi>;
 
   constructor(credentials: VisanetCredentials) {
     this.credentials = VisanetCredentialsVO.create(credentials);
-    this.apiClient = new cybersourceRestApi.ApiClient();
-    this.paymentsApi = new cybersourceRestApi.PaymentsApi(
-      this.buildConfig(),
-      this.apiClient,
-    );
   }
 
-  private buildConfig(): cybersourceRestApi.Configuration {
+  private async loadCyberSourceApi(): Promise<void> {
+    if (!cybersourceRestApi) {
+      cybersourceRestApi = await import('cybersource-rest-client');
+    }
+  }
+
+  private getApiClient(): InstanceType<typeof cybersourceRestApi.ApiClient> {
+    if (!this.apiClient) {
+      this.apiClient = new cybersourceRestApi.ApiClient();
+    }
+    return this.apiClient;
+  }
+
+  private getPaymentsApi(): InstanceType<
+    typeof cybersourceRestApi.PaymentsApi
+  > {
+    if (!this.paymentsApi) {
+      this.paymentsApi = new cybersourceRestApi.PaymentsApi(
+        this.buildConfig(),
+        this.getApiClient(),
+      );
+    }
+    return this.paymentsApi;
+  }
+
+  private buildConfig(): import('cybersource-rest-client').Configuration {
     return {
       authenticationType: 'http_signature',
       runEnvironment: this.credentials.runEnvironment,
@@ -53,10 +75,10 @@ export class VisanetProvider implements PaymentProvider {
   }
 
   private createPaymentAsync(
-    requestObj: cybersourceRestApi.CreatePaymentRequest,
+    requestObj: InstanceType<typeof cybersourceRestApi.CreatePaymentRequest>,
   ): Promise<{ data: unknown; response: unknown }> {
     return new Promise((resolve, reject) => {
-      this.paymentsApi.createPayment(
+      this.getPaymentsApi().createPayment(
         requestObj,
         (error: Error, data: unknown, response: unknown) => {
           if (error)
@@ -86,6 +108,7 @@ export class VisanetProvider implements PaymentProvider {
 
   async initiatePayment(params: InitiatePaymentParams): Promise<PaymentResult> {
     try {
+      await this.loadCyberSourceApi();
       // Extract card information from customParams
       const customParams = params.customParams as {
         cardNumber?: string;
@@ -244,6 +267,7 @@ export class VisanetProvider implements PaymentProvider {
     // For VisaNet/CyberSource, completion is typically handled through capture
     // This would be used for auth-only transactions that need to be captured later
     try {
+      await this.loadCyberSourceApi();
       const captureRequest = new cybersourceRestApi.CapturePaymentRequest();
 
       // Set up capture request with payment ID
@@ -260,7 +284,9 @@ export class VisanetProvider implements PaymentProvider {
 
       // Promisify capture API call
       const captureAsync = (
-        requestObj: cybersourceRestApi.CapturePaymentRequest,
+        requestObj: InstanceType<
+          typeof cybersourceRestApi.CapturePaymentRequest
+        >,
       ): Promise<{ data: unknown; response: unknown }> => {
         return new Promise((resolve, reject) => {
           captureApi.capturePayment(
@@ -345,6 +371,7 @@ export class VisanetProvider implements PaymentProvider {
 
   async refundPayment(params: RefundPaymentParams): Promise<PaymentResult> {
     try {
+      await this.loadCyberSourceApi();
       const refundRequest = new cybersourceRestApi.RefundPaymentRequest();
 
       // Set up refund request
@@ -371,7 +398,9 @@ export class VisanetProvider implements PaymentProvider {
 
       // Promisify refund API call
       const refundAsync = (
-        requestObj: cybersourceRestApi.RefundPaymentRequest,
+        requestObj: InstanceType<
+          typeof cybersourceRestApi.RefundPaymentRequest
+        >,
       ): Promise<{ data: unknown; response: unknown }> => {
         return new Promise((resolve, reject) => {
           refundApi.refundPayment(

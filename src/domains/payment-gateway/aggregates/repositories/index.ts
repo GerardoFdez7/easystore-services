@@ -1,1 +1,1 @@
-export * from './payment-provider-credential.interface';
+// No repositories to export

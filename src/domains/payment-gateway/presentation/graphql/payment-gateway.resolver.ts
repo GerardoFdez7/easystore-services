@@ -168,18 +168,4 @@ export class PaymentGatewayResolver {
       environment,
     };
   }
-
-  @Mutation(() => Boolean)
-  async saveOrUpdateProviderKeys(
-    @Args('tenantId') tenantId: string,
-    @Args('providerType') providerType: string,
-    @Args('credentials') credentials: string, // Pass as JSON string
-  ): Promise<boolean> {
-    await this.paymentGatewayService.saveOrUpdateProviderKeys(
-      tenantId,
-      providerType,
-      JSON.parse(credentials) as Record<string, unknown>,
-    );
-    return true;
-  }
 }
