@@ -134,7 +134,7 @@ export class PaymentGatewayResolver {
     @Args('paymentId') paymentId: string,
     @Args('amount', { nullable: true }) amount?: number,
   ): Promise<PaymentResultOutput> {
-    const params = { paymentId, amount };
+    const params = { paymentId, transactionId: '', amount };
     const result: PaymentResult =
       (await this.paymentGatewayService.refundPayment?.(
         tenantId,

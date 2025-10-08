@@ -1,1 +1,1 @@
-// No repositories to export
+export * from './payment.repository.interface';
