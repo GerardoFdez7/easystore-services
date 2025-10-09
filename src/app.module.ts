@@ -11,6 +11,7 @@ import { ProductDomain } from './domains/product/product.module';
 import { CategoryDomain } from './domains/category/category.module';
 import { AddressDomain } from './domains/address/address.module';
 import { InventoryDomain } from './domains/inventory/inventory.module';
+import { CartDomain } from './domains/cart/cart.module';
 import { LoggerConfig } from './config/logger/logger.config';
 
 @Global()
@@ -30,6 +31,7 @@ import { LoggerConfig } from './config/logger/logger.config';
     CategoryDomain,
     AddressDomain,
     InventoryDomain,
+    CartDomain,
   ],
   providers: [
     {
