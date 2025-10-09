@@ -55,7 +55,7 @@ export class Cart extends Entity<ICartProps> {
       cartItems,
     });
 
-    cartUpdated.apply(new AddItemToCartEvent(cartUpdated));
+    cartUpdated.apply(new AddItemToCartEvent(cartUpdated, item));
 
     return cartUpdated;
   }
@@ -80,7 +80,12 @@ export class Cart extends Entity<ICartProps> {
     });
 
     // Apply domain event
-    cartUpdated.apply(new ItemRemovedFromCartEvent(cartUpdated));
+    cartUpdated.apply(
+      new ItemRemovedFromCartEvent(
+        cartUpdated,
+        cartItems.get(idVariant.getValue()),
+      ),
+    );
 
     return cartUpdated;
   }
@@ -109,7 +114,7 @@ export class Cart extends Entity<ICartProps> {
       cartItems,
     });
 
-    cartUpdated.apply(new ItemQuantityUpdatedEvent(cartUpdated));
+    cartUpdated.apply(new ItemQuantityUpdatedEvent(cartUpdated, itemUpdated));
 
     return cartUpdated;
   }
@@ -130,7 +135,7 @@ export class Cart extends Entity<ICartProps> {
       cartItems,
     });
 
-    cartUpdated.apply(new RemoveManyItemsFromCart(cartUpdated));
+    cartUpdated.apply(new RemoveManyItemsFromCart(cartUpdated, variantsIds));
 
     return cartUpdated;
   }

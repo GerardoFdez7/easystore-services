@@ -17,7 +17,7 @@ export class ItemQuantityUpdatedHandler
    */
   handle(event: ItemQuantityUpdatedEvent): void {
     logger.log(
-      `Item quantity updated in cart for customer: ${event.cart.get('customerId').getValue()}, cart id: ${event.cart.get('id').getValue()}`,
+      `Item quantity updated - Variant ID: ${event.item.getVariantIdValue()}, Cart ID: ${event.cart.get('id').getValue()}, New quantity: ${event.item.getQty().getValue()}`,
     );
   }
 }
