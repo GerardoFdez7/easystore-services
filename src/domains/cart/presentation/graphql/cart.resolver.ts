@@ -2,7 +2,7 @@ import { Resolver, Mutation, Args } from '@nestjs/graphql';
 import { CommandBus } from '@nestjs/cqrs';
 import { CurrentUser, JwtPayload } from '@common/decorators';
 import { CartType, CreateCartInput } from './types';
-import { CreateCartDto } from '../../application/commands/create/create-cart.dto';
+import { CreateCartDto } from '../../application/commands/create/cart/create-cart.dto';
 
 @Resolver(() => CartType)
 export class CartResolver {
