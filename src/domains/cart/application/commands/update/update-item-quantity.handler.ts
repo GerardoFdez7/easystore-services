@@ -36,7 +36,7 @@ export class UpdateItemQuantityHandler
     const cartUpdated = await this.cartRepository.update(cartWithEvents);
 
     // Commit domain events
-    cartUpdated.commit();
+    cartWithEvents.commit();
 
     return CartMapper.toDto(cartUpdated);
   }
