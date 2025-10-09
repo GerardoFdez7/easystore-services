@@ -15,7 +15,7 @@ export class CartCreatedHandler implements IEventHandler<CartCreatedEvent> {
    */
   handle(event: CartCreatedEvent): void {
     logger.log(
-      `Cart created for customer: ${event.cart.get('customerId').getValue()}, with cart id: ${event.cart.get('id').getValue()}`,
+      `Cart created with id: ${event.cart.get('id').getValue()}, to customer with id: ${event.cart.get('customerId').getValue()}`,
     );
   }
 }
