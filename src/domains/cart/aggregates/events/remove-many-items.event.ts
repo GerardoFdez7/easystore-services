@@ -1,5 +1,6 @@
+import { IEvent } from '@nestjs/cqrs';
 import { Cart } from '../entities/cart.entity';
 
-export class RemoveManyItemsFromCart {
-  constructor(private readonly cart: Cart) {}
+export class RemoveManyItemsFromCart implements IEvent {
+  constructor(public readonly cart: Cart) {}
 }
