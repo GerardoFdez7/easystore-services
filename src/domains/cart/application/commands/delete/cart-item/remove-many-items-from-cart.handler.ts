@@ -50,6 +50,8 @@ export class RemoveManyItemsFromCartHandler
     // Persist the updated cart to the database
     const cartUpdated = await this.cartRepository.update(cartWithEvents);
 
+    cartWithEvents.commit();
+
     // Convert the domain entity to a DTO for the response
     // This ensures proper data encapsulation and API contract compliance
     return CartMapper.toDto(cartUpdated);

@@ -23,7 +23,7 @@ export class CartCreateHandler implements ICommandHandler<CreateCartDto> {
     const savedCart = await this.cartRepository.create(cartWithEvents);
 
     // Commit domain events
-    savedCart.commit();
+    cartWithEvents.commit();
 
     // Return the DTO representation
     return CartMapper.toDto(savedCart);
