@@ -6,12 +6,14 @@ import { CreateCartDto } from '../../application/commands/create/cart/create-car
 import {
   AddItemToCartInput,
   RemoveItemFromCartInput,
+  RemoveManyItemFromCartInput,
   UpdateItemQtyInput,
 } from './types/cart.types';
 import { AddItemToCartDto } from '../../application/commands/create/cart-item/add-item-to-cart.dto';
 import { RemoveItemFromCartDto } from '../../application/commands/delete/cart-item/remove-item-from-cart.dto';
 import { GetCartByCustomerIdDTO } from '../../application/queries/get-cart-by-customer-id.dto';
 import { UpdateItemQuantityDto } from '../../application/commands/update/update-item-quantity.dto';
+import { RemoveManyItemsFromCartDto } from '../../application/commands/delete/cart-item/remove-many-items-from-cart.dto';
 
 @Resolver(() => CartType)
 export class CartResolver {
@@ -71,6 +73,17 @@ export class CartResolver {
   ): Promise<CartType> {
     return this.commandBus.execute(
       new RemoveItemFromCartDto(input, user.customerId),
+    );
+  }
+
+  @Mutation(() => CartType)
+  async removeManyItemsFromCart(
+    @Args('input', { type: () => RemoveManyItemFromCartInput })
+    input: RemoveManyItemFromCartInput,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<CartType> {
+    return this.commandBus.execute(
+      new RemoveManyItemsFromCartDto(input, user.customerId),
     );
   }
 
