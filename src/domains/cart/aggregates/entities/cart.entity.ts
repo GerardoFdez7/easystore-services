@@ -1,10 +1,13 @@
 import { Entity, EntityProps } from '@shared/entity.base';
 import { Id } from '@shared/value-objects';
-import { CartItem } from '../value-objects';
+import { CartItem, Qty } from '../value-objects';
 import { ICartBaseType } from './cart.attributes';
-import { CartCreatedEvent } from '../events';
-import { AddItemToCartEvent } from '../events/add-item-to-cart.event';
-import { ItemRemovedFromCartEvent } from '../events/remove-item-cart.event';
+import {
+  CartCreatedEvent,
+  AddItemToCartEvent,
+  ItemRemovedFromCartEvent,
+  ItemQuantityUpdatedEvent,
+} from '../events';
 
 export interface ICartProps extends EntityProps {
   id: Id;
@@ -77,6 +80,36 @@ export class Cart extends Entity<ICartProps> {
 
     // Apply domain event
     cartUpdated.apply(new ItemRemovedFromCartEvent(cartUpdated));
+
+    return cartUpdated;
+  }
+
+  static updateItemQuantity(cart: Cart, variantId: Id, qty: Qty): Cart {
+    // Create a new Map to maintain immutability
+    const cartItems = new Map(cart.props.cartItems);
+
+    // Get cart item
+    const cartItem = cartItems.get(variantId.getValue());
+
+    if (!cartItem) throw new Error('Item not found in cart');
+
+    // Update item
+    const itemUpdated = CartItem.create({
+      qty: qty.getValue(),
+      variantId: variantId.getValue(),
+      promotionId: cartItem.getPromotionId().getValue() || null,
+    });
+
+    cartItems.set(variantId.getValue(), itemUpdated);
+
+    // Create cart updated
+    const cartUpdated = new Cart({
+      id: cart.props.id,
+      customerId: cart.props.customerId,
+      cartItems,
+    });
+
+    cartUpdated.apply(new ItemQuantityUpdatedEvent(cartUpdated));
 
     return cartUpdated;
   }
