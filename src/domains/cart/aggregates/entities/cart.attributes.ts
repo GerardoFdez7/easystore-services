@@ -8,3 +8,8 @@ export interface ICartItemBaseType {
   variantId: string;
   promotionId?: string | null;
 }
+
+export interface IRemoveItemFromCartData {
+  cartId: string;
+  variantId: string;
+}

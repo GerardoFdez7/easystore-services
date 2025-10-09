@@ -1,36 +1,31 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
-import { AddItemToCartDto } from './add-item-to-cart.dto';
+import { RemoveItemFromCartDto } from './remove-item-from-cart.dto';
+import { CartDTO, CartMapper } from '../../../mappers';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { ICartRepository } from 'src/domains/cart/aggregates/repositories/cart.interface';
 import { Id } from '@shared/value-objects';
-import { CartDTO, CartMapper } from '../../../mappers';
 import { Cart } from 'src/domains/cart/aggregates/entities/cart.entity';
-import { CartItem } from 'src/domains/cart/aggregates/value-objects';
 
-@CommandHandler(AddItemToCartDto)
-export class AddItemToCartHandler implements ICommandHandler<AddItemToCartDto> {
+@CommandHandler(RemoveItemFromCartDto)
+export class RemoveItemFromCartHandler
+  implements ICommandHandler<RemoveItemFromCartDto>
+{
   constructor(
-    @Inject('ICartRepository')
-    private readonly cartRepository: ICartRepository,
+    @Inject('ICartRepository') private readonly cartRepository: ICartRepository,
     private readonly eventPublisher: EventPublisher,
   ) {}
 
-  async execute(command: AddItemToCartDto): Promise<CartDTO> {
-    const { cartId, qty, variantId, promotionId } = command.data;
+  async execute(command: RemoveItemFromCartDto): Promise<CartDTO> {
+    const cartId = Id.create(command.data.cartId);
+    const variantId = Id.create(command.data.variantId);
 
-    const cartFound = await this.cartRepository.findCartById(Id.create(cartId));
+    // Search cart
+    const cartFound = await this.cartRepository.findCartById(cartId);
 
     if (!cartFound) throw new NotFoundException('Cart not found');
 
-    // Cart Item object
-    const cartItem = CartItem.create({
-      qty,
-      variantId,
-      promotionId: promotionId || null,
-    });
-
     const cartWithEvents = this.eventPublisher.mergeObjectContext(
-      Cart.addItemToCart(cartFound, cartItem),
+      Cart.removeItem(cartFound, variantId),
     );
 
     // Persist the cart to the repository

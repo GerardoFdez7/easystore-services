@@ -3,8 +3,12 @@ import { CommandBus } from '@nestjs/cqrs';
 import { CurrentUser, JwtPayload } from '@common/decorators';
 import { CartType, CreateCartInput } from './types';
 import { CreateCartDto } from '../../application/commands/create/cart/create-cart.dto';
-import { AddItemToCartInput } from './types/cart.types';
+import {
+  AddItemToCartInput,
+  RemoveItemFromCartInput,
+} from './types/cart.types';
 import { AddItemToCartDto } from '../../application/commands/create/cart-item/add-item-to-cart.dto';
+import { RemoveItemFromCartDto } from '../../application/commands/delete/cart-item/remove-item-from-cart.dto';
 
 @Resolver(() => CartType)
 export class CartResolver {
@@ -37,5 +41,13 @@ export class CartResolver {
     input: AddItemToCartInput,
   ): Promise<CartType> {
     return this.commandBus.execute(new AddItemToCartDto(input));
+  }
+
+  @Mutation(() => CartType)
+  async removeItemFromCart(
+    @Args('input', { type: () => RemoveItemFromCartInput })
+    input: RemoveItemFromCartInput,
+  ): Promise<CartType> {
+    return this.commandBus.execute(new RemoveItemFromCartDto(input));
   }
 }

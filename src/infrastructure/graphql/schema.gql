@@ -464,6 +464,7 @@ type Mutation {
   login(input: AuthenticationInput!): Response!
   logout: Response!
   register(input: AuthenticationInput!): AuthIdentity!
+  removeItemFromCart(input: RemoveItemFromCartInput!): Cart!
   removeStockFromWarehouse(reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
   removeVariant(id: String!, productId: String!): Product!
   restoreProduct(id: String!): Product!
@@ -548,6 +549,11 @@ type Query {
   getTenantById: Tenant!
   getWarehouseById(id: ID!, isArchived: Boolean): Warehouse!
   validateToken: Response!
+}
+
+input RemoveItemFromCartInput {
+  cartId: ID!
+  variantId: ID!
 }
 
 type Response {

@@ -51,3 +51,12 @@ export class AddItemToCartInput {
   @Field(() => ID, { nullable: true })
   promotionId?: string;
 }
+
+@InputType()
+export class RemoveItemFromCartInput {
+  @Field(() => ID)
+  cartId: string;
+
+  @Field(() => ID)
+  variantId: string;
+}
