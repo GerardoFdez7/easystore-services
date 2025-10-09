@@ -9,7 +9,6 @@ enum AccountTypeEnum {
 }
 
 input AddItemToCartInput {
-  cartId: ID!
   promotionId: ID
   variantId: ID!
 }

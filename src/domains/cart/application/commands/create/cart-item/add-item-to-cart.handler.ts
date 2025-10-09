@@ -16,9 +16,11 @@ export class AddItemToCartHandler implements ICommandHandler<AddItemToCartDto> {
   ) {}
 
   async execute(command: AddItemToCartDto): Promise<CartDTO> {
-    const { cartId, variantId, promotionId } = command.data;
+    const { variantId, promotionId } = command.data;
 
-    const cartFound = await this.cartRepository.findCartById(Id.create(cartId));
+    const cartFound = await this.cartRepository.findCartByCustomerId(
+      Id.create(command.customerId),
+    );
 
     if (!cartFound) throw new NotFoundException('Cart not found');
 

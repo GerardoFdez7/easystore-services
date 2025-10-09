@@ -3,7 +3,6 @@ export interface ICartBaseType {
 }
 
 export interface ICartItemBaseType {
-  cartId: string;
   variantId: string;
   promotionId?: string | null;
 }
