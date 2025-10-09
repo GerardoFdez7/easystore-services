@@ -92,12 +92,11 @@ export class Cart extends Entity<ICartProps> {
     const cartItem = cartItems.get(variantId.getValue());
 
     if (!cartItem) throw new Error('Item not found in cart');
-
     // Update item
     const itemUpdated = CartItem.create({
       qty: qty.getValue(),
       variantId: variantId.getValue(),
-      promotionId: cartItem.getPromotionId().getValue() || null,
+      promotionId: cartItem.getPromotionId()?.getValue() || null,
     });
 
     cartItems.set(variantId.getValue(), itemUpdated);
