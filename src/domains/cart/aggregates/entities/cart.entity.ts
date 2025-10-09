@@ -32,4 +32,28 @@ export class Cart extends Entity<ICartProps> {
 
     return cart;
   }
+
+  static addItemToCart(cart: Cart, item: CartItem): Cart {
+    const variantId = item.getVariantIdValue();
+    const itemExist = cart.props.cartItems.get(variantId);
+
+    if (!itemExist) {
+      // Add item to cart
+      cart.props.cartItems.set(variantId, item);
+    } else {
+      const newQty = itemExist.getQty().getValue() + item.getQty().getValue();
+
+      // Create updated item
+      const cartItemUpdated = CartItem.create({
+        qty: newQty,
+        variantId: variantId,
+        promotionId: item.getPromotionId()?.getValue() || null,
+      });
+
+      // Set updated item
+      cart.props.cartItems.set(variantId, cartItemUpdated);
+    }
+
+    return cart;
+  }
 }

@@ -10,11 +10,9 @@ const cartItemSchema = z.object({
 });
 
 export interface CartItemProps {
-  id: string;
   qty: number;
   variantId: string;
   promotionId?: string | null;
-  updatedAt?: Date;
 }
 
 export class CartItem {
