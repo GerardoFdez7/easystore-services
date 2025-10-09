@@ -69,6 +69,9 @@ export class Cart extends Entity<ICartProps> {
       throw new Error('Item not found in cart');
     }
 
+    // Get the item BEFORE deleting it
+    const removedItem = cartItems.get(idVariant.getValue());
+
     // Delete specific variant
     cartItems.delete(idVariant.getValue());
 
@@ -79,13 +82,8 @@ export class Cart extends Entity<ICartProps> {
       cartItems: cartItems,
     });
 
-    // Apply domain event
-    cartUpdated.apply(
-      new ItemRemovedFromCartEvent(
-        cartUpdated,
-        cartItems.get(idVariant.getValue()),
-      ),
-    );
+    // Apply domain event with the removed item
+    cartUpdated.apply(new ItemRemovedFromCartEvent(cartUpdated, removedItem));
 
     return cartUpdated;
   }
