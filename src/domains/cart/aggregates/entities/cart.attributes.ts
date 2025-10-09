@@ -10,3 +10,8 @@ export interface ICartItemBaseType {
 export interface IRemoveItemFromCartData {
   variantId: string;
 }
+
+export interface IUpdateItemQuantityData {
+  variantId: string;
+  quantity: number;
+}
