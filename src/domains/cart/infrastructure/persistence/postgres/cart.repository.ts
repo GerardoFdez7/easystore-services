@@ -64,6 +64,21 @@ export class CartRepository implements ICartRepository {
     }
   }
 
+  async findCartByCustomerId(id: Id): Promise<Cart> {
+    try {
+      const prismaCart = await this.prisma.cart.findFirst({
+        where: { customerId: id.getValue() },
+        include: {
+          cartItems: true,
+        },
+      });
+
+      return this.mapToDomain(prismaCart);
+    } catch (error) {
+      return this.handleDatabaseError(error, 'find cart by id');
+    }
+  }
+
   async findCartById(id: Id): Promise<Cart> {
     try {
       const prismaCart = await this.prisma.cart.findUnique({

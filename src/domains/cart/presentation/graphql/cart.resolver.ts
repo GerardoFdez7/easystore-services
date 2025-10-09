@@ -1,5 +1,5 @@
-import { Resolver, Mutation, Args } from '@nestjs/graphql';
-import { CommandBus } from '@nestjs/cqrs';
+import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser, JwtPayload } from '@common/decorators';
 import { CartType, CreateCartInput } from './types';
 import { CreateCartDto } from '../../application/commands/create/cart/create-cart.dto';
@@ -9,10 +9,14 @@ import {
 } from './types/cart.types';
 import { AddItemToCartDto } from '../../application/commands/create/cart-item/add-item-to-cart.dto';
 import { RemoveItemFromCartDto } from '../../application/commands/delete/cart-item/remove-item-from-cart.dto';
+import { GetCartByCustomerIdDTO } from '../../application/queries/get-cart-by-customer-id.dto';
 
 @Resolver(() => CartType)
 export class CartResolver {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
+  ) {}
 
   ///////////////
   // Mutations //
@@ -47,7 +51,18 @@ export class CartResolver {
   async removeItemFromCart(
     @Args('input', { type: () => RemoveItemFromCartInput })
     input: RemoveItemFromCartInput,
+    @CurrentUser() user: JwtPayload,
   ): Promise<CartType> {
-    return this.commandBus.execute(new RemoveItemFromCartDto(input));
+    return this.commandBus.execute(
+      new RemoveItemFromCartDto(input, user.customerId),
+    );
+  }
+
+  ///////////////
+  // Queries //
+  ///////////////
+  @Query(() => CartType)
+  async getCart(@CurrentUser() user: JwtPayload): Promise<CartType> {
+    return this.queryBus.execute(new GetCartByCustomerIdDTO(user.customerId));
   }
 }

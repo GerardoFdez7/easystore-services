@@ -1,5 +1,8 @@
 import { IRemoveItemFromCartData } from 'src/domains/cart/aggregates/entities/cart.attributes';
 
 export class RemoveItemFromCartDto {
-  constructor(public readonly data: IRemoveItemFromCartData) {}
+  constructor(
+    public readonly data: IRemoveItemFromCartData,
+    public readonly customerId: string,
+  ) {}
 }

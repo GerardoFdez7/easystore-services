@@ -9,6 +9,5 @@ export interface ICartItemBaseType {
 }
 
 export interface IRemoveItemFromCartData {
-  cartId: string;
   variantId: string;
 }

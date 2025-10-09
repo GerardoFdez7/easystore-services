@@ -16,11 +16,12 @@ export class RemoveItemFromCartHandler
   ) {}
 
   async execute(command: RemoveItemFromCartDto): Promise<CartDTO> {
-    const cartId = Id.create(command.data.cartId);
     const variantId = Id.create(command.data.variantId);
+    const customerId = Id.create(command.customerId);
 
     // Search cart
-    const cartFound = await this.cartRepository.findCartById(cartId);
+    const cartFound =
+      await this.cartRepository.findCartByCustomerId(customerId);
 
     if (!cartFound) throw new NotFoundException('Cart not found');
 
