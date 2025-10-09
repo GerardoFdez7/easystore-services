@@ -7,12 +7,14 @@ import { AddItemToCartHandler } from './application/commands/create/cart-item/ad
 import { RemoveItemFromCartHandler } from './application/commands/delete/cart-item/remove-item-from-cart.handler';
 import { GetCartByIdHandler } from './application/queries/get-cart-by-customer-id.handler';
 import { UpdateItemQuantityHandler } from './application/commands/update/update-item-quantity.handler';
+import { RemoveManyItemsFromCartHandler } from './application/commands/delete/cart-item/remove-many-items-from-cart.handler';
 
 const CommandHandlers = [
   CartCreateHandler,
   AddItemToCartHandler,
   RemoveItemFromCartHandler,
   UpdateItemQuantityHandler,
+  RemoveManyItemsFromCartHandler,
 ];
 
 const QueryHandlers = [GetCartByIdHandler];

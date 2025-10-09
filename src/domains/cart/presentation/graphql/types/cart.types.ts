@@ -53,6 +53,12 @@ export class RemoveItemFromCartInput {
 }
 
 @InputType()
+export class RemoveManyItemFromCartInput {
+  @Field(() => [ID])
+  variantIds: string[];
+}
+
+@InputType()
 export class UpdateItemQtyInput {
   @Field(() => ID)
   variantId: string;
