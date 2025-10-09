@@ -8,6 +8,13 @@ enum AccountTypeEnum {
   TENANT
 }
 
+input AddItemToCartInput {
+  cartId: ID!
+  promotionId: ID
+  qty: Int!
+  variantId: ID!
+}
+
 input AddStockToWarehouseInput {
   estimatedReplenishmentDate: DateTime
   lotNumber: String
@@ -439,6 +446,7 @@ enum MediaTypeEnum {
 }
 
 type Mutation {
+  addItemToCart(input: AddItemToCartInput!): Cart!
   addStockToWarehouse(input: AddStockToWarehouseInput!, reason: String, variantId: ID!, warehouseId: ID!): Warehouse!
   addVariant(input: CreateVariantInput!): Product!
   archiveVariant(id: String!, productId: String!): Product!

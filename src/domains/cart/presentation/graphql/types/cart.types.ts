@@ -48,6 +48,6 @@ export class AddItemToCartInput {
   @Field(() => ID)
   variantId: string;
 
-  @Field(() => ID)
+  @Field(() => ID, { nullable: true })
   promotionId?: string;
 }
