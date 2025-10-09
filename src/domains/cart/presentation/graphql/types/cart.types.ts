@@ -40,9 +40,6 @@ export class CreateCartInput {
 @InputType()
 export class AddItemToCartInput {
   @Field(() => ID)
-  cartId: string;
-
-  @Field(() => ID)
   variantId: string;
 
   @Field(() => ID, { nullable: true })
