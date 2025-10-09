@@ -16,7 +16,7 @@ export class AddItemToCartHandler implements ICommandHandler<AddItemToCartDto> {
   ) {}
 
   async execute(command: AddItemToCartDto): Promise<CartDTO> {
-    const { cartId, qty, variantId, promotionId } = command.data;
+    const { cartId, variantId, promotionId } = command.data;
 
     const cartFound = await this.cartRepository.findCartById(Id.create(cartId));
 
@@ -24,7 +24,7 @@ export class AddItemToCartHandler implements ICommandHandler<AddItemToCartDto> {
 
     // Cart Item object
     const cartItem = CartItem.create({
-      qty,
+      qty: 1,
       variantId,
       promotionId: promotionId || null,
     });

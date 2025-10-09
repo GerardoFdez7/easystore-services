@@ -39,26 +39,21 @@ export class Cart extends Entity<ICartProps> {
     const variantId = item.getVariantIdValue();
     const itemExist = cart.props.cartItems.get(variantId);
 
-    if (!itemExist) {
-      // Add item to cart
-      cart.props.cartItems.set(variantId, item);
-    } else {
-      const newQty = itemExist.getQty().getValue() + item.getQty().getValue();
+    if (itemExist) throw new Error('Item already exists in cart.');
 
-      // Create updated item
-      const cartItemUpdated = CartItem.create({
-        qty: newQty,
-        variantId: variantId,
-        promotionId: item.getPromotionId()?.getValue() || null,
-      });
+    // Create a new map to maintain inmutability
+    const cartItems = new Map(cart.props.cartItems);
+    cartItems.set(variantId, item);
 
-      // Set updated item
-      cart.props.cartItems.set(variantId, cartItemUpdated);
-    }
+    const cartUpdated = new Cart({
+      id: cart.props.id,
+      customerId: cart.props.customerId,
+      cartItems,
+    });
 
-    cart.apply(new AddItemToCartEvent(cart));
+    cartUpdated.apply(new AddItemToCartEvent(cartUpdated));
 
-    return cart;
+    return cartUpdated;
   }
 
   static removeItem(cart: Cart, idVariant: Id): Cart {

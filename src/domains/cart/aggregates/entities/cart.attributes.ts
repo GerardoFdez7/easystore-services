@@ -4,7 +4,6 @@ export interface ICartBaseType {
 
 export interface ICartItemBaseType {
   cartId: string;
-  qty: number;
   variantId: string;
   promotionId?: string | null;
 }
