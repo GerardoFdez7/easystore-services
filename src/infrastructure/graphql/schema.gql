@@ -8,6 +8,11 @@ enum AccountTypeEnum {
   TENANT
 }
 
+input AddItemToCartInput {
+  promotionId: ID
+  variantId: ID!
+}
+
 input AddStockToWarehouseInput {
   estimatedReplenishmentDate: DateTime
   lotNumber: String
@@ -79,6 +84,20 @@ input AuthenticationInput {
   password: String!
 }
 
+type Cart {
+  cartItems: [CartItem!]!
+  customerId: ID!
+  id: ID!
+}
+
+type CartItem {
+  id: ID!
+  promotionId: ID
+  qty: Int!
+  updatedAt: DateTime!
+  variantId: ID!
+}
+
 type Category {
   cover: String!
   createdAt: DateTime!
@@ -118,6 +137,10 @@ input CreateAddressInput {
 input CreateAttributeInput {
   key: String!
   value: String!
+}
+
+input CreateCartInput {
+  customerId: ID!
 }
 
 input CreateCategoryInput {
@@ -421,10 +444,12 @@ enum MediaTypeEnum {
 }
 
 type Mutation {
+  addItemToCart(input: AddItemToCartInput!): Cart!
   addStockToWarehouse(input: AddStockToWarehouseInput!, reason: String, variantId: ID!, warehouseId: ID!): Warehouse!
   addVariant(input: CreateVariantInput!): Product!
   archiveVariant(id: String!, productId: String!): Product!
   createAddress(input: CreateAddressInput!): AddressType!
+  createCart(input: CreateCartInput!): Cart!
   createCategory(input: CreateCategoryInput!): Category!
   createProduct(input: CreateProductInput!): Product!
   createWarehouse(input: CreateWarehouseInput!): Warehouse!
@@ -437,6 +462,8 @@ type Mutation {
   login(input: AuthenticationInput!): Response!
   logout: Response!
   register(input: AuthenticationInput!): AuthIdentity!
+  removeItemFromCart(input: RemoveItemFromCartInput!): Cart!
+  removeManyItemsFromCart(input: RemoveManyItemFromCartInput!): Cart!
   removeStockFromWarehouse(reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
   removeVariant(id: String!, productId: String!): Product!
   restoreProduct(id: String!): Product!
@@ -444,6 +471,7 @@ type Mutation {
   softDeleteProduct(id: String!): Product!
   updateAddress(id: ID!, input: UpdateAddressInput!): AddressType!
   updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
+  updateItemQty(input: UpdateItemQtyInput!): Cart!
   updatePassword(input: UpdatePasswordInput!): Response!
   updateProduct(id: String!, input: UpdateProductInput!): Product!
   updateStockInWarehouse(input: UpdateStockInWarehouseInput!, reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
@@ -514,6 +542,7 @@ type Query {
   getAllProducts(categoriesIds: [ID!], includeSoftDeleted: Boolean = false, limit: Float = 25, name: String, page: Float = 1, sortBy: SortBy, sortOrder: SortOrder, type: TypeEnum): PaginatedProductsType!
   getAllStockMovements(createdById: ID, dateFrom: DateTime, dateTo: DateTime, includeDeleted: Boolean = false, limit: Int = 10, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID, warehouseId: ID!): PaginatedStockMovementsType!
   getAllWarehouses(addressId: ID, includeAddresses: Boolean = false, isArchived: Boolean, limit: Int = 10, lowStockThreshold: Int, name: String, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID): PaginatedWarehousesType!
+  getCart: Cart!
   getCategoryById(id: ID!): Category!
   getMediaUploadToken: MediaAuthResponse!
   getProductById(id: String!): Product!
@@ -521,6 +550,14 @@ type Query {
   getTenantById: Tenant!
   getWarehouseById(id: ID!, isArchived: Boolean): Warehouse!
   validateToken: Response!
+}
+
+input RemoveItemFromCartInput {
+  variantId: ID!
+}
+
+input RemoveManyItemFromCartInput {
+  variantIds: [ID!]!
 }
 
 type Response {
@@ -631,6 +668,11 @@ input UpdateDimensionInput {
 input UpdateInstallmentInput {
   interestRate: Float
   months: Int
+}
+
+input UpdateItemQtyInput {
+  quantity: Int!
+  variantId: ID!
 }
 
 input UpdateMediaInput {
