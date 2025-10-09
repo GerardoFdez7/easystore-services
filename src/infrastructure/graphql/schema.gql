@@ -79,6 +79,20 @@ input AuthenticationInput {
   password: String!
 }
 
+type Cart {
+  cartItems: [CartItem!]!
+  customerId: ID!
+  id: ID!
+}
+
+type CartItem {
+  id: ID!
+  promotionId: ID
+  qty: Int!
+  updatedAt: DateTime!
+  variantId: ID!
+}
+
 type Category {
   cover: String!
   createdAt: DateTime!
@@ -118,6 +132,10 @@ input CreateAddressInput {
 input CreateAttributeInput {
   key: String!
   value: String!
+}
+
+input CreateCartInput {
+  customerId: ID!
 }
 
 input CreateCategoryInput {
@@ -425,6 +443,7 @@ type Mutation {
   addVariant(input: CreateVariantInput!): Product!
   archiveVariant(id: String!, productId: String!): Product!
   createAddress(input: CreateAddressInput!): AddressType!
+  createCart(input: CreateCartInput!): Cart!
   createCategory(input: CreateCategoryInput!): Category!
   createProduct(input: CreateProductInput!): Product!
   createWarehouse(input: CreateWarehouseInput!): Warehouse!
