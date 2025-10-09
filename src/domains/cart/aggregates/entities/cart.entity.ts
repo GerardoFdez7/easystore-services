@@ -7,6 +7,7 @@ import {
   AddItemToCartEvent,
   ItemRemovedFromCartEvent,
   ItemQuantityUpdatedEvent,
+  RemoveManyItemsFromCart,
 } from '../events';
 
 export interface ICartProps extends EntityProps {
@@ -109,6 +110,27 @@ export class Cart extends Entity<ICartProps> {
     });
 
     cartUpdated.apply(new ItemQuantityUpdatedEvent(cartUpdated));
+
+    return cartUpdated;
+  }
+
+  static removeManyItems(cart: Cart, variantsIds: Id[]): Cart {
+    // Create a new Map to maintain immutability
+    const cartItems = new Map(cart.props.cartItems);
+
+    // Deleting items
+    variantsIds.forEach((variantId) => {
+      cartItems.delete(variantId.getValue());
+    });
+
+    // Creating update cart
+    const cartUpdated = new Cart({
+      id: cart.props.id,
+      customerId: cart.props.customerId,
+      cartItems,
+    });
+
+    cartUpdated.apply(new RemoveManyItemsFromCart(cartUpdated));
 
     return cartUpdated;
   }
