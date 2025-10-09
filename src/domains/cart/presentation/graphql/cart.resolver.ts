@@ -43,8 +43,11 @@ export class CartResolver {
   async addItemToCart(
     @Args('input', { type: () => AddItemToCartInput })
     input: AddItemToCartInput,
+    @CurrentUser() user: JwtPayload,
   ): Promise<CartType> {
-    return this.commandBus.execute(new AddItemToCartDto(input));
+    return this.commandBus.execute(
+      new AddItemToCartDto(input, user.customerId),
+    );
   }
 
   @Mutation(() => CartType)
