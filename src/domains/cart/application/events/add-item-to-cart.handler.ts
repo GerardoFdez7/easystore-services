@@ -15,7 +15,7 @@ export class AddItemToCartHandler implements IEventHandler<AddItemToCartEvent> {
    */
   handle(event: AddItemToCartEvent): void {
     logger.log(
-      `Item added to cart for customer: ${event.cart.get('customerId').getValue()}, cart id: ${event.cart.get('id').getValue()}`,
+      `Item added with id: ${event.item.getId().getValue()}, to cart with id: ${event.cart.get('id').getValue()}`,
     );
   }
 }

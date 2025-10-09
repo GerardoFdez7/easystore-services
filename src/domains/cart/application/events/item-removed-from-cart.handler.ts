@@ -17,7 +17,7 @@ export class ItemRemovedFromCartHandler
    */
   handle(event: ItemRemovedFromCartEvent): void {
     logger.log(
-      `Item removed from cart for customer: ${event.cart.get('customerId').getValue()}, cart id: ${event.cart.get('id').getValue()}`,
+      `Item removed from cart with variant id: ${event.item.getVariantIdValue()}, cart id: ${event.cart.get('id').getValue()}`,
     );
   }
 }
