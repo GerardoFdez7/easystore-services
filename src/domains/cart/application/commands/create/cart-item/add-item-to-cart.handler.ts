@@ -8,7 +8,7 @@ import { Cart } from 'src/domains/cart/aggregates/entities/cart.entity';
 import { CartItem } from 'src/domains/cart/aggregates/value-objects';
 
 @CommandHandler(AddItemToCartDto)
-export class AddItemToCartHandle implements ICommandHandler<AddItemToCartDto> {
+export class AddItemToCartHandler implements ICommandHandler<AddItemToCartDto> {
   constructor(
     @Inject()
     private readonly cartRepository: ICartRepository,

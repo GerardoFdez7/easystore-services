@@ -64,6 +64,68 @@ export class CartRepository implements ICartRepository {
     }
   }
 
+  async findCartById(id: Id): Promise<Cart> {
+    try {
+      const prismaCart = await this.prisma.cart.findUnique({
+        where: { id: id.getValue() },
+        include: {
+          cartItems: true,
+        },
+      });
+
+      return this.mapToDomain(prismaCart);
+    } catch (error) {
+      return this.handleDatabaseError(error, 'find cart by id');
+    }
+  }
+
+  async update(cart: Cart): Promise<Cart> {
+    const cartDto = CartMapper.toDto(cart);
+
+    try {
+      const prismaCart = await this.prisma.$transaction(async (tx) => {
+        // Update the cart basic information
+        const updatedCart = await tx.cart.update({
+          where: { id: cartDto.id },
+          data: {
+            customerId: cartDto.customerId,
+          },
+        });
+
+        // Delete all existing cart items for this cart
+        await tx.cartItem.deleteMany({
+          where: { cartId: cartDto.id },
+        });
+
+        // Create new cart items if they exist
+        if (cartDto.cartItems && cartDto.cartItems.length > 0) {
+          await tx.cartItem.createMany({
+            data: cartDto.cartItems.map((item) => ({
+              id: item.id,
+              qty: item.qty,
+              variantId: item.variantId,
+              cartId: updatedCart.id,
+              promotionId: item.promotionId,
+              updatedAt: item.updatedAt,
+            })),
+          });
+        }
+
+        // Return the updated cart with its items
+        return await tx.cart.findUnique({
+          where: { id: updatedCart.id },
+          include: {
+            cartItems: true,
+          },
+        });
+      });
+
+      return this.mapToDomain(prismaCart);
+    } catch (error) {
+      return this.handleDatabaseError(error, 'update cart');
+    }
+  }
+
   /**
    * Centralized error handling for database operations
    */
@@ -122,11 +184,9 @@ export class CartRepository implements ICartRepository {
     if (prismaCart.cartItems) {
       prismaCart.cartItems.forEach((item) => {
         const cartItem = CartItem.create({
-          id: item.id,
           qty: item.qty,
           variantId: item.variantId,
           promotionId: item.promotionId,
-          updatedAt: item.updatedAt,
         });
         cartItems.set(item.variantId, cartItem);
       });
