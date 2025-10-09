@@ -3,6 +3,7 @@ import { Id } from '@shared/value-objects';
 import { CartItem } from '../value-objects';
 import { ICartBaseType } from './cart.attributes';
 import { CartCreatedEvent } from '../events';
+import { AddItemToCartEvent } from '../events/add-item-to-cart.event';
 
 export interface ICartProps extends EntityProps {
   id: Id;
@@ -53,6 +54,8 @@ export class Cart extends Entity<ICartProps> {
       // Set updated item
       cart.props.cartItems.set(variantId, cartItemUpdated);
     }
+
+    cart.apply(new AddItemToCartEvent(cart));
 
     return cart;
   }

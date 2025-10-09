@@ -36,3 +36,18 @@ export class CreateCartInput {
   @Field(() => ID)
   customerId: string;
 }
+
+@InputType()
+export class AddItemToCartInput {
+  @Field(() => ID)
+  cartId: string;
+
+  @Field(() => Int)
+  qty: number;
+
+  @Field(() => ID)
+  variantId: string;
+
+  @Field(() => ID)
+  promotionId?: string;
+}
