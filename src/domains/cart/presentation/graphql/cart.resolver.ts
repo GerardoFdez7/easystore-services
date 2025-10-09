@@ -6,10 +6,12 @@ import { CreateCartDto } from '../../application/commands/create/cart/create-car
 import {
   AddItemToCartInput,
   RemoveItemFromCartInput,
+  UpdateItemQtyInput,
 } from './types/cart.types';
 import { AddItemToCartDto } from '../../application/commands/create/cart-item/add-item-to-cart.dto';
 import { RemoveItemFromCartDto } from '../../application/commands/delete/cart-item/remove-item-from-cart.dto';
 import { GetCartByCustomerIdDTO } from '../../application/queries/get-cart-by-customer-id.dto';
+import { UpdateItemQuantityDto } from '../../application/commands/update/update-item-quantity.dto';
 
 @Resolver(() => CartType)
 export class CartResolver {
@@ -47,6 +49,17 @@ export class CartResolver {
   ): Promise<CartType> {
     return this.commandBus.execute(
       new AddItemToCartDto(input, user.customerId),
+    );
+  }
+
+  @Mutation(() => CartType)
+  async updateItemQty(
+    @Args('input', { type: () => UpdateItemQtyInput })
+    input: UpdateItemQtyInput,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<CartType> {
+    return this.commandBus.execute(
+      new UpdateItemQuantityDto(input, user.customerId),
     );
   }
 
