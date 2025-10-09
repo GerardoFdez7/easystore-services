@@ -10,19 +10,24 @@ import { CartItem } from 'src/domains/cart/aggregates/value-objects';
 @CommandHandler(AddItemToCartDto)
 export class AddItemToCartHandler implements ICommandHandler<AddItemToCartDto> {
   constructor(
-    @Inject()
+    @Inject('ICartRepository')
     private readonly cartRepository: ICartRepository,
     private readonly eventPublisher: EventPublisher,
   ) {}
 
   async execute(command: AddItemToCartDto): Promise<CartDTO> {
     const { cartId, qty, variantId, promotionId } = command.data;
+
     const cartFound = await this.cartRepository.findCartById(Id.create(cartId));
 
     if (!cartFound) throw new Error('Cart not found');
 
     // Cart Item object
-    const cartItem = CartItem.create({ qty, variantId, promotionId });
+    const cartItem = CartItem.create({
+      qty,
+      variantId,
+      promotionId: promotionId || null,
+    });
 
     const cartWithEvents = this.eventPublisher.mergeObjectContext(
       Cart.addItemToCart(cartFound, cartItem),

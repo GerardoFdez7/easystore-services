@@ -3,7 +3,6 @@ import { Id } from '@shared/value-objects';
 import { Qty } from './qty.vo';
 
 const cartItemSchema = z.object({
-  id: z.string().uuid(),
   qty: z.number().int().positive(),
   variantId: z.string().uuid(),
   promotionId: z.string().uuid().nullable().optional(),

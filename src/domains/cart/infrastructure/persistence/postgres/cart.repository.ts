@@ -186,7 +186,7 @@ export class CartRepository implements ICartRepository {
         const cartItem = CartItem.create({
           qty: item.qty,
           variantId: item.variantId,
-          promotionId: item.promotionId,
+          promotionId: item?.promotionId || null,
         });
         cartItems.set(item.variantId, cartItem);
       });
