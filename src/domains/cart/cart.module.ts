@@ -8,6 +8,13 @@ import { RemoveItemFromCartHandler } from './application/commands/delete/cart-it
 import { GetCartByIdHandler } from './application/queries/get-cart-by-customer-id.handler';
 import { UpdateItemQuantityHandler } from './application/commands/update/update-item-quantity.handler';
 import { RemoveManyItemsFromCartHandler } from './application/commands/delete/cart-item/remove-many-items-from-cart.handler';
+import {
+  CartCreatedHandler,
+  AddItemToCartHandler as AddItemToCartEventHandler,
+  ItemRemovedFromCartHandler,
+  RemoveManyItemsFromCartHandler as RemoveManyItemsFromCartEventHandler,
+  ItemQuantityUpdatedHandler,
+} from './application/events';
 
 const CommandHandlers = [
   CartCreateHandler,
@@ -19,6 +26,14 @@ const CommandHandlers = [
 
 const QueryHandlers = [GetCartByIdHandler];
 
+const EventHandlers = [
+  CartCreatedHandler,
+  AddItemToCartEventHandler,
+  ItemRemovedFromCartHandler,
+  RemoveManyItemsFromCartEventHandler,
+  ItemQuantityUpdatedHandler,
+];
+
 @Module({
   imports: [CqrsModule],
   providers: [
@@ -26,6 +41,7 @@ const QueryHandlers = [GetCartByIdHandler];
     CartResolver,
     ...CommandHandlers,
     ...QueryHandlers,
+    ...EventHandlers,
   ],
 })
 export class CartDomain {}
