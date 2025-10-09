@@ -2,5 +2,5 @@ import { IEvent } from '@nestjs/cqrs';
 import { Cart } from '../entities/cart.entity';
 
 export class ItemQuantityUpdatedEvent implements IEvent {
-  constructor(private readonly cart: Cart) {}
+  constructor(public readonly cart: Cart) {}
 }
