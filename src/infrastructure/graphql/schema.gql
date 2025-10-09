@@ -463,6 +463,7 @@ type Mutation {
   logout: Response!
   register(input: AuthenticationInput!): AuthIdentity!
   removeItemFromCart(input: RemoveItemFromCartInput!): Cart!
+  removeManyItemsFromCart(input: RemoveManyItemFromCartInput!): Cart!
   removeStockFromWarehouse(reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
   removeVariant(id: String!, productId: String!): Product!
   restoreProduct(id: String!): Product!
@@ -553,6 +554,10 @@ type Query {
 
 input RemoveItemFromCartInput {
   variantId: ID!
+}
+
+input RemoveManyItemFromCartInput {
+  variantIds: [ID!]!
 }
 
 type Response {

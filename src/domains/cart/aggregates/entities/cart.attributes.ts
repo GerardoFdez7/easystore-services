@@ -15,3 +15,7 @@ export interface IUpdateItemQuantityData {
   variantId: string;
   quantity: number;
 }
+
+export interface RemoveManyItemsFromCartData {
+  variantIds: string[];
+}
