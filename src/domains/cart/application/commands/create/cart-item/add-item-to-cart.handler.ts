@@ -39,7 +39,7 @@ export class AddItemToCartHandler implements ICommandHandler<AddItemToCartDto> {
     const cartUpdated = await this.cartRepository.update(cartWithEvents);
 
     // Commit domain events
-    cartUpdated.commit();
+    cartWithEvents.commit();
 
     return CartMapper.toDto(cartUpdated);
   }
