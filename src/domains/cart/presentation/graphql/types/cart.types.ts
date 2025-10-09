@@ -52,8 +52,5 @@ export class AddItemToCartInput {
 @InputType()
 export class RemoveItemFromCartInput {
   @Field(() => ID)
-  cartId: string;
-
-  @Field(() => ID)
   variantId: string;
 }

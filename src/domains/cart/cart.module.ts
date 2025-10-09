@@ -5,6 +5,7 @@ import { CartRepository } from './infrastructure/persistence/postgres/cart.repos
 import { CartCreateHandler } from './application/commands/create/cart/create-cart.handler';
 import { AddItemToCartHandler } from './application/commands/create/cart-item/add-item-to-cart.handler';
 import { RemoveItemFromCartHandler } from './application/commands/delete/cart-item/remove-item-from-cart.handler';
+import { GetCartByIdHandler } from './application/queries/get-cart-by-customer-id.handler';
 
 const CommandHandlers = [
   CartCreateHandler,
@@ -12,12 +13,15 @@ const CommandHandlers = [
   RemoveItemFromCartHandler,
 ];
 
+const QueryHandlers = [GetCartByIdHandler];
+
 @Module({
   imports: [CqrsModule],
   providers: [
     { provide: 'ICartRepository', useClass: CartRepository },
     CartResolver,
     ...CommandHandlers,
+    ...QueryHandlers,
   ],
 })
 export class CartDomain {}
