@@ -186,20 +186,25 @@ export default class InventoryResolver {
     search?: string,
   ): Promise<PaginatedWarehousesDTO> {
     return this.queryBus.execute(
-      new GetAllWarehousesDTO(user.tenantId, {
-        page,
-        limit,
-        name,
-        addressId,
-        variantId: filters?.variantId,
-        lowStockThreshold: filters?.lowStockThreshold,
-        sortBy,
-        sortOrder,
-        isArchived: filters?.isArchived,
-        includeAddresses,
-        stockSortBy: filters?.sortBy,
-        search,
-      }),
+      new GetAllWarehousesDTO(
+        user.tenantId,
+        {
+          page,
+          limit,
+          name,
+          addressId,
+          sortBy,
+          sortOrder,
+          includeAddresses,
+        },
+        {
+          variantId: filters?.variantId,
+          lowStockThreshold: filters?.lowStockThreshold,
+          isArchived: filters?.isArchived,
+          stockSortBy: filters?.sortBy,
+          search,
+        },
+      ),
     );
   }
 
