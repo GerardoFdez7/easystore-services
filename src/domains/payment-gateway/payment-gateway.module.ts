@@ -5,6 +5,7 @@ import { PaymentProviderFactoryService } from './application/services/payment-pr
 import { PagaditoService } from './application/services/pagadito.service';
 import { PaymentPostgresRepository } from './infrastructure/persistence/postgres/payment.repository';
 import { PaymentGatewayResolver } from './presentation/graphql/payment-gateway.resolver';
+import { PaymentProviderLoggerService } from './infrastructure/logging/payment-provider-logger.service';
 import { TenantDomain } from '../tenant/tenant.module';
 
 // Commands
@@ -57,11 +58,15 @@ const EventHandlers = [
 
     // GraphQL Resolver
     PaymentGatewayResolver,
+
+    // Logging Service
+    PaymentProviderLoggerService,
   ],
   exports: [
     PaymentGatewayService,
     PaymentProviderFactoryService,
     'PAYMENT_REPOSITORY',
+    PaymentProviderLoggerService,
   ],
 })
 export class PaymentGatewayModule {}

@@ -1,4 +1,6 @@
 export interface InitiatePaymentParams {
+  paymentId?: string;
+  tenantId: string;
   amount: number;
   currency: string;
   orderId: string;

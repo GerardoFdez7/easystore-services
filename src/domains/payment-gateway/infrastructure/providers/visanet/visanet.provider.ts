@@ -6,6 +6,7 @@ import {
   PaymentResult,
 } from '../../../aggregates/entities/provider/payment-provider.interface';
 import { VisanetCredentialsVO } from '../../../aggregates/value-objects/provider/visanet-credentials.vo';
+import { PaymentProviderLoggerService } from '../../logging/payment-provider-logger.service';
 
 // Dynamic import to avoid initialization issues
 let cybersourceRestApi: typeof import('cybersource-rest-client');
@@ -22,9 +23,11 @@ export class VisanetProvider implements PaymentProvider {
   private readonly credentials: VisanetCredentialsVO;
   private apiClient?: InstanceType<typeof cybersourceRestApi.ApiClient>;
   private paymentsApi?: InstanceType<typeof cybersourceRestApi.PaymentsApi>;
+  private readonly paymentLogger: PaymentProviderLoggerService;
 
   constructor(credentials: VisanetCredentials) {
     this.credentials = VisanetCredentialsVO.create(credentials);
+    this.paymentLogger = new PaymentProviderLoggerService();
   }
 
   private async loadCyberSourceApi(): Promise<void> {
@@ -64,9 +67,9 @@ export class VisanetProvider implements PaymentProvider {
       keyFileName: 'unused',
       keysDirectory: path.join(process.cwd(), 'Resource'),
       logConfiguration: {
-        enableLog: true,
+        enableLog: false, // Disable CyberSource native logging, use our unified logger
         logFileName: 'cybs',
-        logDirectory: 'log',
+        logDirectory: 'logs',
         logFileMaxSize: '5242880',
         loggingLevel: 'debug',
         enableMasking: true,
@@ -107,6 +110,8 @@ export class VisanetProvider implements PaymentProvider {
   }
 
   async initiatePayment(params: InitiatePaymentParams): Promise<PaymentResult> {
+    const startTime = Date.now();
+
     try {
       await this.loadCyberSourceApi();
       // Extract card information from customParams
@@ -193,12 +198,36 @@ export class VisanetProvider implements PaymentProvider {
 
       // Execute payment
       const { data, response } = await this.createPaymentAsync(request);
-      const correlationId = this.getCorrelationId(response);
+      const cyberSourceCorrelationId = this.getCorrelationId(response);
       const paymentId =
         (data as { id?: string; transactionId?: string })?.id ||
         (data as { id?: string; transactionId?: string })?.transactionId ||
         '(n/a)';
       const status = (data as { status?: string })?.status || '(n/a)';
+
+      const processingTime = Date.now() - startTime;
+
+      // Log successful payment initiation
+      this.paymentLogger.logPaymentInitiation({
+        paymentId: params.paymentId || paymentId,
+        tenantId: params.tenantId,
+        orderId: params.orderId,
+        providerType: 'VISANET',
+        providerEnvironment: this.credentials.runEnvironment,
+        amount: params.amount,
+        currency: params.currency,
+        requestData: {
+          cardNumber: '[REDACTED]',
+          expirationDate: customParams.expirationDate,
+          cvv: '[REDACTED]',
+          capture: customParams.capture,
+          firstName: customParams.firstName,
+          lastName: customParams.lastName,
+          email: customParams.email,
+        },
+        processingTimeMs: processingTime,
+        correlationId: cyberSourceCorrelationId,
+      });
 
       return {
         success: true,
@@ -206,7 +235,7 @@ export class VisanetProvider implements PaymentProvider {
         checkoutUrl: undefined, // VisaNet doesn't provide checkout URLs for direct payments
         raw: {
           data,
-          correlationId,
+          correlationId: cyberSourceCorrelationId,
           status,
           environment: this.credentials.runEnvironment,
         },
@@ -215,9 +244,11 @@ export class VisanetProvider implements PaymentProvider {
       const err =
         (error as { error?: unknown; response?: unknown }).error || error;
       const resp = (error as { error?: unknown; response?: unknown }).response;
-      const correlationId = this.getCorrelationId(resp);
+      const cyberSourceCorrelationId = this.getCorrelationId(resp);
+      const processingTime = Date.now() - startTime;
 
       let errorMessage = 'Payment failed';
+      let errorCode = 'PAYMENT_FAILED';
       let rawError: unknown = error;
 
       if (err && typeof err === 'object' && err !== null) {
@@ -228,6 +259,7 @@ export class VisanetProvider implements PaymentProvider {
 
         if (errorObj.response?.status) {
           errorMessage = `HTTP ${errorObj.response.status}`;
+          errorCode = `HTTP_${errorObj.response.status}`;
         }
 
         const body = errorObj.response?.text || errorObj.response?.body;
@@ -251,12 +283,33 @@ export class VisanetProvider implements PaymentProvider {
         }
       }
 
+      // Log payment failure
+      this.paymentLogger.logPaymentFailure({
+        paymentId: params.paymentId || '(n/a)',
+        tenantId: params.tenantId,
+        orderId: params.orderId,
+        providerType: 'VISANET',
+        providerEnvironment: this.credentials.runEnvironment,
+        amount: params.amount,
+        currency: params.currency,
+        errorCode,
+        errorMessage,
+        requestData: {
+          cardNumber: '[REDACTED]',
+          expirationDate: params.customParams?.expirationDate,
+          cvv: '[REDACTED]',
+        },
+        responseData: rawError as Record<string, unknown>,
+        processingTimeMs: processingTime,
+        correlationId: cyberSourceCorrelationId,
+      });
+
       return {
         success: false,
         error: errorMessage,
         raw: {
           error: rawError,
-          correlationId,
+          correlationId: cyberSourceCorrelationId,
           environment: this.credentials.runEnvironment,
         },
       };
