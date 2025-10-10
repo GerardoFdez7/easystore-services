@@ -21,21 +21,19 @@ export class GetAllWarehousesHandler
   ) {}
 
   async execute(query: GetAllWarehousesDTO): Promise<PaginatedWarehousesDTO> {
-    const { tenantId, options } = query;
+    const { tenantId, options, stockOptions } = query;
     const {
       page,
       limit,
       name,
       addressId,
-      variantId,
-      lowStockThreshold,
       sortBy,
       sortOrder,
-      isArchived,
       includeAddresses,
-      stockSortBy,
-      search,
-    } = options || {};
+    } = options;
+
+    const { variantId, lowStockThreshold, isArchived, stockSortBy, search } =
+      stockOptions;
 
     // Validate pagination parameters
     if (page !== undefined && page < 1) {

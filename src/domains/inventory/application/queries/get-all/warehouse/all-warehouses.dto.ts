@@ -15,12 +15,14 @@ export class GetAllWarehousesDTO {
       limit?: number;
       name?: string;
       addressId?: string;
-      variantId?: string;
-      lowStockThreshold?: number;
       sortBy?: SortBy;
       sortOrder?: SortOrder;
-      isArchived?: boolean;
       includeAddresses?: boolean;
+    },
+    public readonly stockOptions?: {
+      variantId?: string;
+      lowStockThreshold?: number;
+      isArchived?: boolean;
       stockSortBy?: StockPerWarehouseSortBy;
       search?: string;
     },
