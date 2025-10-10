@@ -11,7 +11,6 @@ import { TenantDomain } from '../tenant/tenant.module';
 import { InitiatePaymentHandler } from './application/commands/create/initiate-payment.handler';
 import { CompletePaymentHandler } from './application/commands/complete/complete-payment.handler';
 import { RefundPaymentHandler } from './application/commands/refund/refund-payment.handler';
-
 // Queries
 import { GetPaymentHandler } from './application/queries/get-payment/get-payment.handler';
 import { ListPaymentsHandler } from './application/queries/list-payments/list-payments.handler';

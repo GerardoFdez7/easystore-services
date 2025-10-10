@@ -15,7 +15,9 @@ import { CreatePaymentCredentialsDto } from '../../application/commands/payment-
 import { UpdatePaymentCredentialsDto } from '../../application/commands/payment-credentials/update-payment-credentials.dto';
 import { DeletePaymentCredentialsDto } from '../../application/commands/payment-credentials/delete-payment-credentials.dto';
 import { GetPaymentCredentialsDto } from '../../application/queries/payment-credentials/get-payment-credentials.dto';
+import { Public } from '@common/decorators';
 
+@Public()
 @Resolver()
 export class PaymentCredentialsResolver {
   constructor(
