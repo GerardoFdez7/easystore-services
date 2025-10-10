@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { createLogger, transports, format } from 'winston';
+import * as pino from 'pino';
 import * as path from 'path';
-import DailyRotateFile from 'winston-daily-rotate-file';
-import TransportStream from 'winston-transport';
+import * as fs from 'fs';
 
 export interface PaymentAuditLogEntry {
   // Core transaction identifiers
@@ -55,58 +54,56 @@ export interface PaymentAuditLogEntry {
 
 @Injectable()
 export class PaymentProviderLoggerService {
-  private readonly logger: ReturnType<typeof createLogger>;
-  private readonly auditLogger: ReturnType<typeof createLogger>;
+  private readonly logger: pino.Logger;
+  private readonly auditLogger: pino.Logger;
 
   constructor() {
     const logDir = path.join(process.cwd(), 'logs');
 
+    // Ensure logs directory exists
+    if (!fs.existsSync(logDir)) {
+      fs.mkdirSync(logDir, { recursive: true });
+    }
+
+    // Create date-based filename
+    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+    const operationsLogFile = path.join(
+      logDir,
+      `payment-operations-${today}.log`,
+    );
+    const auditLogFile = path.join(logDir, `payment-audit-${today}.log`);
+
     // Standard payment operations logger
-    this.logger = createLogger({
-      level: 'info',
-      format: format.combine(
-        format.timestamp(),
-        format.errors({ stack: true }),
-        format.json(),
-      ),
-      transports: [
-        new DailyRotateFile({
-          filename: path.join(logDir, 'payment-operations-%DATE%.log'),
-          datePattern: 'YYYY-MM-DD',
-          maxSize: '50m',
-          maxFiles: '90d', // Keep for 90 days for compliance
-          level: 'info',
-        }) as TransportStream,
-      ],
-    });
+    this.logger = pino.pino(
+      {
+        level: 'info',
+        formatters: {
+          level: (label) => ({ level: label }),
+        },
+        timestamp: () => `,"timestamp":"${new Date().toISOString()}"`,
+      },
+      pino.destination({
+        dest: operationsLogFile,
+        mkdir: true,
+        sync: false,
+      }),
+    );
 
     // Audit logger for compliance and dispute resolution
-    this.auditLogger = createLogger({
-      level: 'info',
-      format: format.combine(
-        format.timestamp(),
-        format.errors({ stack: true }),
-        format.json(),
-      ),
-      transports: [
-        new DailyRotateFile({
-          filename: path.join(logDir, 'payment-audit-%DATE%.log'),
-          datePattern: 'YYYY-MM-DD',
-          maxSize: '100m',
-          maxFiles: '365d', // Keep for 1 year for compliance
-          level: 'info',
-        }) as TransportStream,
-      ],
-    });
-
-    // Add console transport for development
-    if (process.env.NODE_ENV !== 'production') {
-      this.logger.add(
-        new transports.Console({
-          format: format.combine(format.colorize(), format.simple()),
-        }),
-      );
-    }
+    this.auditLogger = pino.pino(
+      {
+        level: 'info',
+        formatters: {
+          level: (label) => ({ level: label }),
+        },
+        timestamp: () => `,"timestamp":"${new Date().toISOString()}"`,
+      },
+      pino.destination({
+        dest: auditLogFile,
+        mkdir: true,
+        sync: false,
+      }),
+    );
   }
 
   /**
@@ -119,7 +116,7 @@ export class PaymentProviderLoggerService {
       version: '1.0',
     };
 
-    this.logger.info('Payment operation', logData);
+    this.logger.info(logData, 'Payment operation');
   }
 
   /**
@@ -136,7 +133,7 @@ export class PaymentProviderLoggerService {
       // signature: this.generateSignature(entry),
     };
 
-    this.auditLogger.info('Payment audit trail', auditData);
+    this.auditLogger.info(auditData, 'Payment audit trail');
   }
 
   /**
