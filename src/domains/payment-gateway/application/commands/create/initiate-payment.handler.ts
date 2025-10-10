@@ -1,10 +1,10 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, Logger } from '@nestjs/common';
+import { ICommandHandler, CommandHandler, EventBus } from '@nestjs/cqrs';
 import { PaymentRepository } from '../../../aggregates/repositories/payment.repository.interface';
 import { PaymentProviderFactoryService } from '../../services/payment-provider-factory.service';
 import { InitiatePaymentDto } from './initiate-payment.dto';
 import { PaymentEntity } from '../../../aggregates/entities/payment/payment.entity';
 import { PaymentStatusEnum } from '../../../aggregates/value-objects/payment/payment-status.vo';
-import { EventBus } from '@nestjs/cqrs';
 
 export interface InitiatePaymentResult {
   paymentId: string;
@@ -14,8 +14,12 @@ export interface InitiatePaymentResult {
   error?: string;
 }
 
+@CommandHandler(InitiatePaymentDto)
 @Injectable()
-export class InitiatePaymentHandler {
+export class InitiatePaymentHandler
+  implements ICommandHandler<InitiatePaymentDto>
+{
+  private readonly logger = new Logger(InitiatePaymentHandler.name);
   constructor(
     @Inject('PAYMENT_REPOSITORY')
     private readonly paymentRepository: PaymentRepository,
@@ -23,7 +27,7 @@ export class InitiatePaymentHandler {
     private readonly eventBus: EventBus,
   ) {}
 
-  async handle(dto: InitiatePaymentDto): Promise<InitiatePaymentResult> {
+  async execute(dto: InitiatePaymentDto): Promise<InitiatePaymentResult> {
     try {
       // Create payment entity
       const payment = PaymentEntity.create({
@@ -41,10 +45,12 @@ export class InitiatePaymentHandler {
       });
 
       // Save payment to repository
+      this.logger.log(`Saving payment to repository: ${payment.id.value}`);
       await this.paymentRepository.save(payment);
 
       // Start processing
       payment.startProcessing();
+      this.logger.log(`Saving payment after processing: ${payment.id.value}`);
       await this.paymentRepository.save(payment);
 
       // Get provider and initiate payment
@@ -79,6 +85,9 @@ export class InitiatePaymentHandler {
         });
       }
 
+      this.logger.log(
+        `Saving payment after provider result: ${payment.id.value}`,
+      );
       await this.paymentRepository.save(payment);
 
       // Publish domain events

@@ -1,4 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
+import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PaymentRepository } from '../../../aggregates/repositories/payment.repository.interface';
 import { PaymentStatusVO } from '../../../aggregates/value-objects/payment/payment-status.vo';
 import { PaymentProviderTypeVO } from '../../../aggregates/value-objects/provider/payment-provider-type.vo';
@@ -13,14 +14,15 @@ export interface ListPaymentsResult {
   totalPages: number;
 }
 
+@QueryHandler(ListPaymentsDto)
 @Injectable()
-export class ListPaymentsHandler {
+export class ListPaymentsHandler implements IQueryHandler<ListPaymentsDto> {
   constructor(
     @Inject('PAYMENT_REPOSITORY')
     private readonly paymentRepository: PaymentRepository,
   ) {}
 
-  async handle(dto: ListPaymentsDto): Promise<ListPaymentsResult> {
+  async execute(dto: ListPaymentsDto): Promise<ListPaymentsResult> {
     let payments: PaymentEntity[];
 
     if (dto.orderId) {

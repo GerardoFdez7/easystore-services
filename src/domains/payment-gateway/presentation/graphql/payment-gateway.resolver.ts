@@ -1,7 +1,6 @@
 import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
 import { PaymentGatewayService } from '../../application/services/payment-gateway.service';
 import {
-  InitiatePaymentParams,
   CompletePaymentParams,
   PaymentResult,
 } from '../../aggregates/entities/provider/payment-provider.interface';
@@ -9,12 +8,18 @@ import {
   InitiatePaymentInput,
   PaymentResultOutput,
 } from './types/payment.types';
-import { Public } from '@common/decorators';
+import { QueryBus, CommandBus } from '@nestjs/cqrs';
+import { GetPaymentDto } from '../../application/queries/get-payment/get-payment.dto';
+import { ListPaymentsDto } from '../../application/queries/list-payments/list-payments.dto';
+import { InitiatePaymentDto } from '../../application/commands/create/initiate-payment.dto';
 
-@Public()
 @Resolver()
 export class PaymentGatewayResolver {
-  constructor(private readonly paymentGatewayService: PaymentGatewayService) {}
+  constructor(
+    private readonly paymentGatewayService: PaymentGatewayService,
+    private readonly queryBus: QueryBus,
+    private readonly commandBus: CommandBus,
+  ) {}
 
   @Mutation(() => PaymentResultOutput)
   async initiatePayment(
@@ -22,52 +27,82 @@ export class PaymentGatewayResolver {
   ): Promise<PaymentResultOutput> {
     let customParams: Record<string, unknown> = {};
 
-    // Handle VisaNet card information
-    if (input.providerType === 'VISANET' && input.visanetCard) {
+    // Handle card information (agnostic to provider)
+    if (input.card) {
       customParams = {
-        cardNumber: input.visanetCard.cardNumber,
-        expirationDate: input.visanetCard.expirationDate,
-        cvv: input.visanetCard.cvv,
-        capture: input.visanetCard.capture,
-        firstName: input.visanetCard.firstName,
-        lastName: input.visanetCard.lastName,
-        email: input.visanetCard.email,
-        address: input.visanetCard.address,
-        city: input.visanetCard.city,
-        state: input.visanetCard.state,
-        postalCode: input.visanetCard.postalCode,
-        country: input.visanetCard.country,
-        phoneNumber: input.visanetCard.phoneNumber,
+        cardNumber: input.card.cardNumber,
+        expirationDate: input.card.expirationDate,
+        cvv: input.card.cvv,
+        capture: input.card.capture,
+        firstName: input.card.firstName,
+        lastName: input.card.lastName,
+        email: input.card.email,
+        address: input.card.address,
+        city: input.card.city,
+        state: input.card.state,
+        postalCode: input.card.postalCode,
+        country: input.card.country,
+        phoneNumber: input.card.phoneNumber,
       };
     } else if (input.customParams) {
       // Fallback to existing customParams parsing
       customParams = JSON.parse(input.customParams) as Record<string, unknown>;
     }
 
-    const params: InitiatePaymentParams = {
-      amount: input.amount,
-      currency: input.currency,
-      orderId: input.orderId,
-      details: input.details,
+    const dto = new InitiatePaymentDto(
+      input.tenantId,
+      input.providerType,
+      input.amount,
+      input.currency,
+      input.orderId,
+      input.externalReferenceNumber,
+      input.details as unknown as Record<string, unknown>,
       customParams,
-      allowPendingPayments: input.allowPendingPayments,
-      externalReferenceNumber: input.externalReferenceNumber,
+      input.allowPendingPayments,
+    );
+
+    const rawResult = (await this.commandBus.execute(dto)) as unknown;
+
+    // Type guard to ensure we have the expected structure
+    const isInitiatePaymentResult = (
+      obj: unknown,
+    ): obj is {
+      paymentId: string;
+      status: string;
+      transactionId?: string;
+      providerResponse?: Record<string, unknown>;
+      error?: string;
+    } => {
+      return (
+        typeof obj === 'object' &&
+        obj !== null &&
+        'paymentId' in obj &&
+        'status' in obj &&
+        typeof (obj as { paymentId: unknown }).paymentId === 'string' &&
+        typeof (obj as { status: unknown }).status === 'string'
+      );
     };
 
-    const result: PaymentResult =
-      await this.paymentGatewayService.initiatePayment(
-        input.tenantId,
-        input.providerType,
-        params,
-      );
+    if (!isInitiatePaymentResult(rawResult)) {
+      return {
+        success: false,
+        error: 'Invalid payment initiation result',
+      };
+    }
 
-    // Extract additional information from raw response for VisaNet
+    const result = rawResult;
+
+    // Extract additional information from provider response for VisaNet
     let correlationId: string | undefined;
     let status: string | undefined;
     let environment: string | undefined;
 
-    if (result.raw && typeof result.raw === 'object' && result.raw !== null) {
-      const rawData = result.raw as {
+    if (
+      result.providerResponse &&
+      typeof result.providerResponse === 'object' &&
+      result.providerResponse !== null
+    ) {
+      const rawData = result.providerResponse as {
         correlationId?: string;
         status?: string;
         environment?: string;
@@ -78,9 +113,9 @@ export class PaymentGatewayResolver {
     }
 
     return {
-      success: result.success,
+      success: !result.error,
       transactionId: result.transactionId,
-      checkoutUrl: result.checkoutUrl,
+      checkoutUrl: undefined, // Will be set by provider
       error: result.error,
       correlationId,
       status,
@@ -169,5 +204,39 @@ export class PaymentGatewayResolver {
       status,
       environment,
     };
+  }
+
+  @Query(() => String, { nullable: true })
+  async getPayment(
+    @Args('tenantId') tenantId: string,
+    @Args('paymentId') paymentId: string,
+  ): Promise<string | null> {
+    const dto = new GetPaymentDto(tenantId, paymentId);
+    const result = (await this.queryBus.execute(dto)) as unknown;
+    return result ? JSON.stringify(result) : null;
+  }
+
+  @Query(() => String, { nullable: true })
+  async listPayments(
+    @Args('tenantId') tenantId: string,
+    @Args('limit', { nullable: true }) limit?: number,
+    @Args('offset', { nullable: true }) offset?: number,
+  ): Promise<string | null> {
+    const page = offset ? Math.floor(offset / (limit || 20)) + 1 : 1;
+    const pageLimit = limit || 20;
+
+    const dto = new ListPaymentsDto(
+      tenantId,
+      undefined,
+      undefined,
+      undefined,
+      page,
+      pageLimit,
+    );
+    const result = (await this.queryBus.execute(dto)) as unknown as Record<
+      string,
+      unknown
+    >;
+    return result ? JSON.stringify(result) : null;
   }
 }

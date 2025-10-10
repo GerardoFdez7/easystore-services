@@ -50,4 +50,15 @@ export class ListPaymentsDto {
     this.page = page || 1;
     this.limit = limit || 20;
   }
+
+  static forPagination(
+    tenantId: string,
+    page: number,
+    limit: number,
+  ): ListPaymentsDto {
+    const dto = new ListPaymentsDto(tenantId);
+    dto.page = page;
+    dto.limit = limit;
+    return dto;
+  }
 }

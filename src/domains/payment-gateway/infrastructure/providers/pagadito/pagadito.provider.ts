@@ -12,19 +12,13 @@ import { ExternalReferenceNumberVO } from '../../../aggregates/value-objects/pay
 // Pagadito API Operations
 const opConnect = 'f3f191ce3326905ff4403bb05b0de150';
 const opExecTrans = '41216f8caf94aaa598db137e36d4673e';
-const opGetStatus = '0b50820c65b0de71ce78f6221a5cf876';
+const _opGetStatus = '0b50820c65b0de71ce78f6221a5cf876';
 
 // API Response types
 interface PagaditoApiResponse {
   code: string;
   message?: string;
   value: string;
-}
-
-interface PagaditoStatusResponse {
-  status: string;
-  reference?: string;
-  dateTrans?: string;
 }
 
 export interface PagaditoCredentials {
@@ -161,10 +155,10 @@ export class PagaditoProvider implements PaymentProvider {
     }
   }
 
-  async completePayment(params: CompletePaymentParams): Promise<PaymentResult> {
+  completePayment(params: CompletePaymentParams): Promise<PaymentResult> {
     // For testing purposes, simulate successful payment completion
     // In production, this would verify the actual payment status via webhooks or API calls
-    return {
+    return Promise.resolve({
       success: true,
       transactionId: params.paymentId,
       raw: {
@@ -173,26 +167,26 @@ export class PagaditoProvider implements PaymentProvider {
         completedAt: new Date().toISOString(),
         originalTransactionId: params.paymentId,
       },
-    };
+    });
   }
 
-  async refundPayment(params: RefundPaymentParams): Promise<PaymentResult> {
+  refundPayment(params: RefundPaymentParams): Promise<PaymentResult> {
     try {
       // Pagadito doesn't have direct refund API, so we'll simulate it
       // In production, this would require manual processing or webhook handling
-      
+
       // For testing purposes, simulate a successful refund
-      return {
+      return Promise.resolve({
         success: true,
-        transactionId: `REFUND_${params.paymentId}`,
+        transactionId: params.paymentId,
         raw: {
           status: 'REFUNDED',
           amount: params.amount,
           originalTransactionId: params.paymentId,
           message: 'Refund processed successfully (simulated)',
-          refundId: `REF_${Date.now()}`,
+          refundId: Date.now().toString(),
         },
-      };
+      });
     } catch (error: unknown) {
       let errorMessage = 'Unknown error';
       const rawError: unknown = error;
@@ -203,11 +197,11 @@ export class PagaditoProvider implements PaymentProvider {
         errorMessage = error;
       }
 
-      return {
+      return Promise.resolve({
         success: false,
         error: errorMessage,
         raw: rawError,
-      };
+      });
     }
   }
 }

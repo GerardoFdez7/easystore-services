@@ -175,15 +175,15 @@ export class VisanetProvider implements PaymentProvider {
 
       const billTo =
         new cybersourceRestApi.Ptsv2paymentsOrderInformationBillTo();
-      billTo.firstName = customParams.firstName || 'John';
-      billTo.lastName = customParams.lastName || 'Doe';
-      billTo.address1 = customParams.address || '1 Market St';
-      billTo.locality = customParams.city || 'San Francisco';
-      billTo.administrativeArea = customParams.state || 'CA';
-      billTo.postalCode = customParams.postalCode || '94105';
-      billTo.country = customParams.country || 'US';
-      billTo.email = customParams.email || 'john.doe@example.com';
-      billTo.phoneNumber = customParams.phoneNumber || '4158880000';
+      billTo.firstName = customParams.firstName;
+      billTo.lastName = customParams.lastName;
+      billTo.address1 = customParams.address;
+      billTo.locality = customParams.city;
+      billTo.administrativeArea = customParams.state;
+      billTo.postalCode = customParams.postalCode;
+      billTo.country = customParams.country;
+      billTo.email = customParams.email;
+      billTo.phoneNumber = customParams.phoneNumber;
 
       const orderInfo = new cybersourceRestApi.Ptsv2paymentsOrderInformation();
       orderInfo.amountDetails = amountDetails;
@@ -268,29 +268,65 @@ export class VisanetProvider implements PaymentProvider {
     // This would be used for auth-only transactions that need to be captured later
     try {
       await this.loadCyberSourceApi();
-      
-      // For testing purposes, simulate successful capture
-      // In production, this would make actual API calls
+
+      // Real CyberSource API implementation
+      const captureRequest = new cybersourceRestApi.CapturePaymentRequest();
+
+      // Set up capture request with payment ID
+      const clientRef =
+        new cybersourceRestApi.Ptsv2paymentsClientReferenceInformation();
+      clientRef.code = Date.now().toString();
+      captureRequest.clientReferenceInformation = clientRef;
+
+      // Create capture API instance
+      const captureApi = new cybersourceRestApi.CaptureApi(
+        this.buildConfig(),
+        this.getApiClient(),
+      );
+
+      // Promisify capture API call
+      const captureAsync = (
+        requestObj: InstanceType<
+          typeof cybersourceRestApi.CapturePaymentRequest
+        >,
+      ): Promise<{ data: unknown; response: unknown }> => {
+        return new Promise((resolve, reject) => {
+          captureApi.capturePayment(
+            requestObj,
+            params.paymentId,
+            (error: unknown, data: unknown, response: unknown) => {
+              if (error) {
+                reject(new Error('Payment capture failed'));
+              } else {
+                resolve({ data, response });
+              }
+            },
+          );
+        });
+      };
+
+      const result = await captureAsync(captureRequest);
+      const captureData = result.data as Record<string, unknown>;
+
       return {
         success: true,
-        transactionId: `CAPTURE_${params.paymentId}`,
+        transactionId: captureData.id as string,
         raw: {
           status: 'CAPTURED',
           originalTransactionId: params.paymentId,
-          message: 'Payment captured successfully (simulated)',
-          captureId: `CAP_${Date.now()}`,
+          message: 'Payment captured successfully',
+          captureId: captureData.id,
           environment: this.credentials.runEnvironment,
+          ...captureData,
         },
       };
-      
-      // Original implementation commented out for testing
       /*
       const captureRequest = new cybersourceRestApi.CapturePaymentRequest();
 
       // Set up capture request with payment ID
       const clientRef =
         new cybersourceRestApi.Ptsv2paymentsClientReferenceInformation();
-      clientRef.code = `CAPTURE_${Date.now()}`;
+      clientRef.code = Date.now().toString();
       captureRequest.clientReferenceInformation = clientRef;
 
       // Create capture API instance
@@ -311,7 +347,7 @@ export class VisanetProvider implements PaymentProvider {
             params.paymentId,
             (error: Error, data: unknown, response: unknown) => {
               if (error) {
-                console.log('Capture error details:', {
+                this.logger.error('Capture error details:', {
                   message: error.message,
                   stack: error.stack,
                   error: error
@@ -396,30 +432,76 @@ export class VisanetProvider implements PaymentProvider {
   async refundPayment(params: RefundPaymentParams): Promise<PaymentResult> {
     try {
       await this.loadCyberSourceApi();
-      
-      // For testing purposes, simulate successful refund
-      // In production, this would make actual API calls
+
+      // Real CyberSource API implementation
+      const refundRequest = new cybersourceRestApi.RefundPaymentRequest();
+
+      // Set up refund request
+      const clientRef =
+        new cybersourceRestApi.Ptsv2paymentsClientReferenceInformation();
+      clientRef.code = Date.now().toString();
+      refundRequest.clientReferenceInformation = clientRef;
+
+      // Amount details for refund
+      const amountDetails =
+        new cybersourceRestApi.Ptsv2paymentsOrderInformationAmountDetails();
+      amountDetails.totalAmount = params.amount.toString();
+      amountDetails.currency = params.currency || 'USD';
+
+      const orderInfo = new cybersourceRestApi.Ptsv2paymentsOrderInformation();
+      orderInfo.amountDetails = amountDetails;
+      refundRequest.orderInformation = orderInfo;
+
+      // Create refund API instance
+      const refundApi = new cybersourceRestApi.RefundApi(
+        this.buildConfig(),
+        this.getApiClient(),
+      );
+
+      // Promisify refund API call
+      const refundAsync = (
+        requestObj: InstanceType<
+          typeof cybersourceRestApi.RefundPaymentRequest
+        >,
+      ): Promise<{ data: unknown; response: unknown }> => {
+        return new Promise((resolve, reject) => {
+          refundApi.refundPayment(
+            requestObj,
+            params.paymentId,
+            (error: unknown, data: unknown, response: unknown) => {
+              if (error) {
+                reject(new Error('Payment refund failed'));
+              } else {
+                resolve({ data, response });
+              }
+            },
+          );
+        });
+      };
+
+      const result = await refundAsync(refundRequest);
+      const refundData = result.data as Record<string, unknown>;
+
       return {
         success: true,
-        transactionId: `REFUND_${params.paymentId}`,
+        transactionId: refundData.id as string,
         raw: {
           status: 'REFUNDED',
           amount: params.amount,
           originalTransactionId: params.paymentId,
-          message: 'Payment refunded successfully (simulated)',
-          refundId: `REF_${Date.now()}`,
+          message: 'Payment refunded successfully',
+          refundId: refundData.id,
           environment: this.credentials.runEnvironment,
+          ...refundData,
         },
       };
-      
-      // Original implementation commented out for testing
       /*
       const refundRequest = new cybersourceRestApi.RefundPaymentRequest();
 
       // Set up refund request
       const clientRef =
         new cybersourceRestApi.Ptsv2paymentsClientReferenceInformation();
-      clientRef.code = `REFUND_${Date.now()}`;
+      clientRef.code = Date.now().toString();
       refundRequest.clientReferenceInformation = clientRef;
 
       // Amount details for refund

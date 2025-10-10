@@ -16,49 +16,7 @@ export class PaymentDetailInput {
 }
 
 @InputType()
-export class VisanetCardInput {
-  @Field()
-  cardNumber: string;
-
-  @Field()
-  expirationDate: string; // Format: MM/YYYY
-
-  @Field()
-  cvv: string;
-
-  @Field({ nullable: true })
-  capture?: boolean; // true for sale, false for auth only
-
-  @Field({ nullable: true })
-  firstName?: string;
-
-  @Field({ nullable: true })
-  lastName?: string;
-
-  @Field({ nullable: true })
-  email?: string;
-
-  @Field({ nullable: true })
-  address?: string;
-
-  @Field({ nullable: true })
-  city?: string;
-
-  @Field({ nullable: true })
-  state?: string;
-
-  @Field({ nullable: true })
-  postalCode?: string;
-
-  @Field({ nullable: true })
-  country?: string;
-
-  @Field({ nullable: true })
-  phoneNumber?: string;
-}
-
-@InputType()
-export class PagaditoCardInput {
+export class PaymentCardInput {
   @Field()
   cardNumber: string;
 
@@ -128,13 +86,9 @@ export class InitiatePaymentInput {
   @Field({ nullable: true })
   externalReferenceNumber?: string;
 
-  // VisaNet specific fields
-  @Field(() => VisanetCardInput, { nullable: true })
-  visanetCard?: VisanetCardInput;
-
-  // Pagadito specific fields
-  @Field(() => PagaditoCardInput, { nullable: true })
-  pagaditoCard?: PagaditoCardInput;
+  // Payment card information (agnostic to provider)
+  @Field(() => PaymentCardInput, { nullable: true })
+  card?: PaymentCardInput;
 }
 
 @ObjectType()
