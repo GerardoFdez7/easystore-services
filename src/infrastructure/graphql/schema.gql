@@ -774,6 +774,7 @@ type StockPerWarehouse {
 input StockPerWarehouseFilterInput {
   isArchived: Boolean
   lowStockThreshold: Float
+  search: String
   sortBy: StockPerWarehouseSortBy
   variantId: String
 }
