@@ -1,4 +1,5 @@
 import { ValueObject } from '../../../../shared/value-object.base';
+import { Id } from '../../../../shared/value-objects';
 
 export class PaymentIdVO extends ValueObject<string> {
   constructor(value: string) {
@@ -11,14 +12,16 @@ export class PaymentIdVO extends ValueObject<string> {
       throw new Error('Payment ID cannot be empty');
     }
 
-    if (this.value.length < 3 || this.value.length > 100) {
-      throw new Error('Payment ID must be between 3 and 100 characters');
+    // Validate UUID format
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(this.value)) {
+      throw new Error('Payment ID must be a valid UUID');
     }
   }
 
   static generate(): PaymentIdVO {
-    const timestamp = Date.now();
-    const random = Math.random().toString(36).substring(2, 8);
-    return new PaymentIdVO(`pay_${timestamp}_${random}`);
+    const id = Id.generate();
+    return new PaymentIdVO(id.getValue());
   }
 }

@@ -15,6 +15,7 @@ export interface InitiatePaymentParams {
 
 export interface CompletePaymentParams {
   paymentId: string;
+  payerId?: string; // Required for PayPal
   // ...other common params
 }
 

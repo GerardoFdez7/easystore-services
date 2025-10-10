@@ -27,7 +27,9 @@ export default class TenantRepository implements ITenantRepository {
             id: tenantDto.id,
             businessName: tenantDto.businessName || tenantDto.ownerName,
             ownerName: tenantDto.ownerName,
-            domain: tenantDto.domain || `${tenantDto.ownerName.toLowerCase()}.easystore.com`,
+            domain:
+              tenantDto.domain ||
+              `${tenantDto.ownerName.toLowerCase()}.easystore.com`,
             logo: tenantDto.logo,
             description: tenantDto.description,
             currency: tenantDto.currency,

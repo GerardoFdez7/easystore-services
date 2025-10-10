@@ -12,6 +12,7 @@ import { PaymentAmountVO } from '../../../aggregates/value-objects/payment/payme
 import { CurrencyVO } from '../../../aggregates/value-objects/payment/currency.vo';
 import { PaymentAttributes } from '../../../aggregates/entities/payment/payment.attributes';
 import { Status, ProviderType, AcceptedPaymentMethod } from '.prisma/postgres';
+import { Id } from '../../../../../domains/shared/value-objects';
 
 interface PaymentRecord {
   id: string;
@@ -32,6 +33,7 @@ interface PaymentRecord {
   };
   paymentMethod?: {
     id: string;
+    tenantId: string;
     metadata?: string | Record<string, unknown>;
   };
 }
@@ -43,47 +45,71 @@ export class PaymentPostgresRepository implements PaymentRepository {
   constructor(private readonly postgreService: PostgreService) {}
 
   async save(payment: PaymentEntity): Promise<void> {
-    const attributes = payment.toPersistence();
+    try {
+      this.logger.log(`Saving payment: ${payment.id.value}`);
+      const attributes = payment.toPersistence();
 
-    // Map our domain status to Prisma status
-    const prismaStatus = this.mapStatusToPrisma(attributes.status.value);
+      // Map our domain status to Prisma status
+      const prismaStatus = this.mapStatusToPrisma(attributes.status.value);
 
-    // Ensure payment method and subscription exist
-    const paymentMethodId = await this.ensurePaymentMethodExists(attributes);
-    const subscriptionId = await this.ensureSubscriptionExists(attributes);
+      // Ensure payment method and subscription exist
+      const paymentMethodId = await this.ensurePaymentMethodExists(attributes);
+      const subscriptionId = await this.ensureSubscriptionExists(attributes);
 
-    // Create or update payment record
-    await this.postgreService.payment.upsert({
-      where: { id: attributes.id.value },
-      update: {
-        amount: attributes.amount.value,
-        status: prismaStatus,
-        transactionId: attributes.transactionId,
-        updatedAt: new Date(),
-      },
-      create: {
-        id: attributes.id.value,
-        amount: attributes.amount.value,
-        status: prismaStatus,
-        transactionId: attributes.transactionId,
-        orderId: attributes.orderId,
-        paymentMethodId,
-        subscriptionId,
-        createdAt: attributes.createdAt,
-        updatedAt: attributes.updatedAt,
-      },
-    });
+      // Create or update payment record
+      await this.postgreService.payment.upsert({
+        where: { id: attributes.id.value },
+        update: {
+          amount: attributes.amount.value,
+          status: prismaStatus,
+          transactionId: attributes.transactionId,
+          updatedAt: new Date(),
+        },
+        create: {
+          id: attributes.id.value,
+          amount: attributes.amount.value,
+          status: prismaStatus,
+          transactionId: attributes.transactionId,
+          orderId: attributes.orderId,
+          paymentMethodId,
+          subscriptionId,
+          createdAt: attributes.createdAt,
+          updatedAt: attributes.updatedAt,
+        },
+      });
 
-    // Store additional metadata
-    if (attributes.metadata) {
-      await this.updatePaymentMetadata(
-        attributes.id.value,
-        attributes.metadata,
-      );
+      // Store additional metadata
+      if (attributes.metadata) {
+        await this.updatePaymentMetadata(
+          attributes.id.value,
+          attributes.metadata,
+        );
+      }
+
+      this.logger.log(`Payment saved successfully: ${attributes.id.value}`);
+    } catch (error) {
+      this.logger.error(`Failed to save payment: ${(error as Error).message}`);
+      throw error;
     }
   }
 
   async findById(id: PaymentIdVO): Promise<PaymentEntity | null> {
+    this.logger.log(`Finding payment by ID: ${id.value}`);
+
+    // First try without relations to see if the payment exists
+    const basicRecord = await this.postgreService.payment.findUnique({
+      where: { id: id.value },
+    });
+
+    this.logger.log(
+      `Basic payment record found: ${basicRecord ? 'YES' : 'NO'}`,
+    );
+    if (!basicRecord) {
+      this.logger.warn(`Payment with ID ${id.value} not found in database`);
+      return null;
+    }
+
+    // Now get with relations
     const record = await this.postgreService.payment.findUnique({
       where: { id: id.value },
       include: {
@@ -95,6 +121,15 @@ export class PaymentPostgresRepository implements PaymentRepository {
         paymentMethod: true,
       },
     });
+
+    this.logger.log(
+      `Payment record with relations found: ${record ? 'YES' : 'NO'}`,
+    );
+    if (record) {
+      this.logger.log(
+        `Payment record ID: ${record.id}, tenantId: ${record.order?.tenantId || record.paymentMethod?.tenantId || 'N/A'}`,
+      );
+    }
 
     return record ? this.mapRecordToEntity(record) : null;
   }
@@ -137,9 +172,19 @@ export class PaymentPostgresRepository implements PaymentRepository {
   async findByTenantId(tenantId: string): Promise<PaymentEntity[]> {
     const records = await this.postgreService.payment.findMany({
       where: {
-        order: {
-          tenantId,
-        },
+        OR: [
+          {
+            order: {
+              tenantId,
+            },
+          },
+          {
+            orderId: null,
+            paymentMethod: {
+              tenantId,
+            },
+          },
+        ],
       },
       include: {
         order: {
@@ -296,12 +341,27 @@ export class PaymentPostgresRepository implements PaymentRepository {
 
   // Private helper methods
   private mapRecordToEntity(record: PaymentRecord): PaymentEntity {
+    this.logger.log(`Mapping record to entity: ${record.id}`);
+    this.logger.log(`Record order: ${record.order ? 'EXISTS' : 'NULL'}`);
+    this.logger.log(
+      `Record paymentMethod: ${record.paymentMethod ? 'EXISTS' : 'NULL'}`,
+    );
+    if (record.paymentMethod) {
+      this.logger.log(
+        `PaymentMethod tenantId: ${record.paymentMethod.tenantId}`,
+      );
+    }
+
     // Extract metadata from payment method or create default
     const metadata = this.extractMetadataFromRecord(record);
 
+    const tenantId =
+      record.order?.tenantId || record.paymentMethod?.tenantId || '';
+    this.logger.log(`Extracted tenantId: ${tenantId}`);
+
     const attributes: PaymentAttributes = {
       id: new PaymentIdVO(record.id),
-      tenantId: record.order?.tenantId || '',
+      tenantId: tenantId,
       providerType: this.extractProviderTypeFromMetadata(metadata),
       amount: new PaymentAmountVO(Number(record.amount)),
       currency: this.extractCurrencyFromRecord(record),
@@ -361,12 +421,17 @@ export class PaymentPostgresRepository implements PaymentRepository {
   private async ensurePaymentMethodExists(
     attributes: PaymentAttributes,
   ): Promise<string> {
-    const paymentMethodId = `pm_${attributes.tenantId}_${attributes.providerType.value.toLowerCase()}`;
-
     try {
-      // Try to find existing payment method
-      const existing = await this.postgreService.paymentMethod.findUnique({
-        where: { id: paymentMethodId },
+      // Try to find existing payment method for this tenant and provider
+      const existing = await this.postgreService.paymentMethod.findFirst({
+        where: {
+          tenantId: attributes.tenantId,
+          acceptedPaymentMethods: {
+            has: this.mapProviderTypeToAcceptedMethods(
+              attributes.providerType,
+            )[0],
+          },
+        },
       });
 
       if (existing) {
@@ -376,7 +441,7 @@ export class PaymentPostgresRepository implements PaymentRepository {
       // Create new payment method if it doesn't exist
       const created = await this.postgreService.paymentMethod.create({
         data: {
-          id: paymentMethodId,
+          id: Id.generate().getValue(),
           tenantId: attributes.tenantId,
           acceptedPaymentMethods: this.mapProviderTypeToAcceptedMethods(
             attributes.providerType,
@@ -389,34 +454,52 @@ export class PaymentPostgresRepository implements PaymentRepository {
       this.logger.warn(
         `Failed to create payment method for tenant ${attributes.tenantId}: ${(error as Error).message}`,
       );
-      return `pm_${attributes.tenantId}_default`;
+      throw error;
     }
   }
 
   private async ensureSubscriptionExists(
     attributes: PaymentAttributes,
   ): Promise<string> {
-    const subscriptionId = `sub_${attributes.tenantId}_default`;
-
     try {
-      // Try to find existing subscription
-      const existing = await this.postgreService.subscription.findUnique({
-        where: { id: subscriptionId },
+      // Try to find existing subscription for this tenant
+      const existing = await this.postgreService.subscription.findFirst({
+        where: { tenantId: attributes.tenantId },
       });
 
       if (existing) {
         return existing.id;
       }
 
+      // Ensure plan exists first
+      const plan = await this.postgreService.plan.findFirst({
+        where: { name: 'Default Plan' },
+      });
+
+      let planId: string;
+      if (plan) {
+        planId = plan.id;
+      } else {
+        const createdPlan = await this.postgreService.plan.create({
+          data: {
+            id: Id.generate().getValue(),
+            name: 'Default Plan',
+            description: 'Default subscription plan',
+            price: 0,
+          },
+        });
+        planId = createdPlan.id;
+      }
+
       // Create new subscription if it doesn't exist
       const created = await this.postgreService.subscription.create({
         data: {
-          id: subscriptionId,
+          id: Id.generate().getValue(),
           tenantId: attributes.tenantId,
           status: 'ACTIVE',
           startDate: new Date(),
           endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year from now
-          planId: 'default_plan', // This should be a real plan ID
+          planId: planId,
         },
       });
 
@@ -425,7 +508,7 @@ export class PaymentPostgresRepository implements PaymentRepository {
       this.logger.warn(
         `Failed to create subscription for tenant ${attributes.tenantId}: ${(error as Error).message}`,
       );
-      return subscriptionId;
+      throw error;
     }
   }
 

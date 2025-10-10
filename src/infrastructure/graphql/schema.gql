@@ -434,15 +434,14 @@ input GetInTouchInput {
 input InitiatePaymentInput {
   allowPendingPayments: Boolean
   amount: Float!
+  card: PaymentCardInput
   currency: String!
   customParams: String
   details: [PaymentDetailInput!]
   externalReferenceNumber: String
   orderId: String!
-  pagaditoCard: PagaditoCardInput
   providerType: String!
   tenantId: String!
-  visanetCard: VisanetCardInput
 }
 
 type Installment {
@@ -513,22 +512,6 @@ type Mutation {
   updateWarehouse(id: ID!, input: UpdateWarehouseInput!): Warehouse!
 }
 
-input PagaditoCardInput {
-  address: String
-  capture: Boolean
-  cardNumber: String!
-  city: String
-  country: String
-  cvv: String!
-  email: String
-  expirationDate: String!
-  firstName: String
-  lastName: String
-  phoneNumber: String
-  postalCode: String
-  state: String
-}
-
 input PagaditoCredentialsInput {
   sandbox: Boolean
   uid: String!
@@ -563,6 +546,22 @@ type PaginatedWarehousesType {
   hasMore: Boolean!
   total: Int!
   warehouses: [Warehouse!]!
+}
+
+input PaymentCardInput {
+  address: String
+  capture: Boolean
+  cardNumber: String!
+  city: String
+  country: String
+  cvv: String!
+  email: String
+  expirationDate: String!
+  firstName: String
+  lastName: String
+  phoneNumber: String
+  postalCode: String
+  state: String
 }
 
 type PaymentCredentialsResponse {
@@ -631,11 +630,13 @@ type Query {
   getCart: Cart!
   getCategoryById(id: ID!): Category!
   getMediaUploadToken: MediaAuthResponse!
+  getPayment(paymentId: String!, tenantId: String!): String
   getPaymentCredentials(providerType: String, tenantId: String!): [PaymentCredentialsResponse!]!
   getProductById(id: String!): Product!
   getStatesByCountryId(countryId: ID!): [StateType!]!
   getTenantById: Tenant!
   getWarehouseById(id: ID!, isArchived: Boolean): Warehouse!
+  listPayments(limit: Float, offset: Float, tenantId: String!): String
   validateToken: Response!
 }
 
@@ -877,22 +878,6 @@ type Variant {
 type VariantAttribute {
   key: String!
   value: String!
-}
-
-input VisanetCardInput {
-  address: String
-  capture: Boolean
-  cardNumber: String!
-  city: String
-  country: String
-  cvv: String!
-  email: String
-  expirationDate: String!
-  firstName: String
-  lastName: String
-  phoneNumber: String
-  postalCode: String
-  state: String
 }
 
 input VisanetCredentialsInput {
