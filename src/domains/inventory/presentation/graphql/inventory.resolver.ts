@@ -177,11 +177,11 @@ export default class InventoryResolver {
       defaultValue: false,
     })
     includeAddresses?: boolean,
-    @Args('filters', {
+    @Args('stockFilters', {
       nullable: true,
       type: () => StockPerWarehouseFilterInput,
     })
-    filters?: StockPerWarehouseFilterInput,
+    stockFilters?: StockPerWarehouseFilterInput,
   ): Promise<PaginatedWarehousesDTO> {
     return this.queryBus.execute(
       new GetAllWarehousesDTO(
@@ -196,11 +196,11 @@ export default class InventoryResolver {
           includeAddresses,
         },
         {
-          variantId: filters?.variantId,
-          lowStockThreshold: filters?.lowStockThreshold,
-          isArchived: filters?.isArchived,
-          stockSortBy: filters?.sortBy,
-          search: filters?.search,
+          variantId: stockFilters?.variantId,
+          lowStockThreshold: stockFilters?.lowStockThreshold,
+          isArchived: stockFilters?.isArchived,
+          stockSortBy: stockFilters?.sortBy,
+          search: stockFilters?.search,
         },
       ),
     );
