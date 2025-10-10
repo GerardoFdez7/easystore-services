@@ -579,7 +579,7 @@ input StockPerWarehouseFilterInput {
 
 input StockPerWarehouseSortBy {
   available: SortOrder
-  date: SortOrder
+  replenishmentDate: SortOrder
   reserved: SortOrder
   variantFirstAttribute: SortOrder
 }

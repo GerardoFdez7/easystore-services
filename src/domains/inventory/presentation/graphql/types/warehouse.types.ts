@@ -79,7 +79,7 @@ export class StockPerWarehouseSortBy {
   reserved?: SortOrder;
 
   @Field(() => SortOrder, { nullable: true })
-  date?: SortOrder;
+  replenishmentDate?: SortOrder;
 }
 
 @InputType()
