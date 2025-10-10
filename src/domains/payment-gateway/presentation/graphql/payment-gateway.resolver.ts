@@ -1,4 +1,4 @@
-import { Resolver, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
 import { PaymentGatewayService } from '../../application/services/payment-gateway.service';
 import {
   InitiatePaymentParams,
@@ -9,7 +9,9 @@ import {
   InitiatePaymentInput,
   PaymentResultOutput,
 } from './types/payment.types';
+import { Public } from '@common/decorators';
 
+@Public()
 @Resolver()
 export class PaymentGatewayResolver {
   constructor(private readonly paymentGatewayService: PaymentGatewayService) {}

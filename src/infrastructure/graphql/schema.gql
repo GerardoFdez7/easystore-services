@@ -439,6 +439,7 @@ input InitiatePaymentInput {
   details: [PaymentDetailInput!]
   externalReferenceNumber: String
   orderId: String!
+  pagaditoCard: PagaditoCardInput
   providerType: String!
   tenantId: String!
   visanetCard: VisanetCardInput
@@ -510,6 +511,22 @@ type Mutation {
   updateTenant(input: UpdateTenantInput!): Tenant!
   updateVariant(id: String!, input: UpdateVariantInput!, productId: String!): Product!
   updateWarehouse(id: ID!, input: UpdateWarehouseInput!): Warehouse!
+}
+
+input PagaditoCardInput {
+  address: String
+  capture: Boolean
+  cardNumber: String!
+  city: String
+  country: String
+  cvv: String!
+  email: String
+  expirationDate: String!
+  firstName: String
+  lastName: String
+  phoneNumber: String
+  postalCode: String
+  state: String
 }
 
 input PagaditoCredentialsInput {
