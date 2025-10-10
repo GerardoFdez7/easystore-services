@@ -67,7 +67,10 @@ export class PaymentCredentialsPostgresRepository
 
     return this.mapRecordToEntity({
       ...record,
-      credentials: record.credentials as string,
+      credentials:
+        typeof record.credentials === 'string'
+          ? record.credentials
+          : JSON.stringify(record.credentials),
     });
   }
 
@@ -81,7 +84,10 @@ export class PaymentCredentialsPostgresRepository
     return records.map((record) =>
       this.mapRecordToEntity({
         ...record,
-        credentials: record.credentials as string,
+        credentials:
+          typeof record.credentials === 'string'
+            ? record.credentials
+            : JSON.stringify(record.credentials),
       }),
     );
   }
