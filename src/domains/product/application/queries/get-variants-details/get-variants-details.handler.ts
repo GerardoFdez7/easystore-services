@@ -1,5 +1,5 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { Inject, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Inject, NotFoundException } from '@nestjs/common';
 import { IProductRepository } from '../../../aggregates/repositories/product.interface';
 import { Id } from '../../../aggregates/value-objects';
 import { GetVariantsDetailsDTO } from './get-variants-details.dto';
@@ -16,13 +16,6 @@ export class GetVariantsDetailsHandler
 
   async execute(query: GetVariantsDetailsDTO): Promise<VariantDetailsDTO[]> {
     const { variantIds, search } = query;
-
-    // Validate that at least one search parameter is provided
-    if (!variantIds.length && !search) {
-      throw new BadRequestException(
-        'At least one search parameter must be provided: variantIds or search',
-      );
-    }
 
     const variants = await this.productRepository.findVariantsByIds(
       variantIds?.map((id) => Id.create(id)) || [],
