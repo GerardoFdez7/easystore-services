@@ -926,188 +926,6 @@ enum CalculationMethod {
   @@schema("shipping")
 }
 
-// Product schema models
-model TaxRate {
-  id         String    @id
-  rate       Float
-  countryId  String
-  stateId    String?
-  categoryId String?
-  tenantId   String
-  tenant     Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  category   Category? @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  country    Country   @relation(fields: [countryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  state      State?    @relation(fields: [stateId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-
-  @@unique([tenantId, countryId, stateId, categoryId], name: "tenant_cannot_have_the_same_tax_rate_config")
-  @@schema("product")
-}
-
-model Category {
-  id            String              @id
-  name          String
-  cover         String
-  description   String?
-  subCategories Category[]          @relation("Subcategory")
-  parentId      String?
-  tenantId      String
-  updatedAt     DateTime            @updatedAt
-  createdAt     DateTime            @default(now())
-  taxRate       TaxRate[]
-  products      ProductCategories[]
-  parent        Category?           @relation("Subcategory", fields: [parentId], references: [id], onDelete: SetNull, onUpdate: NoAction)
-  tenant        Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  @@unique([tenantId, name])
-  @@index([parentId])
-  @@schema("product")
-}
-
-model ProductCategories {
-  id         String   @id
-  productId  String
-  categoryId String
-  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  @@schema("product")
-}
-
-model Product {
-  id               String              @id
-  name             String
-  shortDescription String
-  longDescription  String?             @postgres.Text
-  productType      ProductType
-  cover            String
-  brand            String?
-  manufacturer     String?
-  tags             String[]
-  isArchived       Boolean             @default(false)
-  tenantId         String
-  updatedAt        DateTime            @updatedAt
-  createdAt        DateTime            @default(now())
-  media            Media[]
-  variants         Variant[]
-  categories       ProductCategories[]
-  sustainabilities Sustainability[]
-  tenant           Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  @@unique([tenantId, name])
-  @@schema("product")
-}
-
-enum ProductType {
-  PHYSICAL
-  DIGITAL
-
-  @@schema("product")
-}
-
-enum MediaType {
-  IMAGE
-  VIDEO
-
-  @@schema("product")
-}
-
-model InstallmentPayment {
-  id           String  @id
-  months       Int
-  interestRate Float
-  variantId    String
-  variant      Variant @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  @@schema("product")
-}
-
-model Sustainability {
-  id                 String  @id
-  certification      String?
-  recycledPercentage Float
-  productId          String
-  product            Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  @@schema("product")
-}
-
-model Warranty {
-  id           String  @id
-  months       Int
-  coverage     String
-  instructions String
-  variantId    String
-  variant      Variant @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  @@schema("product")
-}
-
-model Variant {
-  id                     String                  @id
-  price                  Decimal                 @default(0)
-  variantCover           String?
-  personalizationOptions String[]
-  weight                 Float?
-  dimension              Dimension?
-  condition              ProductCondition
-  upc                    String?                 @unique
-  ean                    String?                 @unique
-  isbn                   String?                 @unique
-  barcode                String?
-  sku                    String
-  isArchived             Boolean                 @default(false)
-  productId              String
-  tenantId               String
-  updatedAt              DateTime                @updatedAt
-  createdAt              DateTime                @default(now())
-  attributes             Attribute[]
-  stockPerWarehouses     StockPerWarehouse[]
-  variantMedia           Media[]
-  installmentPayments    InstallmentPayment[]
-  warranties             Warranty[]
-  specificShippingRules  ShippingRule[]
-  wishList               WishList[]
-  returns                Return[]
-  ordersDetails          OrderDetail[]
-  customersReviews       CustomerReviewProduct[]
-  cartItems              CartItem[]
-  product                Product                 @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  tenant                 Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  @@unique([tenantId, sku])
-  @@unique([tenantId, barcode])
-  @@schema("product")
-}
-
-model Attribute {
-  id        String  @id
-  key       String
-  value     String
-  variantId String
-  variant   Variant @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  @@schema("product")
-}
-
-model Dimension {
-  id        String  @id
-  length    Float
-  width     Float
-  height    Float
-  variantId String  @unique
-  variant   Variant @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  @@schema("product")
-}
-
-enum ProductCondition {
-  NEW
-  USED
-  REFURBISHED
-
-  @@schema("product")
-}
-
 enum PromotionType {
   BUY_X_GET_DISCOUNT_ON_Y
   STORE_ATTRIBUTE
@@ -1167,114 +985,26 @@ enum ProviderType {
   @@schema("sales")
 }
 
-model PaymentProviderCredential {
-  id          String       @id @default(uuid())
-  tenantId    String
-  provider    ProviderType
-  credentials String // Encrypted JSON with keys/secrets
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+enum ProductType {
+  PHYSICAL
+  DIGITAL
 
-  @@unique([tenantId, provider])
-  @@schema("sales")
+  @@schema("product")
 }
 
-// Customer schema models
-model Customer {
-  id                       String                  @id
-  name                     String
-  tenantId                 String
-  authIdentityId           String                  @unique
-  defaultPhoneNumberId     String?                 @unique
-  defaultShippingAddressId String?                 @unique
-  defaultBillingAddressId  String?                 @unique
-  updatedAt                DateTime                @updatedAt
-  createdAt                DateTime                @default(now())
-  wishLists                WishList[]
-  customerReviewProducts   CustomerReviewProduct[]
-  addresses                Address[]
-  phoneNumbers             PhoneNumber[]
-  coupons                  Coupon[]
-  carts                    Cart[]
-  orders                   Order[]
-  paymentMethods           PaymentMethod[]
-  tenant                   Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  authIdentity             AuthIdentity            @relation("CustomerAuth", fields: [authIdentityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  defaultPhoneNumber       PhoneNumber?            @relation("CustomerDefaultPhone", fields: [defaultPhoneNumberId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  defaultShippingAddress   Address?                @relation("CustomerDefaultShippingAddress", fields: [defaultShippingAddressId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  defaultBillingAddress    Address?                @relation("CustomerDefaultBillingAddress", fields: [defaultBillingAddressId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+enum MediaType {
+  IMAGE
+  VIDEO
 
-  @@schema("customer")
+  @@schema("product")
 }
 
-model WishList {
-  id         String   @id
-  variantId  String
-  customerId String
-  updatedAt  DateTime @updatedAt
-  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  variant    Variant  @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+enum ProductCondition {
+  NEW
+  USED
+  REFURBISHED
 
-  @@schema("customer")
-}
-
-model CustomerReviewProduct {
-  id          String   @id
-  ratingCount Float
-  comment     String   @postgres.Text
-  customerId  String
-  variantId   String
-  updatedAt   DateTime @updatedAt
-  createdAt   DateTime @default(now())
-  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  variant     Variant  @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  @@schema("customer")
-}
-
-// Common schema models
-model PhoneNumber {
-  id                 String    @id
-  number             String
-  customerId         String?
-  tenantId           String?
-  defaultForTenant   Tenant?   @relation("TenantDefaultPhone")
-  defaultForCustomer Customer? @relation("CustomerDefaultPhone")
-  customer           Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  tenant             Tenant?   @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-
-  @@schema("common")
-}
-
-model Address {
-  id                         String       @id
-  name                       String
-  addressLine1               String
-  addressLine2               String?
-  postalCode                 String
-  city                       String
-  countryId                  String
-  stateId                    String
-  addressType                AddressTypes
-  deliveryNum                String
-  deliveryInstructions       String?
-  tenantId                   String?
-  customerId                 String?
-  warehouses                 Warehouse[]
-  orders                     Order[]
-  country                    Country      @relation(fields: [countryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  state                      State        @relation(fields: [stateId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  tenant                     Tenant?      @relation(fields: [tenantId], references: [id])
-  customer                   Customer?    @relation(fields: [customerId], references: [id])
-  defaultShippingForTenant   Tenant?      @relation("TenantDefaultShippingAddress")
-  defaultBillingForTenant    Tenant?      @relation("TenantDefaultBillingAddress")
-  defaultShippingForCustomer Customer?    @relation("CustomerDefaultShippingAddress")
-  defaultBillingForCustomer  Customer?    @relation("CustomerDefaultBillingAddress")
-
-  @@unique([tenantId, name])
-  @@unique([customerId, name])
-  @@schema("common")
+  @@schema("product")
 }
 
 enum AddressTypes {
