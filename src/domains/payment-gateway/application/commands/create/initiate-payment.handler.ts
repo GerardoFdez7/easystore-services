@@ -60,6 +60,8 @@ export class InitiatePaymentHandler
       );
 
       const providerResult = await provider.initiatePayment({
+        paymentId: payment.id.value,
+        tenantId: dto.tenantId,
         amount: dto.amount,
         currency: dto.currency,
         orderId: dto.orderId,

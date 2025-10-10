@@ -209,13 +209,28 @@ type InitiatePaymentInput {
   providerType: String! # PAGADITO, VISANET, PAYPAL
   amount: Float!
   currency: String!
-  orderId: String
+  orderId: String!
   externalReferenceNumber: String
   details: [PaymentDetailInput!]
   customParams: String
   allowPendingPayments: Boolean
-  visanetCard: VisanetCardInput
-  pagaditoCard: PagaditoCardInput
+  card: PaymentCardInput # Agnostic card input for all providers
+}
+
+type PaymentCardInput {
+  cardNumber: String!
+  expirationDate: String! # Format: MM/YYYY
+  cvv: String!
+  capture: Boolean # true for sale, false for auth only
+  firstName: String
+  lastName: String
+  email: String
+  address: String
+  city: String
+  state: String
+  postalCode: String
+  country: String
+  phoneNumber: String
 }
 ```
 
@@ -277,6 +292,8 @@ query GetPayment($tenantId: String!, $paymentId: String!) {
 }
 ```
 
+**Returns:** JSON string representation of payment entity or null
+
 #### List Payments
 
 ```graphql
@@ -284,6 +301,10 @@ query ListPayments($tenantId: String!, $limit: Int, $offset: Int) {
   listPayments(tenantId: $tenantId, limit: $limit, offset: $offset)
 }
 ```
+
+**Returns:** JSON string representation of paginated payment list or null
+
+**Note:** The system automatically converts offset/limit to page-based pagination internally
 
 ## Development Guide
 
@@ -297,6 +318,49 @@ mutation CreatePaymentCredentials($input: CreatePaymentCredentialsInput!) {
 }
 ```
 
+**Input:**
+
+```typescript
+type CreatePaymentCredentialsInput {
+  tenantId: String!
+  providerType: String! # PAGADITO, VISANET, PAYPAL
+  credentials: String! # JSON string with provider-specific credentials
+}
+```
+
+**Example Credentials:**
+
+**Pagadito:**
+
+```json
+{
+  "uid": "your_uid",
+  "wsk": "your_wsk",
+  "sandbox": true
+}
+```
+
+**CyberSource/VisaNet:**
+
+```json
+{
+  "merchantId": "your_merchant_id",
+  "runEnvironment": "apitest.cybersource.com",
+  "merchantKeyId": "your_key_id",
+  "merchantSecretKey": "your_secret_key"
+}
+```
+
+**PayPal:**
+
+```json
+{
+  "clientId": "your_client_id",
+  "clientSecret": "your_client_secret",
+  "environment": "sandbox"
+}
+```
+
 **Input Example:**
 
 ```json
@@ -304,12 +368,7 @@ mutation CreatePaymentCredentials($input: CreatePaymentCredentialsInput!) {
   "input": {
     "tenantId": "tenant-uuid",
     "providerType": "VISANET",
-    "credentials": {
-      "merchantId": "your-merchant-id",
-      "apiKey": "your-api-key",
-      "secretKey": "your-secret-key",
-      "runEnvironment": "sandbox"
-    }
+    "credentials": "{\"merchantId\":\"your-merchant-id\",\"runEnvironment\":\"apitest.cybersource.com\",\"merchantKeyId\":\"your-key-id\",\"merchantSecretKey\":\"your-secret-key\"}"
   }
 }
 ```
@@ -332,7 +391,7 @@ curl -X POST http://localhost:3001/gql \
 curl -X POST http://localhost:3001/gql \
   -H "Content-Type: application/json" \
   -d '{
-    "query": "mutation { initiatePayment(input: { tenantId: \"0199c6c2-4054-70fe-812b-fcd28d4e3ef7\", providerType: \"VISANET\", amount: 100.00, currency: \"USD\", orderId: \"order-123\", details: [{ quantity: 1, description: \"Test Product\", price: 100.00 }], visanetCard: { cardNumber: \"4111111111111111\", expirationDate: \"12/25\", cvv: \"123\", firstName: \"John\", lastName: \"Doe\", email: \"john@example.com\" } }) { success transactionId error } }"
+    "query": "mutation { initiatePayment(input: { tenantId: \"0199c6c2-4054-70fe-812b-fcd28d4e3ef7\", providerType: \"VISANET\", amount: 100.00, currency: \"USD\", orderId: \"order-123\", details: [{ quantity: 1, description: \"Test Product\", price: 100.00 }], card: { cardNumber: \"4111111111111111\", expirationDate: \"12/2030\", cvv: \"123\", capture: true, firstName: \"John\", lastName: \"Doe\", email: \"john@example.com\", address: \"1 Market St\", city: \"SF\", state: \"CA\", postalCode: \"94105\", country: \"US\", phoneNumber: \"4150000000\" } }) { success transactionId error } }"
   }'
 ```
 
@@ -506,16 +565,104 @@ class PaymentCompletedEvent {
 
 ### Logging Strategy
 
+The payment gateway uses a comprehensive, provider-agnostic logging system designed for compliance, audit trails, and dispute resolution.
+
+**Log Files Location:** `logs/` directory
+
+- `app-YYYY-MM-DD.log` - General application logs
+- `error-YYYY-MM-DD.log` - Error logs
+- `payment-operations-YYYY-MM-DD.log` - Payment operations (90 days retention)
+- `payment-audit-YYYY-MM-DD.log` - Audit trail (365 days retention)
+
+**Unified Payment Logging:**
+
+The `PaymentProviderLoggerService` provides structured logging for all payment providers with comprehensive audit information:
+
 ```typescript
-// Structured logging for payment operations
-this.logger.log('Payment initiated', {
-  paymentId: payment.id.value,
-  tenantId: payment.tenantId,
-  amount: payment.amount.value,
-  providerType: payment.providerType.value,
-  correlationId: correlationId,
+// Payment initiation logging
+this.paymentLogger.logPaymentInitiation({
+  paymentId: 'pay_123',
+  tenantId: 'tenant_456',
+  orderId: 'order_789',
+  providerType: 'VISANET',
+  providerEnvironment: 'sandbox',
+  amount: 100.0,
+  currency: 'USD',
+  requestData: {
+    /* sanitized request data */
+  },
+  processingTimeMs: 1250,
+  correlationId: 'corr_1234567890_abc123',
+});
+
+// Payment completion logging
+this.paymentLogger.logPaymentCompletion({
+  paymentId: 'pay_123',
+  tenantId: 'tenant_456',
+  orderId: 'order_789',
+  transactionId: 'txn_987654321',
+  providerType: 'VISANET',
+  providerEnvironment: 'sandbox',
+  amount: 100.0,
+  currency: 'USD',
+  responseData: {
+    /* provider response */
+  },
+  processingTimeMs: 890,
+  correlationId: 'corr_1234567890_abc123',
+});
+
+// Payment failure logging
+this.paymentLogger.logPaymentFailure({
+  paymentId: 'pay_123',
+  tenantId: 'tenant_456',
+  orderId: 'order_789',
+  providerType: 'VISANET',
+  providerEnvironment: 'sandbox',
+  amount: 100.0,
+  currency: 'USD',
+  errorCode: 'CARD_DECLINED',
+  errorMessage: 'Insufficient funds',
+  providerErrorCode: '51',
+  providerErrorMessage: 'Insufficient funds',
+  requestData: {
+    /* sanitized request */
+  },
+  responseData: {
+    /* provider error response */
+  },
+  processingTimeMs: 450,
+  correlationId: 'corr_1234567890_abc123',
 });
 ```
+
+**Audit Trail Information:**
+
+Each log entry includes:
+
+- **Core Identifiers**: paymentId, tenantId, orderId, transactionId
+- **Provider Details**: providerType, providerEnvironment
+- **Financial Data**: amount, currency
+- **Operation Context**: operation type, status, timing
+- **Security Data**: correlationId, IP address (when available)
+- **Error Details**: error codes, messages (both internal and provider-specific)
+- **Request/Response**: sanitized data for debugging (sensitive data redacted)
+
+**Data Sanitization:**
+
+Sensitive information is automatically redacted:
+
+- Card numbers, CVV, security codes
+- Passwords, secrets, API keys
+- Authorization tokens
+
+**Compliance Features:**
+
+- **Immutable Audit Trail**: Payment audit logs cannot be modified
+- **Long-term Retention**: Audit logs kept for 1 year for compliance
+- **Correlation IDs**: Track requests across multiple systems
+- **Provider Integration**: Unified logging across all payment providers
+- **Error Tracking**: Comprehensive error logging for dispute resolution
 
 ### Metrics
 

@@ -8,6 +8,7 @@ import {
 import { PagaditoCredentialsVO } from '../../../aggregates/value-objects/provider/pagadito-credentials.vo';
 import { PaymentDetailsVO } from '../../../aggregates/value-objects/payment/payment-details.vo';
 import { ExternalReferenceNumberVO } from '../../../aggregates/value-objects/payment/external-reference-number.vo';
+import { PaymentProviderLoggerService } from '../../logging/payment-provider-logger.service';
 
 // Pagadito API Operations
 const opConnect = 'f3f191ce3326905ff4403bb05b0de150';
@@ -29,9 +30,11 @@ export interface PagaditoCredentials {
 
 export class PagaditoProvider implements PaymentProvider {
   private credentials: PagaditoCredentialsVO;
+  private readonly paymentLogger: PaymentProviderLoggerService;
 
   constructor(credentials: PagaditoCredentials) {
     this.credentials = PagaditoCredentialsVO.create(credentials);
+    this.paymentLogger = new PaymentProviderLoggerService();
   }
 
   private calcAmount(details: PaymentDetailsVO[]): string {
@@ -87,6 +90,9 @@ export class PagaditoProvider implements PaymentProvider {
   }
 
   async initiatePayment(params: InitiatePaymentParams): Promise<PaymentResult> {
+    const startTime = Date.now();
+    const correlationId = this.paymentLogger.generateCorrelationId();
+
     try {
       // 1. Connect to get session token
       const connectToken = await this.connect();
@@ -130,6 +136,29 @@ export class PagaditoProvider implements PaymentProvider {
 
       // Decode the checkout URL
       const checkoutUrl = decodeURIComponent(response.value);
+      const processingTime = Date.now() - startTime;
+
+      // Log successful payment initiation
+      this.paymentLogger.logPaymentInitiation({
+        paymentId: params.paymentId ?? ern,
+        tenantId: params.tenantId,
+        orderId: params.orderId,
+        providerType: 'PAGADITO',
+        providerEnvironment: this.credentials.sandbox
+          ? 'sandbox'
+          : 'production',
+        amount: params.amount,
+        currency: params.currency,
+        requestData: {
+          externalReferenceNumber: ern,
+          amount: this.calcAmount(details),
+          details: details.map((d) => d.toJSON()),
+          customParams: params.customParams,
+          allowPendingPayments: params.allowPendingPayments,
+        },
+        processingTimeMs: processingTime,
+        correlationId,
+      });
 
       return {
         success: true,
@@ -138,19 +167,68 @@ export class PagaditoProvider implements PaymentProvider {
         raw: response,
       };
     } catch (error: unknown) {
+      const processingTime = Date.now() - startTime;
       let errorMessage = 'Unknown error';
+      let errorCode = 'PAGADITO_ERROR';
       const rawError: unknown = error;
 
       if (error instanceof Error) {
         errorMessage = error.message;
+        errorCode = 'PAGADITO_API_ERROR';
       } else if (typeof error === 'string') {
         errorMessage = error;
       }
 
+      // Log payment failure
+      this.paymentLogger.logPaymentFailure({
+        paymentId: params.paymentId ?? '(n/a)',
+        tenantId: params.tenantId,
+        orderId: params.orderId,
+        providerType: 'PAGADITO',
+        providerEnvironment: this.credentials.sandbox
+          ? 'sandbox'
+          : 'production',
+        amount: params.amount,
+        currency: params.currency,
+        errorCode,
+        errorMessage,
+        requestData: {
+          externalReferenceNumber: params.externalReferenceNumber,
+          amount: params.amount,
+          currency: params.currency,
+        },
+        responseData: {
+          error: errorMessage,
+          raw:
+            rawError instanceof Error
+              ? { message: rawError.message, stack: rawError.stack }
+              : typeof rawError === 'object' && rawError !== null
+                ? rawError
+                : {
+                    value:
+                      rawError instanceof Error
+                        ? rawError.message
+                        : JSON.stringify(rawError),
+                  },
+        },
+        processingTimeMs: processingTime,
+        correlationId,
+      });
+
       return {
         success: false,
         error: errorMessage,
-        raw: rawError,
+        raw:
+          rawError instanceof Error
+            ? { message: rawError.message, stack: rawError.stack }
+            : typeof rawError === 'object' && rawError !== null
+              ? rawError
+              : {
+                  value:
+                    rawError instanceof Error
+                      ? rawError.message
+                      : JSON.stringify(rawError),
+                },
       };
     }
   }
