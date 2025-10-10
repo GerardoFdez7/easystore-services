@@ -182,8 +182,6 @@ export default class InventoryResolver {
       type: () => StockPerWarehouseFilterInput,
     })
     filters?: StockPerWarehouseFilterInput,
-    @Args('search', { nullable: true, type: () => String })
-    search?: string,
   ): Promise<PaginatedWarehousesDTO> {
     return this.queryBus.execute(
       new GetAllWarehousesDTO(
@@ -202,7 +200,7 @@ export default class InventoryResolver {
           lowStockThreshold: filters?.lowStockThreshold,
           isArchived: filters?.isArchived,
           stockSortBy: filters?.sortBy,
-          search,
+          search: filters?.search,
         },
       ),
     );

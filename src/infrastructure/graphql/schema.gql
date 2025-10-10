@@ -513,7 +513,7 @@ type Query {
   getAllCountries: [CountryType!]!
   getAllProducts(categoriesIds: [ID!], includeSoftDeleted: Boolean = false, limit: Float = 25, name: String, page: Float = 1, sortBy: SortBy, sortOrder: SortOrder, type: TypeEnum): PaginatedProductsType!
   getAllStockMovements(createdById: ID, dateFrom: DateTime, dateTo: DateTime, includeDeleted: Boolean = false, limit: Int = 10, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID, warehouseId: ID!): PaginatedStockMovementsType!
-  getAllWarehouses(addressId: ID, filters: StockPerWarehouseFilterInput, includeAddresses: Boolean = false, limit: Int = 10, name: String, page: Int = 1, search: String, sortBy: SortBy, sortOrder: SortOrder): PaginatedWarehousesType!
+  getAllWarehouses(addressId: ID, filters: StockPerWarehouseFilterInput, includeAddresses: Boolean = false, limit: Int = 10, name: String, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder): PaginatedWarehousesType!
   getCategoryById(id: ID!): Category!
   getMediaUploadToken: MediaAuthResponse!
   getProductById(id: String!): Product!
@@ -574,6 +574,7 @@ type StockPerWarehouse {
 input StockPerWarehouseFilterInput {
   isArchived: Boolean
   lowStockThreshold: Float
+  search: String
   sortBy: StockPerWarehouseSortBy
   variantId: String
 }

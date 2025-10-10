@@ -95,4 +95,7 @@ export class StockPerWarehouseFilterInput {
 
   @Field(() => StockPerWarehouseSortBy, { nullable: true })
   sortBy?: StockPerWarehouseSortBy;
+
+  @Field({ nullable: true })
+  search?: string;
 }
