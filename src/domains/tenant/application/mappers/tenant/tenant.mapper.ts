@@ -1,9 +1,5 @@
 import { Entity } from '@shared/entity.base';
-import {
-  Tenant,
-  ITenantProps,
-  ITenantType,
-} from '../../../aggregates/entities';
+import { Tenant, ITenantType } from '../../../aggregates/entities';
 import {
   Id,
   Name,
@@ -28,7 +24,7 @@ export class TenantMapper {
   static fromPersistence(persistenceTenant: ITenantType): Tenant {
     return Entity.fromPersistence<
       typeof persistenceTenant,
-      ITenantProps,
+      Record<string, unknown>,
       Tenant
     >(Tenant, persistenceTenant, (model) => ({
       id: Id.create(model.id),

@@ -1,4 +1,9 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleInit,
+  OnModuleDestroy,
+  Logger,
+} from '@nestjs/common';
 import { PrismaClient } from '.prisma/postgres';
 
 @Injectable()
@@ -6,6 +11,8 @@ export class PostgreService
   extends PrismaClient
   implements OnModuleInit, OnModuleDestroy
 {
+  private readonly logger = new Logger(PostgreService.name);
+
   constructor() {
     // Use Docker database URL only when explicitly running in Docker
     const databaseUrl =
@@ -23,10 +30,26 @@ export class PostgreService
   }
 
   async onModuleInit(): Promise<void> {
-    await this.$connect();
+    try {
+      await this.$connect();
+      this.logger.log('Database connection established successfully');
+    } catch (error) {
+      this.logger.error(
+        `Database connection failed: ${(error as Error).message}`,
+        'PostgreService',
+      );
+    }
   }
 
   async onModuleDestroy(): Promise<void> {
-    await this.$disconnect();
+    try {
+      await this.$disconnect();
+      this.logger.log('Database connection closed successfully');
+    } catch (error) {
+      this.logger.error(
+        `Error closing database connection: ${(error as Error).message}`,
+        'PostgreService',
+      );
+    }
   }
 }

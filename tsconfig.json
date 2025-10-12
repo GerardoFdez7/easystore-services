@@ -19,6 +19,7 @@
     "noFallthroughCasesInSwitch": false,
     "baseUrl": "./",
     "resolveJsonModule": true,
+    "typeRoots": ["./node_modules/@types", "./src/types"],
     "paths": {
       "@test/*": ["src/test/*"],
       "@config/*": ["src/config/*"],

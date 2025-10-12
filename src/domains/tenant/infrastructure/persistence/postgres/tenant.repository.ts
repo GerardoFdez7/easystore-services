@@ -25,9 +25,11 @@ export default class TenantRepository implements ITenantRepository {
         return await tx.tenant.create({
           data: {
             id: tenantDto.id,
-            businessName: tenantDto.businessName,
+            businessName: tenantDto.businessName || tenantDto.ownerName,
             ownerName: tenantDto.ownerName,
-            domain: tenantDto.domain,
+            domain:
+              tenantDto.domain ||
+              `${tenantDto.ownerName.toLowerCase()}.easystore.com`,
             logo: tenantDto.logo,
             description: tenantDto.description,
             currency: tenantDto.currency,
