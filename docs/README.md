@@ -48,7 +48,6 @@ graph TB
     subgraph "Data Layer"
         POSTGRES[PostgreSQL]
         PRISMA[Prisma ORM]
-        REDIS[Redis Cache]
     end
 
     subgraph "External Services"

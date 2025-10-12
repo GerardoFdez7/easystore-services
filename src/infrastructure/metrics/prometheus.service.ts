@@ -37,30 +37,6 @@ export class PrometheusService implements OnModuleInit {
       },
     );
 
-    this.registerCounter(
-      'redis_requests_total',
-      'Total number of Redis operations',
-      ['operation', 'status'],
-    );
-    this.registerHistogram(
-      'redis_operation_duration_seconds',
-      'Redis operation duration in seconds',
-      ['operation'],
-      {
-        buckets: [0.001, 0.005, 0.01, 0.05, 0.1, 0.5],
-      },
-    );
-    this.registerGauge('redis_cache_hit_rate', 'Redis cache hit rate');
-    this.registerGauge(
-      'redis_memory_usage_bytes',
-      'Redis memory usage in bytes',
-    );
-    this.registerGauge(
-      'redis_connected_clients',
-      'Number of connected Redis clients',
-    );
-    this.registerGauge('redis_ops_per_second', 'Redis operations per second');
-
     this.registerCounter('cart_operations_total', 'Total cart operations', [
       'operation',
     ]);
