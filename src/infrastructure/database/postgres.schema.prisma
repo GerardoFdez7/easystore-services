@@ -255,7 +255,7 @@ enum SubscriptionStatus {
 
 model Plan {
   id           String         @id
-  name         String         @unique
+  name         String         @unique @postgres.Citext
   description  String
   price        Decimal
   createdAt    DateTime       @default(now())
@@ -267,7 +267,7 @@ model Plan {
 
 model Employee {
   id             String          @id
-  name           String
+  name           String          @postgres.Citext
   roleId         String
   authIdentityId String          @unique
   role           EmployeeRole    @relation(fields: [roleId], references: [id], onDelete: Restrict, onUpdate: Cascade)
@@ -301,7 +301,7 @@ model RoleFeatures {
 model Feature {
   id           String         @id
   code         String         @unique // "REPORTS", "ORDERS" 
-  name         String
+  name         String         @postgres.Citext
   description  String?
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
@@ -313,7 +313,7 @@ model Feature {
 // Inventory schema models
 model Warehouse {
   id                 String              @id
-  name               String
+  name               String              @postgres.Citext
   addressId          String
   tenantId           String
   createdAt          DateTime            @default(now())
@@ -440,7 +440,7 @@ model TaxRate {
 
 model Category {
   id            String              @id
-  name          String
+  name          String              @postgres.Citext
   cover         String
   description   String?
   subCategories Category[]          @relation("Subcategory")
@@ -470,7 +470,7 @@ model ProductCategories {
 
 model Product {
   id               String              @id
-  name             String
+  name             String              @postgres.Citext
   shortDescription String
   longDescription  String?             @postgres.Text
   productType      ProductType
@@ -621,7 +621,7 @@ enum ProductCondition {
 // Pricing schema models
 model Promotion {
   id              String               @id
-  name            String
+  name            String               @postgres.Citext
   description     String
   type            PromotionType
   actionType      PromotionActionType?
@@ -864,7 +864,7 @@ enum AcceptedPaymentMethod {
 // Customer schema models
 model Customer {
   id                       String                  @id
-  name                     String
+  name                     String                  @postgres.Citext
   tenantId                 String
   authIdentityId           String                  @unique
   defaultPhoneNumberId     String?                 @unique
@@ -930,7 +930,7 @@ model PhoneNumber {
 
 model Address {
   id                         String       @id
-  name                       String
+  name                       String       @postgres.Citext
   addressLine1               String
   addressLine2               String?
   postalCode                 String
@@ -997,7 +997,7 @@ enum AccountType {
 // Geography schema models
 model Country {
   id             String         @id
-  name           String         @unique
+  name           String         @unique @postgres.Citext
   code           String         @unique
   states         State[]
   addresses      Address[]
@@ -1009,7 +1009,7 @@ model Country {
 
 model State {
   id             String         @id
-  name           String
+  name           String         @postgres.Citext
   code           String
   countryId      String
   addresses      Address[]
