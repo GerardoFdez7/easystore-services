@@ -102,7 +102,15 @@ export class GetAllWarehousesHandler
 
     // Enrich DTOs
     paginated.warehouses = paginated.warehouses.map((dto) => {
-      dto.stockPerWarehouses = dto.stockPerWarehouses
+      let stocks = dto.stockPerWarehouses;
+      // When search is present, keep only stocks with matching variant details
+      if (search) {
+        stocks = stocks.filter((stockDto) =>
+          detailsMap.has(stockDto.variantId),
+        );
+      }
+
+      dto.stockPerWarehouses = stocks
         .filter((stockDto) => {
           if (isArchived === undefined) return true;
           const detail = detailsMap.get(stockDto.variantId);

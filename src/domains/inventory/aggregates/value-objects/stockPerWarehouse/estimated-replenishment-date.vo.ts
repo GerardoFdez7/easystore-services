@@ -1,11 +1,6 @@
 import { z } from 'zod';
 
-const estimatedReplenishmentDateSchema = z
-  .date()
-  .min(new Date(), {
-    message: 'Estimated replenishment date must be in the future',
-  })
-  .nullable();
+const estimatedReplenishmentDateSchema = z.date().nullable();
 
 export class EstimatedReplenishmentDate {
   private readonly value: Date | null;

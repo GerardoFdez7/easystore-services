@@ -676,32 +676,52 @@ export class ProductRepository implements IProductRepository {
 
       // If search parameter is provided, add search conditions
       if (search) {
-        whereConditions.OR = [
-          {
-            sku: {
-              contains: search,
-              mode: 'insensitive',
-            },
-          },
-          {
-            product: {
-              name: {
+        const searchConditions: Prisma.VariantWhereInput = {
+          OR: [
+            {
+              sku: {
                 contains: search,
                 mode: 'insensitive',
               },
             },
-          },
-          {
-            attributes: {
-              some: {
-                value: {
+            {
+              product: {
+                name: {
                   contains: search,
                   mode: 'insensitive',
                 },
               },
             },
-          },
-        ];
+            {
+              attributes: {
+                some: {
+                  key: {
+                    contains: search,
+                    mode: 'insensitive',
+                  },
+                },
+              },
+            },
+            {
+              attributes: {
+                some: {
+                  value: {
+                    contains: search,
+                    mode: 'insensitive',
+                  },
+                },
+              },
+            },
+          ],
+        };
+
+        // If we already have ID conditions, combine with AND
+        if (whereConditions.id) {
+          whereConditions.AND = [searchConditions];
+        } else {
+          // If no ID conditions, use search conditions directly
+          Object.assign(whereConditions, searchConditions);
+        }
       }
 
       const variants = await this.prisma.variant.findMany({
@@ -719,11 +739,28 @@ export class ProductRepository implements IProductRepository {
           },
         },
       });
+      const normalizedSearch = search?.toLowerCase();
+      const filteredVariants = normalizedSearch
+        ? variants.filter((v) => {
+            const skuMatch = v.sku?.toLowerCase().includes(normalizedSearch);
+            const productMatch = v.product?.name
+              ?.toLowerCase()
+              .includes(normalizedSearch);
+            const firstAttr = v.attributes[0];
+            const attrMatch =
+              firstAttr &&
+              (firstAttr.key?.toLowerCase().includes(normalizedSearch) ||
+                firstAttr.value?.toLowerCase().includes(normalizedSearch));
+            return skuMatch || productMatch || attrMatch;
+          })
+        : variants;
 
-      return variants.map((v) => ({
+      return filteredVariants.map((v) => ({
         id: v.id,
         sku: v.sku,
-        attributes: v.attributes.map((a) => ({ key: a.key, value: a.value })),
+        attributes: v.attributes
+          .slice(0, 1)
+          .map((a) => ({ key: a.key, value: a.value })),
         product: { name: v.product.name },
         isArchived: v.isArchived,
       }));
