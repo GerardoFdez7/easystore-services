@@ -174,8 +174,8 @@ export class GetAllWarehousesHandler
             }
           }
 
-          // Sort by date (estimatedReplenishmentDate)
-          if (stockSortBy.date) {
+          // Sort by estimated replenishment date
+          if (stockSortBy.replenishmentDate) {
             const aDate = a.estimatedReplenishmentDate;
             const bDate = b.estimatedReplenishmentDate;
 
@@ -190,7 +190,7 @@ export class GetAllWarehousesHandler
             const comparison = aTime - bTime;
 
             if (comparison !== 0) {
-              return stockSortBy.date === SortOrder.ASC
+              return stockSortBy.replenishmentDate === SortOrder.ASC
                 ? comparison
                 : -comparison;
             }

@@ -4,7 +4,7 @@ export interface StockPerWarehouseSortBy {
   variantFirstAttribute?: SortOrder;
   available?: SortOrder;
   reserved?: SortOrder;
-  date?: SortOrder;
+  replenishmentDate?: SortOrder;
 }
 
 export class GetAllWarehousesDTO {
