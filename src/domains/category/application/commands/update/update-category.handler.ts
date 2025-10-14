@@ -41,6 +41,6 @@ export class UpdateCategoryHandler
     updatedCategory.commit();
 
     // Return the category as DTO
-    return CategoryMapper.toDto(category);
+    return CategoryMapper.toDto(updatedCategory);
   }
 }

@@ -25,6 +25,23 @@ export default class CategoryRepository implements ICategoryRepository {
 
     try {
       const prismaCategory = await this.prisma.$transaction(async (tx) => {
+        // Validate depth for the main category if it has a parent
+        if (categoryDto.parentId) {
+          const parentDepth = await this.calculateCategoryDepth(
+            categoryDto.parentId,
+            categoryDto.tenantId,
+            tx,
+          );
+
+          // Check if adding this category would exceed the limit
+          if (parentDepth + 1 > 10) {
+            throw new BadRequestException(
+              `Category hierarchy cannot exceed 10 levels. ` +
+                `Parent is at depth ${parentDepth}, adding this category would reach depth ${parentDepth + 1}`,
+            );
+          }
+        }
+
         // Validate depth before creating if subcategories exist
         if (categoryDto.subCategories && categoryDto.subCategories.length > 0) {
           await this.validateCategoryDepth(
@@ -110,31 +127,7 @@ export default class CategoryRepository implements ICategoryRepository {
 
         // Handle subcategories updates if provided
         if (updatesDto.subCategories !== undefined) {
-          // Validate depth before updating subcategories
-          if (updatesDto.subCategories.length > 0) {
-            await this.validateCategoryDepth(
-              idValue,
-              tenantIdValue,
-              updatesDto.subCategories,
-              tx,
-            );
-          }
-
-          // Delete existing subcategories
-          await tx.category.deleteMany({
-            where: {
-              parentId: idValue,
-            },
-          });
-
-          // Create new subcategories
-          if (updatesDto.subCategories.length > 0) {
-            await this.createSubCategories(
-              tx,
-              idValue,
-              updatesDto.subCategories,
-            );
-          }
+          await this.updateSubCategories(tx, idValue, updatesDto.subCategories);
         }
 
         // Return updated category with all relations
@@ -426,17 +419,16 @@ export default class CategoryRepository implements ICategoryRepository {
     const maxDepth = 10;
 
     // Calculate current depth from root parent
-    let currentDepth = 1;
+    let currentDepth = 0;
     if (parentId) {
       currentDepth = await this.calculateCategoryDepth(parentId, tenantId, tx);
-      currentDepth++; // Add 1 for the new category being created
     }
 
     // Calculate the depth of the subcategories being added
     const subcategoriesDepth = this.calculateSubcategoriesDepth(subCategories);
 
-    // Total depth would be current depth + subcategories depth
-    const totalDepth = currentDepth + subcategoriesDepth;
+    // Total depth would be current depth + 1 (for the parent) + subcategories depth
+    const totalDepth = currentDepth + 1 + subcategoriesDepth;
 
     if (totalDepth > maxDepth) {
       throw new BadRequestException(
@@ -444,6 +436,104 @@ export default class CategoryRepository implements ICategoryRepository {
           `Current depth: ${currentDepth}, Subcategories depth: ${subcategoriesDepth}, ` +
           `Total would be: ${totalDepth}`,
       );
+    }
+  }
+
+  /**
+   * Helper method to update subcategories within a transaction
+   */
+  private async updateSubCategories(
+    tx: Prisma.TransactionClient,
+    parentId: string,
+    subCategories: ICategoryType[],
+  ): Promise<void> {
+    // Get the parent category to determine tenant and validate depth
+    const parentCategory = await tx.category.findUnique({
+      where: { id: parentId },
+      select: { tenantId: true },
+    });
+
+    if (!parentCategory) {
+      throw new ResourceNotFoundError('Parent Category', parentId);
+    }
+
+    // Validate depth before processing any subcategories
+    if (subCategories && subCategories.length > 0) {
+      await this.validateCategoryDepth(
+        parentId,
+        parentCategory.tenantId,
+        subCategories,
+        tx,
+      );
+    }
+
+    // Get existing subcategories
+    const existingSubCategories = await tx.category.findMany({
+      where: { parentId },
+      select: { id: true },
+    });
+
+    const existingIds = new Set(existingSubCategories.map((sc) => sc.id));
+    const incomingIds = new Set(
+      subCategories.map((sc) => sc.id).filter(Boolean),
+    );
+
+    // Delete subcategories that are no longer in the update
+    const idsToDelete = [...existingIds].filter((id) => !incomingIds.has(id));
+    if (idsToDelete.length > 0) {
+      await tx.category.deleteMany({
+        where: {
+          id: { in: idsToDelete },
+          parentId,
+        },
+      });
+    }
+
+    // Update or create subcategories
+    for (const subCategory of subCategories) {
+      if (subCategory.id && existingIds.has(subCategory.id)) {
+        // Update existing subcategory
+        await tx.category.update({
+          where: { id: subCategory.id },
+          data: {
+            name: subCategory.name,
+            cover: subCategory.cover,
+            description: subCategory.description,
+            parentId: parentId,
+            tenantId: subCategory.tenantId,
+          },
+        });
+
+        // Recursively update nested subcategories
+        if (subCategory.subCategories && subCategory.subCategories.length > 0) {
+          await this.updateSubCategories(
+            tx,
+            subCategory.id,
+            subCategory.subCategories,
+          );
+        }
+      } else {
+        // Create new subcategory
+        const createdSubCategory = await tx.category.create({
+          data: {
+            id: subCategory.id,
+            name: subCategory.name,
+            cover: subCategory.cover,
+            description: subCategory.description,
+            parentId: parentId,
+            tenantId: subCategory.tenantId,
+          },
+        });
+
+        // Recursively create nested subcategories
+        if (subCategory.subCategories && subCategory.subCategories.length > 0) {
+          await this.createSubCategories(
+            tx,
+            createdSubCategory.id,
+            subCategory.subCategories,
+          );
+        }
+      }
     }
   }
 
