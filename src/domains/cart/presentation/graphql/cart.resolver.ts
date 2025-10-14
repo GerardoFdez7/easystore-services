@@ -1,7 +1,12 @@
 import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser, JwtPayload } from '@common/decorators';
-import { CartType, CreateCartInput } from './types';
+import {
+  CartType,
+  CreateCartInput,
+  PaginatedCartType,
+  GetCartPaginatedInput,
+} from './types';
 import { CreateCartDto } from '../../application/commands/create/cart/create-cart.dto';
 import {
   AddItemToCartInput,
@@ -90,8 +95,23 @@ export class CartResolver {
   ///////////////
   // Queries //
   ///////////////
-  @Query(() => CartType)
-  async getCart(@CurrentUser() user: JwtPayload): Promise<CartType> {
-    return this.queryBus.execute(new GetCartByCustomerIdDTO(user.customerId));
+  @Query(() => PaginatedCartType)
+  async getCart(
+    @CurrentUser() user: JwtPayload,
+    @Args('input', { type: () => GetCartPaginatedInput, nullable: true })
+    input?: GetCartPaginatedInput,
+  ): Promise<PaginatedCartType> {
+    const paginationParams = {
+      page: input?.page || 1,
+      limit: input?.limit || 10,
+    };
+
+    return this.queryBus.execute(
+      new GetCartByCustomerIdDTO(
+        user.customerId,
+        paginationParams.page,
+        paginationParams.limit,
+      ),
+    );
   }
 }
