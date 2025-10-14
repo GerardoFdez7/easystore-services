@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID, Int, InputType } from '@nestjs/graphql';
+import { ObjectType, Field, ID, Int, Float, InputType } from '@nestjs/graphql';
 
 @ObjectType('CartItem')
 export class CartItemType {
@@ -16,6 +16,15 @@ export class CartItemType {
 
   @Field()
   updatedAt: Date;
+
+  @Field(() => Float)
+  unitPrice: number;
+
+  @Field()
+  name: string;
+
+  @Field(() => Float)
+  subTotal: number;
 }
 
 @ObjectType('Cart')
@@ -28,6 +37,9 @@ export class CartType {
 
   @Field(() => [CartItemType])
   cartItems: CartItemType[];
+
+  @Field(() => Float)
+  total: number;
 }
 
 // Input type for creating carts

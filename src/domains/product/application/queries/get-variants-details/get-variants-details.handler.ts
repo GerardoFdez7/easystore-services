@@ -32,6 +32,7 @@ export class GetVariantsDetailsHandler
       firstAttribute: v.attributes[0] || { key: '', value: '' },
       productName: v.product.name,
       isArchived: v.isArchived,
+      price: v.price,
     }));
   }
 }
