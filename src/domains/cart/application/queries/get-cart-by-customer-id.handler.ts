@@ -23,9 +23,7 @@ export class GetCartByIdHandler
       throw new NotFoundException(`Cart with ID ${query.id} not found`);
 
     // Get variants ids from cart
-    const variantIds = Array.from(cartFound.get('cartItems').values()).map(
-      (item) => item.getVariantId().getValue(),
-    );
+    const variantIds = Array.from(cartFound.get('cartItems').keys());
 
     const variantDetails =
       variantIds.length > 0
