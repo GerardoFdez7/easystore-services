@@ -1,5 +1,14 @@
 import { ObjectType, Field, ID, Int, Float, InputType } from '@nestjs/graphql';
 
+@ObjectType('FirstAttribute')
+export class FirstAttributeType {
+  @Field()
+  key: string;
+
+  @Field()
+  value: string;
+}
+
 @ObjectType('CartItem')
 export class CartItemType {
   @Field(() => ID)
@@ -25,6 +34,9 @@ export class CartItemType {
 
   @Field(() => Float)
   subTotal: number;
+
+  @Field(() => FirstAttributeType, { nullable: true })
+  firstAttribute?: FirstAttributeType;
 }
 
 @ObjectType('Cart')

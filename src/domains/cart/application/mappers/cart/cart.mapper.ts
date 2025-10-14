@@ -41,6 +41,7 @@ export class CartMapper {
       unitPrice,
       name,
       subTotal,
+      firstAttribute: variant.firstAttribute,
     };
   }
 }
