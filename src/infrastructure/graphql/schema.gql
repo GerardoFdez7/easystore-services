@@ -92,6 +92,7 @@ type Cart {
 }
 
 type CartItem {
+  firstAttribute: FirstAttribute
   id: ID!
   name: String!
   promotionId: ID
@@ -404,6 +405,11 @@ type Dimension {
   height: Float!
   length: Float!
   width: Float!
+}
+
+type FirstAttribute {
+  key: String!
+  value: String!
 }
 
 input ForgotPasswordInput {

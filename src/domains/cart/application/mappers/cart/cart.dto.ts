@@ -17,6 +17,7 @@ export interface CartItemDTO {
   id: string;
   qty: number;
   variantId: string;
+  firstAttribute: { key: string; value: string };
   promotionId?: string | null;
   updatedAt: Date;
   unitPrice: number;
