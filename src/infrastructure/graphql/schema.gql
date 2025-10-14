@@ -88,7 +88,7 @@ type Cart {
   cartItems: [CartItem!]!
   customerId: ID!
   id: ID!
-  total: Float!
+  totalCart: Float!
 }
 
 type CartItem {
@@ -417,6 +417,11 @@ input ForgotPasswordInput {
   email: String!
 }
 
+input GetCartPaginatedInput {
+  limit: Int! = 10
+  page: Int! = 1
+}
+
 input GetInTouchInput {
   annualRevenue: String!
   businessEmail: String!
@@ -496,6 +501,13 @@ type PaginatedAddressesType {
   total: Int!
 }
 
+type PaginatedCart {
+  cartItems: [CartItem!]!
+  hasMore: Boolean!
+  total: Int!
+  totalCart: Float!
+}
+
 type PaginatedCategoriesType {
   categories: [Category!]!
   hasMore: Boolean!
@@ -552,7 +564,7 @@ type Query {
   getAllProducts(categoriesIds: [ID!], includeSoftDeleted: Boolean = false, limit: Float = 25, name: String, page: Float = 1, sortBy: SortBy, sortOrder: SortOrder, type: TypeEnum): PaginatedProductsType!
   getAllStockMovements(createdById: ID, dateFrom: DateTime, dateTo: DateTime, includeDeleted: Boolean = false, limit: Int = 10, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID, warehouseId: ID!): PaginatedStockMovementsType!
   getAllWarehouses(addressId: ID, includeAddresses: Boolean = false, limit: Int = 10, name: String, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, stockFilters: StockPerWarehouseFilterInput): PaginatedWarehousesType!
-  getCart: Cart!
+  getCart(input: GetCartPaginatedInput): PaginatedCart!
   getCategoryById(id: ID!): Category!
   getMediaUploadToken: MediaAuthResponse!
   getProductById(id: String!): Product!

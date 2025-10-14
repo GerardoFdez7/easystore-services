@@ -6,6 +6,13 @@ import { CartDTO, CartMapper } from '../mappers';
 import { Id } from '@shared/value-objects';
 import { IProductAdapter } from '../ports/product.port';
 
+export interface PaginatedCartDTO {
+  cartItems: CartDTO['cartItems'];
+  total: number;
+  hasMore: boolean;
+  totalCart: number;
+}
+
 @QueryHandler(GetCartByCustomerIdDTO)
 export class GetCartByIdHandler
   implements IQueryHandler<GetCartByCustomerIdDTO>
@@ -14,7 +21,8 @@ export class GetCartByIdHandler
     @Inject('ICartRepository') private readonly cartRepository: ICartRepository,
     @Inject('IProductAdapter') private readonly productAdapter: IProductAdapter,
   ) {}
-  async execute(query: GetCartByCustomerIdDTO): Promise<CartDTO> {
+
+  async execute(query: GetCartByCustomerIdDTO): Promise<PaginatedCartDTO> {
     const customerId = Id.create(query.id);
     const cartFound =
       await this.cartRepository.findCartByCustomerId(customerId);
@@ -29,8 +37,23 @@ export class GetCartByIdHandler
       variantIds.length > 0
         ? await this.productAdapter.getVariantsDetails(variantIds)
         : [];
+
     const dto = CartMapper.toDto(cartFound, variantDetails);
 
-    return dto;
+    // Apply pagination to cart items
+    const startIndex = (query.page - 1) * query.limit;
+    const endIndex = startIndex + query.limit;
+    const paginatedItems = dto.cartItems.slice(startIndex, endIndex);
+
+    // Calculate pagination metadata
+    const totalItems = dto.cartItems.length;
+    const hasMore = endIndex < totalItems;
+
+    return {
+      cartItems: paginatedItems,
+      total: totalItems,
+      hasMore,
+      totalCart: dto.totalCart,
+    };
   }
 }
