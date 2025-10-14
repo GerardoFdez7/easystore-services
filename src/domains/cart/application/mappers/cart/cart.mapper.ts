@@ -9,13 +9,13 @@ export class CartMapper {
       CartMapper.cartItemToDto(item, variantDetails),
     );
 
-    const total = cartItems.reduce((sum, item) => sum + item.subTotal, 0);
+    const totalCart = cartItems.reduce((sum, item) => sum + item.subTotal, 0);
 
     return cart.toDTO<CartDTO>((entity) => ({
       id: entity.get('id')?.getValue(),
       customerId: entity.get('customerId')?.getValue(),
       cartItems,
-      total,
+      totalCart,
     }));
   }
 

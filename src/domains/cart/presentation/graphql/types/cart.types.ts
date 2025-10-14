@@ -51,7 +51,22 @@ export class CartType {
   cartItems: CartItemType[];
 
   @Field(() => Float)
+  totalCart: number;
+}
+
+@ObjectType('PaginatedCart')
+export class PaginatedCartType {
+  @Field(() => [CartItemType])
+  cartItems: CartItemType[];
+
+  @Field(() => Int)
   total: number;
+
+  @Field(() => Boolean)
+  hasMore: boolean;
+
+  @Field(() => Float)
+  totalCart: number;
 }
 
 // Input type for creating carts
@@ -89,4 +104,13 @@ export class UpdateItemQtyInput {
 
   @Field(() => Int)
   quantity: number;
+}
+
+@InputType()
+export class GetCartPaginatedInput {
+  @Field(() => Int, { defaultValue: 1 })
+  page: number;
+
+  @Field(() => Int, { defaultValue: 10 })
+  limit: number;
 }

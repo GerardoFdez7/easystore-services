@@ -1,2 +1,8 @@
 // Cart types
-export { CartType, CartItemType, CreateCartInput } from './cart.types';
+export {
+  CartType,
+  CartItemType,
+  CreateCartInput,
+  PaginatedCartType,
+  GetCartPaginatedInput,
+} from './cart.types';
