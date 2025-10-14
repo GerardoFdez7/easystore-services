@@ -6,6 +6,7 @@ export interface CartDTO {
   id: string;
   customerId: string;
   cartItems: CartItemDTO[];
+  total: number;
 }
 
 /**
@@ -18,4 +19,7 @@ export interface CartItemDTO {
   variantId: string;
   promotionId?: string | null;
   updatedAt: Date;
+  unitPrice: number;
+  name: string;
+  subTotal: number;
 }

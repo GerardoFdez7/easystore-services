@@ -68,5 +68,6 @@ const EventHandlers = [
     ...QueryHandlers,
     ...EventHandlers,
   ],
+  exports: ['IProductAdapter'],
 })
 export class InventoryDomain {}

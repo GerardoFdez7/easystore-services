@@ -84,6 +84,7 @@ export interface IProductRepository {
       attributes: Array<{ key: string; value: string }>;
       product: { name: string };
       isArchived: boolean;
+      price: number;
     }>
   >;
 }
