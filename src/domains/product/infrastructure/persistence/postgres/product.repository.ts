@@ -659,6 +659,7 @@ export class ProductRepository implements IProductRepository {
       attributes: Array<{ key: string; value: string }>;
       product: { name: string };
       isArchived: boolean;
+      price: number;
     }>
   > {
     const idValues = ids.map((id) => id.getValue());
@@ -684,6 +685,7 @@ export class ProductRepository implements IProductRepository {
         attributes: v.attributes.map((a) => ({ key: a.key, value: a.value })),
         product: { name: v.product.name },
         isArchived: v.isArchived,
+        price: +v.price,
       }));
     } catch (error) {
       return this.handleDatabaseError(error, 'find variants by ids');

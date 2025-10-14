@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
+import { InventoryDomain } from '../inventory/inventory.module';
 import { CartResolver } from './presentation/graphql/cart.resolver';
 import { CartRepository } from './infrastructure/persistence/postgres/cart.repository';
 import { CartCreateHandler } from './application/commands/create/cart/create-cart.handler';
@@ -35,7 +36,7 @@ const EventHandlers = [
 ];
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, InventoryDomain],
   providers: [
     { provide: 'ICartRepository', useClass: CartRepository },
     CartResolver,

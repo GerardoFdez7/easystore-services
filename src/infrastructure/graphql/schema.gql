@@ -88,12 +88,16 @@ type Cart {
   cartItems: [CartItem!]!
   customerId: ID!
   id: ID!
+  total: Float!
 }
 
 type CartItem {
   id: ID!
+  name: String!
   promotionId: ID
   qty: Int!
+  subTotal: Float!
+  unitPrice: Float!
   updatedAt: DateTime!
   variantId: ID!
 }
