@@ -676,6 +676,23 @@ export class ProductRepository implements IProductRepository {
 
       // If search parameter is provided, add search conditions
       if (search) {
+        // Get variant IDs where the search term matches the key OR value of the first attribute (ordered by key) with prisma parameter binding to prevent SQL injection
+        const variantIdsWithFirstAttributeMatch = await this.prisma.$queryRaw<
+          Array<{ id: string }>
+        >`
+          SELECT DISTINCT v.id
+          FROM "product"."Variant" v
+          INNER JOIN "product"."Attribute" a ON v.id = a."variantId"
+          WHERE (a.value ILIKE ${'%' + search + '%'} OR a.key ILIKE ${'%' + search + '%'})
+          AND a.key = (
+            SELECT a2.key
+            FROM "product"."Attribute" a2
+            WHERE a2."variantId" = v.id
+            ORDER BY a2.key ASC
+            LIMIT 1
+          )
+        `;
+
         whereConditions.OR = [
           {
             sku: {
@@ -692,13 +709,9 @@ export class ProductRepository implements IProductRepository {
             },
           },
           {
-            attributes: {
-              some: {
-                value: {
-                  contains: search,
-                  mode: 'insensitive',
-                },
-              },
+            // Match variants where the search term matches the value of the first attribute (ordered by key)
+            id: {
+              in: variantIdsWithFirstAttributeMatch.map((result) => result.id),
             },
           },
         ];

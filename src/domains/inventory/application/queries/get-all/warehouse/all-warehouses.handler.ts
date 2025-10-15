@@ -104,21 +104,22 @@ export class GetAllWarehousesHandler
     paginated.warehouses = paginated.warehouses.map((dto) => {
       dto.stockPerWarehouses = dto.stockPerWarehouses
         .filter((stockDto) => {
-          if (isArchived === undefined) return true;
           const detail = detailsMap.get(stockDto.variantId);
-          return detail ? detail.isArchived === isArchived : false;
+          // Filter out stocks with null variant details
+          if (!detail) return false;
+
+          if (isArchived === undefined) return true;
+          return detail.isArchived === isArchived;
         })
         .map((stockDto) => {
           const detail = detailsMap.get(stockDto.variantId);
-          if (detail) {
-            return {
-              ...stockDto,
-              productName: detail.productName,
-              variantSku: detail.sku,
-              variantFirstAttribute: detail.firstAttribute,
-            };
-          }
-          return stockDto;
+          // At this point, detail is guaranteed to exist due to the filter above
+          return {
+            ...stockDto,
+            productName: detail.productName,
+            variantSku: detail.sku,
+            variantFirstAttribute: detail.firstAttribute,
+          };
         });
 
       // Apply sorting to stockPerWarehouses if stockSortBy is provided
