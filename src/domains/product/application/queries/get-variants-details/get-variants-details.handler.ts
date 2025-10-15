@@ -1,5 +1,5 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { Inject, NotFoundException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { IProductRepository } from '../../../aggregates/repositories/product.interface';
 import { Id } from '../../../aggregates/value-objects';
 import { GetVariantsDetailsDTO } from './get-variants-details.dto';
@@ -23,9 +23,7 @@ export class GetVariantsDetailsHandler
     );
 
     if (!variants || variants.length === 0) {
-      throw new NotFoundException(
-        'No variants found for the provided criteria',
-      );
+      return [];
     }
 
     return variants.map((v) => ({
