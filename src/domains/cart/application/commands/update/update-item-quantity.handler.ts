@@ -2,10 +2,9 @@ import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { UpdateItemQuantityDto } from './update-item-quantity.dto';
 import { CartDTO, CartMapper } from '../../mappers';
 import { Inject, NotFoundException } from '@nestjs/common';
-import { ICartRepository } from 'src/domains/cart/aggregates/repositories/cart.interface';
-import { Id } from '@shared/value-objects';
-import { Cart } from 'src/domains/cart/aggregates/entities/cart.entity';
-import { Qty } from 'src/domains/cart/aggregates/value-objects';
+import { ICartRepository } from '../../../aggregates/repositories/cart.interface';
+import { Id, Qty } from '../../../aggregates/value-objects';
+import { Cart } from '../../../aggregates/entities/cart.entity';
 
 @CommandHandler(UpdateItemQuantityDto)
 export class UpdateItemQuantityHandler

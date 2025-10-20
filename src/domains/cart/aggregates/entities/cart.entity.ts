@@ -96,11 +96,13 @@ export class Cart extends Entity<ICartProps> {
     const cartItem = cartItems.get(variantId.getValue());
 
     if (!cartItem) throw new Error('Item not found in cart');
-    // Update item
-    const itemUpdated = CartItem.create({
+    // Update item using reconstitute to preserve original ID and timestamp
+    const itemUpdated = CartItem.reconstitute({
+      id: cartItem.getId().getValue(),
       qty: qty.getValue(),
       variantId: variantId.getValue(),
       promotionId: cartItem.getPromotionId()?.getValue() || null,
+      updatedAt: cartItem.getUpdatedAt(),
     });
 
     cartItems.set(variantId.getValue(), itemUpdated);
@@ -121,19 +123,41 @@ export class Cart extends Entity<ICartProps> {
     // Create a new Map to maintain immutability
     const cartItems = new Map(cart.props.cartItems);
 
-    // Deleting items
+    // Filter to only include items that actually exist in the cart
+    const existingVariantIds: Id[] = [];
+    const nonExistentItems: string[] = [];
+
     variantsIds.forEach((variantId) => {
+      if (cartItems.has(variantId.getValue())) {
+        existingVariantIds.push(variantId);
+      } else {
+        nonExistentItems.push(variantId.getValue());
+      }
+    });
+
+    // If no items exist in the cart, throw an error
+    if (existingVariantIds.length === 0) {
+      throw new Error(
+        `No items found in cart with the provided IDs: ${nonExistentItems.join(', ')}`,
+      );
+    }
+
+    // Delete only the existing items
+    existingVariantIds.forEach((variantId) => {
       cartItems.delete(variantId.getValue());
     });
 
-    // Creating update cart
+    // Creating updated cart
     const cartUpdated = new Cart({
       id: cart.props.id,
       customerId: cart.props.customerId,
       cartItems,
     });
 
-    cartUpdated.apply(new RemoveManyItemsFromCart(cartUpdated, variantsIds));
+    // Apply event with only the items that were actually removed
+    cartUpdated.apply(
+      new RemoveManyItemsFromCart(cartUpdated, existingVariantIds),
+    );
 
     return cartUpdated;
   }

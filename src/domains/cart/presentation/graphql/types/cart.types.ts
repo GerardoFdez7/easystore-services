@@ -23,17 +23,17 @@ export class CartItemType {
   @Field(() => ID, { nullable: true })
   promotionId?: string | null;
 
-  @Field()
-  updatedAt: Date;
+  @Field({ nullable: true })
+  updatedAt?: Date;
 
-  @Field(() => Float)
-  unitPrice: number;
+  @Field(() => Float, { nullable: true })
+  unitPrice?: number;
 
-  @Field()
-  name: string;
+  @Field({ nullable: true })
+  productName?: string;
 
-  @Field(() => Float)
-  subTotal: number;
+  @Field(() => Float, { nullable: true })
+  subTotal?: number;
 
   @Field(() => FirstAttributeType, { nullable: true })
   firstAttribute?: FirstAttributeType;
@@ -69,13 +69,6 @@ export class PaginatedCartType {
   totalCart: number;
 }
 
-// Input type for creating carts
-@InputType()
-export class CreateCartInput {
-  @Field(() => ID)
-  customerId: string;
-}
-
 @InputType()
 export class AddItemToCartInput {
   @Field(() => ID)
@@ -93,7 +86,7 @@ export class RemoveItemFromCartInput {
 
 @InputType()
 export class RemoveManyItemFromCartInput {
-  @Field(() => [ID])
+  @Field(() => [ID], { nullable: false })
   variantIds: string[];
 }
 
@@ -108,9 +101,17 @@ export class UpdateItemQtyInput {
 
 @InputType()
 export class GetCartPaginatedInput {
-  @Field(() => Int, { defaultValue: 1 })
-  page: number;
+  @Field(() => Int, {
+    defaultValue: 1,
+    description: 'Page number for pagination (starts from 1)',
+    nullable: true,
+  })
+  page?: number;
 
-  @Field(() => Int, { defaultValue: 10 })
-  limit: number;
+  @Field(() => Int, {
+    defaultValue: 25,
+    description: 'Number of items per page (max 50)',
+    nullable: true,
+  })
+  limit?: number;
 }

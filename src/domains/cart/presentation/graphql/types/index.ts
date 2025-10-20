@@ -2,7 +2,10 @@
 export {
   CartType,
   CartItemType,
-  CreateCartInput,
   PaginatedCartType,
   GetCartPaginatedInput,
+  AddItemToCartInput,
+  RemoveItemFromCartInput,
+  RemoveManyItemFromCartInput,
+  UpdateItemQtyInput,
 } from './cart.types';

@@ -1,4 +1,4 @@
-import { RemoveManyItemsFromCartData } from 'src/domains/cart/aggregates/entities/cart.attributes';
+import { RemoveManyItemsFromCartData } from '../../../../aggregates/entities/cart.attributes';
 
 export class RemoveManyItemsFromCartDto {
   constructor(
