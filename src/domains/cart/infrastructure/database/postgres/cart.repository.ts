@@ -12,10 +12,9 @@ import {
   DatabaseOperationError,
 } from '@shared/errors';
 import { PrismaErrorUtils } from '@utils/prisma-error-utils';
-import { Id } from '@shared/value-objects';
-import { Cart } from 'src/domains/cart/aggregates/entities/cart.entity';
-import { CartItem } from 'src/domains/cart/aggregates/value-objects/cart-item.vo';
-import { ICartRepository } from 'src/domains/cart/aggregates/repositories/cart.interface';
+import { Cart } from '../../../aggregates/entities/cart.entity';
+import { CartItem, Id } from '../../../aggregates/value-objects';
+import { ICartRepository } from '../../../aggregates/repositories/cart.interface';
 import { CartMapper } from '../../../application/mappers/cart/cart.mapper';
 
 @Injectable()
@@ -64,18 +63,54 @@ export class CartRepository implements ICartRepository {
     }
   }
 
-  async findCartByCustomerId(id: Id): Promise<Cart> {
+  async findCartByCustomerId(
+    id: Id,
+    page?: number,
+    limit?: number,
+  ): Promise<Cart> {
     try {
+      // Use default values if pagination parameters are not provided
+      const actualPage = page || 1;
+      const actualLimit = limit || 50; // Default limit
+
+      // Calculate offset for pagination
+      const offset = (actualPage - 1) * actualLimit;
+
       const prismaCart = await this.prisma.cart.findFirst({
         where: { customerId: id.getValue() },
         include: {
-          cartItems: true,
+          cartItems: {
+            skip: offset,
+            take: actualLimit,
+            orderBy: {
+              updatedAt: 'desc', // Most recently updated items first
+            },
+          },
         },
       });
 
       return this.mapToDomain(prismaCart);
     } catch (error) {
       return this.handleDatabaseError(error, 'find cart by id');
+    }
+  }
+
+  async getCartItemsCount(id: Id): Promise<number> {
+    try {
+      const cart = await this.prisma.cart.findFirst({
+        where: { customerId: id.getValue() },
+        include: {
+          _count: {
+            select: {
+              cartItems: true,
+            },
+          },
+        },
+      });
+
+      return cart?._count?.cartItems || 0;
+    } catch (error) {
+      return this.handleDatabaseError(error, 'get cart items count');
     }
   }
 
@@ -92,22 +127,75 @@ export class CartRepository implements ICartRepository {
           },
         });
 
-        // Delete all existing cart items for this cart
-        await tx.cartItem.deleteMany({
+        // Fetch existing cart items from the database
+        const existingItems = await tx.cartItem.findMany({
           where: { cartId: cartDto.id },
         });
 
-        // Create new cart items if they exist
-        if (cartDto.cartItems && cartDto.cartItems.length > 0) {
-          await tx.cartItem.createMany({
-            data: cartDto.cartItems.map((item) => ({
+        const existingItemsMap = new Map(
+          existingItems.map((item) => [item.id, item]),
+        );
+        const newItemsMap = new Map(
+          (cartDto.cartItems || []).map((item) => [item.id, item]),
+        );
+
+        // Determine items to delete (in DB but not in new set)
+        const itemsToDelete = existingItems.filter(
+          (item) => !newItemsMap.has(item.id),
+        );
+
+        // Determine items to create (in new set but not in DB)
+        const itemsToCreate = (cartDto.cartItems || []).filter(
+          (item) => !existingItemsMap.has(item.id),
+        );
+
+        // Determine items to update (in both, but with changed fields)
+        const itemsToUpdate = (cartDto.cartItems || []).filter((item) => {
+          const existing = existingItemsMap.get(item.id);
+          if (!existing) return false;
+          // Compare fields that may change
+          return (
+            existing.qty !== item.qty ||
+            existing.variantId !== item.variantId ||
+            existing.promotionId !== item.promotionId ||
+            existing.updatedAt?.getTime?.() !==
+              (item.updatedAt instanceof Date
+                ? item.updatedAt.getTime()
+                : new Date(item.updatedAt).getTime())
+          );
+        });
+
+        // Delete removed items
+        for (const item of itemsToDelete) {
+          await tx.cartItem.delete({
+            where: { id: item.id },
+          });
+        }
+
+        // Create new items
+        for (const item of itemsToCreate) {
+          await tx.cartItem.create({
+            data: {
               id: item.id,
               qty: item.qty,
               variantId: item.variantId,
               cartId: updatedCart.id,
               promotionId: item.promotionId,
               updatedAt: item.updatedAt,
-            })),
+            },
+          });
+        }
+
+        // Update changed items
+        for (const item of itemsToUpdate) {
+          await tx.cartItem.update({
+            where: { id: item.id },
+            data: {
+              qty: item.qty,
+              variantId: item.variantId,
+              promotionId: item.promotionId,
+              updatedAt: item.updatedAt,
+            },
           });
         }
 
@@ -183,10 +271,12 @@ export class CartRepository implements ICartRepository {
     // Map cart items if they exist
     if (prismaCart.cartItems) {
       prismaCart.cartItems.forEach((item) => {
-        const cartItem = CartItem.create({
+        const cartItem = CartItem.reconstitute({
+          id: item.id,
           qty: item.qty,
           variantId: item.variantId,
           promotionId: item?.promotionId || null,
+          updatedAt: item.updatedAt,
         });
         cartItems.set(item.variantId, cartItem);
       });

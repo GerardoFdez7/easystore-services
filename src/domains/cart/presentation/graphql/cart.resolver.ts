@@ -3,22 +3,20 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser, JwtPayload } from '@common/decorators';
 import {
   CartType,
-  CreateCartInput,
   PaginatedCartType,
   GetCartPaginatedInput,
-} from './types';
-import { CreateCartDto } from '../../application/commands/create/cart/create-cart.dto';
-import {
   AddItemToCartInput,
   RemoveItemFromCartInput,
   RemoveManyItemFromCartInput,
   UpdateItemQtyInput,
-} from './types/cart.types';
-import { AddItemToCartDto } from '../../application/commands/create/cart-item/add-item-to-cart.dto';
-import { RemoveItemFromCartDto } from '../../application/commands/delete/cart-item/remove-item-from-cart.dto';
-import { GetCartByCustomerIdDTO } from '../../application/queries/get-cart-by-customer-id.dto';
-import { UpdateItemQuantityDto } from '../../application/commands/update/update-item-quantity.dto';
-import { RemoveManyItemsFromCartDto } from '../../application/commands/delete/cart-item/remove-many-items-from-cart.dto';
+} from './types';
+import {
+  AddItemToCartDto,
+  RemoveItemFromCartDto,
+  UpdateItemQuantityDto,
+  RemoveManyItemsFromCartDto,
+} from '../../application/commands';
+import { GetCartByCustomerIdDTO } from '../../application/queries';
 
 @Resolver(() => CartType)
 export class CartResolver {
@@ -30,23 +28,6 @@ export class CartResolver {
   ///////////////
   // Mutations //
   ///////////////
-
-  @Mutation(() => CartType)
-  async createCart(
-    @Args('input', { type: () => CreateCartInput })
-    input: CreateCartInput,
-    @CurrentUser() user: JwtPayload,
-  ): Promise<CartType> {
-    // Use the authenticated user's customer ID or auth identity ID
-    const customerId = user.customerId;
-
-    const cartData = {
-      ...input,
-      customerId,
-    };
-
-    return this.commandBus.execute(new CreateCartDto(cartData));
-  }
 
   @Mutation(() => CartType)
   async addItemToCart(
@@ -98,20 +79,15 @@ export class CartResolver {
   @Query(() => PaginatedCartType)
   async getCart(
     @CurrentUser() user: JwtPayload,
-    @Args('input', { type: () => GetCartPaginatedInput, nullable: true })
-    input?: GetCartPaginatedInput,
+    @Args('input', { type: () => GetCartPaginatedInput })
+    input: GetCartPaginatedInput,
   ): Promise<PaginatedCartType> {
-    const paginationParams = {
-      page: input?.page || 1,
-      limit: input?.limit || 10,
-    };
+    // Validate and constrain pagination parameters
+    const page = Math.max(1, input.page);
+    const limit = Math.min(50, Math.max(1, input.limit));
 
     return this.queryBus.execute(
-      new GetCartByCustomerIdDTO(
-        user.customerId,
-        paginationParams.page,
-        paginationParams.limit,
-      ),
+      new GetCartByCustomerIdDTO(user.customerId, page, limit),
     );
   }
 }

@@ -1,11 +1,10 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { AddItemToCartDto } from './add-item-to-cart.dto';
 import { Inject, NotFoundException } from '@nestjs/common';
-import { ICartRepository } from 'src/domains/cart/aggregates/repositories/cart.interface';
-import { Id } from '@shared/value-objects';
+import { ICartRepository } from '../../../../aggregates/repositories/cart.interface';
 import { CartDTO, CartMapper } from '../../../mappers';
-import { Cart } from 'src/domains/cart/aggregates/entities/cart.entity';
-import { CartItem } from 'src/domains/cart/aggregates/value-objects';
+import { Cart } from '../../../../aggregates/entities/cart.entity';
+import { CartItem, Id } from '../../../../aggregates/value-objects';
 
 @CommandHandler(AddItemToCartDto)
 export class AddItemToCartHandler implements ICommandHandler<AddItemToCartDto> {

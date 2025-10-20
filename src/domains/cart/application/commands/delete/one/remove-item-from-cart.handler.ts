@@ -2,9 +2,9 @@ import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { RemoveItemFromCartDto } from './remove-item-from-cart.dto';
 import { CartDTO, CartMapper } from '../../../mappers';
 import { Inject, NotFoundException } from '@nestjs/common';
-import { ICartRepository } from 'src/domains/cart/aggregates/repositories/cart.interface';
-import { Id } from '@shared/value-objects';
-import { Cart } from 'src/domains/cart/aggregates/entities/cart.entity';
+import { ICartRepository } from '../../../../aggregates/repositories/cart.interface';
+import { Id } from '../../../../aggregates/value-objects';
+import { Cart } from '../../../../aggregates/entities/cart.entity';
 
 @CommandHandler(RemoveItemFromCartDto)
 export class RemoveItemFromCartHandler

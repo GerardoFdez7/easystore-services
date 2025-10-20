@@ -21,6 +21,6 @@ export interface CartItemDTO {
   promotionId?: string | null;
   updatedAt: Date;
   unitPrice: number;
-  name: string;
+  productName: string;
   subTotal: number;
 }

@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { CreateCartDto } from './create-cart.dto';
-import { ICartRepository } from 'src/domains/cart/aggregates/repositories/cart.interface';
+import { ICartRepository } from '../../../../aggregates/repositories/cart.interface';
 import { CartDTO, CartMapper } from '../../../mappers';
-import { Cart } from 'src/domains/cart/aggregates/entities/cart.entity';
+import { Cart } from '../../../../aggregates/entities/cart.entity';
 
 @CommandHandler(CreateCartDto)
 export class CartCreateHandler implements ICommandHandler<CreateCartDto> {

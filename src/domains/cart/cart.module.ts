@@ -1,21 +1,25 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { InventoryDomain } from '../inventory/inventory.module';
-import { CartResolver } from './presentation/graphql/cart.resolver';
-import { CartRepository } from './infrastructure/persistence/postgres/cart.repository';
-import { CartCreateHandler } from './application/commands/create/cart/create-cart.handler';
-import { AddItemToCartHandler } from './application/commands/create/cart-item/add-item-to-cart.handler';
-import { RemoveItemFromCartHandler } from './application/commands/delete/cart-item/remove-item-from-cart.handler';
-import { GetCartByIdHandler } from './application/queries/get-cart-by-customer-id.handler';
-import { UpdateItemQuantityHandler } from './application/commands/update/update-item-quantity.handler';
-import { RemoveManyItemsFromCartHandler } from './application/commands/delete/cart-item/remove-many-items-from-cart.handler';
+import {
+  CartCreateHandler,
+  AddItemToCartHandler,
+  RemoveItemFromCartHandler,
+  UpdateItemQuantityHandler,
+  RemoveManyItemsFromCartHandler,
+} from './application/commands';
+import { GetCartByIdHandler } from './application/queries';
 import {
   CartCreatedHandler,
+  CustomerCreatedHandler,
   AddItemToCartHandler as AddItemToCartEventHandler,
   ItemRemovedFromCartHandler,
   RemoveManyItemsFromCartHandler as RemoveManyItemsFromCartEventHandler,
   ItemQuantityUpdatedHandler,
 } from './application/events';
+import { CartResolver } from './presentation/graphql/cart.resolver';
+import { CartRepository } from './infrastructure/database/postgres/cart.repository';
+import { ProductAdapter } from './infrastructure/adapters/product.adapter';
 
 const CommandHandlers = [
   CartCreateHandler,
@@ -29,6 +33,7 @@ const QueryHandlers = [GetCartByIdHandler];
 
 const EventHandlers = [
   CartCreatedHandler,
+  CustomerCreatedHandler,
   AddItemToCartEventHandler,
   ItemRemovedFromCartHandler,
   RemoveManyItemsFromCartEventHandler,
@@ -39,6 +44,7 @@ const EventHandlers = [
   imports: [CqrsModule, InventoryDomain],
   providers: [
     { provide: 'ICartRepository', useClass: CartRepository },
+    { provide: 'IProductAdapter', useClass: ProductAdapter },
     CartResolver,
     ...CommandHandlers,
     ...QueryHandlers,

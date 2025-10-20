@@ -28,8 +28,24 @@ export class CartMapper {
 
     // Find variant details for this cart item
     const variant = variantDetails.find((v) => v.variantId === variantId);
-    const unitPrice = variant?.price || 0;
-    const name = variant?.productName || '';
+
+    // If variant details are not provided, return basic cart item info
+    if (!variant) {
+      return {
+        id: cartItem.getId().getValue(),
+        variantId,
+        qty,
+        promotionId: cartItem.getPromotionId()?.getValue() || null,
+        updatedAt: cartItem.getUpdatedAt(),
+        unitPrice: 0, // Default values when variant details not available
+        productName: '',
+        subTotal: 0,
+        firstAttribute: { key: '', value: '' },
+      };
+    }
+
+    const unitPrice = variant.price;
+    const productName = variant.productName;
     const subTotal = unitPrice * qty;
 
     return {
@@ -39,7 +55,7 @@ export class CartMapper {
       promotionId: cartItem.getPromotionId()?.getValue() || null,
       updatedAt: cartItem.getUpdatedAt(),
       unitPrice,
-      name,
+      productName,
       subTotal,
       firstAttribute: variant.firstAttribute,
     };

@@ -1,2 +1,2 @@
-export * from './cart/cart.dto';
-export * from './cart/cart.mapper';
+export { CartDTO, CartItemDTO } from './cart/cart.dto';
+export { CartMapper } from './cart/cart.mapper';

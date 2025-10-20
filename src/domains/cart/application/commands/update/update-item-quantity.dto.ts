@@ -1,4 +1,4 @@
-import { IUpdateItemQuantityData } from 'src/domains/cart/aggregates/entities/cart.attributes';
+import { IUpdateItemQuantityData } from '../../../aggregates/entities/cart.attributes';
 
 export class UpdateItemQuantityDto {
   constructor(

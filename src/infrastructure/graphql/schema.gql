@@ -54,7 +54,9 @@ type AddressType {
   stateId: String!
 }
 
-"""Types of addresses"""
+"""
+Types of addresses
+"""
 enum AddressTypeEnum {
   BILLING
   SHIPPING
@@ -94,12 +96,12 @@ type Cart {
 type CartItem {
   firstAttribute: FirstAttribute
   id: ID!
-  name: String!
+  productName: String
   promotionId: ID
   qty: Int!
-  subTotal: Float!
-  unitPrice: Float!
-  updatedAt: DateTime!
+  subTotal: Float
+  unitPrice: Float
+  updatedAt: DateTime
   variantId: ID!
 }
 
@@ -142,10 +144,6 @@ input CreateAddressInput {
 input CreateAttributeInput {
   key: String!
   value: String!
-}
-
-input CreateCartInput {
-  customerId: ID!
 }
 
 input CreateCategoryInput {
@@ -418,8 +416,15 @@ input ForgotPasswordInput {
 }
 
 input GetCartPaginatedInput {
-  limit: Int! = 10
-  page: Int! = 1
+  """
+  Number of items per page (max 50)
+  """
+  limit: Int = 25
+
+  """
+  Page number for pagination (starts from 1)
+  """
+  page: Int = 1
 }
 
 input GetInTouchInput {
@@ -460,11 +465,15 @@ enum MediaTypeEnum {
 
 type Mutation {
   addItemToCart(input: AddItemToCartInput!): Cart!
-  addStockToWarehouse(input: AddStockToWarehouseInput!, reason: String, variantId: ID!, warehouseId: ID!): Warehouse!
+  addStockToWarehouse(
+    input: AddStockToWarehouseInput!
+    reason: String
+    variantId: ID!
+    warehouseId: ID!
+  ): Warehouse!
   addVariant(input: CreateVariantInput!): Product!
   archiveVariant(id: String!, productId: String!): Product!
   createAddress(input: CreateAddressInput!): AddressType!
-  createCart(input: CreateCartInput!): Cart!
   createCategory(input: CreateCategoryInput!): Category!
   createProduct(input: CreateProductInput!): Product!
   createWarehouse(input: CreateWarehouseInput!): Warehouse!
@@ -479,7 +488,11 @@ type Mutation {
   register(input: AuthenticationInput!): AuthIdentity!
   removeItemFromCart(input: RemoveItemFromCartInput!): Cart!
   removeManyItemsFromCart(input: RemoveManyItemFromCartInput!): Cart!
-  removeStockFromWarehouse(reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
+  removeStockFromWarehouse(
+    reason: String
+    stockId: ID!
+    warehouseId: ID!
+  ): Warehouse!
   removeVariant(id: String!, productId: String!): Product!
   restoreProduct(id: String!): Product!
   restoreVariant(id: String!, productId: String!): Product!
@@ -489,9 +502,18 @@ type Mutation {
   updateItemQty(input: UpdateItemQtyInput!): Cart!
   updatePassword(input: UpdatePasswordInput!): Response!
   updateProduct(id: String!, input: UpdateProductInput!): Product!
-  updateStockInWarehouse(input: UpdateStockInWarehouseInput!, reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
+  updateStockInWarehouse(
+    input: UpdateStockInWarehouseInput!
+    reason: String
+    stockId: ID!
+    warehouseId: ID!
+  ): Warehouse!
   updateTenant(input: UpdateTenantInput!): Tenant!
-  updateVariant(id: String!, input: UpdateVariantInput!, productId: String!): Product!
+  updateVariant(
+    id: String!
+    input: UpdateVariantInput!
+    productId: String!
+  ): Product!
   updateWarehouse(id: ID!, input: UpdateWarehouseInput!): Warehouse!
 }
 
@@ -558,13 +580,55 @@ type ProductCategory {
 
 type Query {
   getAddressById(id: ID!): AddressType!
-  getAllAddresses(addressType: AddressTypeEnum, limit: Int, name: String, page: Int): PaginatedAddressesType!
-  getAllCategories(includeSubcategories: Boolean = true, limit: Int = 10, name: String, page: Int = 1, parentId: ID, sortBy: SortBy, sortOrder: SortOrder): PaginatedCategoriesType!
+  getAllAddresses(
+    addressType: AddressTypeEnum
+    limit: Int
+    name: String
+    page: Int
+  ): PaginatedAddressesType!
+  getAllCategories(
+    includeSubcategories: Boolean = true
+    limit: Int = 10
+    name: String
+    page: Int = 1
+    parentId: ID
+    sortBy: SortBy
+    sortOrder: SortOrder
+  ): PaginatedCategoriesType!
   getAllCountries: [CountryType!]!
-  getAllProducts(categoriesIds: [ID!], includeSoftDeleted: Boolean = false, limit: Float = 25, name: String, page: Float = 1, sortBy: SortBy, sortOrder: SortOrder, type: TypeEnum): PaginatedProductsType!
-  getAllStockMovements(createdById: ID, dateFrom: DateTime, dateTo: DateTime, includeDeleted: Boolean = false, limit: Int = 10, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID, warehouseId: ID!): PaginatedStockMovementsType!
-  getAllWarehouses(addressId: ID, includeAddresses: Boolean = false, limit: Int = 10, name: String, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, stockFilters: StockPerWarehouseFilterInput): PaginatedWarehousesType!
-  getCart(input: GetCartPaginatedInput): PaginatedCart!
+  getAllProducts(
+    categoriesIds: [ID!]
+    includeSoftDeleted: Boolean = false
+    limit: Float = 25
+    name: String
+    page: Float = 1
+    sortBy: SortBy
+    sortOrder: SortOrder
+    type: TypeEnum
+  ): PaginatedProductsType!
+  getAllStockMovements(
+    createdById: ID
+    dateFrom: DateTime
+    dateTo: DateTime
+    includeDeleted: Boolean = false
+    limit: Int = 10
+    page: Int = 1
+    sortBy: SortBy
+    sortOrder: SortOrder
+    variantId: ID
+    warehouseId: ID!
+  ): PaginatedStockMovementsType!
+  getAllWarehouses(
+    addressId: ID
+    includeAddresses: Boolean = false
+    limit: Int = 10
+    name: String
+    page: Int = 1
+    sortBy: SortBy
+    sortOrder: SortOrder
+    stockFilters: StockPerWarehouseFilterInput
+  ): PaginatedWarehousesType!
+  getCart(input: GetCartPaginatedInput!): PaginatedCart!
   getCategoryById(id: ID!): Category!
   getMediaUploadToken: MediaAuthResponse!
   getProductById(id: String!): Product!
