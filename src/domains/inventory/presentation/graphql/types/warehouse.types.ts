@@ -80,6 +80,9 @@ export class StockPerWarehouseSortBy {
 
   @Field(() => SortOrder, { nullable: true })
   replenishmentDate?: SortOrder;
+
+  @Field(() => SortOrder, { nullable: true })
+  sku?: SortOrder;
 }
 
 @InputType()

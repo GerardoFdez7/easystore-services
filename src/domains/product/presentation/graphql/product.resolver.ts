@@ -40,7 +40,7 @@ registerEnumType(TypeEnum, {
 });
 
 registerEnumType(SortBy, {
-  name: 'SortBy',
+  name: 'ProductSortBy',
 });
 
 registerEnumType(SortOrder, {

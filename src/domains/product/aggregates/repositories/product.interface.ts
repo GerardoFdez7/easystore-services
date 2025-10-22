@@ -1,5 +1,5 @@
 import { Product } from '../entities';
-import { Id, Type, SortBy, SortOrder } from '../value-objects/index';
+import { Id, Type, SortBy, SortOrder } from '../value-objects';
 
 export interface IProductRepository {
   /**
@@ -47,7 +47,13 @@ export interface IProductRepository {
    * @param options.name Filter by product name (case-insensitive).
    * @param options.categoriesIds Filter by category IDs.
    * @param options.type Filter by product type.
-   * @param options.sortBy The field to sort by (default: 'createdAt').
+   * @param options.sortBy The field to sort by (default: 'createdAt'). Supports:
+   *   - 'createdAt': Sort by creation date
+   *   - 'updatedAt': Sort by last update date
+   *   - 'name': Sort by product name
+   *   - 'variantCount': Sort by number of variants
+   *   - 'firstVariantPrice': Sort by price of the first variant
+   *   - 'sku': Sort by SKU of the first variant alphabetically
    * @param options.sortOrder The sort order ('asc' or 'desc') (default: 'desc').
    * @param options.includeSoftDeleted Whether to include soft-deleted products (default: false).
    * @returns A promise that resolves to an object containing the products, total count, and hasMore flag.

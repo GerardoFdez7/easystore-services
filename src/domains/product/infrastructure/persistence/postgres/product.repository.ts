@@ -547,7 +547,7 @@ export class ProductRepository implements IProductRepository {
   ): Promise<{ products: Product[]; total: number; hasMore: boolean }> {
     const {
       page = 1,
-      limit = 10,
+      limit = 25,
       name,
       categoriesIds,
       type,
@@ -561,11 +561,53 @@ export class ProductRepository implements IProductRepository {
     ];
 
     if (name) {
+      // Get variant IDs where the search term matches the key OR value of the first attribute (ordered by key) with prisma parameter binding to prevent SQL injection
+      const variantIdsWithFirstAttributeMatch = await this.prisma.$queryRaw<
+        Array<{ id: string }>
+      >`
+        SELECT DISTINCT v.id
+        FROM "product"."Variant" v
+        INNER JOIN "product"."Attribute" a ON v.id = a."variantId"
+        WHERE (a.value ILIKE ${'%' + name + '%'} OR a.key ILIKE ${'%' + name + '%'})
+        AND a.key = (
+          SELECT a2.key
+          FROM "product"."Attribute" a2
+          WHERE a2."variantId" = v.id
+          ORDER BY a2.key ASC
+          LIMIT 1
+        )
+      `;
+
       conditions.push({
-        name: {
-          contains: name,
-          mode: 'insensitive',
-        },
+        OR: [
+          {
+            name: {
+              contains: name,
+              mode: 'insensitive',
+            },
+          },
+          {
+            variants: {
+              some: {
+                sku: {
+                  contains: name,
+                  mode: 'insensitive',
+                },
+              },
+            },
+          },
+          {
+            variants: {
+              some: {
+                id: {
+                  in: variantIdsWithFirstAttributeMatch.map(
+                    (result) => result.id,
+                  ),
+                },
+              },
+            },
+          },
+        ],
       });
     }
 
@@ -594,10 +636,23 @@ export class ProductRepository implements IProductRepository {
     const whereClause: Prisma.ProductWhereInput =
       conditions.length > 0 ? { AND: conditions } : {};
 
+    // Handle complex sorting that requires custom logic
     const orderBy: Prisma.ProductOrderByWithRelationInput = {};
+    let requiresCustomSorting = false;
+
     if (sortBy) {
-      orderBy[sortBy] =
-        sortOrder || (sortBy === SortBy.NAME ? SortOrder.ASC : SortOrder.DESC);
+      switch (sortBy) {
+        case SortBy.VARIANT_COUNT:
+        case SortBy.FIRST_VARIANT_PRICE:
+        case SortBy.SKU:
+          requiresCustomSorting = true;
+          break;
+        default:
+          orderBy[sortBy] =
+            sortOrder ||
+            (sortBy === SortBy.NAME ? SortOrder.ASC : SortOrder.DESC);
+          break;
+      }
     } else {
       orderBy.createdAt = SortOrder.DESC;
     }
@@ -606,33 +661,102 @@ export class ProductRepository implements IProductRepository {
       const skip = (page - 1) * limit;
       const take = limit;
 
-      const [products, total] = await Promise.all([
-        this.prisma.product.findMany({
-          where: whereClause,
-          skip,
-          take,
-          orderBy,
-          include: {
-            media: true,
-            variants: {
-              include: {
-                attributes: true,
-                dimension: true,
-                variantMedia: true,
-                warranties: true,
-                installmentPayments: true,
+      let products: PrismaProduct[];
+      let total: number;
+
+      if (requiresCustomSorting) {
+        // For complex sorting, we need to fetch all products first, then sort in memory
+        const [allProducts, totalCount] = await Promise.all([
+          this.prisma.product.findMany({
+            where: whereClause,
+            include: {
+              media: true,
+              variants: {
+                include: {
+                  attributes: true,
+                  dimension: true,
+                  variantMedia: true,
+                  warranties: true,
+                  installmentPayments: true,
+                },
+                orderBy: {
+                  sku: 'asc', // For consistent first variant selection
+                },
               },
-            },
-            categories: {
-              include: {
-                category: true,
+              categories: {
+                include: {
+                  category: true,
+                },
               },
+              sustainabilities: true,
             },
-            sustainabilities: true,
-          },
-        }),
-        this.prisma.product.count({ where: whereClause }),
-      ]);
+          }),
+          this.prisma.product.count({ where: whereClause }),
+        ]);
+
+        // Apply custom sorting
+        const sortedProducts = allProducts.sort((a, b) => {
+          let comparison = 0;
+
+          switch (sortBy) {
+            case SortBy.VARIANT_COUNT: {
+              comparison = a.variants.length - b.variants.length;
+              break;
+            }
+            case SortBy.FIRST_VARIANT_PRICE: {
+              const aPrice =
+                a.variants.length > 0 ? Number(a.variants[0].price) : 0;
+              const bPrice =
+                b.variants.length > 0 ? Number(b.variants[0].price) : 0;
+              comparison = aPrice - bPrice;
+              break;
+            }
+            case SortBy.SKU: {
+              const aSku = a.variants.length > 0 ? a.variants[0].sku : '';
+              const bSku = b.variants.length > 0 ? b.variants[0].sku : '';
+              comparison = aSku.localeCompare(bSku);
+              break;
+            }
+          }
+
+          // Apply sort order
+          const finalOrder = sortOrder || SortOrder.DESC;
+          return finalOrder === SortOrder.ASC ? comparison : -comparison;
+        });
+
+        // Apply pagination to sorted results
+        products = sortedProducts.slice(skip, skip + take);
+        total = totalCount;
+      } else {
+        // Use standard Prisma sorting for simple cases
+        [products, total] = await Promise.all([
+          this.prisma.product.findMany({
+            where: whereClause,
+            skip,
+            take,
+            orderBy,
+            include: {
+              media: true,
+              variants: {
+                include: {
+                  attributes: true,
+                  dimension: true,
+                  variantMedia: true,
+                  warranties: true,
+                  installmentPayments: true,
+                },
+              },
+              categories: {
+                include: {
+                  category: true,
+                },
+              },
+              sustainabilities: true,
+            },
+          }),
+          this.prisma.product.count({ where: whereClause }),
+        ]);
+      }
 
       const hasMore = skip + products.length < total;
 

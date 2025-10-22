@@ -189,6 +189,28 @@ export class GetAllWarehousesHandler
             }
           }
 
+          // Sort by SKU
+          if (stockSortBy.sku) {
+            const aSku =
+              (
+                a as IStockPerWarehouseType & {
+                  variantSku?: string;
+                }
+              ).variantSku || '';
+            const bSku =
+              (
+                b as IStockPerWarehouseType & {
+                  variantSku?: string;
+                }
+              ).variantSku || '';
+            const comparison = aSku.localeCompare(bSku);
+            if (comparison !== 0) {
+              return stockSortBy.sku === SortOrder.ASC
+                ? comparison
+                : -comparison;
+            }
+          }
+
           return 0;
         });
       }

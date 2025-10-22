@@ -1,6 +1,5 @@
 import { NestFactory } from '@nestjs/core';
 import { Logger } from 'nestjs-pino';
-import { Logger as NestLogger } from '@nestjs/common';
 import { PostgreService } from '@database/postgres.service';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
@@ -37,7 +36,7 @@ async function bootstrap(): Promise<void> {
 }
 
 bootstrap().catch((error) => {
-  const logger = new NestLogger('Bootstrap');
-  logger.fatal('NestJS failed to start:', error);
+  // eslint-disable-next-line no-console
+  console.error('NestJS failed to start:', error);
   process.exit(1);
 });

@@ -8,9 +8,17 @@ export {
   ShortDescription,
   MediumDescription,
   LongDescription,
-  SortBy,
   SortOrder,
 } from '@shared/value-objects';
+
+export enum SortBy {
+  CREATED_AT = 'createdAt',
+  UPDATED_AT = 'updatedAt',
+  NAME = 'name',
+  VARIANT_COUNT = 'variantCount',
+  FIRST_VARIANT_PRICE = 'firstVariantPrice',
+  SKU = 'sku',
+}
 
 // Product value objects
 export { Type, TypeEnum } from './product/type.vo';

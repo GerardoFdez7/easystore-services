@@ -5,6 +5,7 @@ export interface StockPerWarehouseSortBy {
   available?: SortOrder;
   reserved?: SortOrder;
   date?: SortOrder;
+  sku?: SortOrder;
 }
 
 export class GetAllWarehousesDTO {
