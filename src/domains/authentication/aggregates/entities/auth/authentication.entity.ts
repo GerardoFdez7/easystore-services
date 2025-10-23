@@ -62,7 +62,7 @@ export class AuthIdentity extends Entity<IAuthIdentityProps> {
       updatedAt: now,
     });
 
-    auth.apply(new AuthenticationRegisterEvent(auth));
+    auth.apply(new AuthenticationRegisterEvent(auth, input.domain));
     return auth;
   }
 

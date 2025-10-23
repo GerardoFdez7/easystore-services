@@ -4,6 +4,7 @@ export interface IAuthIdentityBaseType {
   email: string;
   password: string;
   accountType: AccountTypeEnum;
+  domain?: string;
 }
 
 export interface IAuthIdentitySystemProps {
