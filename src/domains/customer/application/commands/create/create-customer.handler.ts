@@ -21,7 +21,6 @@ export class CreateCustomerHandler
     const customerWithEvents = this.eventPublisher.mergeObjectContext(
       Customer.create(command.data),
     );
-
     // Persist the customer in DB
     const savedCustomer =
       await this.customerRepository.create(customerWithEvents);

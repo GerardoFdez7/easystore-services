@@ -12,9 +12,7 @@ export class IdentityCreatedHandler
   constructor(private readonly commandBus: CommandBus) {}
 
   async handle(event: AuthenticationRegisterEvent): Promise<void> {
-    console.log('1.');
     if (event.auth.get('accountType').getValue() === AccountTypeEnum.CUSTOMER) {
-      console.log('2.');
       const name = event.auth.get('email').getValue().split('.')[0];
       const tenantId = '019964c4-bde5-7756-980c-8154fbe45539'; // -> Import custom repository and use getTenantIdByDomain
       await this.commandBus.execute(
