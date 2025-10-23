@@ -1,6 +1,6 @@
 import { EventsHandler, IEventHandler, CommandBus } from '@nestjs/cqrs';
 import { Injectable } from '@nestjs/common';
-import { CustomerCreatedEvent } from '../../aggregates/events/customer-created.event'; // replace with the correct path '@customer/aggregates/events'
+import { CustomerCreatedEvent } from '../../../customer/aggregates/events/customer-created.event'; // replace with the correct path '@customer/aggregates/events'
 import { CreateCartDto } from '../commands/create/cart/create-cart.dto';
 
 @Injectable()

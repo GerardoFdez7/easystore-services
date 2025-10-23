@@ -1,6 +1,5 @@
-// Delete this file after updating customer-created.handler.ts with the correct event
-
 import { IEvent } from '@nestjs/cqrs';
+import { Customer } from '../entities/customer.entity';
 
 /**
  * Event representing a customer creation from external domain
@@ -8,9 +7,5 @@ import { IEvent } from '@nestjs/cqrs';
  * and automatically create a cart for the new customer
  */
 export class CustomerCreatedEvent implements IEvent {
-  constructor(
-    public readonly customer: {
-      get(property: 'id'): { getValue(): string };
-    },
-  ) {}
+  constructor(public readonly customer: Customer) {}
 }

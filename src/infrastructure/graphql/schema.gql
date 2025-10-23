@@ -55,6 +55,7 @@ type AddressType {
 }
 
 """Types of addresses"""
+"""Types of addresses"""
 enum AddressTypeEnum {
   BILLING
   SHIPPING
@@ -80,6 +81,7 @@ type AuthIdentity {
 
 input AuthenticationInput {
   accountType: AccountTypeEnum!
+  domain: String
   email: String!
   password: String!
 }
@@ -440,6 +442,8 @@ enum MediaTypeEnum {
 
 type Mutation {
   addItemToCart(input: AddItemToCartInput!): Cart!
+  addStockToWarehouse(input: AddStockToWarehouseInput!, reason: String, variantId: ID!, warehouseId: ID!): Warehouse!
+  addVariant(input: CreateVariantInput!): Product!
   addStockToWarehouse(input: AddStockToWarehouseInput!, reason: String, variantId: ID!, warehouseId: ID!): Warehouse!
   archiveVariant(id: String!, productId: String!): Product!
   createAddress(input: CreateAddressInput!): AddressType!
