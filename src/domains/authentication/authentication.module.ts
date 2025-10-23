@@ -24,9 +24,9 @@ import {
 } from './application/events';
 import {
   AuthenticationRepository,
-  CustomerRepository,
   EmployeeRepository,
 } from './infrastructure/persistence/postgres';
+import { CustomerRepository } from '../customer/infrastructure/database/postgres/customer.repository';
 import TenantRepository from '../tenant/infrastructure/persistence/postgres/tenant.repository';
 import AuthGuard from './infrastructure/guard/auth.guard';
 import {
