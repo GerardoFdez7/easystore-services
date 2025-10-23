@@ -3,11 +3,11 @@ import { CustomerResolver } from './presentation/graphql/customer.resolver';
 import { CqrsModule } from '@nestjs/cqrs';
 import { CreateCustomerHandler } from './application/commands/create/create-customer.handler';
 import { CustomerRepository } from '@authentication/infrastructure/persistence/postgres';
-import { CustomerCreatedHandler } from '../cart/application/events';
+import { IdentityCreatedHandler } from './application/events/customer/identity-created.handler';
 
 const CommandHandlers = [CreateCustomerHandler];
 
-const EventHandlers = [CustomerCreatedHandler];
+const EventHandlers = [IdentityCreatedHandler];
 
 @Module({
   imports: [CqrsModule],
