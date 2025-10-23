@@ -7,6 +7,7 @@ import { Tenant, ITenantType } from '../../../aggregates/entities';
 import { Tenant as PrismaTenant } from '.prisma/postgres';
 import { ITenantRepository } from '../../../aggregates/repositories/tenant.interface';
 import { handlePrismaDatabaseError } from '@utils/prisma-error-utils';
+import { Domain } from 'src/domains/tenant/aggregates/value-objects';
 
 @Injectable()
 export default class TenantRepository implements ITenantRepository {
@@ -122,6 +123,17 @@ export default class TenantRepository implements ITenantRepository {
       return tenant ? this.mapToDomain(tenant) : null;
     } catch (error) {
       return this.handleDatabaseError(error, 'find tenant by id');
+    }
+  }
+
+  async getTenantIdByDomain(domain: Domain): Promise<string | null> {
+    try {
+      const tenant = await this.prisma.tenant.findUnique({
+        where: { domain: domain.getValue() },
+      });
+      return tenant ? tenant.id : null;
+    } catch (error) {
+      return this.handleDatabaseError(error, 'Get tenant id by domain.');
     }
   }
 

@@ -40,5 +40,6 @@ const EventHandlers = [TenantCreatedHandler, TenantUpdatedHandler];
     ...QueryHandlers,
     ...EventHandlers,
   ],
+  exports: ['ITenantRepository'],
 })
 export class TenantDomain {}

@@ -5,13 +5,14 @@ import { CreateCustomerHandler } from './application/commands/create/create-cust
 import { CustomerRepository } from './infrastructure/database/postgres/customer.repository';
 import { IdentityCreatedHandler } from './application/events/customer/identity-created.handler';
 import { CustomerCreatedHandler } from './application/events/customer/customer-created.handler';
+import { TenantDomain } from '../tenant/tenant.module';
 
 const CommandHandlers = [CreateCustomerHandler];
 
 const EventHandlers = [IdentityCreatedHandler, CustomerCreatedHandler];
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, TenantDomain],
   providers: [
     CustomerResolver,
     {
