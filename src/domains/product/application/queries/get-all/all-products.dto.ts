@@ -1,4 +1,9 @@
-import { SortBy, SortOrder, TypeEnum } from '../../../aggregates/value-objects';
+import {
+  SortBy,
+  SortOrder,
+  TypeEnum,
+  ProductFilterModeEnum,
+} from '../../../aggregates/value-objects';
 
 export class GetAllProductsDTO {
   constructor(
@@ -11,7 +16,7 @@ export class GetAllProductsDTO {
       type?: TypeEnum;
       sortBy?: SortBy;
       sortOrder?: SortOrder;
-      includeSoftDeleted?: boolean;
+      filterMode?: ProductFilterModeEnum;
     },
   ) {}
 }

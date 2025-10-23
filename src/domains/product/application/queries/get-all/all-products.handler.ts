@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Inject, BadRequestException, NotFoundException } from '@nestjs/common';
 import { IProductRepository } from '../../../aggregates/repositories/product.interface';
-import { Id, Type } from '../../../aggregates/value-objects';
+import { Id, Type, ProductFilterMode } from '../../../aggregates/value-objects';
 import { ProductMapper, PaginatedProductsDTO } from '../../mappers';
 import { GetAllProductsDTO } from './all-products.dto';
 
@@ -22,7 +22,7 @@ export class GetAllProductsHandler implements IQueryHandler<GetAllProductsDTO> {
       type,
       sortBy,
       sortOrder,
-      includeSoftDeleted,
+      filterMode,
     } = options || {};
 
     // Validate pagination parameters
@@ -43,6 +43,9 @@ export class GetAllProductsHandler implements IQueryHandler<GetAllProductsDTO> {
       ? categoriesIds.map((categoryId) => Id.create(categoryId))
       : undefined;
     const typeVO = type ? Type.create(type) : undefined;
+    const filterModeVO = filterMode
+      ? ProductFilterMode.create(filterMode)
+      : undefined;
 
     // Find all products with pagination and optional filtering
     const result = await this.productRepository.findAll(tenantIdVO, {
@@ -53,7 +56,7 @@ export class GetAllProductsHandler implements IQueryHandler<GetAllProductsDTO> {
       type: typeVO,
       sortBy,
       sortOrder,
-      includeSoftDeleted,
+      filterMode: filterModeVO,
     });
 
     if (!result || result.total === 0) {

@@ -564,7 +564,7 @@ model Variant {
   ean                    String?                 @unique
   isbn                   String?                 @unique
   barcode                String?
-  sku                    String
+  sku                    String                  @postgres.Citext
   isArchived             Boolean                 @default(false)
   productId              String
   tenantId               String

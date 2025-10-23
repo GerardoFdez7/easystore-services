@@ -33,7 +33,12 @@ import {
   GetAllProductsDTO,
 } from '../../application/queries';
 import { PaginatedProductsDTO } from '../../application/mappers';
-import { SortBy, SortOrder, TypeEnum } from '../../aggregates/value-objects';
+import {
+  SortBy,
+  SortOrder,
+  TypeEnum,
+  ProductFilterModeEnum,
+} from '../../aggregates/value-objects';
 
 registerEnumType(TypeEnum, {
   name: 'TypeEnum',
@@ -45,6 +50,10 @@ registerEnumType(SortBy, {
 
 registerEnumType(SortOrder, {
   name: 'SortOrder',
+});
+
+registerEnumType(ProductFilterModeEnum, {
+  name: 'ProductFilterMode',
 });
 
 @Resolver(() => ProductType)
@@ -181,8 +190,12 @@ export class ProductResolver {
     @Args('sortBy', { nullable: true, type: () => SortBy }) sortBy?: SortBy,
     @Args('sortOrder', { nullable: true, type: () => SortOrder })
     sortOrder?: SortOrder,
-    @Args('includeSoftDeleted', { defaultValue: false, nullable: true })
-    includeSoftDeleted?: boolean,
+    @Args('filterMode', {
+      defaultValue: ProductFilterModeEnum.ALL,
+      nullable: true,
+      type: () => ProductFilterModeEnum,
+    })
+    filterMode?: ProductFilterModeEnum,
   ): Promise<PaginatedProductsDTO> {
     return this.queryBus.execute(
       new GetAllProductsDTO(user.tenantId, {
@@ -193,7 +206,7 @@ export class ProductResolver {
         type,
         sortBy,
         sortOrder,
-        includeSoftDeleted,
+        filterMode,
       }),
     );
   }

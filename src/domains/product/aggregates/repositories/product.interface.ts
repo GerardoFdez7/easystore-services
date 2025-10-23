@@ -1,5 +1,11 @@
 import { Product } from '../entities';
-import { Id, Type, SortBy, SortOrder } from '../value-objects';
+import {
+  Id,
+  Type,
+  SortBy,
+  SortOrder,
+  ProductFilterMode,
+} from '../value-objects';
 
 export interface IProductRepository {
   /**
@@ -55,7 +61,10 @@ export interface IProductRepository {
    *   - 'firstVariantPrice': Sort by price of the first variant
    *   - 'sku': Sort by SKU of the first variant alphabetically
    * @param options.sortOrder The sort order ('asc' or 'desc') (default: 'desc').
-   * @param options.includeSoftDeleted Whether to include soft-deleted products (default: false).
+   * @param options.filterMode Filter mode for product status (default: 'all'). Options:
+   *   - 'all': Include both active and archived products
+   *   - 'actives': Include only active (non-archived) products
+   *   - 'archives': Include only archived (soft-deleted) products
    * @returns A promise that resolves to an object containing the products, total count, and hasMore flag.
    * @throws {Error} If there is an error during the search.
    */
@@ -69,7 +78,7 @@ export interface IProductRepository {
       type?: Type;
       sortBy?: SortBy;
       sortOrder?: SortOrder;
-      includeSoftDeleted?: boolean;
+      filterMode?: ProductFilterMode;
     },
   ): Promise<{ products: Product[]; total: number; hasMore: boolean }>;
 

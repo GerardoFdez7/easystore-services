@@ -29,7 +29,14 @@ import {
   WarrantyDTO,
   InstallmentPaymentDTO,
 } from '../../../application/mappers';
-import { Id, Type, SortBy, SortOrder } from '../../../aggregates/value-objects';
+import {
+  Id,
+  Type,
+  SortBy,
+  SortOrder,
+  ProductFilterMode,
+  ProductFilterModeEnum,
+} from '../../../aggregates/value-objects';
 
 @Injectable()
 export class ProductRepository implements IProductRepository {
@@ -542,7 +549,7 @@ export class ProductRepository implements IProductRepository {
       type?: Type;
       sortBy?: SortBy;
       sortOrder?: SortOrder;
-      includeSoftDeleted?: boolean;
+      filterMode?: ProductFilterMode;
     },
   ): Promise<{ products: Product[]; total: number; hasMore: boolean }> {
     const {
@@ -553,7 +560,7 @@ export class ProductRepository implements IProductRepository {
       type,
       sortBy,
       sortOrder,
-      includeSoftDeleted = false,
+      filterMode,
     } = options || {};
 
     const conditions: Prisma.ProductWhereInput[] = [
@@ -627,7 +634,32 @@ export class ProductRepository implements IProductRepository {
       conditions.push({ productType: type.getValue() });
     }
 
-    if (!includeSoftDeleted) {
+    // Handle filter mode for product status
+    if (filterMode) {
+      const filterModeValue = filterMode.getValue();
+      switch (filterModeValue) {
+        case ProductFilterModeEnum.ACTIVES:
+          conditions.push({
+            isArchived: false,
+          });
+          break;
+        case ProductFilterModeEnum.ARCHIVES:
+          conditions.push({
+            isArchived: true,
+          });
+          break;
+        case ProductFilterModeEnum.ALL:
+          // No filter needed - include both active and archived
+          break;
+        default:
+          // Default to actives only if no valid filter mode provided
+          conditions.push({
+            isArchived: false,
+          });
+          break;
+      }
+    } else {
+      // Default behavior: show only active products
       conditions.push({
         isArchived: false,
       });
