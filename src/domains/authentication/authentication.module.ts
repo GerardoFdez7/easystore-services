@@ -29,7 +29,7 @@ import {
   CustomerRepository,
   EmployeeRepository,
 } from './infrastructure/persistence/postgres';
-import { TenantAdapter } from './infrastructure/adapters';
+import { TenantAdapter } from './infrastructure/adapters';\
 import AuthGuard from './infrastructure/guard/auth.guard';
 import { JwtStrategy } from './infrastructure/strategies/jwt/jwt.strategy';
 import {
