@@ -28,12 +28,12 @@ import { CustomerDomain } from './domains/customer/customer.module';
     MediaModule,
     AuthenticationDomain,
     TenantDomain,
+    CustomerDomain,
     ProductDomain,
     CategoryDomain,
     AddressDomain,
     InventoryDomain,
     CartDomain,
-    CustomerDomain,
   ],
   providers: [
     {
