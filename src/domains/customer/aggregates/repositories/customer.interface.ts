@@ -16,4 +16,6 @@ export interface ICustomerRepository {
   ): Promise<{ id: string; tenantId: string } | null>;
 
   create(customer: Customer): Promise<Customer>;
+
+  findCustomerById(id: Id, tenantId: Id): Promise<Customer>;
 }
