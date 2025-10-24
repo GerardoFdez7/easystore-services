@@ -19,11 +19,14 @@ export class IdentityCreatedHandler
 
   async handle(event: AuthenticationRegisterEvent): Promise<void> {
     if (event.auth.get('accountType').getValue() === AccountTypeEnum.CUSTOMER) {
-      const name = event.domain.split('.')[0];
-      logger.log(name);
+      // Use the full domain for tenant lookup
+      const fullDomain = event.domain;
+      const name = event.auth.get('email').getValue().split('@')[0];
+
       const tenantId = await this.tenantRepository.getTenantIdByDomain(
-        Domain.create(name),
+        Domain.create(fullDomain),
       );
+
       await this.commandBus.execute(
         new CreateCustomerDto({
           name,
