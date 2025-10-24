@@ -6,10 +6,13 @@ import { CustomerRepository } from './infrastructure/database/postgres/customer.
 import { IdentityCreatedHandler } from './application/events/customer/identity-created.handler';
 import { CustomerCreatedHandler } from './application/events/customer/customer-created.handler';
 import { TenantDomain } from '../tenant/tenant.module';
+import { FindCustomerByIdHandler } from './application/queries';
 
 const CommandHandlers = [CreateCustomerHandler];
 
 const EventHandlers = [IdentityCreatedHandler, CustomerCreatedHandler];
+
+const QueryHandlers = [FindCustomerByIdHandler];
 
 @Module({
   imports: [CqrsModule, TenantDomain],
@@ -21,6 +24,7 @@ const EventHandlers = [IdentityCreatedHandler, CustomerCreatedHandler];
     },
     ...CommandHandlers,
     ...EventHandlers,
+    ...QueryHandlers,
   ],
 })
 export class CustomerDomain {}

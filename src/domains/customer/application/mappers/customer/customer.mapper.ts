@@ -9,7 +9,7 @@ import { CustomerDTO, PaginatedCustomersDTO } from './customer.dto';
 /**
  * Interface for persistence Customer model
  */
-interface ICustomerPersistence {
+export interface ICustomerPersistence {
   id: string;
   name: string;
   tenantId: string;
