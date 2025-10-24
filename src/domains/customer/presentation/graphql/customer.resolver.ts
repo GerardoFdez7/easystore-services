@@ -1,8 +1,9 @@
-import { Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CustomerType } from './types/customer.types';
+import { CustomerType, UpdateCustomerInput } from './types/customer.types';
 import { CurrentUser, JwtPayload } from '@common/decorators';
 import { FindCustomerByIdDto } from '../../application/queries/one/find-customer-by-id.dto';
+import { UpdateCustomerDto } from '../../application/commands/update/update-customer.dto';
 
 @Resolver(() => CustomerType)
 export class CustomerResolver {
@@ -14,6 +15,16 @@ export class CustomerResolver {
   ///////////////
   // Mutations //
   ///////////////
+  @Mutation(() => CustomerType)
+  async updateCustomer(
+    @Args('input', { type: () => UpdateCustomerInput })
+    input: UpdateCustomerInput,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<CustomerType> {
+    return await this.commandBus.execute(
+      new UpdateCustomerDto(input, user.customerId, user.tenantId),
+    );
+  }
 
   ///////////////
   // Queries //

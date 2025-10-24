@@ -31,6 +31,21 @@ export class CustomerType {
 }
 
 @InputType()
+export class UpdateCustomerInput {
+  @Field()
+  name: string;
+
+  @Field(() => ID, { nullable: true })
+  defaultPhoneNumberId?: string;
+
+  @Field(() => ID, { nullable: true })
+  defaultShippingAddressId?: string;
+
+  @Field(() => ID, { nullable: true })
+  defaultBillingAddressId?: string;
+}
+
+@InputType()
 export class CreateCustomerInput {
   @Field()
   name: string;
