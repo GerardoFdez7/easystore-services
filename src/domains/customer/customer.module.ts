@@ -7,10 +7,16 @@ import { IdentityCreatedHandler } from './application/events/customer/identity-c
 import { CustomerCreatedHandler } from './application/events/customer/customer-created.handler';
 import { TenantDomain } from '../tenant/tenant.module';
 import { FindCustomerByIdHandler } from './application/queries';
+import { UpdateCustomerHandler } from './application/commands/update/update-customer.handler';
+import { CustomerUpdatedHandler } from './application/events/customer/customer-updated.handler';
 
-const CommandHandlers = [CreateCustomerHandler];
+const CommandHandlers = [CreateCustomerHandler, UpdateCustomerHandler];
 
-const EventHandlers = [IdentityCreatedHandler, CustomerCreatedHandler];
+const EventHandlers = [
+  IdentityCreatedHandler,
+  CustomerCreatedHandler,
+  CustomerUpdatedHandler,
+];
 
 const QueryHandlers = [FindCustomerByIdHandler];
 

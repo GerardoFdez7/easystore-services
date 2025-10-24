@@ -9,3 +9,9 @@ export interface ICustomerCreate extends ICustomerBase {
   defaultShippingAddressId?: string;
   defaultBillingAddressId?: string;
 }
+
+export interface ICustomerEntity extends ICustomerCreate {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
