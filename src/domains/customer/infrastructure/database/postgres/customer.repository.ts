@@ -83,6 +83,42 @@ export class CustomerRepository implements ICustomerRepository {
     }
   }
 
+  async update(customer: Customer): Promise<Customer> {
+    try {
+      const customerData = this.mapToPersistence(customer);
+      const customerId = customer.get('id').getValue();
+
+      const updatedCustomer = await this.postgresService.customer.update({
+        where: { id: customerId },
+        data: {
+          name: customerData.name,
+          defaultPhoneNumberId: customerData.defaultPhoneNumberId,
+          defaultShippingAddressId: customerData.defaultShippingAddressId,
+          defaultBillingAddressId: customerData.defaultBillingAddressId,
+          updatedAt: new Date(),
+        },
+      });
+
+      return CustomerMapper.fromPersistence(updatedCustomer);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new ResourceNotFoundError('Customer');
+        }
+        if (error.code === 'P2002') {
+          const field =
+            PrismaErrorUtils.extractFieldFromUniqueConstraintError(error);
+          throw new UniqueConstraintViolationError(
+            field,
+            'Customer with this data already exists',
+          );
+        }
+      }
+
+      return this.handleDatabaseError(error, 'update customer');
+    }
+  }
+
   async findCustomerById(id: Id, tenantId: Id): Promise<Customer> {
     try {
       const customerFound = await this.postgresService.customer.findFirst({
