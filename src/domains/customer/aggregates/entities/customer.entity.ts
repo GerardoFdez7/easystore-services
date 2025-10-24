@@ -1,6 +1,6 @@
 import { Entity, EntityProps } from '@shared/entity.base';
 import { Id, Name } from '@shared/value-objects';
-import { CustomerCreatedEvent } from '../events';
+import { CustomerCreatedEvent, CustomerUpdatedEvent } from '../events';
 import { ICustomerCreate } from './customer.attributes';
 
 export interface ICustomerProps extends EntityProps {
@@ -46,5 +46,32 @@ export class Customer extends Entity<ICustomerProps> {
     customer.apply(new CustomerCreatedEvent(customer));
 
     return customer;
+  }
+
+  static update(
+    customer: Customer,
+    input: Partial<Omit<ICustomerCreate, 'tenantId' | 'authIdentityId'>>,
+  ): Customer {
+    const customerUpdated = new Customer({
+      id: customer.get('id'),
+      name: input.name ? Name.create(input.name) : customer.get('name'),
+      tenantId: customer.get('tenantId'),
+      authIdentityId: customer.get('authIdentityId'),
+      defaultPhoneNumberId: input.defaultPhoneNumberId
+        ? Id.create(input.defaultPhoneNumberId)
+        : customer.get('defaultPhoneNumberId'),
+      defaultShippingAddressId: input.defaultShippingAddressId
+        ? Id.create(input.defaultShippingAddressId)
+        : customer.get('defaultShippingAddressId'),
+      defaultBillingAddressId: input.defaultBillingAddressId
+        ? Id.create(input.defaultBillingAddressId)
+        : customer.get('defaultBillingAddressId'),
+      updatedAt: new Date(),
+      createdAt: customer.get('createdAt'),
+    });
+
+    customerUpdated.apply(new CustomerUpdatedEvent(customerUpdated));
+
+    return customerUpdated;
   }
 }
