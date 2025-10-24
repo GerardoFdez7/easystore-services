@@ -1,6 +1,8 @@
-import { Resolver } from '@nestjs/graphql';
+import { Query, Resolver } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CustomerType } from './types/customer.types';
+import { CurrentUser, JwtPayload } from '@common/decorators';
+import { FindCustomerByIdDto } from '../../application/queries/one/find-customer-by-id.dto';
 
 @Resolver(() => CustomerType)
 export class CustomerResolver {
@@ -16,4 +18,12 @@ export class CustomerResolver {
   ///////////////
   // Queries //
   ///////////////
+  @Query(() => CustomerType)
+  async getCustomerById(
+    @CurrentUser() user: JwtPayload,
+  ): Promise<CustomerType> {
+    return this.queryBus.execute(
+      new FindCustomerByIdDto(user.customerId, user.tenantId),
+    );
+  }
 }

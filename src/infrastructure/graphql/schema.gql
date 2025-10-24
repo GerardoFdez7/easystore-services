@@ -375,6 +375,18 @@ enum CurrencyCodes {
   ZWL
 }
 
+type Customer {
+  authIdentityId: ID!
+  createdAt: DateTime
+  defaultBillingAddressId: ID
+  defaultPhoneNumberId: ID
+  defaultShippingAddressId: ID
+  id: ID!
+  name: String!
+  tenantId: ID!
+  updatedAt: DateTime
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
@@ -564,6 +576,7 @@ type Query {
   getAllWarehouses(addressId: ID, includeAddresses: Boolean = false, limit: Int = 10, name: String, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, stockFilters: StockPerWarehouseFilterInput): PaginatedWarehousesType!
   getCart(input: GetCartPaginatedInput!): PaginatedCart!
   getCategoryById(id: ID!): Category!
+  getCustomerById: Customer!
   getMediaUploadToken: MediaAuthResponse!
   getProductById(id: String!): Product!
   getStatesByCountryId(countryId: ID!): [StateType!]!

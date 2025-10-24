@@ -3,31 +3,21 @@ import { Prisma } from '.prisma/postgres';
 import { PostgreService } from '@database/postgres.service';
 import { ICustomerRepository } from '../../../aggregates/repositories/customer.interface';
 import { Customer } from '../../../aggregates/entities/customer.entity';
-import { CustomerMapper } from '../../../application/mappers/customer/customer.mapper';
+import {
+  CustomerMapper,
+  ICustomerPersistence,
+} from '../../../application/mappers/customer/customer.mapper';
 import { Id } from '@shared/value-objects';
 import {
   DatabaseOperationError,
   UniqueConstraintViolationError,
+  ResourceNotFoundError,
 } from '@shared/errors';
 import { PrismaErrorUtils } from '@utils/prisma-error-utils';
-
-// Interface for persistence Customer model
-interface ICustomerPersistence {
-  id: string;
-  name: string;
-  tenantId: string;
-  authIdentityId: string;
-  defaultPhoneNumberId?: string | null;
-  defaultShippingAddressId?: string | null;
-  defaultBillingAddressId?: string | null;
-  updatedAt: Date;
-  createdAt: Date;
-}
 
 @Injectable()
 export class CustomerRepository implements ICustomerRepository {
   constructor(private readonly postgresService: PostgreService) {}
-
   /**
    * Finds a customer by its auth identity ID.
    * @param authIdentityId The auth identity ID to search for.
@@ -91,6 +81,45 @@ export class CustomerRepository implements ICustomerRepository {
         error instanceof Error ? error : new Error(errorMessage),
       );
     }
+  }
+
+  async findCustomerById(id: Id, tenantId: Id): Promise<Customer> {
+    try {
+      const customerFound = await this.postgresService.customer.findFirst({
+        where: { id: id.getValue(), tenantId: tenantId.getValue() },
+      });
+
+      if (!customerFound) {
+        throw new ResourceNotFoundError('Customer');
+      }
+
+      return CustomerMapper.fromPersistence(customerFound);
+    } catch (error) {
+      if (error instanceof ResourceNotFoundError) {
+        throw error;
+      }
+
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      throw new DatabaseOperationError(
+        'find customer by id',
+        errorMessage,
+        error instanceof Error ? error : new Error(errorMessage),
+      );
+    }
+  }
+
+  /**
+   * Centralized error handling for database operations
+   */
+  private handleDatabaseError(error: unknown, operation: string): never {
+    const errorMessage =
+      error instanceof Error ? error.message : JSON.stringify(error);
+    throw new DatabaseOperationError(
+      operation,
+      errorMessage,
+      error instanceof Error ? error : new Error(errorMessage),
+    );
   }
 
   /**
