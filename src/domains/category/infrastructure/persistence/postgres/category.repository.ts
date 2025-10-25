@@ -342,6 +342,30 @@ export default class CategoryRepository implements ICategoryRepository {
   }
 
   /**
+   * Finds multiple categories by their unique identifiers
+   */
+  async findByIds(ids: Id[], tenantId: Id): Promise<Category[]> {
+    const idsValues = ids.map((id) => id.getValue());
+    const tenantIdValue = tenantId.getValue();
+
+    try {
+      const prismaCategories = await this.prisma.category.findMany({
+        where: {
+          tenantId: tenantIdValue,
+          id: { in: idsValues },
+        },
+        orderBy: {
+          name: 'asc',
+        },
+      });
+
+      return prismaCategories.map((category) => this.mapToDomain(category));
+    } catch (error) {
+      return this.handleDatabaseError(error, 'find categories by ids');
+    }
+  }
+
+  /**
    * Calculates the depth of a category from its root parent (parentId = null)
    */
   private async calculateCategoryDepth(

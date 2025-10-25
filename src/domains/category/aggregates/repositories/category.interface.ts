@@ -68,4 +68,13 @@ export default interface ICategoryRepository {
       sortOrder?: SortOrder;
     },
   ): Promise<{ categories: Category[]; total: number; hasMore: boolean }>;
+
+  /**
+   * Finds multiple categories by their unique identifiers.
+   * @param ids - Array of unique identifiers of the categories
+   * @param tenantId - The tenant identifier to scope the search
+   * @returns Promise that resolves to an array of Category entities
+   * @throws {Error} When repository operation fails
+   */
+  findByIds(ids: Id[], tenantId: Id): Promise<Category[]>;
 }

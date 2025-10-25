@@ -3,3 +3,6 @@ export { GetCategoryByIdDTO } from './get-id/id-category.dto';
 
 export { GetAllCategoriesHandler } from './get-all/all-categories.handler';
 export { GetAllCategoriesDTO } from './get-all/all-categories.dto';
+
+export { GetCategoriesByIdsHandler } from './get-all/by-ids/categories-by-ids.handler';
+export { GetCategoriesByIdsDTO } from './get-all/by-ids/categories-by-ids.dto';

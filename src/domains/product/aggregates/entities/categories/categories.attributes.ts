@@ -1,7 +1,6 @@
 export interface IProductCategoriesBase {
   productId: string;
   categoryId: string;
-  category?: { name: string };
 }
 
 export interface IProductCategoriesSystem {

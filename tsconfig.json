@@ -27,6 +27,7 @@
       "@address/*": ["src/domains/address/*"],
       "@authentication/*": ["src/domains/authentication/*"],
       "@product/*": ["src/domains/product/*"],
+      "@category/*": ["src/domains/category/*"],
       "@database/*": ["src/infrastructure/database/*"],
       "@graphql/*": ["src/infrastructure/graphql/*"],
       "@metrics/*": ["src/infrastructure/metrics/*"],

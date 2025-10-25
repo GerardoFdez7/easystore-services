@@ -11,6 +11,7 @@ import {
 import {
   GetCategoryByIdHandler,
   GetAllCategoriesHandler,
+  GetCategoriesByIdsHandler,
 } from './application/queries';
 // Event Handlers
 import {
@@ -27,7 +28,11 @@ const CommandHandlers = [
   DeleteCategoryHandler,
 ];
 
-const QueryHandlers = [GetCategoryByIdHandler, GetAllCategoriesHandler];
+const QueryHandlers = [
+  GetCategoryByIdHandler,
+  GetAllCategoriesHandler,
+  GetCategoriesByIdsHandler,
+];
 
 const EventHandlers = [
   CategoryCreatedHandler,

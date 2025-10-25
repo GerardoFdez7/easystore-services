@@ -550,7 +550,9 @@ type Product {
 }
 
 type ProductCategory {
-  categoryId: ID!
+  categoryCover: String
+  categoryDescription: String
+  categoryId: ID
   categoryName: String
 }
 

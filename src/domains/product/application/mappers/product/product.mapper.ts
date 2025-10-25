@@ -25,6 +25,7 @@ import {
   SustainabilityMapper,
 } from '../';
 import { UpdateProductDTO, UpdateVariantDTO } from '../../commands';
+import { CategoryDTO } from '@shared/dtos';
 
 /**
  * Centralized mapper for Product domain entity to DTO conversion for queries and vice versa for commands.
@@ -197,6 +198,46 @@ export class ProductMapper {
    */
   static toDtoArray(products: Product[], fields?: string[]): ProductDTO[] {
     return products.map((product) => this.toDto(product, fields) as ProductDTO);
+  }
+
+  /**
+   * Enriches a ProductDTO with category information
+   * @param productDto The product DTO to enrich
+   * @param categoryMap Map of categoryId to CategoryDTO for quick lookup
+   * @returns The enriched ProductDTO
+   */
+  static enrichWithCategories(
+    productDto: ProductDTO,
+    categoryMap: Map<string, CategoryDTO>,
+  ): ProductDTO {
+    if (productDto.categories && productDto.categories.length > 0) {
+      productDto.categories = productDto.categories.map((cat) => {
+        const categoryData = categoryMap.get(cat.categoryId);
+        return {
+          ...cat,
+          categoryName: categoryData?.categoryName,
+          categoryDescription: categoryData?.categoryDescription,
+          categoryCover: categoryData?.categoryCover,
+        };
+      });
+    }
+    return productDto;
+  }
+
+  /**
+   * Enriches a PaginatedProductsDTO with category information
+   * @param paginatedDto The paginated products DTO to enrich
+   * @param categoryMap Map of categoryId to CategoryDTO for quick lookup
+   * @returns The enriched PaginatedProductsDTO
+   */
+  static enrichPaginatedWithCategories(
+    paginatedDto: PaginatedProductsDTO,
+    categoryMap: Map<string, CategoryDTO>,
+  ): PaginatedProductsDTO {
+    paginatedDto.products = paginatedDto.products.map((product) =>
+      this.enrichWithCategories(product, categoryMap),
+    );
+    return paginatedDto;
   }
 
   /**

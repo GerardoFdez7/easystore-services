@@ -35,6 +35,7 @@ import {
 } from './application/events';
 import { ProductRepository } from './infrastructure/persistence/postgres/product.repository';
 import { ProductResolver } from './presentation/graphql/product.resolver';
+import CategoryAdapter from './infrastructure/adapters/category.adapter';
 
 const CommandHandlers = [
   CreateProductHandler,
@@ -72,6 +73,7 @@ const EventHandlers = [
   imports: [CqrsModule],
   providers: [
     { provide: 'IProductRepository', useClass: ProductRepository },
+    { provide: 'ICategoryAdapter', useClass: CategoryAdapter },
     ProductResolver,
     ...CommandHandlers,
     ...QueryHandlers,

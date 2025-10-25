@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Logger } from '@nestjs/common';
 
 // Global logger instance
@@ -11,33 +12,33 @@ export function initializeGlobalLogger(): void {
 // Global logger functions that can be used anywhere without imports
 declare global {
   var logger: {
-    log: (message: string, context?: unknown) => void;
-    error: (message: string, context?: unknown) => void;
-    warn: (message: string, context?: unknown) => void;
-    debug: (message: string, context?: unknown) => void;
-    verbose: (message: string, context?: unknown) => void;
+    log: (message: string, context?: any) => void;
+    error: (message: string, context?: any) => void;
+    warn: (message: string, context?: any) => void;
+    debug: (message: string, context?: any) => void;
+    verbose: (message: string, context?: any) => void;
   };
 }
 
 // Set up global logger functions
 global.logger = {
-  log: (message: string, context?: unknown) => {
+  log: (message: string, context?: any) => {
     if (!globalLogger) initializeGlobalLogger();
     globalLogger.log(message, context);
   },
-  error: (message: string, context?: unknown) => {
+  error: (message: string, context?: any) => {
     if (!globalLogger) initializeGlobalLogger();
     globalLogger.error(message, context);
   },
-  warn: (message: string, context?: unknown) => {
+  warn: (message: string, context?: any) => {
     if (!globalLogger) initializeGlobalLogger();
     globalLogger.warn(message, context);
   },
-  debug: (message: string, context?: unknown) => {
+  debug: (message: string, context?: any) => {
     if (!globalLogger) initializeGlobalLogger();
     globalLogger.debug(message, context);
   },
-  verbose: (message: string, context?: unknown) => {
+  verbose: (message: string, context?: any) => {
     if (!globalLogger) initializeGlobalLogger();
     globalLogger.verbose(message, context);
   },
