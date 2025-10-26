@@ -37,7 +37,7 @@ export class WishListRepository implements IWishListRepository {
   async removeVariantFromWishList(
     customerId: Id,
     variantId: Id,
-  ): Promise<void> {
+  ): Promise<WishListItem> {
     try {
       const wishListItem = await this.postgresService.wishList.findFirst({
         where: {
@@ -50,11 +50,16 @@ export class WishListRepository implements IWishListRepository {
         throw new ResourceNotFoundError('WishList item');
       }
 
+      // Convert to domain object before deletion
+      const wishListItemDomain = WishListMapper.fromPersistence(wishListItem);
+
       await this.postgresService.wishList.delete({
         where: {
           id: wishListItem.id,
         },
       });
+
+      return wishListItemDomain;
     } catch (error) {
       if (error instanceof ResourceNotFoundError) {
         throw error;

@@ -4,6 +4,7 @@ import { IWishListRepository } from 'src/domains/customer/aggregates/repositorie
 import { ICustomerRepository } from 'src/domains/customer/aggregates/repositories/customer.interface';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { Id } from '@shared/value-objects';
+import { Customer } from 'src/domains/customer/aggregates/entities';
 
 @CommandHandler(DeleteWishListDto)
 export class DeleteWishListHandler
@@ -34,11 +35,15 @@ export class DeleteWishListHandler
       );
     }
 
-    // Remove the variant from wishlist using repository method
-    await this.wishListRepository.removeVariantFromWishList(
-      customerId,
-      variantId,
-    );
+    // Remove the variant from wishlist using repository method and get the deleted item
+    const deletedWishListItem =
+      await this.wishListRepository.removeVariantFromWishList(
+        customerId,
+        variantId,
+      );
+
+    // Use the domain method to emit the event with the actual deleted item
+    Customer.removeVariantFromWishList(deletedWishListItem, customerFound);
 
     // Merge the customer with events context and commit events
     const customerWithEvents =

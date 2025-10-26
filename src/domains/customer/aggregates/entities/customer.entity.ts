@@ -4,6 +4,7 @@ import {
   CustomerCreatedEvent,
   CustomerUpdatedEvent,
   WishlistItemCreatedEvent,
+  WishlistItemDeletedEvent,
 } from '../events';
 import { ICustomerCreate, IWishListCreated } from './customer.attributes';
 import { WishListItem } from '../value-objects';
@@ -92,5 +93,12 @@ export class Customer extends Entity<ICustomerProps> {
     customer.apply(new WishlistItemCreatedEvent(item, customer));
 
     return item;
+  }
+
+  static removeVariantFromWishList(
+    wishListItem: WishListItem,
+    customer: Customer,
+  ): void {
+    customer.apply(new WishlistItemDeletedEvent(wishListItem, customer));
   }
 }
