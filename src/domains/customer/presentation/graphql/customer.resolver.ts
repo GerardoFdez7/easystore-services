@@ -5,6 +5,7 @@ import {
   UpdateCustomerInput,
   WishListItemCreateInput,
   WishListItemDeleteInput,
+  WishListManyItemsDeleteInput,
   WishListType,
 } from './types/customer.types';
 import { CurrentUser, JwtPayload } from '@common/decorators';
@@ -12,6 +13,7 @@ import { FindCustomerByIdDto } from '../../application/queries/one/find-customer
 import { UpdateCustomerDto } from '../../application/commands/update/update-customer.dto';
 import { CreateWishListDto } from '../../application/commands/create/wish-list/create-wish-list.dto';
 import { DeleteWishListDto } from '../../application/commands/delete/wish-list/delete-wish-list.dto';
+import { DeleteManyWishListDto } from '../../application/commands/delete/wish-list/delete-many-wish-list.dto';
 
 @Resolver(() => CustomerType)
 export class CustomerResolver {
@@ -56,6 +58,22 @@ export class CustomerResolver {
   ): Promise<boolean> {
     await this.commandBus.execute(
       new DeleteWishListDto(user.customerId, input.variantId, user.tenantId),
+    );
+    return true;
+  }
+
+  @Mutation(() => Boolean)
+  async removeManyVariantsFromWishList(
+    @Args('input', { type: () => WishListManyItemsDeleteInput })
+    input: WishListManyItemsDeleteInput,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<boolean> {
+    await this.commandBus.execute(
+      new DeleteManyWishListDto(
+        user.customerId,
+        input.variantIds,
+        user.tenantId,
+      ),
     );
     return true;
   }

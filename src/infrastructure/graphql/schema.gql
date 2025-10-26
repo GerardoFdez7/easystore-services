@@ -491,6 +491,7 @@ type Mutation {
   register(input: AuthenticationInput!): AuthIdentity!
   removeItemFromCart(input: RemoveItemFromCartInput!): Cart!
   removeManyItemsFromCart(input: RemoveManyItemFromCartInput!): Cart!
+  removeManyVariantsFromWishList(input: WishListManyItemsDeleteInput!): Boolean!
   removeStockFromWarehouse(reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
   removeVariant(id: String!, productId: String!): Product!
   removeVariantFromWishList(input: WishListItemDeleteInput!): Boolean!
@@ -868,6 +869,10 @@ input WishListItemCreateInput {
 
 input WishListItemDeleteInput {
   variantId: String!
+}
+
+input WishListManyItemsDeleteInput {
+  variantIds: [String!]!
 }
 
 type Wishlist {
