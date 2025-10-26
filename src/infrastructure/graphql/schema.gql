@@ -476,6 +476,7 @@ type Mutation {
   removeManyItemsFromCart(input: RemoveManyItemFromCartInput!): Cart!
   removeStockFromWarehouse(reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
   removeVariant(id: String!, productId: String!): Product!
+  removeVariantFromWishList(input: WishListItemDeleteInput!): Boolean!
   restoreProduct(id: String!): Product!
   restoreVariant(id: String!, productId: String!): Product!
   softDeleteProduct(id: String!): Product!
@@ -834,6 +835,10 @@ type Warranty {
 }
 
 input WishListItemCreateInput {
+  variantId: String!
+}
+
+input WishListItemDeleteInput {
   variantId: String!
 }
 
