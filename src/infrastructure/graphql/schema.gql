@@ -474,6 +474,7 @@ type Mutation {
   addItemToCart(input: AddItemToCartInput!): Cart!
   addStockToWarehouse(input: AddStockToWarehouseInput!, reason: String, variantId: ID!, warehouseId: ID!): Warehouse!
   addVariant(input: CreateVariantInput!): Product!
+  addVariantToWishList(input: WishListItemCreateInput!): Wishlist!
   archiveVariant(id: String!, productId: String!): Product!
   createAddress(input: CreateAddressInput!): AddressType!
   createCategory(input: CreateCategoryInput!): Category!
@@ -858,4 +859,15 @@ type Warranty {
   coverage: String!
   instructions: String!
   months: Float!
+}
+
+input WishListItemCreateInput {
+  variantId: String!
+}
+
+type Wishlist {
+  customerId: ID!
+  id: ID!
+  updatedAt: DateTime!
+  variantId: ID!
 }

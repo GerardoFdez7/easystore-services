@@ -1,7 +1,12 @@
 import { Entity, EntityProps } from '@shared/entity.base';
 import { Id, Name } from '@shared/value-objects';
-import { CustomerCreatedEvent, CustomerUpdatedEvent } from '../events';
-import { ICustomerCreate } from './customer.attributes';
+import {
+  CustomerCreatedEvent,
+  CustomerUpdatedEvent,
+  WishlistItemCreatedEvent,
+} from '../events';
+import { ICustomerCreate, IWishListCreated } from './customer.attributes';
+import { WishListItem } from '../value-objects';
 
 export interface ICustomerProps extends EntityProps {
   id: Id;
@@ -73,5 +78,19 @@ export class Customer extends Entity<ICustomerProps> {
     customerUpdated.apply(new CustomerUpdatedEvent(customerUpdated));
 
     return customerUpdated;
+  }
+
+  static addVariantToWishList(
+    wishlistItem: IWishListCreated,
+    customer: Customer,
+  ): WishListItem {
+    const item = WishListItem.create({
+      variantId: wishlistItem.variantId,
+      customerId: wishlistItem.customerId,
+    });
+
+    customer.apply(new WishlistItemCreatedEvent(item, customer));
+
+    return item;
   }
 }

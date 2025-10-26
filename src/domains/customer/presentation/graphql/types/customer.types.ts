@@ -46,6 +46,27 @@ export class UpdateCustomerInput {
 }
 
 @InputType()
+export class WishListItemCreateInput {
+  @Field()
+  variantId: string;
+}
+
+@ObjectType('Wishlist')
+export class WishListType {
+  @Field(() => ID)
+  id: string;
+
+  @Field(() => ID)
+  variantId: string;
+
+  @Field(() => ID)
+  customerId: string;
+
+  @Field()
+  updatedAt: Date;
+}
+
+@InputType()
 export class CreateCustomerInput {
   @Field()
   name: string;
