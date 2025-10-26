@@ -15,3 +15,8 @@ export interface ICustomerEntity extends ICustomerCreate {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface IWishListCreated {
+  variantId: string;
+  customerId: string;
+}
