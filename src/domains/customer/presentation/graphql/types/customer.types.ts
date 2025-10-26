@@ -57,6 +57,12 @@ export class WishListItemDeleteInput {
   variantId: string;
 }
 
+@InputType()
+export class WishListManyItemsDeleteInput {
+  @Field(() => [String])
+  variantIds: string[];
+}
+
 @ObjectType('Wishlist')
 export class WishListType {
   @Field(() => ID)
