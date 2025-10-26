@@ -8,4 +8,8 @@ export interface IWishListRepository {
     customerId: Id,
     variantId: Id,
   ): Promise<WishListItem>;
+  removeManyFromWishList(
+    customerId: Id,
+    variantIds: Id[],
+  ): Promise<WishListItem[]>;
 }

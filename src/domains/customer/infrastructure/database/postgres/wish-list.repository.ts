@@ -68,6 +68,55 @@ export class WishListRepository implements IWishListRepository {
     }
   }
 
+  async removeManyFromWishList(
+    customerId: Id,
+    variantIds: Id[],
+  ): Promise<WishListItem[]> {
+    try {
+      // Convert Id objects to string values for the query
+      const variantIdValues = variantIds.map((id) => id.getValue());
+      const customerIdValue = customerId.getValue();
+
+      // Find all wishlist items that match the criteria before deletion
+      const wishListItems = await this.postgresService.wishList.findMany({
+        where: {
+          customerId: customerIdValue,
+          variantId: {
+            in: variantIdValues,
+          },
+        },
+      });
+
+      if (wishListItems.length === 0) {
+        throw new ResourceNotFoundError(
+          'No wishlist items found for the provided variant IDs',
+        );
+      }
+
+      // Convert to domain objects before deletion
+      const wishListItemDomains = wishListItems.map((item) =>
+        WishListMapper.fromPersistence(item),
+      );
+
+      // Delete all matching items
+      await this.postgresService.wishList.deleteMany({
+        where: {
+          customerId: customerIdValue,
+          variantId: {
+            in: variantIdValues,
+          },
+        },
+      });
+
+      return wishListItemDomains;
+    } catch (error) {
+      if (error instanceof ResourceNotFoundError) {
+        throw error;
+      }
+      return this.handleDatabaseError(error, 'remove many from wishlist');
+    }
+  }
+
   /**
    * Creates a new wishlist item in the repository.
    * @param wishlistItem The wishlist item entity to create.
