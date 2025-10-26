@@ -11,15 +11,18 @@ import { UpdateCustomerHandler } from './application/commands/update/update-cust
 import { CustomerUpdatedHandler } from './application/events/customer/customer-updated.handler';
 import { WishlistItemCreatedHandler } from './application/events/wishlist/wish-list-created.handler';
 import { WishlistItemDeletedHandler } from './application/events/wishlist/wish-list-deleted.handler';
+import { WishlistManyItemsDeletedHandler } from './application/events/wishlist/wish-list-many-items-deleted.handler';
 import { WishListRepository } from './infrastructure/database/postgres/wish-list.repository';
 import { CreateWishListHandler } from './application/commands/create/wish-list/create-wish-list.handler';
 import { DeleteWishListHandler } from './application/commands/delete/wish-list/delete-wish-list.handler';
+import { DeleteManyWishListHandler } from './application/commands/delete/wish-list/delete-many-wish-list.handler';
 
 const CommandHandlers = [
   CreateCustomerHandler,
   UpdateCustomerHandler,
   CreateWishListHandler,
   DeleteWishListHandler,
+  DeleteManyWishListHandler,
 ];
 
 const EventHandlers = [
@@ -28,6 +31,7 @@ const EventHandlers = [
   CustomerUpdatedHandler,
   WishlistItemCreatedHandler,
   WishlistItemDeletedHandler,
+  WishlistManyItemsDeletedHandler,
 ];
 
 const QueryHandlers = [FindCustomerByIdHandler];
