@@ -51,6 +51,12 @@ export class WishListItemCreateInput {
   variantId: string;
 }
 
+@InputType()
+export class WishListItemDeleteInput {
+  @Field()
+  variantId: string;
+}
+
 @ObjectType('Wishlist')
 export class WishListType {
   @Field(() => ID)
