@@ -16,6 +16,7 @@ import { WishListRepository } from './infrastructure/database/postgres/wish-list
 import { CreateWishListHandler } from './application/commands/create/wish-list/create-wish-list.handler';
 import { DeleteWishListHandler } from './application/commands/delete/wish-list/delete-wish-list.handler';
 import { DeleteManyWishListHandler } from './application/commands/delete/wish-list/delete-many-wish-list.handler';
+import { ProductAdapter } from './infrastructure/adapters';
 
 const CommandHandlers = [
   CreateCustomerHandler,
@@ -48,6 +49,7 @@ const QueryHandlers = [FindCustomerByIdHandler];
       provide: 'IWishListRepository',
       useClass: WishListRepository,
     },
+    { provide: 'IProductAdapter', useClass: ProductAdapter },
     ...CommandHandlers,
     ...EventHandlers,
     ...QueryHandlers,
