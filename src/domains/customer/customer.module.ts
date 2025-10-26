@@ -12,11 +12,13 @@ import { CustomerUpdatedHandler } from './application/events/customer/customer-u
 import { WishlistItemCreatedHandler } from './application/events/wishlist/wish-list-created.handler';
 import { WishListRepository } from './infrastructure/database/postgres/wish-list.repository';
 import { CreateWishListHandler } from './application/commands/create/wish-list/create-wish-list.handler';
+import { DeleteWishListHandler } from './application/commands/delete/wish-list/delete-wish-list.handler';
 
 const CommandHandlers = [
   CreateCustomerHandler,
   UpdateCustomerHandler,
   CreateWishListHandler,
+  DeleteWishListHandler,
 ];
 
 const EventHandlers = [
