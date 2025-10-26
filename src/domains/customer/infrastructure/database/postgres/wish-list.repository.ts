@@ -34,6 +34,35 @@ export class WishListRepository implements IWishListRepository {
     }
   }
 
+  async removeVariantFromWishList(
+    customerId: Id,
+    variantId: Id,
+  ): Promise<void> {
+    try {
+      const wishListItem = await this.postgresService.wishList.findFirst({
+        where: {
+          customerId: customerId.getValue(),
+          variantId: variantId.getValue(),
+        },
+      });
+
+      if (!wishListItem) {
+        throw new ResourceNotFoundError('WishList item');
+      }
+
+      await this.postgresService.wishList.delete({
+        where: {
+          id: wishListItem.id,
+        },
+      });
+    } catch (error) {
+      if (error instanceof ResourceNotFoundError) {
+        throw error;
+      }
+      return this.handleDatabaseError(error, 'remove variant from wishlist');
+    }
+  }
+
   /**
    * Creates a new wishlist item in the repository.
    * @param wishlistItem The wishlist item entity to create.
