@@ -427,6 +427,17 @@ input GetInTouchInput {
   websiteUrl: String
 }
 
+input GetWishlistPaginatedInput {
+  """Number of items per page (max 50)"""
+  limit: Int = 25
+
+  """Page number for pagination (starts from 1)"""
+  page: Int = 1
+
+  """Optional filter by variant IDs"""
+  variantIds: [ID!]
+}
+
 type Installment {
   interestRate: Float!
   months: Int!
@@ -529,6 +540,12 @@ type PaginatedWarehousesType {
   warehouses: [Warehouse!]!
 }
 
+type PaginatedWishlist {
+  hasMore: Boolean!
+  total: Int!
+  wishlistItems: [WishListWithVariant!]!
+}
+
 type Product {
   brand: String
   categories: [ProductCategory!]
@@ -586,7 +603,7 @@ type Query {
   getStatesByCountryId(countryId: ID!): [StateType!]!
   getTenantById: Tenant!
   getWarehouseById(id: ID!, isArchived: Boolean): Warehouse!
-  getWishListItems(input: WishListManyItemsInput!): [WishListWithVariant!]!
+  getWishListItems(input: GetWishlistPaginatedInput!): PaginatedWishlist!
   validateToken: Response!
 }
 
