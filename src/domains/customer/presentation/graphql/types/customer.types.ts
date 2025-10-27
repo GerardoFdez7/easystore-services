@@ -211,3 +211,11 @@ export class UpdateCustomerReviewProductInput {
   })
   comment?: string;
 }
+
+@InputType()
+export class DeleteCustomerReviewProductInput {
+  @Field(() => ID, {
+    description: 'Review ID to delete',
+  })
+  id: string;
+}
