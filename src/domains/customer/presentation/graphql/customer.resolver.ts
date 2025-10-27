@@ -9,6 +9,8 @@ import {
   WishListType,
   GetWishlistPaginatedInput,
   PaginatedWishlistType,
+  CustomerReviewProductType,
+  CreateCustomerReviewProductInput,
 } from './types/customer.types';
 import { CurrentUser, JwtPayload } from '@common/decorators';
 import { FindCustomerByIdDto } from '../../application/queries/one/customer/find-customer-by-id.dto';
@@ -17,6 +19,7 @@ import { CreateWishListDto } from '../../application/commands/create/wish-list/c
 import { DeleteWishListDto } from '../../application/commands/delete/wish-list/delete-wish-list.dto';
 import { DeleteManyWishListDto } from '../../application/commands/delete/wish-list/delete-many-wish-list.dto';
 import { FindWishlistItemsDto } from '../../application/queries/many/wish-list/find-wish-list-items.dto';
+import { CreateCustomerReviewProductDto } from '../../application/commands/create/review/create-customer-review-product.dto';
 
 @Resolver(() => CustomerType)
 export class CustomerResolver {
@@ -48,6 +51,25 @@ export class CustomerResolver {
     return await this.commandBus.execute(
       new CreateWishListDto(
         { variantId: input.variantId, customerId: user.customerId },
+        user.tenantId,
+      ),
+    );
+  }
+
+  @Mutation(() => CustomerReviewProductType)
+  async addReviewProduct(
+    @Args('input', { type: () => CreateCustomerReviewProductInput })
+    input: CreateCustomerReviewProductInput,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<CustomerReviewProductType> {
+    return await this.commandBus.execute(
+      new CreateCustomerReviewProductDto(
+        {
+          ratingCount: input.ratingCount,
+          comment: input.comment,
+          variantId: input.variantId,
+        },
+        user.customerId,
         user.tenantId,
       ),
     );
