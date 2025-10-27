@@ -152,3 +152,42 @@ export class CreateCustomerInput {
   @Field(() => ID, { nullable: true })
   defaultBillingAddressId?: string;
 }
+
+@ObjectType('CustomerReviewProduct')
+export class CustomerReviewProductType {
+  @Field(() => ID)
+  id: string;
+
+  @Field(() => Float)
+  ratingCount: number;
+
+  @Field()
+  comment: string;
+
+  @Field(() => ID)
+  customerId: string;
+
+  @Field(() => ID)
+  variantId: string;
+
+  @Field()
+  updatedAt: Date;
+}
+
+@InputType()
+export class CreateCustomerReviewProductInput {
+  @Field(() => Float, {
+    description: 'Rating from 1.0 to 5.0',
+  })
+  ratingCount: number;
+
+  @Field({
+    description: 'Review comment',
+  })
+  comment: string;
+
+  @Field(() => ID, {
+    description: 'Variant ID being reviewed',
+  })
+  variantId: string;
+}

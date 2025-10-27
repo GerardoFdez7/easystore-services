@@ -154,6 +154,17 @@ input CreateCategoryInput {
   subCategories: [CreateCategoryInput!]
 }
 
+input CreateCustomerReviewProductInput {
+  """Review comment"""
+  comment: String!
+
+  """Rating from 1.0 to 5.0"""
+  ratingCount: Float!
+
+  """Variant ID being reviewed"""
+  variantId: ID!
+}
+
 input CreateDimensionInput {
   height: Float!
   length: Float!
@@ -387,6 +398,15 @@ type Customer {
   updatedAt: DateTime
 }
 
+type CustomerReviewProduct {
+  comment: String!
+  customerId: ID!
+  id: ID!
+  ratingCount: Float!
+  updatedAt: DateTime!
+  variantId: ID!
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
@@ -465,6 +485,7 @@ enum MediaTypeEnum {
 
 type Mutation {
   addItemToCart(input: AddItemToCartInput!): Cart!
+  addReviewProduct(input: CreateCustomerReviewProductInput!): CustomerReviewProduct!
   addStockToWarehouse(input: AddStockToWarehouseInput!, reason: String, variantId: ID!, warehouseId: ID!): Warehouse!
   addVariant(input: CreateVariantInput!): Product!
   addVariantToWishList(input: WishListItemCreateInput!): Wishlist!
