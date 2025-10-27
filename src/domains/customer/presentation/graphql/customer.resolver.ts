@@ -7,7 +7,8 @@ import {
   WishListItemDeleteInput,
   WishListManyItemsInput,
   WishListType,
-  WishListWithVariantType,
+  GetWishlistPaginatedInput,
+  PaginatedWishlistType,
 } from './types/customer.types';
 import { CurrentUser, JwtPayload } from '@common/decorators';
 import { FindCustomerByIdDto } from '../../application/queries/one/customer/find-customer-by-id.dto';
@@ -92,14 +93,19 @@ export class CustomerResolver {
     );
   }
 
-  @Query(() => [WishListWithVariantType])
+  @Query(() => PaginatedWishlistType)
   async getWishListItems(
-    @Args('input', { type: () => WishListManyItemsInput })
-    input: WishListManyItemsInput,
+    @Args('input', { type: () => GetWishlistPaginatedInput })
+    input: GetWishlistPaginatedInput,
     @CurrentUser() user: JwtPayload,
-  ): Promise<WishListWithVariantType[]> {
+  ): Promise<PaginatedWishlistType> {
     return this.queryBus.execute(
-      new FindWishlistItemsDto(user.customerId, input.variantIds),
+      new FindWishlistItemsDto(
+        user.customerId,
+        input.variantIds ?? [],
+        input.page,
+        input.limit,
+      ),
     );
   }
 }
