@@ -129,6 +129,47 @@ export class CustomerReviewProductRepository
   }
 
   /**
+   * Removes a customer review product by customer ID and review ID.
+   * @param customerId The unique identifier of the customer.
+   * @param reviewId The unique identifier of the review product.
+   * @returns Promise that resolves when the review is successfully removed.
+   */
+  async removeReview(customerId: Id, reviewId: Id): Promise<void> {
+    const customerIdValue = customerId.getValue();
+    const reviewIdValue = reviewId.getValue();
+
+    try {
+      const deletedReview =
+        await this.postgresService.customerReviewProduct.delete({
+          where: {
+            id: reviewIdValue,
+            customerId: customerIdValue,
+          },
+        });
+
+      if (!deletedReview) {
+        throw new DatabaseOperationError(
+          'remove customer review product',
+          'Customer review product not found or does not belong to the specified customer',
+        );
+      }
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        // Handle record not found error
+        if (error.code === 'P2025') {
+          throw new DatabaseOperationError(
+            'remove customer review product',
+            'Customer review product not found or does not belong to the specified customer',
+            error,
+          );
+        }
+      }
+
+      return this.handleDatabaseError(error, 'remove customer review product');
+    }
+  }
+
+  /**
    * Centralized error handling for database operations
    */
   private handleDatabaseError(error: unknown, operation: string): never {
