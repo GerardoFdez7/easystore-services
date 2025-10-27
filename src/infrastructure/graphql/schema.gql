@@ -412,6 +412,11 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+input DeleteCustomerReviewProductInput {
+  """Review ID to delete"""
+  id: ID!
+}
+
 type Dimension {
   height: Float!
   length: Float!
@@ -497,6 +502,7 @@ type Mutation {
   createWarehouse(input: CreateWarehouseInput!): Warehouse!
   deleteAddress(id: ID!): AddressType!
   deleteCategory(id: ID!): Category!
+  deleteReviewProduct(input: DeleteCustomerReviewProductInput!): Boolean!
   deleteWarehouse(id: ID!): Warehouse!
   forgotPassword(input: ForgotPasswordInput!): Response!
   getInTouch(input: GetInTouchInput!): Response!
