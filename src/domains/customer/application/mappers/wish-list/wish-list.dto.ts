@@ -21,3 +21,12 @@ export interface WishlistItemWithVariantDTO extends WishListDTO {
   price: number;
   isArchived: boolean;
 }
+
+/**
+ * Paginated response DTO for Wishlist items with variant details
+ */
+export interface PaginatedWishlistDTO {
+  wishlistItems: WishlistItemWithVariantDTO[];
+  total: number;
+  hasMore: boolean;
+}

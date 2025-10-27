@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID, InputType, Float } from '@nestjs/graphql';
+import { ObjectType, Field, ID, InputType, Float, Int } from '@nestjs/graphql';
 import { FirstAttributeType } from '../../../../cart/presentation/graphql/types/cart.types';
 
 @ObjectType('Customer')
@@ -95,6 +95,41 @@ export class WishListWithVariantType extends WishListType {
 
   @Field(() => Boolean, { nullable: true })
   isArchived: boolean;
+}
+
+@ObjectType('PaginatedWishlist')
+export class PaginatedWishlistType {
+  @Field(() => [WishListWithVariantType])
+  wishlistItems: WishListWithVariantType[];
+
+  @Field(() => Int)
+  total: number;
+
+  @Field(() => Boolean)
+  hasMore: boolean;
+}
+
+@InputType()
+export class GetWishlistPaginatedInput {
+  @Field(() => Int, {
+    defaultValue: 1,
+    description: 'Page number for pagination (starts from 1)',
+    nullable: true,
+  })
+  page?: number;
+
+  @Field(() => Int, {
+    defaultValue: 25,
+    description: 'Number of items per page (max 50)',
+    nullable: true,
+  })
+  limit?: number;
+
+  @Field(() => [ID], {
+    description: 'Optional filter by variant IDs',
+    nullable: true,
+  })
+  variantIds?: string[];
 }
 
 @InputType()
