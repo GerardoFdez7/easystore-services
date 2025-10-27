@@ -5,3 +5,4 @@ export { WishlistItemDeletedEvent } from './wishlist-deleted.event';
 export { WishlistManyItemsDeletedEvent } from './wishlist-many-items-deleted.event';
 export { CustomerReviewProductCreatedEvent } from './review-created.event';
 export { CustomerReviewProductUpdatedEvent } from './review-updated.event';
+export { CustomerReviewProductDeletedEvent } from './review-deleted.event';
