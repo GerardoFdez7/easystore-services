@@ -12,4 +12,8 @@ export interface IWishListRepository {
     customerId: Id,
     variantIds: Id[],
   ): Promise<WishListItem[]>;
+  getManyWishListsByVariantIds(
+    variantsIds: Id[],
+    customerId: Id,
+  ): Promise<WishListItem[]>;
 }
