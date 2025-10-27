@@ -18,6 +18,7 @@ import { DeleteWishListHandler } from './application/commands/delete/wish-list/d
 import { DeleteManyWishListHandler } from './application/commands/delete/wish-list/delete-many-wish-list.handler';
 import { ProductAdapter } from './infrastructure/adapters';
 import { FindWishListItemsHandler } from './application/queries/many/wish-list/find-wish-list-items.handler';
+import { FindManyCustomerReviewsHandler } from './application/queries/many/review/find-many-customer-reviews.handler';
 import { CustomerReviewProductRepository } from './infrastructure/database/postgres/customer-review-product.repository';
 import { CreateCustomerReviewProductHandler } from './application/commands/create/review/create-customer-review-product.handler';
 import { CustomerReviewProductCreatedHandler } from './application/events/review/review-created.handler';
@@ -51,7 +52,11 @@ const EventHandlers = [
   CustomerReviewProductDeletedHandler,
 ];
 
-const QueryHandlers = [FindCustomerByIdHandler, FindWishListItemsHandler];
+const QueryHandlers = [
+  FindCustomerByIdHandler,
+  FindWishListItemsHandler,
+  FindManyCustomerReviewsHandler,
+];
 
 @Module({
   imports: [CqrsModule, TenantDomain],

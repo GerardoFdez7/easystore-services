@@ -12,6 +12,8 @@ import {
   CreateCustomerReviewProductInput,
   UpdateCustomerReviewProductInput,
   DeleteCustomerReviewProductInput,
+  GetCustomerReviewsPaginatedInput,
+  PaginatedCustomerReviewProductWithVariantType,
 } from './types/customer.types';
 import { CurrentUser, JwtPayload } from '@common/decorators';
 import { FindCustomerByIdDto } from '../../application/queries/one/customer/find-customer-by-id.dto';
@@ -22,6 +24,7 @@ import { FindWishlistItemsDto } from '../../application/queries/many/wish-list/f
 import { CreateCustomerReviewProductDto } from '../../application/commands/create/review/create-customer-review-product.dto';
 import { UpdateCustomerReviewProductDto } from '../../application/commands/update/review/update-customer-review-product.dto';
 import { DeleteCustomerReviewProductDto } from '../../application/commands/delete/review/delete-customer-review-product.dto';
+import { FindManyCustomerReviewsDto } from '../../application/queries/many/review/find-many-customer-reviews.dto';
 
 @Resolver(() => CustomerType)
 export class CustomerResolver {
@@ -151,6 +154,22 @@ export class CustomerResolver {
       new FindWishlistItemsDto(
         user.customerId,
         input.variantIds ?? [],
+        input.page,
+        input.limit,
+      ),
+    );
+  }
+
+  @Query(() => PaginatedCustomerReviewProductWithVariantType)
+  async getCustomerReviews(
+    @Args('input', { type: () => GetCustomerReviewsPaginatedInput })
+    input: GetCustomerReviewsPaginatedInput,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<PaginatedCustomerReviewProductWithVariantType> {
+    return this.queryBus.execute(
+      new FindManyCustomerReviewsDto(
+        user.customerId,
+        input.reviewIds ?? [],
         input.page,
         input.limit,
       ),
