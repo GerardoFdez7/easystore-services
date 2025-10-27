@@ -1,7 +1,7 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { UpdateCustomerDto } from './update-customer.dto';
-import { CustomerMapper } from '../../mappers/customer/customer.mapper';
-import { CustomerDTO } from '../../mappers/customer/customer.dto';
+import { CustomerMapper } from '../../../mappers';
+import { CustomerDTO } from '../../../mappers';
 import { ICustomerRepository } from 'src/domains/customer/aggregates/repositories/customer.interface';
 import { Id } from '@shared/value-objects';
 import { Inject, NotFoundException } from '@nestjs/common';

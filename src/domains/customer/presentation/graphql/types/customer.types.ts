@@ -191,3 +191,23 @@ export class CreateCustomerReviewProductInput {
   })
   variantId: string;
 }
+
+@InputType()
+export class UpdateCustomerReviewProductInput {
+  @Field(() => ID, {
+    description: 'Review ID to update',
+  })
+  id: string;
+
+  @Field(() => Float, {
+    description: 'Updated rating from 1.0 to 5.0',
+    nullable: true,
+  })
+  ratingCount?: number;
+
+  @Field({
+    description: 'Updated review comment',
+    nullable: true,
+  })
+  comment?: string;
+}

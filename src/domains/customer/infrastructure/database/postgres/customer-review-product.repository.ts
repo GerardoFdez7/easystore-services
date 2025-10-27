@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '.prisma/postgres';
 import { PostgreService } from '@database/postgres.service';
 import { DatabaseOperationError } from '@shared/errors';
+import { Id } from '@shared/value-objects';
 import { ICustomerReviewProductRepository } from 'src/domains/customer/aggregates/repositories/customer-review-product.interface';
 import { CustomerReviewProduct } from 'src/domains/customer/aggregates/value-objects/customer-review-product.vo';
 import { CustomerReviewProductMapper } from '../../../application/mappers/review/customer-review-product.mapper';
@@ -99,6 +100,31 @@ export class CustomerReviewProductRepository
       }
 
       return this.handleDatabaseError(error, 'update customer review product');
+    }
+  }
+
+  /**
+   * Finds a customer review product by its unique identifier.
+   * @param id The unique identifier of the customer review product.
+   * @returns Promise that resolves to the CustomerReviewProduct if found, null otherwise.
+   */
+  async findById(id: Id): Promise<CustomerReviewProduct | null> {
+    const idValue = id.getValue();
+
+    try {
+      const reviewProduct =
+        await this.postgresService.customerReviewProduct.findUnique({
+          where: { id: idValue },
+        });
+
+      return reviewProduct
+        ? CustomerReviewProductMapper.fromPersistence(reviewProduct)
+        : null;
+    } catch (error) {
+      return this.handleDatabaseError(
+        error,
+        'find customer review product by id',
+      );
     }
   }
 
