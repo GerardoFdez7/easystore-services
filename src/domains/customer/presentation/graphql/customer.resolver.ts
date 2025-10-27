@@ -5,15 +5,17 @@ import {
   UpdateCustomerInput,
   WishListItemCreateInput,
   WishListItemDeleteInput,
-  WishListManyItemsDeleteInput,
+  WishListManyItemsInput,
   WishListType,
+  WishListWithVariantType,
 } from './types/customer.types';
 import { CurrentUser, JwtPayload } from '@common/decorators';
-import { FindCustomerByIdDto } from '../../application/queries/one/find-customer-by-id.dto';
+import { FindCustomerByIdDto } from '../../application/queries/one/customer/find-customer-by-id.dto';
 import { UpdateCustomerDto } from '../../application/commands/update/update-customer.dto';
 import { CreateWishListDto } from '../../application/commands/create/wish-list/create-wish-list.dto';
 import { DeleteWishListDto } from '../../application/commands/delete/wish-list/delete-wish-list.dto';
 import { DeleteManyWishListDto } from '../../application/commands/delete/wish-list/delete-many-wish-list.dto';
+import { FindWishlistItemsDto } from '../../application/queries/many/wish-list/find-wish-list-items.dto';
 
 @Resolver(() => CustomerType)
 export class CustomerResolver {
@@ -64,8 +66,8 @@ export class CustomerResolver {
 
   @Mutation(() => Boolean)
   async removeManyVariantsFromWishList(
-    @Args('input', { type: () => WishListManyItemsDeleteInput })
-    input: WishListManyItemsDeleteInput,
+    @Args('input', { type: () => WishListManyItemsInput })
+    input: WishListManyItemsInput,
     @CurrentUser() user: JwtPayload,
   ): Promise<boolean> {
     await this.commandBus.execute(
@@ -87,6 +89,17 @@ export class CustomerResolver {
   ): Promise<CustomerType> {
     return this.queryBus.execute(
       new FindCustomerByIdDto(user.customerId, user.tenantId),
+    );
+  }
+
+  @Query(() => [WishListWithVariantType])
+  async getWishListItems(
+    @Args('input', { type: () => WishListManyItemsInput })
+    input: WishListManyItemsInput,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<WishListWithVariantType[]> {
+    return this.queryBus.execute(
+      new FindWishlistItemsDto(user.customerId, input.variantIds),
     );
   }
 }

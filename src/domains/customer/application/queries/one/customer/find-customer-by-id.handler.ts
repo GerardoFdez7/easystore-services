@@ -3,7 +3,7 @@ import { FindCustomerByIdDto } from './find-customer-by-id.dto';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { ICustomerRepository } from 'src/domains/customer/aggregates/repositories/customer.interface';
 import { Id } from '@shared/value-objects';
-import { CustomerDTO, CustomerMapper } from '../../mappers';
+import { CustomerDTO, CustomerMapper } from '../../../mappers';
 
 @QueryHandler(FindCustomerByIdDto)
 export class FindCustomerByIdHandler

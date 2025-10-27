@@ -1,4 +1,5 @@
-import { ObjectType, Field, ID, InputType } from '@nestjs/graphql';
+import { ObjectType, Field, ID, InputType, Float } from '@nestjs/graphql';
+import { FirstAttributeType } from '../../../../cart/presentation/graphql/types/cart.types';
 
 @ObjectType('Customer')
 export class CustomerType {
@@ -58,7 +59,7 @@ export class WishListItemDeleteInput {
 }
 
 @InputType()
-export class WishListManyItemsDeleteInput {
+export class WishListManyItemsInput {
   @Field(() => [String])
   variantIds: string[];
 }
@@ -76,6 +77,24 @@ export class WishListType {
 
   @Field()
   updatedAt: Date;
+}
+
+@ObjectType('WishListWithVariant')
+export class WishListWithVariantType extends WishListType {
+  @Field()
+  sku: string;
+
+  @Field()
+  productName: string;
+
+  @Field(() => FirstAttributeType, { nullable: true })
+  firstAttribute?: FirstAttributeType;
+
+  @Field(() => Float)
+  price: number;
+
+  @Field(() => Boolean, { nullable: true })
+  isArchived: boolean;
 }
 
 @InputType()

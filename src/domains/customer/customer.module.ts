@@ -17,6 +17,7 @@ import { CreateWishListHandler } from './application/commands/create/wish-list/c
 import { DeleteWishListHandler } from './application/commands/delete/wish-list/delete-wish-list.handler';
 import { DeleteManyWishListHandler } from './application/commands/delete/wish-list/delete-many-wish-list.handler';
 import { ProductAdapter } from './infrastructure/adapters';
+import { FindWishListItemsHandler } from './application/queries/many/wish-list/find-wish-list-items.handler';
 
 const CommandHandlers = [
   CreateCustomerHandler,
@@ -35,7 +36,7 @@ const EventHandlers = [
   WishlistManyItemsDeletedHandler,
 ];
 
-const QueryHandlers = [FindCustomerByIdHandler];
+const QueryHandlers = [FindCustomerByIdHandler, FindWishListItemsHandler];
 
 @Module({
   imports: [CqrsModule, TenantDomain],
