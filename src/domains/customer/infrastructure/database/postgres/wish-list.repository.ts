@@ -159,6 +159,36 @@ export class WishListRepository implements IWishListRepository {
     }
   }
 
+  async getManyWishListsByVariantIds(
+    variantsIds: Id[],
+    customerId: Id,
+  ): Promise<WishListItem[]> {
+    try {
+      // Convert Id objects to string values for the query
+      const variantIdValues = variantsIds.map((id) => id.getValue());
+      const customerIdValue = customerId.getValue();
+
+      // Find all wishlist items that match the criteria
+      const wishListItems = await this.postgresService.wishList.findMany({
+        where: {
+          customerId: customerIdValue,
+          variantId: {
+            in: variantIdValues,
+          },
+        },
+      });
+
+      // Convert to domain objects and return
+      return wishListItems.map((item) => WishListMapper.fromPersistence(item));
+    } catch (error) {
+      if (error instanceof ResourceNotFoundError) {
+        throw error;
+      }
+
+      return this.handleDatabaseError(error, 'find wish lists by variant id');
+    }
+  }
+
   /**
    * Centralized error handling for database operations
    */
