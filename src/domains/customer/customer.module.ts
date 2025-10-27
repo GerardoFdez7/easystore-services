@@ -18,6 +18,7 @@ import { DeleteWishListHandler } from './application/commands/delete/wish-list/d
 import { DeleteManyWishListHandler } from './application/commands/delete/wish-list/delete-many-wish-list.handler';
 import { ProductAdapter } from './infrastructure/adapters';
 import { FindWishListItemsHandler } from './application/queries/many/wish-list/find-wish-list-items.handler';
+import { CustomerReviewProductRepository } from './infrastructure/database/postgres/customer-review-product.repository';
 
 const CommandHandlers = [
   CreateCustomerHandler,
@@ -51,6 +52,10 @@ const QueryHandlers = [FindCustomerByIdHandler, FindWishListItemsHandler];
       useClass: WishListRepository,
     },
     { provide: 'IProductAdapter', useClass: ProductAdapter },
+    {
+      provide: 'ICustomerReviewProductRepository',
+      useClass: CustomerReviewProductRepository,
+    },
     ...CommandHandlers,
     ...EventHandlers,
     ...QueryHandlers,

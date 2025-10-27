@@ -20,3 +20,9 @@ export interface IWishListCreated {
   variantId: string;
   customerId: string;
 }
+
+export interface ICustomerReviewCreated {
+  ratingCount: number;
+  comment: string;
+  variantId: string;
+}
