@@ -19,6 +19,8 @@ import { DeleteManyWishListHandler } from './application/commands/delete/wish-li
 import { ProductAdapter } from './infrastructure/adapters';
 import { FindWishListItemsHandler } from './application/queries/many/wish-list/find-wish-list-items.handler';
 import { CustomerReviewProductRepository } from './infrastructure/database/postgres/customer-review-product.repository';
+import { CreateCustomerReviewProductHandler } from './application/commands/create/review/create-customer-review-product.handler';
+import { CustomerReviewProductCreatedHandler } from './application/events/review/review-created.handler';
 
 const CommandHandlers = [
   CreateCustomerHandler,
@@ -26,6 +28,7 @@ const CommandHandlers = [
   CreateWishListHandler,
   DeleteWishListHandler,
   DeleteManyWishListHandler,
+  CreateCustomerReviewProductHandler,
 ];
 
 const EventHandlers = [
@@ -35,6 +38,7 @@ const EventHandlers = [
   WishlistItemCreatedHandler,
   WishlistItemDeletedHandler,
   WishlistManyItemsDeletedHandler,
+  CustomerReviewProductCreatedHandler,
 ];
 
 const QueryHandlers = [FindCustomerByIdHandler, FindWishListItemsHandler];
