@@ -54,6 +54,27 @@ export class CustomerReviewProduct {
     return new CustomerReviewProduct(props, props.id, props.updatedAt);
   }
 
+  static update(
+    existingReview: CustomerReviewProduct,
+    updates: Partial<
+      Pick<CustomerReviewProductProps, 'ratingCount' | 'comment'>
+    >,
+  ): CustomerReviewProduct {
+    const updatedProps: CustomerReviewProductProps = {
+      ratingCount: updates.ratingCount ?? existingReview.ratingCount,
+      comment: updates.comment ?? existingReview.getCommentValue(),
+      customerId: existingReview.getCustomerIdValue(),
+      variantId: existingReview.getVariantIdValue(),
+    };
+
+    customerReviewProductSchema.parse(updatedProps);
+    return new CustomerReviewProduct(
+      updatedProps,
+      existingReview.getIdValue(),
+      new Date(), // Updated timestamp
+    );
+  }
+
   // Getter methods
   public getId(): Id {
     return this.id;
