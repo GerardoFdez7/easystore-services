@@ -51,11 +51,6 @@
 
 All project documentation is centralized in the `docs/` directory for easy tracking and indexing:
 
-- **[Payment Gateway](./docs/payment-gateway/README.md)** - Complete payment processing system
-- **[Authentication](./docs/authentication/README.md)** - User authentication and authorization _(Coming Soon)_
-- **[Product Management](./docs/product/README.md)** - Product catalog management _(Coming Soon)_
-- **[Inventory](./docs/inventory/README.md)** - Inventory control system _(Coming Soon)_
-
 ## Getting Started
 
 Follow these instructions to set up and run the EasyStore backend application:
