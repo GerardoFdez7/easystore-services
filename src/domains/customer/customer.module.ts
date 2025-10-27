@@ -23,6 +23,8 @@ import { CreateCustomerReviewProductHandler } from './application/commands/creat
 import { CustomerReviewProductCreatedHandler } from './application/events/review/review-created.handler';
 import { UpdateCustomerReviewProductHandler } from './application/commands/update/review/update-customer-review-product.handler';
 import { CustomerReviewProductUpdatedHandler } from './application/events/review/review-updated.handler';
+import { DeleteCustomerReviewProductHandler } from './application/commands/delete/review/delete-customer-review-product.handler';
+import { CustomerReviewProductDeletedHandler } from './application/events/review/review-deleted.handler';
 
 const CommandHandlers = [
   CreateCustomerHandler,
@@ -32,6 +34,7 @@ const CommandHandlers = [
   DeleteManyWishListHandler,
   CreateCustomerReviewProductHandler,
   UpdateCustomerReviewProductHandler,
+  DeleteCustomerReviewProductHandler,
 ];
 
 const EventHandlers = [
@@ -43,6 +46,7 @@ const EventHandlers = [
   WishlistManyItemsDeletedHandler,
   CustomerReviewProductCreatedHandler,
   CustomerReviewProductUpdatedHandler,
+  CustomerReviewProductDeletedHandler,
 ];
 
 const QueryHandlers = [FindCustomerByIdHandler, FindWishListItemsHandler];
