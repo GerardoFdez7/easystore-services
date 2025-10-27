@@ -129,6 +129,49 @@ export class CustomerReviewProductRepository
   }
 
   /**
+   * Finds multiple customer review products by customer ID and optional review IDs.
+   * @param customerId The unique identifier of the customer.
+   * @param reviewIds Optional array of review IDs to filter by.
+   * @returns Promise that resolves to an array of CustomerReviewProduct entities.
+   */
+  async findMany(
+    customerId: Id,
+    reviewIds?: Id[],
+  ): Promise<CustomerReviewProduct[]> {
+    const customerIdValue = customerId.getValue();
+
+    try {
+      const whereClause: Prisma.CustomerReviewProductWhereInput = {
+        customerId: customerIdValue,
+      };
+
+      // If reviewIds are provided, add them to the where clause
+      if (reviewIds && reviewIds.length > 0) {
+        whereClause.id = {
+          in: reviewIds.map((id) => id.getValue()),
+        };
+      }
+
+      const reviewProducts =
+        await this.postgresService.customerReviewProduct.findMany({
+          where: whereClause,
+          orderBy: {
+            updatedAt: 'desc',
+          },
+        });
+
+      return reviewProducts.map((reviewProduct) =>
+        CustomerReviewProductMapper.fromPersistence(reviewProduct),
+      );
+    } catch (error) {
+      return this.handleDatabaseError(
+        error,
+        'find many customer review products',
+      );
+    }
+  }
+
+  /**
    * Removes a customer review product by customer ID and review ID.
    * @param customerId The unique identifier of the customer.
    * @param reviewId The unique identifier of the review product.
