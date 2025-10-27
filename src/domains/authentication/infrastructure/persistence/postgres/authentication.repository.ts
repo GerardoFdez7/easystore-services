@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt';
 import { PostgreService } from '@database/postgres.service';
 import { Prisma, AuthIdentity as PrismaAuthIdentity } from '.prisma/postgres';
 import {

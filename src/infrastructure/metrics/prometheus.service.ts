@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import * as prom from 'prom-client';
+import prom from 'prom-client';
 import { INestApplication } from '@nestjs/common';
 import { Response } from 'express';
 

@@ -40,6 +40,19 @@ const eslintConfig = [
       curly: 'error',
       eqeqeq: ['error', 'always'],
 
+      // Prohibit import * and export *
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'ImportNamespaceSpecifier',
+          message: 'Wildcard imports are disallowed. Please import specific named exports.',
+        },
+        {
+          selector: 'ExportAllDeclaration',
+          message: 'Wildcard exports are disallowed. Please export specific named exports.',
+        },
+      ],
+
       // TypeScript enhanced rules
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-non-null-assertion': 'error',
