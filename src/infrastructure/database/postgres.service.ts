@@ -23,10 +23,17 @@ export class PostgreService
   }
 
   async onModuleInit(): Promise<void> {
-    await this.$connect();
+    try {
+      await this.$connect();
+      logger.log('PostgreSQL database connected successfully.');
+    } catch (error) {
+      logger.fatal('Failed to connect to PostgreSQL database.', error);
+      throw error;
+    }
   }
 
   async onModuleDestroy(): Promise<void> {
+    logger.warn('Disconnecting from PostgreSQL database.');
     await this.$disconnect();
   }
 }

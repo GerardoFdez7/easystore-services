@@ -1,4 +1,4 @@
-import { Module, Global, NestModule } from '@nestjs/common';
+import { Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { GraphqlModule } from '@graphql/graphql.module';
@@ -12,16 +12,13 @@ import { CategoryDomain } from './domains/category/category.module';
 import { AddressDomain } from './domains/address/address.module';
 import { InventoryDomain } from './domains/inventory/inventory.module';
 import { CartDomain } from './domains/cart/cart.module';
-import { LoggerConfig } from './config/logger/logger.config';
 
-@Global()
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env', `.env.${process.env.NODE_ENV || 'development'}`],
     }),
-    LoggerConfig(),
     GraphqlModule,
     PostgresModule,
     MediaModule,

@@ -1,10 +1,10 @@
 import { PostgreService } from './postgres.service';
-import { Id } from '../../domains/shared/value-objects/id.vo';
-import { Logger } from '@nestjs/common';
-import * as fs from 'fs';
-import * as path from 'path';
+import { Id } from '../../domains/shared/value-objects';
+import { CustomLoggerService } from '../../config/logger';
+import fs from 'fs';
+import path from 'path';
 
-const logger = new Logger();
+const logger = new CustomLoggerService();
 const dataDir = path.join(__dirname, 'countries');
 
 interface StateData {
@@ -89,7 +89,7 @@ async function main(): Promise<void> {
     }
 
     logger.log('Seeding completed for all countries.');
-  } catch (error: unknown) {
+  } catch (error) {
     logger.error('Error during seeding:', error);
     process.exit(1);
   } finally {
@@ -97,7 +97,7 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((error: unknown) => {
+main().catch((error) => {
   logger.error('Error during seeding:', error);
   process.exit(1);
 });

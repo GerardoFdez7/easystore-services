@@ -1,15 +1,20 @@
 import { NestFactory } from '@nestjs/core';
-import { Logger } from 'nestjs-pino';
-import { PostgreService } from '@database/postgres.service';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
-import './config/logger/global-logger';
+import {
+  CustomLoggerService,
+  initializeGlobalLogger,
+  getPinoLogger,
+} from '@config/logger';
 
 async function bootstrap(): Promise<void> {
+  // Initialize global logger first
+  initializeGlobalLogger();
+  const logger = getPinoLogger();
+
   const app = await NestFactory.create(AppModule, {
-    logger: false, // Disable NestJS default logger during startup
+    logger: new CustomLoggerService(),
   });
-  app.useLogger(app.get(Logger));
 
   // Cookie parser middleware
   app.use(cookieParser());
@@ -17,25 +22,17 @@ async function bootstrap(): Promise<void> {
   // CORS Config
   app.enableCors({
     origin: [process.env.FRONTEND_URL],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
     credentials: true,
   });
 
-  await app.listen(process.env.PORT);
-
-  const logger = app.get(Logger);
-
-  // Test database connection
-  try {
-    const prisma = app.get(PostgreService);
-    await prisma.$queryRaw`SELECT 1`;
-    logger.log(`Postgres connection successful`);
-  } catch (error: unknown) {
-    logger.fatal(`Postgres connection failed:`, error);
-  }
+  const port = process.env.PORT;
+  await app.listen(port);
+  logger.info(`Nest application successfully started on port: ${port}`);
+  logger.info(`Environment: ${process.env.NODE_ENV}`);
 }
 
-bootstrap().catch((error: unknown) => {
-  logger.error(`NestJS failed to start:`, error);
+bootstrap().catch((error) => {
+  logger.fatal(`NestJS failed to start: ${error}`);
   process.exit(1);
 });
