@@ -2,13 +2,19 @@ import { Entity, EntityProps } from '@shared/entity.base';
 import { Id, Name } from '@shared/value-objects';
 import {
   CustomerCreatedEvent,
+  CustomerReviewProductCreatedEvent,
   CustomerUpdatedEvent,
   WishlistItemCreatedEvent,
   WishlistItemDeletedEvent,
   WishlistManyItemsDeletedEvent,
 } from '../events';
-import { ICustomerCreate, IWishListCreated } from './customer.attributes';
+import {
+  ICustomerCreate,
+  ICustomerReviewCreated,
+  IWishListCreated,
+} from './customer.attributes';
 import { WishListItem } from '../value-objects';
+import { CustomerReviewProduct } from '../value-objects/customer-review-product.vo';
 
 export interface ICustomerProps extends EntityProps {
   id: Id;
@@ -108,5 +114,21 @@ export class Customer extends Entity<ICustomerProps> {
     customer: Customer,
   ): void {
     customer.apply(new WishlistManyItemsDeletedEvent(wishListItems, customer));
+  }
+
+  addCustomerReviewProduct(
+    customerReviewProduct: ICustomerReviewCreated,
+    customer: Customer,
+  ): CustomerReviewProduct {
+    const review = CustomerReviewProduct.create({
+      ratingCount: customerReviewProduct.ratingCount,
+      comment: customerReviewProduct.comment,
+      customerId: customer.get('id').getValue(),
+      variantId: customerReviewProduct.variantId,
+    });
+
+    customer.apply(new CustomerReviewProductCreatedEvent(review, customer));
+
+    return review;
   }
 }
