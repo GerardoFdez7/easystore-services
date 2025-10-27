@@ -515,10 +515,10 @@ type Mutation {
   softDeleteProduct(id: String!): Product!
   updateAddress(id: ID!, input: UpdateAddressInput!): AddressType!
   updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
-  updateCustomer(input: UpdateCustomerInput!): Customer!
   updateItemQty(input: UpdateItemQtyInput!): Cart!
   updatePassword(input: UpdatePasswordInput!): Response!
   updateProduct(id: String!, input: UpdateProductInput!): Product!
+  updateReviewProduct(input: UpdateCustomerReviewProductInput!): CustomerReviewProduct!
   updateStockInWarehouse(input: UpdateStockInWarehouseInput!, reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
   updateTenant(input: UpdateTenantInput!): Tenant!
   updateWarehouse(id: ID!, input: UpdateWarehouseInput!): Warehouse!
@@ -746,11 +746,15 @@ input UpdateCategoryInput {
   subCategories: [UpdateCategoryInput!]
 }
 
-input UpdateCustomerInput {
-  defaultBillingAddressId: ID
-  defaultPhoneNumberId: ID
-  defaultShippingAddressId: ID
-  name: String!
+input UpdateCustomerReviewProductInput {
+  """Updated review comment"""
+  comment: String
+
+  """Review ID to update"""
+  id: ID!
+
+  """Updated rating from 1.0 to 5.0"""
+  ratingCount: Float
 }
 
 input UpdateDimensionInput {

@@ -7,7 +7,7 @@ import { IdentityCreatedHandler } from './application/events/customer/identity-c
 import { CustomerCreatedHandler } from './application/events/customer/customer-created.handler';
 import { TenantDomain } from '../tenant/tenant.module';
 import { FindCustomerByIdHandler } from './application/queries';
-import { UpdateCustomerHandler } from './application/commands/update/update-customer.handler';
+import { UpdateCustomerHandler } from './application/commands/update/customer/update-customer.handler';
 import { CustomerUpdatedHandler } from './application/events/customer/customer-updated.handler';
 import { WishlistItemCreatedHandler } from './application/events/wishlist/wish-list-created.handler';
 import { WishlistItemDeletedHandler } from './application/events/wishlist/wish-list-deleted.handler';
@@ -21,6 +21,8 @@ import { FindWishListItemsHandler } from './application/queries/many/wish-list/f
 import { CustomerReviewProductRepository } from './infrastructure/database/postgres/customer-review-product.repository';
 import { CreateCustomerReviewProductHandler } from './application/commands/create/review/create-customer-review-product.handler';
 import { CustomerReviewProductCreatedHandler } from './application/events/review/review-created.handler';
+import { UpdateCustomerReviewProductHandler } from './application/commands/update/review/update-customer-review-product.handler';
+import { CustomerReviewProductUpdatedHandler } from './application/events/review/review-updated.handler';
 
 const CommandHandlers = [
   CreateCustomerHandler,
@@ -29,6 +31,7 @@ const CommandHandlers = [
   DeleteWishListHandler,
   DeleteManyWishListHandler,
   CreateCustomerReviewProductHandler,
+  UpdateCustomerReviewProductHandler,
 ];
 
 const EventHandlers = [
@@ -39,6 +42,7 @@ const EventHandlers = [
   WishlistItemDeletedHandler,
   WishlistManyItemsDeletedHandler,
   CustomerReviewProductCreatedHandler,
+  CustomerReviewProductUpdatedHandler,
 ];
 
 const QueryHandlers = [FindCustomerByIdHandler, FindWishListItemsHandler];
