@@ -109,6 +109,18 @@ export class PaginatedWishlistType {
   hasMore: boolean;
 }
 
+@ObjectType('PaginatedCustomerReviewProductWithVariant')
+export class PaginatedCustomerReviewProductWithVariantType {
+  @Field(() => [CustomerReviewProductWithVariantType])
+  reviews: CustomerReviewProductWithVariantType[];
+
+  @Field(() => Int)
+  total: number;
+
+  @Field(() => Boolean)
+  hasMore: boolean;
+}
+
 @InputType()
 export class GetWishlistPaginatedInput {
   @Field(() => Int, {
@@ -130,6 +142,29 @@ export class GetWishlistPaginatedInput {
     nullable: true,
   })
   variantIds?: string[];
+}
+
+@InputType()
+export class GetCustomerReviewsPaginatedInput {
+  @Field(() => Int, {
+    defaultValue: 1,
+    description: 'Page number for pagination (starts from 1)',
+    nullable: true,
+  })
+  page?: number;
+
+  @Field(() => Int, {
+    defaultValue: 25,
+    description: 'Number of items per page (max 50)',
+    nullable: true,
+  })
+  limit?: number;
+
+  @Field(() => [ID], {
+    description: 'Optional filter by review IDs',
+    nullable: true,
+  })
+  reviewIds?: string[];
 }
 
 @InputType()
@@ -172,6 +207,24 @@ export class CustomerReviewProductType {
 
   @Field()
   updatedAt: Date;
+}
+
+@ObjectType('CustomerReviewProductWithVariant')
+export class CustomerReviewProductWithVariantType extends CustomerReviewProductType {
+  @Field()
+  sku: string;
+
+  @Field()
+  productName: string;
+
+  @Field(() => FirstAttributeType, { nullable: true })
+  firstAttribute?: FirstAttributeType;
+
+  @Field(() => Float)
+  price: number;
+
+  @Field(() => Boolean, { nullable: true })
+  isArchived: boolean;
 }
 
 @InputType()
