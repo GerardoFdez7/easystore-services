@@ -3,6 +3,7 @@ import { Id, Name } from '@shared/value-objects';
 import {
   CustomerCreatedEvent,
   CustomerReviewProductCreatedEvent,
+  CustomerReviewProductUpdatedEvent,
   CustomerUpdatedEvent,
   WishlistItemCreatedEvent,
   WishlistItemDeletedEvent,
@@ -14,7 +15,10 @@ import {
   IWishListCreated,
 } from './customer.attributes';
 import { WishListItem } from '../value-objects';
-import { CustomerReviewProduct } from '../value-objects/customer-review-product.vo';
+import {
+  CustomerReviewProduct,
+  CustomerReviewProductPropsWithId,
+} from '../value-objects/customer-review-product.vo';
 
 export interface ICustomerProps extends EntityProps {
   id: Id;
@@ -130,5 +134,21 @@ export class Customer extends Entity<ICustomerProps> {
     customer.apply(new CustomerReviewProductCreatedEvent(review, customer));
 
     return review;
+  }
+
+  static updateCustomerReviewProduct(
+    existingReview: CustomerReviewProduct,
+    updates: Partial<
+      Pick<CustomerReviewProductPropsWithId, 'ratingCount' | 'comment'>
+    >,
+    customer: Customer,
+  ): CustomerReviewProduct {
+    const updatedReview = CustomerReviewProduct.update(existingReview, updates);
+
+    customer.apply(
+      new CustomerReviewProductUpdatedEvent(updatedReview, customer),
+    );
+
+    return updatedReview;
   }
 }
