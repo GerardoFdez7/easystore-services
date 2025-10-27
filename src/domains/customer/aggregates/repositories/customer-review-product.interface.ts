@@ -14,6 +14,15 @@ export interface ICustomerReviewProductRepository {
   findById(id: Id): Promise<CustomerReviewProduct | null>;
 
   /**
+   * Finds multiple customer review products by customer ID and optional review IDs.
+   * @param customerId - The unique identifier of the customer
+   * @param reviewIds - Optional array of review IDs to filter by
+   * @returns Promise that resolves to an array of CustomerReviewProduct entities
+   * @throws {Error} When repository operation fails
+   */
+  findMany(customerId: Id, reviewIds?: Id[]): Promise<CustomerReviewProduct[]>;
+
+  /**
    * Removes a customer review product by customer ID and review ID.
    * @param customerId - The unique identifier of the customer
    * @param reviewId - The unique identifier of the review product
