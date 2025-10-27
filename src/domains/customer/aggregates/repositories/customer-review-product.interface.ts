@@ -12,4 +12,13 @@ export interface ICustomerReviewProductRepository {
    * @throws {Error} When repository operation fails
    */
   findById(id: Id): Promise<CustomerReviewProduct | null>;
+
+  /**
+   * Removes a customer review product by customer ID and review ID.
+   * @param customerId - The unique identifier of the customer
+   * @param reviewId - The unique identifier of the review product
+   * @returns Promise that resolves when the review is successfully removed
+   * @throws {Error} When repository operation fails or review not found
+   */
+  removeReview(customerId: Id, reviewId: Id): Promise<void>;
 }
