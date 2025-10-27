@@ -2,7 +2,6 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   CustomerType,
-  UpdateCustomerInput,
   WishListItemCreateInput,
   WishListItemDeleteInput,
   WishListManyItemsInput,
@@ -11,15 +10,16 @@ import {
   PaginatedWishlistType,
   CustomerReviewProductType,
   CreateCustomerReviewProductInput,
+  UpdateCustomerReviewProductInput,
 } from './types/customer.types';
 import { CurrentUser, JwtPayload } from '@common/decorators';
 import { FindCustomerByIdDto } from '../../application/queries/one/customer/find-customer-by-id.dto';
-import { UpdateCustomerDto } from '../../application/commands/update/update-customer.dto';
 import { CreateWishListDto } from '../../application/commands/create/wish-list/create-wish-list.dto';
 import { DeleteWishListDto } from '../../application/commands/delete/wish-list/delete-wish-list.dto';
 import { DeleteManyWishListDto } from '../../application/commands/delete/wish-list/delete-many-wish-list.dto';
 import { FindWishlistItemsDto } from '../../application/queries/many/wish-list/find-wish-list-items.dto';
 import { CreateCustomerReviewProductDto } from '../../application/commands/create/review/create-customer-review-product.dto';
+import { UpdateCustomerReviewProductDto } from '../../application/commands/update/review/update-customer-review-product.dto';
 
 @Resolver(() => CustomerType)
 export class CustomerResolver {
@@ -31,17 +31,6 @@ export class CustomerResolver {
   ///////////////
   // Mutations //
   ///////////////
-  @Mutation(() => CustomerType)
-  async updateCustomer(
-    @Args('input', { type: () => UpdateCustomerInput })
-    input: UpdateCustomerInput,
-    @CurrentUser() user: JwtPayload,
-  ): Promise<CustomerType> {
-    return await this.commandBus.execute(
-      new UpdateCustomerDto(input, user.customerId, user.tenantId),
-    );
-  }
-
   @Mutation(() => WishListType)
   async addVariantToWishList(
     @Args('input', { type: () => WishListItemCreateInput })
@@ -68,6 +57,25 @@ export class CustomerResolver {
           ratingCount: input.ratingCount,
           comment: input.comment,
           variantId: input.variantId,
+        },
+        user.customerId,
+        user.tenantId,
+      ),
+    );
+  }
+
+  @Mutation(() => CustomerReviewProductType)
+  async updateReviewProduct(
+    @Args('input', { type: () => UpdateCustomerReviewProductInput })
+    input: UpdateCustomerReviewProductInput,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<CustomerReviewProductType> {
+    return await this.commandBus.execute(
+      new UpdateCustomerReviewProductDto(
+        {
+          id: input.id,
+          ratingCount: input.ratingCount,
+          comment: input.comment,
         },
         user.customerId,
         user.tenantId,
