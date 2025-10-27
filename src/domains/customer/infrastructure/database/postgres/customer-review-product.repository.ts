@@ -58,6 +58,51 @@ export class CustomerReviewProductRepository
   }
 
   /**
+   * Updates an existing customer review product in the repository.
+   * @param review The customer review product entity to update.
+   * @returns Promise that resolves to the updated CustomerReviewProduct entity.
+   */
+  async update(review: CustomerReviewProduct): Promise<CustomerReviewProduct> {
+    try {
+      const reviewData = CustomerReviewProductMapper.toPersistence(review);
+      const reviewId = review.getIdValue();
+
+      const updatedReview =
+        await this.postgresService.customerReviewProduct.update({
+          where: { id: reviewId },
+          data: {
+            ratingCount: reviewData.ratingCount,
+            comment: reviewData.comment,
+            updatedAt: reviewData.updatedAt,
+          },
+        });
+
+      return CustomerReviewProductMapper.fromPersistence(updatedReview);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        // Handle record not found error
+        if (error.code === 'P2025') {
+          throw new DatabaseOperationError(
+            'update customer review product',
+            'Customer review product not found',
+            error,
+          );
+        }
+        // Handle foreign key constraint violations
+        if (error.code === 'P2003') {
+          throw new DatabaseOperationError(
+            'update customer review product',
+            'Referenced customer or variant does not exist',
+            error,
+          );
+        }
+      }
+
+      return this.handleDatabaseError(error, 'update customer review product');
+    }
+  }
+
+  /**
    * Centralized error handling for database operations
    */
   private handleDatabaseError(error: unknown, operation: string): never {
