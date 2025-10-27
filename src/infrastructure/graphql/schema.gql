@@ -491,7 +491,7 @@ type Mutation {
   register(input: AuthenticationInput!): AuthIdentity!
   removeItemFromCart(input: RemoveItemFromCartInput!): Cart!
   removeManyItemsFromCart(input: RemoveManyItemFromCartInput!): Cart!
-  removeManyVariantsFromWishList(input: WishListManyItemsDeleteInput!): Boolean!
+  removeManyVariantsFromWishList(input: WishListManyItemsInput!): Boolean!
   removeStockFromWarehouse(reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
   removeVariant(id: String!, productId: String!): Product!
   removeVariantFromWishList(input: WishListItemDeleteInput!): Boolean!
@@ -587,6 +587,7 @@ type Query {
   getStatesByCountryId(countryId: ID!): [StateType!]!
   getTenantById: Tenant!
   getWarehouseById(id: ID!, isArchived: Boolean): Warehouse!
+  getWishListItems(input: WishListManyItemsInput!): [WishListWithVariant!]!
   validateToken: Response!
 }
 
@@ -871,8 +872,20 @@ input WishListItemDeleteInput {
   variantId: String!
 }
 
-input WishListManyItemsDeleteInput {
+input WishListManyItemsInput {
   variantIds: [String!]!
+}
+
+type WishListWithVariant {
+  customerId: ID!
+  firstAttribute: FirstAttribute
+  id: ID!
+  isArchived: Boolean
+  price: Float!
+  productName: String!
+  sku: String!
+  updatedAt: DateTime!
+  variantId: ID!
 }
 
 type Wishlist {

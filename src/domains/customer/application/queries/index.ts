@@ -1,1 +1,1 @@
-export { FindCustomerByIdHandler } from './one/find-customer-by-id.handler';
+export { FindCustomerByIdHandler } from './one/customer/find-customer-by-id.handler';
