@@ -116,7 +116,7 @@ export class Customer extends Entity<ICustomerProps> {
     customer.apply(new WishlistManyItemsDeletedEvent(wishListItems, customer));
   }
 
-  addCustomerReviewProduct(
+  static addCustomerReviewProduct(
     customerReviewProduct: ICustomerReviewCreated,
     customer: Customer,
   ): CustomerReviewProduct {
