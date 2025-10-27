@@ -4,6 +4,7 @@ import {
   CustomerCreatedEvent,
   CustomerReviewProductCreatedEvent,
   CustomerReviewProductUpdatedEvent,
+  CustomerReviewProductDeletedEvent,
   CustomerUpdatedEvent,
   WishlistItemCreatedEvent,
   WishlistItemDeletedEvent,
@@ -150,5 +151,12 @@ export class Customer extends Entity<ICustomerProps> {
     );
 
     return updatedReview;
+  }
+
+  static removeCustomerReviewProduct(
+    review: CustomerReviewProduct,
+    customer: Customer,
+  ): void {
+    customer.apply(new CustomerReviewProductDeletedEvent(review, customer));
   }
 }
