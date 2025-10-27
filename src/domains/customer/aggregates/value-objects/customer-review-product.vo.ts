@@ -1,11 +1,11 @@
 import { Id, LongDescription } from '@shared/value-objects';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 const customerReviewProductSchema = z.object({
   ratingCount: z.number().min(1).max(5),
   comment: z.string().min(1),
-  customerId: z.string().uuid(),
-  variantId: z.string().uuid(),
+  customerId: z.uuidv7({ message: 'Id must be a valid UUID' }),
+  variantId: z.uuidv7({ message: 'Id must be a valid UUID' }),
 });
 
 export interface CustomerReviewProductProps {
