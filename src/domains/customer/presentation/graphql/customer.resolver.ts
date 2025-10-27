@@ -11,6 +11,7 @@ import {
   CustomerReviewProductType,
   CreateCustomerReviewProductInput,
   UpdateCustomerReviewProductInput,
+  DeleteCustomerReviewProductInput,
 } from './types/customer.types';
 import { CurrentUser, JwtPayload } from '@common/decorators';
 import { FindCustomerByIdDto } from '../../application/queries/one/customer/find-customer-by-id.dto';
@@ -20,6 +21,7 @@ import { DeleteManyWishListDto } from '../../application/commands/delete/wish-li
 import { FindWishlistItemsDto } from '../../application/queries/many/wish-list/find-wish-list-items.dto';
 import { CreateCustomerReviewProductDto } from '../../application/commands/create/review/create-customer-review-product.dto';
 import { UpdateCustomerReviewProductDto } from '../../application/commands/update/review/update-customer-review-product.dto';
+import { DeleteCustomerReviewProductDto } from '../../application/commands/delete/review/delete-customer-review-product.dto';
 
 @Resolver(() => CustomerType)
 export class CustomerResolver {
@@ -81,6 +83,22 @@ export class CustomerResolver {
         user.tenantId,
       ),
     );
+  }
+
+  @Mutation(() => Boolean)
+  async deleteReviewProduct(
+    @Args('input', { type: () => DeleteCustomerReviewProductInput })
+    input: DeleteCustomerReviewProductInput,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<boolean> {
+    await this.commandBus.execute(
+      new DeleteCustomerReviewProductDto(
+        user.customerId,
+        input.id,
+        user.tenantId,
+      ),
+    );
+    return true;
   }
 
   @Mutation(() => Boolean)
