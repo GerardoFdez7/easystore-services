@@ -59,6 +59,7 @@ const eslintConfig = [
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/await-thenable': 'error',
       '@typescript-eslint/no-misused-promises': 'error',
+      '@typescript-eslint/no-unsafe-assignment': 'error',
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',

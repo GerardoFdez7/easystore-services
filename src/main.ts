@@ -28,8 +28,8 @@ async function bootstrap(): Promise<void> {
 
   const port = process.env.PORT;
   await app.listen(port);
-  logger.info(`Nest application successfully started on port: ${port}`);
   logger.info(`Environment: ${process.env.NODE_ENV}`);
+  logger.info(`GraphQL endpoint available at: http://localhost:${port}/gql`);
 }
 
 bootstrap().catch((error) => {

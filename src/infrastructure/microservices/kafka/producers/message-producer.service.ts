@@ -140,15 +140,13 @@ export class MessageProducerService
     }
 
     try {
-      const kafkaMessages = await Promise.all(
-        messages.map((message) => {
-          const serializedValue = this.serializer.serialize(message);
-          return {
-            key: getKey ? Buffer.from(getKey(message)) : null,
-            value: serializedValue,
-          } as Message;
-        }),
-      );
+      const kafkaMessages = messages.map((message) => {
+        const serializedValue = this.serializer.serialize(message);
+        return {
+          key: getKey ? Buffer.from(getKey(message)) : null,
+          value: serializedValue,
+        } as Message;
+      });
 
       return await this.circuitBreaker.execute(async () => {
         return this.producer.send({
