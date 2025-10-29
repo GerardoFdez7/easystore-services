@@ -14,6 +14,7 @@ import {
   DeleteCustomerReviewProductInput,
   GetCustomerReviewsPaginatedInput,
   PaginatedCustomerReviewProductWithVariantType,
+  UpdateCustomerInput,
 } from './types/customer.types';
 import { CurrentUser, JwtPayload } from '@common/decorators';
 import { FindCustomerByIdDto } from '../../application/queries/one/customer/find-customer-by-id.dto';
@@ -25,6 +26,7 @@ import { CreateCustomerReviewProductDto } from '../../application/commands/creat
 import { UpdateCustomerReviewProductDto } from '../../application/commands/update/review/update-customer-review-product.dto';
 import { DeleteCustomerReviewProductDto } from '../../application/commands/delete/review/delete-customer-review-product.dto';
 import { FindManyCustomerReviewsDto } from '../../application/queries/many/review/find-many-customer-reviews.dto';
+import { UpdateCustomerDto } from '../../application/commands/update/customer/update-customer.dto';
 
 @Resolver(() => CustomerType)
 export class CustomerResolver {
@@ -62,6 +64,26 @@ export class CustomerResolver {
           ratingCount: input.ratingCount,
           comment: input.comment,
           variantId: input.variantId,
+        },
+        user.customerId,
+        user.tenantId,
+      ),
+    );
+  }
+
+  @Mutation(() => CustomerType)
+  async updateCustomer(
+    @Args('input', { type: () => UpdateCustomerInput })
+    input: UpdateCustomerInput,
+    @CurrentUser() user: JwtPayload,
+  ): Promise<CustomerType> {
+    return await this.commandBus.execute(
+      new UpdateCustomerDto(
+        {
+          name: input.name,
+          defaultPhoneNumberId: input.defaultPhoneNumberId,
+          defaultShippingAddressId: input.defaultShippingAddressId,
+          defaultBillingAddressId: input.defaultBillingAddressId,
         },
         user.customerId,
         user.tenantId,
