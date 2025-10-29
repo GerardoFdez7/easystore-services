@@ -14,6 +14,7 @@ import { AddressDomain } from './domains/address/address.module';
 import { InventoryDomain } from './domains/inventory/inventory.module';
 import { CartDomain } from './domains/cart/cart.module';
 import { CustomerDomain } from './domains/customer/customer.module';
+import { DashboardModule } from './domains/dashboard/dashboard.module';
 import { HealthController } from './infrastructure/monitoring/health.controller';
 
 @Module({
@@ -34,6 +35,7 @@ import { HealthController } from './infrastructure/monitoring/health.controller'
     AddressDomain,
     InventoryDomain,
     CartDomain,
+    DashboardModule,
   ],
   controllers: [HealthController],
   providers: [

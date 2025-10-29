@@ -524,7 +524,14 @@ type Mutation {
   updateReviewProduct(input: UpdateCustomerReviewProductInput!): CustomerReviewProduct!
   updateStockInWarehouse(input: UpdateStockInWarehouseInput!, reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
   updateTenant(input: UpdateTenantInput!): Tenant!
+  updateVariant(id: String!, input: UpdateVariantInput!, productId: String!): Product!
   updateWarehouse(id: ID!, input: UpdateWarehouseInput!): Warehouse!
+}
+
+type OrderTimeline {
+  date: String!
+  orders_count: Int!
+  revenue: Float!
 }
 
 type PaginatedAddressesType {
@@ -638,6 +645,16 @@ type Query {
   validateToken: Response!
 }
 
+type RecentOrder {
+  customer_name: String!
+  order_date: DateTime!
+  order_id: ID!
+  order_number: String!
+  order_status: String!
+  order_total: Float!
+  shipping_city: String
+}
+
 input RemoveItemFromCartInput {
   variantId: ID!
 }
@@ -728,6 +745,19 @@ type Tenant {
   logo: String
   ownerName: String!
   updatedAt: DateTime!
+}
+
+type TopProduct {
+  orders_count: Int!
+  product_brand: String
+  product_cover: String
+  product_name: String!
+  total_quantity_sold: Int!
+  total_revenue: Float!
+  variant_cover: String
+  variant_id: ID!
+  variant_price: Float!
+  variant_sku: String!
 }
 
 enum TypeEnum {
