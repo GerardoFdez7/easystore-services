@@ -6,9 +6,7 @@ export enum ConditionEnum {
   REFURBISHED = 'REFURBISHED',
 }
 
-const conditionSchema = z.nativeEnum(ConditionEnum, {
-  errorMap: () => ({ message: 'Invalid condition type' }),
-});
+const conditionSchema = z.enum(ConditionEnum);
 
 export class Condition {
   private readonly value: ConditionEnum;

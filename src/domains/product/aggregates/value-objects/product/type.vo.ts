@@ -5,7 +5,7 @@ export enum TypeEnum {
   DIGITAL = 'DIGITAL',
 }
 
-const typeSchema = z.nativeEnum(TypeEnum);
+const typeSchema = z.enum(TypeEnum);
 
 export class Type {
   private readonly value: TypeEnum;

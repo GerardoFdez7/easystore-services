@@ -169,7 +169,7 @@ export enum CurrencyCodes {
   ZWL = 'ZWL',
 }
 
-export const currencySchema = z.nativeEnum(CurrencyCodes).nullish();
+export const currencySchema = z.enum(CurrencyCodes).nullish();
 
 export class Currency {
   private readonly value: CurrencyCodes;

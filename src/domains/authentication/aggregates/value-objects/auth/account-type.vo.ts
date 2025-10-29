@@ -6,7 +6,7 @@ export enum AccountTypeEnum {
   EMPLOYEE = 'EMPLOYEE',
 }
 
-export const AccountTypeSchema = z.nativeEnum(AccountTypeEnum);
+export const AccountTypeSchema = z.enum(AccountTypeEnum);
 
 export class AccountType {
   private constructor(private readonly value: AccountTypeEnum) {}

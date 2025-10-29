@@ -193,25 +193,6 @@ input CreateSustainabilityInput {
   recycledPercentage: Float!
 }
 
-input CreateVariantInput {
-  attributes: [CreateAttributeInput!]!
-  barcode: String
-  condition: ConditionEnum!
-  dimension: CreateDimensionInput
-  ean: String
-  installmentPayments: [CreateInstallmentInput!]
-  isbn: String
-  personalizationOptions: [String!]
-  price: Float!
-  productId: ID!
-  sku: String!
-  upc: String
-  variantCover: String
-  variantMedia: [CreateMediaInput!]
-  warranties: [CreateWarrantyInput!]
-  weight: Float
-}
-
 input CreateWarehouseInput {
   addressId: ID!
   name: String!
@@ -460,7 +441,6 @@ enum MediaTypeEnum {
 type Mutation {
   addItemToCart(input: AddItemToCartInput!): Cart!
   addStockToWarehouse(input: AddStockToWarehouseInput!, reason: String, variantId: ID!, warehouseId: ID!): Warehouse!
-  addVariant(input: CreateVariantInput!): Product!
   archiveVariant(id: String!, productId: String!): Product!
   createAddress(input: CreateAddressInput!): AddressType!
   createCategory(input: CreateCategoryInput!): Category!
@@ -489,7 +469,6 @@ type Mutation {
   updateProduct(id: String!, input: UpdateProductInput!): Product!
   updateStockInWarehouse(input: UpdateStockInWarehouseInput!, reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
   updateTenant(input: UpdateTenantInput!): Tenant!
-  updateVariant(id: String!, input: UpdateVariantInput!, productId: String!): Product!
   updateWarehouse(id: ID!, input: UpdateWarehouseInput!): Warehouse!
 }
 
@@ -699,28 +678,12 @@ input UpdateAddressInput {
   stateId: String
 }
 
-input UpdateAttributeInput {
-  key: String
-  value: String
-}
-
 input UpdateCategoryInput {
   cover: String
   description: String
   name: String
   parentId: ID
   subCategories: [UpdateCategoryInput!]
-}
-
-input UpdateDimensionInput {
-  height: Float
-  length: Float
-  width: Float
-}
-
-input UpdateInstallmentInput {
-  interestRate: Float
-  months: Int
 }
 
 input UpdateItemQtyInput {
@@ -784,33 +747,9 @@ input UpdateTenantInput {
   ownerName: String
 }
 
-input UpdateVariantInput {
-  attributes: [UpdateAttributeInput!]
-  barcode: String
-  condition: ConditionEnum
-  dimension: UpdateDimensionInput
-  ean: String
-  installmentPayments: [UpdateInstallmentInput!]
-  isbn: String
-  personalizationOptions: [String!]
-  price: Float
-  sku: String
-  upc: String
-  variantCover: String
-  variantMedia: [UpdateMediaInput!]
-  warranties: [UpdateWarrantyInput!]
-  weight: Float
-}
-
 input UpdateWarehouseInput {
   addressId: ID
   name: String
-}
-
-input UpdateWarrantyInput {
-  coverage: String
-  instructions: String
-  months: Float
 }
 
 type Variant {

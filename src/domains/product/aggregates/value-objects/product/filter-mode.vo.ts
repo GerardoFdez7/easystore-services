@@ -6,7 +6,7 @@ export enum ProductFilterModeEnum {
   ARCHIVES = 'archives',
 }
 
-const ProductFilterModeSchema = z.nativeEnum(ProductFilterModeEnum);
+const ProductFilterModeSchema = z.enum(ProductFilterModeEnum);
 
 export class ProductFilterMode {
   private constructor(private readonly value: ProductFilterModeEnum) {}

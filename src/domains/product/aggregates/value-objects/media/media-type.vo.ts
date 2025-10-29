@@ -5,9 +5,7 @@ export enum MediaTypeEnum {
   VIDEO = 'VIDEO',
 }
 
-const mediaTypeSchema = z.nativeEnum(MediaTypeEnum, {
-  errorMap: () => ({ message: 'Invalid media type' }),
-});
+const mediaTypeSchema = z.enum(MediaTypeEnum);
 
 export class MediaType {
   private readonly value: MediaTypeEnum;
