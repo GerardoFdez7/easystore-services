@@ -1,3 +1,4 @@
+import { Domain } from '../value-objects/tenant/domain.vo';
 import { Tenant } from '../entities/tenant/tenant.entity';
 import { Id } from '@shared/value-objects';
 
@@ -40,4 +41,6 @@ export interface ITenantRepository {
    * @returns The tenant entity or null if not found.
    */
   findById(id: Id): Promise<Tenant | null>;
+
+  getTenantIdByDomain(domain: Domain): Promise<string | null>;
 }

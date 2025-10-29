@@ -1,4 +1,5 @@
-import { Id } from '../value-objects';
+import { Id } from '@shared/value-objects';
+import { Customer } from '../entities/customer.entity';
 
 /**
  * Simple interface for customer repository operations needed for authentication.
@@ -13,4 +14,10 @@ export interface ICustomerRepository {
   findByAuthIdentityId(
     authIdentityId: Id,
   ): Promise<{ id: string; tenantId: string } | null>;
+
+  create(customer: Customer): Promise<Customer>;
+
+  findCustomerById(id: Id, tenantId: Id): Promise<Customer>;
+
+  update(customer: Customer): Promise<Customer>;
 }
