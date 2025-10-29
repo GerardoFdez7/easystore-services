@@ -104,7 +104,7 @@ export class CreateProductInput {
   @Field(() => [AddVariantToProductInput])
   variants: AddVariantToProductInput[];
 
-  @Field(() => TypeEnum, { nullable: true })
+  @Field(() => TypeEnum)
   productType: TypeEnum;
 
   @Field()
@@ -140,6 +140,9 @@ export class UpdateProductInput {
 
   @Field({ nullable: true })
   longDescription?: string;
+
+  @Field(() => [AddVariantToProductInput], { nullable: true })
+  variants?: AddVariantToProductInput[];
 
   @Field(() => TypeEnum, { nullable: true })
   productType?: TypeEnum;

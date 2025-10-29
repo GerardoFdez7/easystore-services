@@ -652,7 +652,7 @@ describe('CreateProductHandler', () => {
     });
 
     describe('Edge cases and error scenarios', () => {
-      it('should handle product with no variants', async () => {
+      it('should throw BadRequestException when product has no variants', async () => {
         const productWithoutVariants: CreateProductDTO = {
           data: {
             ...baseProductData,
@@ -660,23 +660,21 @@ describe('CreateProductHandler', () => {
           },
         } as unknown as CreateProductDTO;
 
-        const expectedDto: ProductDTO = {
-          id: 'product-id',
-          name: 'Test Product',
-        } as unknown as ProductDTO;
+        fromCreateDtoMock.mockImplementation(() => {
+          throw new BadRequestException(
+            'A product must have at least one variant. Products without variants cannot be created.',
+          );
+        });
 
-        fromCreateDtoMock.mockReturnValue(mockProduct);
-        mergeObjectContextMock.mockReturnValue(mockProduct);
-        toDtoMock.mockReturnValue(expectedDto);
-
-        const result = await handler.execute(productWithoutVariants);
-
-        expect(result).toEqual(expectedDto);
-        expect(createMock).toHaveBeenCalledWith(mockProduct);
-        expect(mockProduct.commit).toHaveBeenCalledTimes(1);
+        await expect(handler.execute(productWithoutVariants)).rejects.toThrow(
+          BadRequestException,
+        );
+        await expect(handler.execute(productWithoutVariants)).rejects.toThrow(
+          'A product must have at least one variant. Products without variants cannot be created.',
+        );
       });
 
-      it('should handle product with undefined variants', async () => {
+      it('should throw BadRequestException when product has undefined variants', async () => {
         const productWithUndefinedVariants: CreateProductDTO = {
           data: {
             ...baseProductData,
@@ -684,20 +682,20 @@ describe('CreateProductHandler', () => {
           },
         } as unknown as CreateProductDTO;
 
-        const expectedDto: ProductDTO = {
-          id: 'product-id',
-          name: 'Test Product',
-        } as unknown as ProductDTO;
+        fromCreateDtoMock.mockImplementation(() => {
+          throw new BadRequestException(
+            'A product must have at least one variant. Products without variants cannot be created.',
+          );
+        });
 
-        fromCreateDtoMock.mockReturnValue(mockProduct);
-        mergeObjectContextMock.mockReturnValue(mockProduct);
-        toDtoMock.mockReturnValue(expectedDto);
-
-        const result = await handler.execute(productWithUndefinedVariants);
-
-        expect(result).toEqual(expectedDto);
-        expect(createMock).toHaveBeenCalledWith(mockProduct);
-        expect(mockProduct.commit).toHaveBeenCalledTimes(1);
+        await expect(
+          handler.execute(productWithUndefinedVariants),
+        ).rejects.toThrow(BadRequestException);
+        await expect(
+          handler.execute(productWithUndefinedVariants),
+        ).rejects.toThrow(
+          'A product must have at least one variant. Products without variants cannot be created.',
+        );
       });
 
       it('should propagate repository errors', async () => {

@@ -141,10 +141,7 @@ export class AddVariantToProductInput {
   @Field(() => CreateDimensionInput, { nullable: true })
   dimension?: CreateDimensionInput;
 
-  @Field(() => ConditionEnum, {
-    defaultValue: ConditionEnum.NEW,
-    nullable: true,
-  })
+  @Field(() => ConditionEnum)
   condition: ConditionEnum;
 
   @Field()
@@ -192,10 +189,7 @@ export class CreateVariantInput {
   @Field(() => CreateDimensionInput, { nullable: true })
   dimension?: CreateDimensionInput;
 
-  @Field(() => ConditionEnum, {
-    defaultValue: ConditionEnum.NEW,
-    nullable: true,
-  })
+  @Field(() => ConditionEnum)
   condition: ConditionEnum;
 
   @Field()

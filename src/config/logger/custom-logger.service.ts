@@ -26,8 +26,11 @@ export class CustomLoggerService implements LoggerService {
 
   error(message: any, trace?: any, context?: any): void {
     this.pinoLogger.error(
-      { context, trace },
-      typeof message === 'string' ? message : JSON.stringify(message),
+      { context, trace, error: message },
+      typeof message === 'string'
+        ? message
+        : // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          message.message || 'Unknown error',
     );
   }
 

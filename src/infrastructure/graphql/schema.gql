@@ -25,7 +25,7 @@ input AddStockToWarehouseInput {
 input AddVariantToProductInput {
   attributes: [CreateAttributeInput!]!
   barcode: String
-  condition: ConditionEnum = NEW
+  condition: ConditionEnum!
   dimension: CreateDimensionInput
   ean: String
   installmentPayments: [CreateInstallmentInput!]
@@ -181,7 +181,7 @@ input CreateProductInput {
   manufacturer: String
   media: [CreateMediaInput!]
   name: String!
-  productType: TypeEnum
+  productType: TypeEnum!
   shortDescription: String!
   sustainabilities: [CreateSustainabilityInput!]
   tags: [String!]
@@ -196,7 +196,7 @@ input CreateSustainabilityInput {
 input CreateVariantInput {
   attributes: [CreateAttributeInput!]!
   barcode: String
-  condition: ConditionEnum = NEW
+  condition: ConditionEnum!
   dimension: CreateDimensionInput
   ean: String
   installmentPayments: [CreateInstallmentInput!]
@@ -755,6 +755,7 @@ input UpdateProductInput {
   shortDescription: String
   sustainabilities: [UpdateSustainabilityInput!]
   tags: [String!]
+  variants: [AddVariantToProductInput!]
 }
 
 input UpdateStockInWarehouseInput {

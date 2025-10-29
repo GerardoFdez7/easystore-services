@@ -1,4 +1,3 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
 import {
   Id,
   Name,
@@ -94,13 +93,17 @@ export class Product extends Entity<IProductProps> {
    * @returns The created Product domain entity
    */
   static create(props: IProductBase): Product {
+    if (!props.variants || props.variants.length === 0) {
+      throw new Error('A product must have at least one variant.');
+    }
+
     const transformedProps = {
       name: Name.create(props.name),
       shortDescription: ShortDescription.create(props.shortDescription),
       longDescription: props.longDescription
         ? LongDescription.create(props.longDescription)
         : null,
-      productType: Type.create(props.productType || 'PHYSICAL'),
+      productType: Type.create(props.productType),
       cover: MediaVO.createCover(props.cover),
       tags: (props.tags || []).map((tag) => Tags.create([tag])),
       brand: props.brand ? Brand.create(props.brand) : null,
@@ -114,7 +117,7 @@ export class Product extends Entity<IProductProps> {
     const newProductIdValue = Id.generate();
     const productTenantId = transformedProps.tenantId;
 
-    const variants = (props.variants || []).map((variantData) =>
+    const variants = props.variants.map((variantData) =>
       Variant.create({
         ...variantData,
         productId: newProductIdValue.getValue(),
@@ -196,6 +199,19 @@ export class Product extends Entity<IProductProps> {
 
     if (updates.cover !== undefined) {
       props.cover = MediaVO.createCover(updates.cover);
+    }
+
+    if (updates.variants !== undefined) {
+      if (!updates.variants || updates.variants.length === 0) {
+        throw new Error('A product must have at least one variant.');
+      }
+      props.variants = updates.variants.map((variantData) =>
+        Variant.create({
+          ...variantData,
+          productId: product.props.id.getValue(),
+          tenantId: product.props.tenantId.getValue(),
+        }),
+      );
     }
 
     if (updates.tags !== undefined) {
@@ -312,7 +328,7 @@ export class Product extends Entity<IProductProps> {
   private getVariantOrThrow(variantId: string): Variant {
     const variant = this.variantsMap.get(variantId);
     if (!variant) {
-      throw new NotFoundException(
+      throw new Error(
         `Variant with ID ${variantId} not found on product ${this.props.id.getValue()}.`,
       );
     }
@@ -387,7 +403,7 @@ export class Product extends Entity<IProductProps> {
     // Check if the product is already archived
     const isArchived = variantToArchive.get('isArchived');
     if (isArchived === true) {
-      throw new BadRequestException(
+      throw new Error(
         `Variant with ID ${variantId} is already archived and cannot be archived again`,
       );
     }
@@ -419,7 +435,7 @@ export class Product extends Entity<IProductProps> {
     // Check if the variant is actually deleted
     const isArchived = variantToRestore.get('isArchived');
     if (isArchived === false) {
-      throw new BadRequestException(
+      throw new Error(
         `Variant with ID ${variantId} is not in a deleted state and cannot be restored`,
       );
     }

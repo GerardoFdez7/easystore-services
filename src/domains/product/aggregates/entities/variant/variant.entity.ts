@@ -53,6 +53,10 @@ export class Variant extends Entity<IVariantProps> {
   }
 
   public static create(props: IVariantBase): Variant {
+    if (!props.attributes || props.attributes.length === 0) {
+      throw new Error('A variant must have at least one attribute.');
+    }
+
     const transformedProps = {
       attributes: props.attributes.map((attr) =>
         Attribute.create(attr.key, attr.value),
@@ -68,9 +72,7 @@ export class Variant extends Entity<IVariantProps> {
         : [],
       weight: props.weight !== undefined ? Weight.create(props.weight) : null,
       dimension: props.dimension ? Dimension.create(props.dimension) : null,
-      condition: props.condition
-        ? Condition.create(props.condition)
-        : Condition.create('NEW'),
+      condition: Condition.create(props.condition),
       upc: props.upc ? UPC.create(props.upc) : null,
       ean: props.ean ? EAN.create(props.ean) : null,
       sku: SKU.create(props.sku),
@@ -125,7 +127,10 @@ export class Variant extends Entity<IVariantProps> {
   ): Variant {
     const newProps = { ...this.props };
 
-    if (data.attributes) {
+    if (data.attributes !== undefined) {
+      if (!data.attributes || data.attributes.length === 0) {
+        throw new Error('A variant must have at least one attribute.');
+      }
       newProps.attributes = data.attributes.map((attr) =>
         Attribute.create(attr.key, attr.value),
       );
