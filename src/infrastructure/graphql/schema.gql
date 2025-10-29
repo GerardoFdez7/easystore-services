@@ -373,6 +373,27 @@ enum CurrencyCodes {
   ZWL
 }
 
+type DashboardData {
+  ordersTimeline: [OrderTimeline!]!
+  recentOrders: [RecentOrder!]!
+  summary: DashboardSummary!
+  topProducts: [TopProduct!]!
+}
+
+type DashboardSummary {
+  average_order_value: Float!
+  cancelled_orders: Int!
+  cancelled_revenue: Float!
+  completed_orders: Int!
+  completed_revenue: Float!
+  confirmed_orders: Int!
+  processing_orders: Int!
+  shipped_orders: Int!
+  total_orders: Int!
+  total_revenue: Float!
+  unique_customers: Int!
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
@@ -469,7 +490,14 @@ type Mutation {
   updateProduct(id: String!, input: UpdateProductInput!): Product!
   updateStockInWarehouse(input: UpdateStockInWarehouseInput!, reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
   updateTenant(input: UpdateTenantInput!): Tenant!
+  updateVariant(id: String!, input: UpdateVariantInput!, productId: String!): Product!
   updateWarehouse(id: ID!, input: UpdateWarehouseInput!): Warehouse!
+}
+
+type OrderTimeline {
+  date: String!
+  orders_count: Int!
+  revenue: Float!
 }
 
 type PaginatedAddressesType {
@@ -555,17 +583,61 @@ type Query {
   getAllAddresses(addressType: AddressTypeEnum, limit: Int, name: String, page: Int): PaginatedAddressesType!
   getAllCategories(includeSubcategories: Boolean = true, limit: Int = 10, name: String, page: Int = 1, parentId: ID, sortBy: SortBy, sortOrder: SortOrder): PaginatedCategoriesType!
   getAllCountries: [CountryType!]!
-  getAllProducts(categoriesIds: [ID!], filterMode: ProductFilterMode = ALL, limit: Float = 25, name: String, page: Float = 1, sortBy: ProductSortBy, sortOrder: SortOrder, type: TypeEnum): PaginatedProductsType!
-  getAllStockMovements(createdById: ID, dateFrom: DateTime, dateTo: DateTime, includeDeleted: Boolean = false, limit: Int = 10, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID, warehouseId: ID!): PaginatedStockMovementsType!
-  getAllWarehouses(addressId: ID, includeAddresses: Boolean = false, limit: Int = 10, name: String, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, stockFilters: StockPerWarehouseFilterInput): PaginatedWarehousesType!
+  getAllProducts(
+    categoriesIds: [ID!]
+    includeSoftDeleted: Boolean = false
+    limit: Float = 25
+    name: String
+    page: Float = 1
+    sortBy: SortBy
+    sortOrder: SortOrder
+    type: TypeEnum
+  ): PaginatedProductsType!
+  getAllStockMovements(
+    createdById: ID
+    dateFrom: DateTime
+    dateTo: DateTime
+    includeDeleted: Boolean = false
+    limit: Int = 10
+    page: Int = 1
+    sortBy: SortBy
+    sortOrder: SortOrder
+    variantId: ID
+    warehouseId: ID!
+  ): PaginatedStockMovementsType!
+  getAllWarehouses(
+    addressId: ID
+    includeAddresses: Boolean = false
+    limit: Int = 10
+    name: String
+    page: Int = 1
+    sortBy: SortBy
+    sortOrder: SortOrder
+    stockFilters: StockPerWarehouseFilterInput
+  ): PaginatedWarehousesType!
   getCart(input: GetCartPaginatedInput!): PaginatedCart!
   getCategoryById(id: ID!): Category!
+
+  """
+  Get all dashboard data in a single query: summary, timeline, recent orders, and top products
+  """
+  getDashboardData: DashboardData!
   getMediaUploadToken: MediaAuthResponse!
   getProductById(id: String!): Product!
   getStatesByCountryId(countryId: ID!): [StateType!]!
   getTenantById: Tenant!
   getWarehouseById(id: ID!, isArchived: Boolean): Warehouse!
   validateToken: Response!
+}
+
+type RecentOrder {
+  customer_name: String!
+  order_date: DateTime!
+  order_id: ID!
+  order_number: String!
+  order_status: String!
+  order_total: Float!
+  shipping_city: String
 }
 
 input RemoveItemFromCartInput {
@@ -658,6 +730,19 @@ type Tenant {
   logo: String
   ownerName: String!
   updatedAt: DateTime!
+}
+
+type TopProduct {
+  orders_count: Int!
+  product_brand: String
+  product_cover: String
+  product_name: String!
+  total_quantity_sold: Int!
+  total_revenue: Float!
+  variant_cover: String
+  variant_id: ID!
+  variant_price: Float!
+  variant_sku: String!
 }
 
 enum TypeEnum {
