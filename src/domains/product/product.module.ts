@@ -4,9 +4,7 @@ import { CqrsModule } from '@nestjs/cqrs';
 // Command Handlers
 import {
   CreateProductHandler,
-  CreateVariantHandler,
   UpdateProductHandler,
-  UpdateVariantHandler,
   SoftDeleteProductHandler,
   HardDeleteProductHandler,
   DeleteVariantHandler,
@@ -27,8 +25,6 @@ import {
   ProductSoftDeletedHandler,
   ProductHardDeletedHandler,
   ProductRestoredHandler,
-  VariantCreatedHandler,
-  VariantUpdatedHandler,
   VariantDeletedHandler,
   VariantArchivedHandler,
   VariantRestoredHandler,
@@ -39,9 +35,7 @@ import CategoryAdapter from './infrastructure/adapters/category.adapter';
 
 const CommandHandlers = [
   CreateProductHandler,
-  CreateVariantHandler,
   UpdateProductHandler,
-  UpdateVariantHandler,
   SoftDeleteProductHandler,
   HardDeleteProductHandler,
   DeleteVariantHandler,
@@ -62,8 +56,6 @@ const EventHandlers = [
   ProductSoftDeletedHandler,
   ProductHardDeletedHandler,
   ProductRestoredHandler,
-  VariantCreatedHandler,
-  VariantUpdatedHandler,
   VariantDeletedHandler,
   VariantArchivedHandler,
   VariantRestoredHandler,

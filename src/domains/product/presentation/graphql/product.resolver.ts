@@ -13,15 +13,11 @@ import {
   PaginatedProductsType,
   CreateProductInput,
   UpdateProductInput,
-  CreateVariantInput,
-  UpdateVariantInput,
 } from './types';
 import {
   CreateProductDTO,
-  CreateVariantDTO,
   RestoreProductDTO,
   UpdateProductDTO,
-  UpdateVariantDTO,
   SoftDeleteProductDTO,
   HardDeleteProductDTO,
   DeleteVariantDTO,
@@ -112,27 +108,6 @@ export class ProductResolver {
   }
 
   // Variants mutations
-  @Mutation(() => ProductType)
-  async addVariant(
-    @Args('input') input: CreateVariantInput,
-    @CurrentUser() user: JwtPayload,
-  ): Promise<ProductType> {
-    const inputWithTenantId = { ...input, tenantId: user.tenantId };
-    return this.commandBus.execute(new CreateVariantDTO(inputWithTenantId));
-  }
-
-  @Mutation(() => ProductType)
-  async updateVariant(
-    @Args('id') id: string,
-    @Args('productId') productId: string,
-    @Args('input') input: UpdateVariantInput,
-    @CurrentUser() user: JwtPayload,
-  ): Promise<ProductType> {
-    return this.commandBus.execute(
-      new UpdateVariantDTO(id, productId, user.tenantId, { ...input }),
-    );
-  }
-
   @Mutation(() => ProductType)
   async archiveVariant(
     @Args('id') id: string,

@@ -128,8 +128,11 @@ export class Variant extends Entity<IVariantProps> {
     const newProps = { ...this.props };
 
     if (data.attributes !== undefined) {
-      if (!data.attributes || data.attributes.length === 0) {
+      if (data.attributes.length === 0) {
         throw new Error('A variant must have at least one attribute.');
+      }
+      if (data.attributes.length > 30) {
+        throw new Error('Attributes 30 limit exceeded.');
       }
       newProps.attributes = data.attributes.map((attr) =>
         Attribute.create(attr.key, attr.value),

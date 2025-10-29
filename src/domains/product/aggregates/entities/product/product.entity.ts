@@ -202,9 +202,14 @@ export class Product extends Entity<IProductProps> {
     }
 
     if (updates.variants !== undefined) {
-      if (!updates.variants || updates.variants.length === 0) {
+      if (updates.variants.length === 0) {
         throw new Error('A product must have at least one variant.');
       }
+
+      if (updates.variants.length > 20) {
+        throw new Error('Variants 20 limit exceeded.');
+      }
+
       props.variants = updates.variants.map((variantData) =>
         Variant.create({
           ...variantData,
