@@ -27,7 +27,7 @@ export class PostgreService
       await this.$connect();
       logger.log('PostgreSQL database connected successfully.');
     } catch (error) {
-      logger.fatal('Failed to connect to PostgreSQL database.', error);
+      logger.fatal(`Failed to connect to PostgreSQL database: ${error}`);
       throw error;
     }
   }

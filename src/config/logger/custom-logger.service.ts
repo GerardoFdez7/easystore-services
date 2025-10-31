@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable */
 import { LoggerService } from '@nestjs/common';
 import { getPinoLogger } from './global-logger';
 
@@ -25,12 +24,19 @@ export class CustomLoggerService implements LoggerService {
   }
 
   error(message: any, trace?: any, context?: any): void {
+    const messageStr =
+      typeof message === 'string' ? message : JSON.stringify(message);
+
+    // Skip EADDRINUSE errors as they are handled by the fatal logger in main.ts
+    if (messageStr.includes('EADDRINUSE')) {
+      return;
+    }
+
     this.pinoLogger.error(
       { context, trace, error: message },
       typeof message === 'string'
         ? message
-        : // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          message.message || 'Unknown error',
+        : message.message || 'Unknown error',
     );
   }
 

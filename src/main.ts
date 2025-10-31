@@ -33,6 +33,6 @@ async function bootstrap(): Promise<void> {
 }
 
 bootstrap().catch((error) => {
-  logger.fatal(`NestJS failed to start: ${error}`);
+  logger.fatal(`NestJS failed to start. ${error}`);
   process.exit(1);
 });
