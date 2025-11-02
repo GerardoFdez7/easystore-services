@@ -38,25 +38,23 @@ export function initializeGlobalLogger(): void {
 
   const multistreams = [...streams];
 
-  if (isDevelopment) {
-    multistreams.push({
-      level: 'debug',
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      stream: pino.transport({
-        target: 'pino-pretty',
-        options: {
-          colorize: true,
-          translateTime: 'SYS:h:MM:ss TT',
-          ignore: 'pid,hostname,context,req,res',
-          messageFormat: '\x1b[37m{msg}\x1b[0m',
-          levelFirst: false,
-          hideObject: true,
-          singleLine: false,
-          colorizeObjects: false,
-        },
-      }),
-    });
-  }
+  multistreams.push({
+    level: isDevelopment ? 'debug' : 'info',
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    stream: pino.transport({
+      target: 'pino-pretty',
+      options: {
+        colorize: true,
+        translateTime: 'SYS:h:MM:ss TT',
+        ignore: 'pid,hostname,context,req,res',
+        messageFormat: '\x1b[37m{msg}\x1b[0m',
+        levelFirst: false,
+        hideObject: true,
+        singleLine: false,
+        colorizeObjects: false,
+      },
+    }),
+  });
 
   pinoLogger = pino(
     {
