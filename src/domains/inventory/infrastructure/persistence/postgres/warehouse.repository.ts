@@ -491,7 +491,11 @@ export default class WarehouseRepository implements IWarehouseRepository {
           tenantId: tenantIdValue,
         },
         include: {
-          stockPerWarehouses: true,
+          stockPerWarehouses: {
+            where: {
+              deletedAt: null,
+            },
+          },
         },
       });
 

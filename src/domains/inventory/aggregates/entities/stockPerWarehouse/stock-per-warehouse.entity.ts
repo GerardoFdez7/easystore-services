@@ -44,7 +44,7 @@ export class StockPerWarehouse extends Entity<IStockPerWarehouseProps> {
   static create(props: IStockPerWarehouseBase): StockPerWarehouse {
     const transformedProps = {
       id: Id.generate(),
-      qtyAvailable: QtyAvailable.create(props.qtyAvailable || 0),
+      qtyAvailable: QtyAvailable.create(props.qtyAvailable),
       qtyReserved: QtyReserved.create(props.qtyReserved || 0),
       productLocation: props.productLocation
         ? ShortDescription.create(props.productLocation)
