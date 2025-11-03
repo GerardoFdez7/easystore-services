@@ -1,5 +1,5 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { Inject } from '@nestjs/common';
+import { Inject, NotFoundException } from '@nestjs/common';
 import { GetDashboardDataDTO } from './get-dashboard-data.dto';
 import { DashboardDataType } from '../../../presentation/graphql/types/total-sales.type';
 import IDashboardRepository from '../../../aggregates/repositories/dashboard.interface';
@@ -15,6 +15,16 @@ export class GetDashboardDataHandler
 
   async execute(query: GetDashboardDataDTO): Promise<DashboardDataType> {
     const { tenantId } = query;
-    return await this.dashboardRepository.getDashboardData(tenantId);
+
+    const result = await this.dashboardRepository.getDashboardData(tenantId);
+
+    // Validate if there's any data
+    if (!result || result.summary.total_orders === 0) {
+      throw new NotFoundException(
+        `No orders found for tenant with ID: ${tenantId}`,
+      );
+    }
+
+    return result;
   }
 }
