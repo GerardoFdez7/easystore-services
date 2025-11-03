@@ -7,8 +7,7 @@ import {
 } from '@nestjs/common';
 import Redis from 'ioredis';
 import { CircuitBreaker } from '@redis/circuit-breaker';
-
-import { CacheInvalidationService } from 'src/infrastructure/redis/pubsub/cache-invalidation.service';
+import { CacheInvalidationService } from '../pubsub/cache-invalidation.service';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()

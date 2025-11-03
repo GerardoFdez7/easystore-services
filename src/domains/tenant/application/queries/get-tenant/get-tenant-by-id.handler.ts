@@ -2,7 +2,7 @@ import { GetTenantByIdDTO } from './get-tenant-by-id.dto';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { NotFoundException, Inject } from '@nestjs/common';
 import { Id } from '@shared/value-objects';
-import { ITenantRepository } from 'src/domains/tenant/aggregates/repositories/tenant.interface';
+import { ITenantRepository } from '../../../aggregates/repositories/tenant.interface';
 import { TenantDTO, TenantMapper } from '../../mappers';
 
 @QueryHandler(GetTenantByIdDTO)
