@@ -49,7 +49,7 @@ export class DashboardRepository implements IDashboardRepository {
       `;
 
       const recentOrdersResult = await this.prisma.$queryRaw<RecentOrderType[]>`
-        SELECT DISTINCT ON (order_id)
+        SELECT DISTINCT
           order_id,
           order_number,
           order_date,
@@ -59,7 +59,7 @@ export class DashboardRepository implements IDashboardRepository {
           shipping_city
         FROM sales.dashboard_sales_view
         WHERE tenant_id = ${tenantId}
-        ORDER BY order_id, order_date DESC
+        ORDER BY order_date DESC
         LIMIT 5
       `;
 
