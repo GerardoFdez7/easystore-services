@@ -12,6 +12,7 @@ import { CategoryDomain } from './domains/category/category.module';
 import { AddressDomain } from './domains/address/address.module';
 import { InventoryDomain } from './domains/inventory/inventory.module';
 import { CartDomain } from './domains/cart/cart.module';
+import { DashboardModule } from './domains/dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { CartDomain } from './domains/cart/cart.module';
     AddressDomain,
     InventoryDomain,
     CartDomain,
+    DashboardModule,
   ],
   providers: [
     {
