@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PostgreService } from 'src/infrastructure/database/postgres.service';
+import { PostgreService } from '@database/postgres.service';
 import {
   DashboardDataType,
   DashboardSummaryType,

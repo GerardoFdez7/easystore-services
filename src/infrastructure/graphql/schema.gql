@@ -524,7 +524,6 @@ type Mutation {
   updateReviewProduct(input: UpdateCustomerReviewProductInput!): CustomerReviewProduct!
   updateStockInWarehouse(input: UpdateStockInWarehouseInput!, reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
   updateTenant(input: UpdateTenantInput!): Tenant!
-  updateVariant(id: String!, input: UpdateVariantInput!, productId: String!): Product!
   updateWarehouse(id: ID!, input: UpdateWarehouseInput!): Warehouse!
 }
 
