@@ -1,10 +1,10 @@
 import { Query, Resolver } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
-import AuthGuard from 'src/domains/authentication/infrastructure/guard/auth.guard';
 import { DashboardDataType } from './types/total-sales.type';
 import { CurrentUser, JwtPayload } from '@common/decorators';
 import { GetDashboardDataDTO } from '../../application/queries';
+import AuthGuard from '@authentication/infrastructure/guard/auth.guard';
 
 @Resolver()
 @UseGuards(AuthGuard)

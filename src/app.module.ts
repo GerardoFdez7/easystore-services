@@ -13,7 +13,6 @@ import { AddressDomain } from './domains/address/address.module';
 import { InventoryDomain } from './domains/inventory/inventory.module';
 import { CartDomain } from './domains/cart/cart.module';
 import { DashboardModule } from './domains/dashboard/dashboard.module';
-import { LoggerConfig } from './config/logger/logger.config';
 
 @Module({
   imports: [
