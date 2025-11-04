@@ -490,7 +490,6 @@ type Mutation {
   updateProduct(id: String!, input: UpdateProductInput!): Product!
   updateStockInWarehouse(input: UpdateStockInWarehouseInput!, reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
   updateTenant(input: UpdateTenantInput!): Tenant!
-  updateVariant(id: String!, input: UpdateVariantInput!, productId: String!): Product!
   updateWarehouse(id: ID!, input: UpdateWarehouseInput!): Warehouse!
 }
 
@@ -583,38 +582,9 @@ type Query {
   getAllAddresses(addressType: AddressTypeEnum, limit: Int, name: String, page: Int): PaginatedAddressesType!
   getAllCategories(includeSubcategories: Boolean = true, limit: Int = 10, name: String, page: Int = 1, parentId: ID, sortBy: SortBy, sortOrder: SortOrder): PaginatedCategoriesType!
   getAllCountries: [CountryType!]!
-  getAllProducts(
-    categoriesIds: [ID!]
-    includeSoftDeleted: Boolean = false
-    limit: Float = 25
-    name: String
-    page: Float = 1
-    sortBy: SortBy
-    sortOrder: SortOrder
-    type: TypeEnum
-  ): PaginatedProductsType!
-  getAllStockMovements(
-    createdById: ID
-    dateFrom: DateTime
-    dateTo: DateTime
-    includeDeleted: Boolean = false
-    limit: Int = 10
-    page: Int = 1
-    sortBy: SortBy
-    sortOrder: SortOrder
-    variantId: ID
-    warehouseId: ID!
-  ): PaginatedStockMovementsType!
-  getAllWarehouses(
-    addressId: ID
-    includeAddresses: Boolean = false
-    limit: Int = 10
-    name: String
-    page: Int = 1
-    sortBy: SortBy
-    sortOrder: SortOrder
-    stockFilters: StockPerWarehouseFilterInput
-  ): PaginatedWarehousesType!
+  getAllProducts(categoriesIds: [ID!], filterMode: ProductFilterMode = ALL, limit: Float = 25, name: String, page: Float = 1, sortBy: ProductSortBy, sortOrder: SortOrder, type: TypeEnum): PaginatedProductsType!
+  getAllStockMovements(createdById: ID, dateFrom: DateTime, dateTo: DateTime, includeDeleted: Boolean = false, limit: Int = 10, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID, warehouseId: ID!): PaginatedStockMovementsType!
+  getAllWarehouses(addressId: ID, includeAddresses: Boolean = false, limit: Int = 10, name: String, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, stockFilters: StockPerWarehouseFilterInput): PaginatedWarehousesType!
   getCart(input: GetCartPaginatedInput!): PaginatedCart!
   getCategoryById(id: ID!): Category!
 
