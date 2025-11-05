@@ -1,9 +1,9 @@
 import { Id } from '@shared/value-objects';
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 const wishListItemSchema = z.object({
-  variantId: z.string().uuid(),
-  customerId: z.string().uuid(),
+  variantId: z.string().uuidv7(),
+  customerId: z.string().uuidv7(),
 });
 
 export interface WishListProps {

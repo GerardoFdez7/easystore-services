@@ -4,8 +4,8 @@ import { PostgreService } from '@database/postgres.service';
 import { DatabaseOperationError, ResourceNotFoundError } from '@shared/errors';
 import { IWishListRepository } from 'src/domains/customer/aggregates/repositories/wish-list.interface';
 import { WishListItem } from 'src/domains/customer/aggregates/value-objects';
-import { WishListMapper } from '../../../application/mappers/wish-list';
 import { Id } from '@shared/value-objects';
+import { WishListMapper } from 'src/domains/customer/application/mappers';
 
 @Injectable()
 export class WishListRepository implements IWishListRepository {

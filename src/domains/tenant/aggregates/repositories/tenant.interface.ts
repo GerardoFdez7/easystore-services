@@ -42,5 +42,10 @@ export interface ITenantRepository {
    */
   findById(id: Id): Promise<Tenant | null>;
 
+  /**
+   * Retrieves the tenant ID associated with a given domain.
+   * @param domain The domain to search for.
+   * @returns A promise that resolves to the tenant ID string if found, otherwise null.
+   */
   getTenantIdByDomain(domain: Domain): Promise<string | null>;
 }

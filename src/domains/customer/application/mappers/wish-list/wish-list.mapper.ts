@@ -1,15 +1,6 @@
+import { WishListPropsWithId } from 'src/domains/customer/aggregates/value-objects/wish-list-item.vo';
 import { WishListItem } from '../../../aggregates/value-objects';
 import { WishListDTO } from './wish-list.dto';
-
-/**
- * Interface for persistence WishList model
- */
-export interface IWishListPersistence {
-  id: string;
-  variantId: string;
-  customerId: string;
-  updatedAt: Date;
-}
 
 /**
  * Mapper class for WishList entity
@@ -21,7 +12,7 @@ export class WishListMapper {
    * @param wishListItem The domain object to convert
    * @returns The persistence object
    */
-  static toPersistence(wishListItem: WishListItem): IWishListPersistence {
+  static toPersistence(wishListItem: WishListItem): WishListPropsWithId {
     return {
       id: wishListItem.getIdValue(),
       variantId: wishListItem.getVariantIdValue(),
@@ -35,7 +26,7 @@ export class WishListMapper {
    * @param persistence The persistence object to convert
    * @returns The domain object
    */
-  static fromPersistence(persistence: IWishListPersistence): WishListItem {
+  static fromPersistence(persistence: WishListPropsWithId): WishListItem {
     return WishListItem.fromPersistence({
       id: persistence.id,
       variantId: persistence.variantId,
