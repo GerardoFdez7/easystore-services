@@ -36,7 +36,6 @@ const CommandHandlers = [
   CreateCustomerReviewProductHandler,
   UpdateCustomerReviewProductHandler,
   DeleteCustomerReviewProductHandler,
-  DeleteCustomerReviewProductHandler,
 ];
 
 const EventHandlers = [
@@ -48,7 +47,6 @@ const EventHandlers = [
   WishlistManyItemsDeletedHandler,
   CustomerReviewProductCreatedHandler,
   CustomerReviewProductUpdatedHandler,
-  CustomerReviewProductDeletedHandler,
   CustomerReviewProductDeletedHandler,
 ];
 
