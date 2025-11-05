@@ -1,10 +1,10 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { DeleteCustomerReviewProductDto } from './delete-customer-review-product.dto';
-import { ICustomerReviewProductRepository } from 'src/domains/customer/aggregates/repositories/customer-review-product.interface';
-import { ICustomerRepository } from 'src/domains/customer/aggregates/repositories/customer.interface';
+import { ICustomerReviewProductRepository } from '../../../../aggregates/repositories/customer-review-product.interface';
+import { ICustomerRepository } from '../../../../aggregates/repositories/customer.interface';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { Id } from '@shared/value-objects';
-import { Customer } from 'src/domains/customer/aggregates/entities';
+import { Customer } from '../../../../aggregates/entities';
 
 @CommandHandler(DeleteCustomerReviewProductDto)
 export class DeleteCustomerReviewProductHandler

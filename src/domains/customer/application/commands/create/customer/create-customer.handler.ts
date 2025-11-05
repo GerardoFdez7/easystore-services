@@ -2,8 +2,8 @@ import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { CreateCustomerDto } from './create-customer.dto';
 import { CustomerDTO } from '../../../mappers/customer/customer.dto';
 import { CustomerMapper } from '../../../mappers/customer/customer.mapper';
-import { Customer } from 'src/domains/customer/aggregates/entities/customer.entity';
-import { ICustomerRepository } from 'src/domains/customer/aggregates/repositories/customer.interface';
+import { Customer } from '../../../../aggregates/entities';
+import { ICustomerRepository } from '../../../../aggregates/repositories/customer.interface';
 import { Inject } from '@nestjs/common';
 
 @CommandHandler(CreateCustomerDto)

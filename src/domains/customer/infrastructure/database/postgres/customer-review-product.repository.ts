@@ -4,7 +4,7 @@ import { PostgreService } from '@database/postgres.service';
 import { DatabaseOperationError } from '@shared/errors';
 import { Id } from '@shared/value-objects';
 import { ICustomerReviewProductRepository } from '../../../aggregates/repositories/customer-review-product.interface';
-import { CustomerReviewProduct } from 'src/domains/customer/aggregates/value-objects/customer-review-product.vo';
+import { CustomerReviewProduct } from '../../../aggregates/value-objects';
 import { CustomerReviewProductMapper } from '../../../application/mappers/review/customer-review-product.mapper';
 
 @Injectable()

@@ -2,10 +2,10 @@ import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { UpdateCustomerReviewProductDto } from './update-customer-review-product.dto';
 import { CustomerReviewProductDTO } from '../../../mappers/review/customer-review-product.dto';
 import { Inject } from '@nestjs/common';
-import { ICustomerRepository } from 'src/domains/customer/aggregates/repositories/customer.interface';
-import { ICustomerReviewProductRepository } from 'src/domains/customer/aggregates/repositories/customer-review-product.interface';
+import { ICustomerRepository } from '../../../../aggregates/repositories/customer.interface';
+import { ICustomerReviewProductRepository } from '../../../../aggregates/repositories/customer-review-product.interface';
 import { Id } from '@shared/value-objects';
-import { Customer } from 'src/domains/customer/aggregates/entities';
+import { Customer } from '../../../../aggregates/entities';
 import { CustomerReviewProductMapper } from '../../../mappers/review/customer-review-product.mapper';
 
 @CommandHandler(UpdateCustomerReviewProductDto)

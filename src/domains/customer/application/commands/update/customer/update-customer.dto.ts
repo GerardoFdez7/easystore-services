@@ -1,4 +1,4 @@
-import { ICustomerCreate } from 'src/domains/customer/aggregates/entities';
+import { ICustomerCreate } from '../../../../aggregates/entities';
 
 export class UpdateCustomerDto {
   constructor(

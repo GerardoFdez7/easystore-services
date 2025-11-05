@@ -1,4 +1,4 @@
-import { IWishListCreated } from 'src/domains/customer/aggregates/entities';
+import { IWishListCreated } from '../../../../aggregates/entities';
 
 export class CreateWishListDto {
   constructor(

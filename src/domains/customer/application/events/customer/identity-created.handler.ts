@@ -3,8 +3,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { AuthenticationRegisterEvent } from '@authentication/aggregates/events';
 import { AccountTypeEnum } from '@authentication/aggregates/value-objects';
 import { CreateCustomerDto } from '../../commands/create/customer/create-customer.dto';
-import { ITenantRepository } from 'src/domains/tenant/aggregates/repositories/tenant.interface';
-import { Domain } from 'src/domains/tenant/aggregates/value-objects';
+import { ITenantRepository } from '../../../../tenant/aggregates/repositories/tenant.interface';
+import { Domain } from '../../../../tenant/aggregates/value-objects';
 
 @Injectable()
 @EventsHandler(AuthenticationRegisterEvent)

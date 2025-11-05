@@ -1,10 +1,10 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { CreateWishListDto } from './create-wish-list.dto';
-import { IWishListRepository } from 'src/domains/customer/aggregates/repositories/wish-list.interface';
+import { IWishListRepository } from '../../../../aggregates/repositories/wish-list.interface';
 import { BadRequestException, Inject } from '@nestjs/common';
-import { ICustomerRepository } from 'src/domains/customer/aggregates/repositories/customer.interface';
+import { ICustomerRepository } from '../../../../aggregates/repositories/customer.interface';
 import { Id } from '@shared/value-objects';
-import { Customer } from 'src/domains/customer/aggregates/entities';
+import { Customer } from '../../../../aggregates/entities';
 import { WishListDTO, WishListMapper } from '../../../mappers';
 
 @CommandHandler(CreateWishListDto)

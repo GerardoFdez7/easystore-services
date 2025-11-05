@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '.prisma/postgres';
 import { PostgreService } from '@database/postgres.service';
 import { DatabaseOperationError, ResourceNotFoundError } from '@shared/errors';
-import { IWishListRepository } from 'src/domains/customer/aggregates/repositories/wish-list.interface';
-import { WishListItem } from 'src/domains/customer/aggregates/value-objects';
+import { IWishListRepository } from '../../../aggregates/repositories/wish-list.interface';
+import { WishListItem } from '../../../aggregates/value-objects';
 import { Id } from '@shared/value-objects';
-import { WishListMapper } from 'src/domains/customer/application/mappers';
+import { WishListMapper } from '../../../application/mappers';
 
 @Injectable()
 export class WishListRepository implements IWishListRepository {
