@@ -94,7 +94,7 @@ export class WishListWithVariantType extends WishListType {
   price: number;
 
   @Field(() => Boolean, { nullable: true })
-  isArchived: boolean;
+  isArchived?: boolean;
 }
 
 @ObjectType('PaginatedWishlist')
@@ -224,7 +224,7 @@ export class CustomerReviewProductWithVariantType extends CustomerReviewProductT
   price: number;
 
   @Field(() => Boolean, { nullable: true })
-  isArchived: boolean;
+  isArchived?: boolean;
 }
 
 @InputType()
