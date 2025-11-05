@@ -1,20 +1,11 @@
-import { CustomerReviewProduct } from '../../../aggregates/value-objects/customer-review-product.vo';
+import {
+  CustomerReviewProduct,
+  CustomerReviewProductPropsWithId,
+} from '../../../aggregates/value-objects/customer-review-product.vo';
 import {
   CustomerReviewProductDTO,
   PaginatedCustomerReviewProductDTO,
 } from './customer-review-product.dto';
-
-/**
- * Interface for persistence CustomerReviewProduct model
- */
-export interface ICustomerReviewProductPersistence {
-  id: string;
-  ratingCount: number;
-  comment: string;
-  customerId: string;
-  variantId: string;
-  updatedAt: Date;
-}
 
 /**
  * Mapper class for CustomerReviewProduct entity
@@ -28,7 +19,7 @@ export class CustomerReviewProductMapper {
    */
   static toPersistence(
     review: CustomerReviewProduct,
-  ): ICustomerReviewProductPersistence {
+  ): CustomerReviewProductPropsWithId {
     return {
       id: review.getIdValue(),
       ratingCount: review.getRatingCount(),
@@ -45,7 +36,7 @@ export class CustomerReviewProductMapper {
    * @returns The domain object
    */
   static fromPersistence(
-    persistence: ICustomerReviewProductPersistence,
+    persistence: CustomerReviewProductPropsWithId,
   ): CustomerReviewProduct {
     return CustomerReviewProduct.fromPersistence({
       id: persistence.id,

@@ -12,7 +12,7 @@ import { Tenant, ITenantType } from '../../../aggregates/entities';
 import { Prisma, Tenant as PrismaTenant } from '.prisma/postgres';
 import { ITenantRepository } from '../../../aggregates/repositories/tenant.interface';
 import { PrismaErrorUtils } from '@utils/prisma-error-utils';
-import { Domain } from 'src/domains/tenant/aggregates/value-objects';
+import { Domain } from '../../../aggregates/value-objects/index';
 
 @Injectable()
 export default class TenantRepository implements ITenantRepository {

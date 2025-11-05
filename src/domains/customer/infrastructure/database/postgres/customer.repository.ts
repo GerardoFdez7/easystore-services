@@ -3,10 +3,7 @@ import { Prisma } from '.prisma/postgres';
 import { PostgreService } from '@database/postgres.service';
 import { ICustomerRepository } from '../../../aggregates/repositories/customer.interface';
 import { Customer } from '../../../aggregates/entities/customer.entity';
-import {
-  CustomerMapper,
-  ICustomerPersistence,
-} from '../../../application/mappers/customer/customer.mapper';
+import { CustomerMapper } from '../../../application/mappers/customer/customer.mapper';
 import { Id } from '@shared/value-objects';
 import {
   DatabaseOperationError,
@@ -54,7 +51,7 @@ export class CustomerRepository implements ICustomerRepository {
    */
   async create(customer: Customer): Promise<Customer> {
     try {
-      const customerData = this.mapToPersistence(customer);
+      const customerData = CustomerMapper.toDto(customer);
 
       const createdCustomer = await this.postgresService.customer.create({
         data: customerData,
@@ -85,7 +82,7 @@ export class CustomerRepository implements ICustomerRepository {
 
   async update(customer: Customer): Promise<Customer> {
     try {
-      const customerData = this.mapToPersistence(customer);
+      const customerData = CustomerMapper.toDto(customer);
       const customerId = customer.get('id').getValue();
 
       const updatedCustomer = await this.postgresService.customer.update({
@@ -156,25 +153,5 @@ export class CustomerRepository implements ICustomerRepository {
       errorMessage,
       error instanceof Error ? error : new Error(errorMessage),
     );
-  }
-
-  /**
-   * Maps a Customer domain entity to persistence data
-   */
-  private mapToPersistence(customer: Customer): ICustomerPersistence {
-    return {
-      id: customer.get('id').getValue(),
-      name: customer.get('name').getValue(),
-      tenantId: customer.get('tenantId').getValue(),
-      authIdentityId: customer.get('authIdentityId').getValue(),
-      defaultPhoneNumberId:
-        customer.get('defaultPhoneNumberId')?.getValue() || null,
-      defaultShippingAddressId:
-        customer.get('defaultShippingAddressId')?.getValue() || null,
-      defaultBillingAddressId:
-        customer.get('defaultBillingAddressId')?.getValue() || null,
-      updatedAt: customer.get('updatedAt'),
-      createdAt: customer.get('createdAt'),
-    };
   }
 }

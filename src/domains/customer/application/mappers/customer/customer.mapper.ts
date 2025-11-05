@@ -2,24 +2,12 @@ import {
   Customer,
   ICustomerProps,
 } from '../../../aggregates/entities/customer.entity';
-import { ICustomerCreate } from '../../../aggregates/entities/customer.attributes';
+import {
+  ICustomerCreate,
+  ICustomerEntity,
+} from '../../../aggregates/entities/customer.attributes';
 import { Id, Name } from '@shared/value-objects';
 import { CustomerDTO, PaginatedCustomersDTO } from './customer.dto';
-
-/**
- * Interface for persistence Customer model
- */
-export interface ICustomerPersistence {
-  id: string;
-  name: string;
-  tenantId: string;
-  authIdentityId: string;
-  defaultPhoneNumberId?: string | null;
-  defaultShippingAddressId?: string | null;
-  defaultBillingAddressId?: string | null;
-  updatedAt: Date;
-  createdAt: Date;
-}
 
 /**
  * Centralized mapper for Customer domain entity to DTO conversion for queries and vice versa for commands.
@@ -31,7 +19,7 @@ export class CustomerMapper {
    * @param persistenceCustomer The Persistence Customer model
    * @returns The mapped Customer domain entity
    */
-  static fromPersistence(persistenceCustomer: ICustomerPersistence): Customer {
+  static fromPersistence(persistenceCustomer: ICustomerEntity): Customer {
     const customerProps: ICustomerProps = {
       id: Id.create(persistenceCustomer.id),
       name: Name.create(persistenceCustomer.name),
