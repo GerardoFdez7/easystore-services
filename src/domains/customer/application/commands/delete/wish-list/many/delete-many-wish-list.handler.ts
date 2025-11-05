@@ -1,10 +1,10 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { DeleteManyWishListDto } from './delete-many-wish-list.dto';
-import { IWishListRepository } from '../../../../aggregates/repositories/wish-list.interface';
-import { ICustomerRepository } from '../../../../aggregates/repositories/customer.interface';
+import { IWishListRepository } from '../../../../../aggregates/repositories/wish-list.interface';
+import { ICustomerRepository } from '../../../../../aggregates/repositories/customer.interface';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { Id } from '@shared/value-objects';
-import { Customer } from '../../../../aggregates/entities';
+import { Customer } from '../../../../../aggregates/entities';
 
 @CommandHandler(DeleteManyWishListDto)
 export class DeleteManyWishListHandler

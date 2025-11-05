@@ -19,8 +19,8 @@ import {
 import { CurrentUser, JwtPayload } from '@common/decorators';
 import { FindCustomerByIdDto } from '../../application/queries/one/customer/find-customer-by-id.dto';
 import { CreateWishListDto } from '../../application/commands/create/wish-list/create-wish-list.dto';
-import { DeleteWishListDto } from '../../application/commands/delete/wish-list/delete-wish-list.dto';
-import { DeleteManyWishListDto } from '../../application/commands/delete/wish-list/delete-many-wish-list.dto';
+import { DeleteWishListDto } from '../../application/commands/delete/wish-list/one/delete-wish-list.dto';
+import { DeleteManyWishListDto } from '../../application/commands/delete/wish-list/many/delete-many-wish-list.dto';
 import { FindWishlistItemsDto } from '../../application/queries/many/wish-list/find-wish-list-items.dto';
 import { CreateCustomerReviewProductDto } from '../../application/commands/create/review/create-customer-review-product.dto';
 import { UpdateCustomerReviewProductDto } from '../../application/commands/update/review/update-customer-review-product.dto';
