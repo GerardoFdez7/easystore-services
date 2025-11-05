@@ -1,4 +1,4 @@
-import { ICustomerBase } from 'src/domains/customer/aggregates/entities/customer.attributes';
+import { ICustomerBase } from '../../../../aggregates/entities';
 
 export class CreateCustomerDto {
   constructor(public readonly data: ICustomerBase) {}

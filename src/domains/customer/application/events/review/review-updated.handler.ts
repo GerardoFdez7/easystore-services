@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { CustomerReviewProductUpdatedEvent } from 'src/domains/customer/aggregates/events';
+import { CustomerReviewProductUpdatedEvent } from '../../../aggregates/events';
 
 @Injectable()
 @EventsHandler(CustomerReviewProductUpdatedEvent)

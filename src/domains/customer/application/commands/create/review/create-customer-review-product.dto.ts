@@ -1,4 +1,4 @@
-import { ICustomerReviewCreated } from 'src/domains/customer/aggregates/entities';
+import { ICustomerReviewCreated } from '../../../../aggregates/entities';
 
 export class CreateCustomerReviewProductDto {
   constructor(

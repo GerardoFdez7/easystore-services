@@ -1,4 +1,4 @@
-import { CustomerReviewProductPropsWithId } from 'src/domains/customer/aggregates/value-objects/customer-review-product.vo';
+import { CustomerReviewProductPropsWithId } from '../../../../aggregates/value-objects/customer-review-product.vo';
 
 export class UpdateCustomerReviewProductDto {
   constructor(
