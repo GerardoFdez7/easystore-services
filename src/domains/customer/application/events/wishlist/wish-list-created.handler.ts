@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { WishlistItemCreatedEvent } from 'src/domains/customer/aggregates/events';
+import { WishlistItemCreatedEvent } from '../../../aggregates/events';
 
 @Injectable()
 @EventsHandler(WishlistItemCreatedEvent)

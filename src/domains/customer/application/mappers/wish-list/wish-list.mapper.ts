@@ -1,4 +1,4 @@
-import { WishListPropsWithId } from 'src/domains/customer/aggregates/value-objects/wish-list-item.vo';
+import { WishListPropsWithId } from '../../../aggregates/value-objects/wish-list-item.vo';
 import { WishListItem } from '../../../aggregates/value-objects';
 import { WishListDTO } from './wish-list.dto';
 
