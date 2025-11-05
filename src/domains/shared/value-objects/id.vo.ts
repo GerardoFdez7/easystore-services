@@ -2,7 +2,7 @@ import { z } from 'zod/v4';
 import { v7 as uuidv7 } from 'uuid';
 
 export const IdSchema = z
-  .uuidv7({ message: 'Id must be a valid UUID' })
+  .uuid({ message: 'Id must be a valid UUID' })
   .nullable();
 
 export class Id {

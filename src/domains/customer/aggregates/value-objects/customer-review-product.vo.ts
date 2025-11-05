@@ -4,8 +4,8 @@ import { z } from 'zod/v4';
 const customerReviewProductSchema = z.object({
   ratingCount: z.number().min(1).max(5),
   comment: z.string().min(1),
-  customerId: z.uuidv7({ message: 'Id must be a valid UUID' }),
-  variantId: z.uuidv7({ message: 'Id must be a valid UUID' }),
+  customerId: z.uuid({ message: 'Id must be a valid UUID' }),
+  variantId: z.uuid({ message: 'Id must be a valid UUID' }),
 });
 
 export interface CustomerReviewProductProps {
