@@ -15,9 +15,25 @@ export interface ICustomerRepository {
     authIdentityId: Id,
   ): Promise<{ id: string; tenantId: string } | null>;
 
+  /**
+   * Creates a new customer.
+   * @param customer The customer object to create.
+   * @returns A promise that resolves to the created customer.
+   */
   create(customer: Customer): Promise<Customer>;
 
+  /**
+   * Finds a customer by their ID and tenant ID.
+   * @param id The ID of the customer.
+   * @param tenantId The ID of the tenant.
+   * @returns A promise that resolves to the customer if found.
+   */
   findCustomerById(id: Id, tenantId: Id): Promise<Customer>;
 
+  /**
+   * Updates an existing customer.
+   * @param customer The customer object with updated information.
+   * @returns A promise that resolves to the updated customer.
+   */
   update(customer: Customer): Promise<Customer>;
 }
