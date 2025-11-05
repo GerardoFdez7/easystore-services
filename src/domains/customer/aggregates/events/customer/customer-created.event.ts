@@ -1,5 +1,5 @@
 import { IEvent } from '@nestjs/cqrs';
-import { Customer } from '../entities/customer.entity';
+import { Customer } from '../../entities';
 
 /**
  * Event representing a customer creation from external domain

@@ -1,5 +1,5 @@
-import { Customer } from '../entities';
-import { WishListItem } from '../value-objects';
+import { Customer } from '../../entities';
+import { WishListItem } from '../../value-objects';
 
 export class WishlistItemDeletedEvent {
   constructor(
