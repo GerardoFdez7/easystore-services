@@ -14,8 +14,8 @@ import { WishlistItemDeletedHandler } from './application/events/wishlist/wish-l
 import { WishlistManyItemsDeletedHandler } from './application/events/wishlist/wish-list-many-items-deleted.handler';
 import { WishListRepository } from './infrastructure/database/postgres/wish-list.repository';
 import { CreateWishListHandler } from './application/commands/create/wish-list/create-wish-list.handler';
-import { DeleteWishListHandler } from './application/commands/delete/wish-list/delete-wish-list.handler';
-import { DeleteManyWishListHandler } from './application/commands/delete/wish-list/delete-many-wish-list.handler';
+import { DeleteWishListHandler } from './application/commands/delete/wish-list/one/delete-wish-list.handler';
+import { DeleteManyWishListHandler } from './application/commands/delete/wish-list/many/delete-many-wish-list.handler';
 import { ProductAdapter } from './infrastructure/adapters';
 import { FindWishListItemsHandler } from './application/queries/many/wish-list/find-wish-list-items.handler';
 import { FindManyCustomerReviewsHandler } from './application/queries/many/review/find-many-customer-reviews.handler';
