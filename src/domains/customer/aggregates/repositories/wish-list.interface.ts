@@ -25,7 +25,7 @@ export interface IWishListRepository {
   removeVariantFromWishList(
     customerId: Id,
     variantId: Id,
-  ): Promise<WishListItem>;
+  ): Promise<WishListItem | null>;
 
   /**
    * Removes multiple variants from the customer's wish list.
@@ -45,7 +45,7 @@ export interface IWishListRepository {
    * @returns A promise that resolves to an array of wish list items.
    */
   getManyWishListsByVariantIds(
-    variantsIds: Id[],
+    variantIds: Id[],
     customerId: Id,
   ): Promise<WishListItem[]>;
 }
