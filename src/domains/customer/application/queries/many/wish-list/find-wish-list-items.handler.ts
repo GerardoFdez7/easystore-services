@@ -22,7 +22,9 @@ export class FindWishListItemsHandler
 
   async execute(query: FindWishlistItemsDto): Promise<PaginatedWishlistDTO> {
     const customerId = Id.create(query.customerId);
-    const variantIds = query.variantsIds.map((id) => Id.create(id));
+    const variantIds = Array.isArray(query.variantsIds)
+      ? query.variantsIds.map((id) => Id.create(id))
+      : [];
 
     // Get wishlist items from repository
     const wishListItems =
