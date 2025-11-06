@@ -50,7 +50,12 @@ export class CustomerReviewProduct {
   static fromPersistence(
     props: CustomerReviewProductPropsWithId,
   ): CustomerReviewProduct {
-    customerReviewProductSchema.parse(props);
+    customerReviewProductSchema.parse({
+      ratingCount: props.ratingCount,
+      comment: props.comment,
+      customerId: props.customerId,
+      variantId: props.variantId,
+    });
     return new CustomerReviewProduct(props, props.id, props.updatedAt);
   }
 
