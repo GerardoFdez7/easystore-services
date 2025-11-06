@@ -34,7 +34,10 @@ export class UpdateCustomerReviewProductHandler
     );
 
     // Search review
-    const existingReview = await this.reviewRepository.findById(reviewId);
+    const existingReview = await this.reviewRepository.findById(
+      reviewId,
+      tenantId,
+    );
 
     // Create updated review
     const updatedReview = Customer.updateCustomerReviewProduct(

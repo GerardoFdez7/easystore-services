@@ -36,7 +36,10 @@ export class DeleteCustomerReviewProductHandler
     }
 
     // Find the review to validate it exists and belongs to the customer
-    const reviewFound = await this.reviewRepository.findById(reviewId);
+    const reviewFound = await this.reviewRepository.findById(
+      reviewId,
+      tenantId,
+    );
 
     if (!reviewFound) {
       throw new NotFoundException(

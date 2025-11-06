@@ -108,13 +108,17 @@ export class CustomerReviewProductRepository
    * @param id The unique identifier of the customer review product.
    * @returns Promise that resolves to the CustomerReviewProduct if found, null otherwise.
    */
-  async findById(id: Id): Promise<CustomerReviewProduct | null> {
+  async findById(
+    id: Id,
+    customerId: Id,
+  ): Promise<CustomerReviewProduct | null> {
     const idValue = id.getValue();
+    const customerIdValue = customerId.getValue();
 
     try {
       const reviewProduct =
         await this.postgresService.customerReviewProduct.findUnique({
-          where: { id: idValue },
+          where: { id: idValue, customerId: customerIdValue },
         });
 
       return reviewProduct
