@@ -17,7 +17,7 @@ export class FindCustomerByIdHandler
   async execute(query: FindCustomerByIdDto): Promise<CustomerDTO> {
     const { customerId, tenantId } = query;
 
-    const customerFound = await this.customerRepository.findCustomerById(
+    const customerFound = await this.customerRepository.findById(
       Id.create(customerId),
       Id.create(tenantId),
     );

@@ -1,5 +1,4 @@
-import { Id } from '@shared/value-objects';
-import { CustomerReviewProduct } from '../value-objects/customer-review-product.vo';
+import { Id, CustomerReviewProduct } from '../value-objects';
 
 export interface ICustomerReviewProductRepository {
   create(review: CustomerReviewProduct): Promise<CustomerReviewProduct>;

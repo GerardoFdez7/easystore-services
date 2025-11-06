@@ -28,7 +28,7 @@ export class UpdateCustomerReviewProductHandler
     const reviewId = Id.create(command.review.id);
 
     // Search customer
-    const customerFound = await this.customerRepository.findCustomerById(
+    const customerFound = await this.customerRepository.findById(
       customerId,
       tenantId,
     );

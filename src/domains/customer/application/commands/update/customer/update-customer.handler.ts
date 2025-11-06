@@ -19,7 +19,7 @@ export class UpdateCustomerHandler
 
   async execute(command: UpdateCustomerDto): Promise<CustomerDTO> {
     const tenantId = Id.create(command.tenantId);
-    const customerFound = await this.customerRepository.findCustomerById(
+    const customerFound = await this.customerRepository.findById(
       Id.create(command.customerId),
       tenantId,
     );

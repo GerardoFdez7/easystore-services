@@ -27,7 +27,7 @@ export class CreateCustomerReviewProductHandler
     const tenantIdId = Id.create(command.tenantId);
     const { ratingCount, comment, variantId } = command.review;
     // Find customer
-    const customer = await this.customerRepository.findCustomerById(
+    const customer = await this.customerRepository.findById(
       customerId,
       tenantIdId,
     );
