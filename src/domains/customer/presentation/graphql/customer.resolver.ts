@@ -1,4 +1,4 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver, Int, ID } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   CustomerType,
@@ -6,13 +6,11 @@ import {
   WishListItemDeleteInput,
   WishListManyItemsInput,
   WishListType,
-  GetWishlistPaginatedInput,
   PaginatedWishlistType,
   CustomerReviewProductType,
   CreateCustomerReviewProductInput,
   UpdateCustomerReviewProductInput,
   DeleteCustomerReviewProductInput,
-  GetCustomerReviewsPaginatedInput,
   PaginatedCustomerReviewProductWithVariantType,
   UpdateCustomerInput,
 } from './types/customer.types';
@@ -143,33 +141,35 @@ export class CustomerResolver {
 
   @Query(() => PaginatedWishlistType)
   async getWishListItems(
-    @Args('input', { type: () => GetWishlistPaginatedInput })
-    input: GetWishlistPaginatedInput,
     @CurrentUser() user: JwtPayload,
+    @Args('page', { type: () => Int, nullable: true, defaultValue: 1 })
+    page: number,
+    @Args('limit', { type: () => Int, nullable: true, defaultValue: 25 })
+    limit: number,
+    @Args('variantIds', {
+      type: () => [ID],
+      nullable: true,
+      defaultValue: [],
+    })
+    variantIds: string[],
   ): Promise<PaginatedWishlistType> {
     return this.queryBus.execute(
-      new FindWishlistItemsDto(
-        user.customerId,
-        input.variantIds ?? [],
-        input.page,
-        input.limit,
-      ),
+      new FindWishlistItemsDto(user.customerId, variantIds, page, limit),
     );
   }
 
   @Query(() => PaginatedCustomerReviewProductWithVariantType)
   async getCustomerReviews(
-    @Args('input', { type: () => GetCustomerReviewsPaginatedInput })
-    input: GetCustomerReviewsPaginatedInput,
     @CurrentUser() user: JwtPayload,
+    @Args('page', { type: () => Int, nullable: true, defaultValue: 1 })
+    page: number,
+    @Args('limit', { type: () => Int, nullable: true, defaultValue: 25 })
+    limit: number,
+    @Args('reviewIds', { type: () => [ID], nullable: true, defaultValue: [] })
+    reviewIds: string[],
   ): Promise<PaginatedCustomerReviewProductWithVariantType> {
     return this.queryBus.execute(
-      new FindManyCustomerReviewsDto(
-        user.customerId,
-        input.reviewIds ?? [],
-        input.page,
-        input.limit,
-      ),
+      new FindManyCustomerReviewsDto(user.customerId, reviewIds, page, limit),
     );
   }
 }

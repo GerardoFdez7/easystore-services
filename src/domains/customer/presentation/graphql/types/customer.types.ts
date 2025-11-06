@@ -122,52 +122,6 @@ export class PaginatedCustomerReviewProductWithVariantType {
 }
 
 @InputType()
-export class GetWishlistPaginatedInput {
-  @Field(() => Int, {
-    defaultValue: 1,
-    description: 'Page number for pagination (starts from 1)',
-    nullable: true,
-  })
-  page?: number;
-
-  @Field(() => Int, {
-    defaultValue: 25,
-    description: 'Number of items per page (max 50)',
-    nullable: true,
-  })
-  limit?: number;
-
-  @Field(() => [ID], {
-    description: 'Optional filter by variant IDs',
-    nullable: true,
-  })
-  variantIds?: string[];
-}
-
-@InputType()
-export class GetCustomerReviewsPaginatedInput {
-  @Field(() => Int, {
-    defaultValue: 1,
-    description: 'Page number for pagination (starts from 1)',
-    nullable: true,
-  })
-  page?: number;
-
-  @Field(() => Int, {
-    defaultValue: 25,
-    description: 'Number of items per page (max 50)',
-    nullable: true,
-  })
-  limit?: number;
-
-  @Field(() => [ID], {
-    description: 'Optional filter by review IDs',
-    nullable: true,
-  })
-  reviewIds?: string[];
-}
-
-@InputType()
 export class CreateCustomerInput {
   @Field()
   name: string;
