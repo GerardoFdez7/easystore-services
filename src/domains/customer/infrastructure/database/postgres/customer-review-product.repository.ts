@@ -54,7 +54,7 @@ export class CustomerReviewProductRepository
         }
       }
 
-      return this.handleDatabaseError(error, 'create customer review product');
+      this.handleDatabaseError(error, 'create customer review product');
     }
   }
 
@@ -99,7 +99,7 @@ export class CustomerReviewProductRepository
         }
       }
 
-      return this.handleDatabaseError(error, 'update customer review product');
+      this.handleDatabaseError(error, 'update customer review product');
     }
   }
 
@@ -125,10 +125,7 @@ export class CustomerReviewProductRepository
         ? CustomerReviewProductMapper.fromPersistence(reviewProduct)
         : null;
     } catch (error) {
-      return this.handleDatabaseError(
-        error,
-        'find customer review product by id',
-      );
+      this.handleDatabaseError(error, 'find customer review product by id');
     }
   }
 
@@ -168,10 +165,7 @@ export class CustomerReviewProductRepository
         CustomerReviewProductMapper.fromPersistence(reviewProduct),
       );
     } catch (error) {
-      return this.handleDatabaseError(
-        error,
-        'find many customer review products',
-      );
+      this.handleDatabaseError(error, 'find many customer review products');
     }
   }
 
@@ -212,7 +206,7 @@ export class CustomerReviewProductRepository
         }
       }
 
-      return this.handleDatabaseError(error, 'remove customer review product');
+      this.handleDatabaseError(error, 'remove customer review product');
     }
   }
 
