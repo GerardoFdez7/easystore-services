@@ -92,7 +92,8 @@ export class WishListItem {
     return (
       this.id.equals(other.id) &&
       this.variantId.equals(other.variantId) &&
-      this.customerId.equals(other.customerId)
+      this.customerId.equals(other.customerId) &&
+      this.updatedAt.getTime() === other.updatedAt.getTime()
     );
   }
 }
