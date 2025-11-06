@@ -10,7 +10,7 @@ export interface ICustomerReviewProductRepository {
    * @returns Promise that resolves to the CustomerReviewProduct if found, null otherwise
    * @throws {Error} When repository operation fails
    */
-  findById(id: Id): Promise<CustomerReviewProduct | null>;
+  findById(id: Id, customerId: Id): Promise<CustomerReviewProduct | null>;
 
   /**
    * Finds multiple customer review products by customer ID and optional review IDs.
