@@ -46,7 +46,7 @@ export class CustomerResolver {
   ): Promise<WishListType> {
     return await this.commandBus.execute(
       new CreateWishListDto(
-        { variantId: input.variantId, customerId: user.customerId },
+        { ...input, customerId: user.customerId },
         user.tenantId,
       ),
     );
@@ -59,15 +59,7 @@ export class CustomerResolver {
     @CurrentUser() user: JwtPayload,
   ): Promise<CustomerReviewProductType> {
     return await this.commandBus.execute(
-      new CreateCustomerReviewProductDto(
-        {
-          ratingCount: input.ratingCount,
-          comment: input.comment,
-          variantId: input.variantId,
-        },
-        user.customerId,
-        user.tenantId,
-      ),
+      new CreateCustomerReviewProductDto(input, user.customerId, user.tenantId),
     );
   }
 
@@ -78,16 +70,7 @@ export class CustomerResolver {
     @CurrentUser() user: JwtPayload,
   ): Promise<CustomerType> {
     return await this.commandBus.execute(
-      new UpdateCustomerDto(
-        {
-          name: input.name,
-          defaultPhoneNumberId: input.defaultPhoneNumberId,
-          defaultShippingAddressId: input.defaultShippingAddressId,
-          defaultBillingAddressId: input.defaultBillingAddressId,
-        },
-        user.customerId,
-        user.tenantId,
-      ),
+      new UpdateCustomerDto(input, user.customerId, user.tenantId),
     );
   }
 
@@ -98,15 +81,7 @@ export class CustomerResolver {
     @CurrentUser() user: JwtPayload,
   ): Promise<CustomerReviewProductType> {
     return await this.commandBus.execute(
-      new UpdateCustomerReviewProductDto(
-        {
-          id: input.id,
-          ratingCount: input.ratingCount,
-          comment: input.comment,
-        },
-        user.customerId,
-        user.tenantId,
-      ),
+      new UpdateCustomerReviewProductDto(input, user.customerId, user.tenantId),
     );
   }
 
