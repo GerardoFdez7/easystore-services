@@ -18,7 +18,7 @@ import {
 import { WishListItem } from '../value-objects';
 import {
   CustomerReviewProduct,
-  CustomerReviewProductPropsWithId,
+  CustomerReviewProductProps,
 } from '../value-objects/customer-review-product.vo';
 
 export interface ICustomerProps extends EntityProps {
@@ -33,6 +33,14 @@ export interface ICustomerProps extends EntityProps {
   createdAt: Date;
 }
 
+/**
+ * @class Customer
+ * @classdesc Represents a customer entity within the domain. This aggregate root
+ * manages customer-related data and orchestrates operations such as updating profile
+ * information, managing wish lists, and handling product reviews. It is a central
+ * part of the customer domain, ensuring data consistency and applying relevant
+ * domain events for state changes.
+ */
 export class Customer extends Entity<ICustomerProps> {
   private constructor(props: ICustomerProps) {
     super(props);
@@ -140,7 +148,7 @@ export class Customer extends Entity<ICustomerProps> {
   static updateCustomerReviewProduct(
     existingReview: CustomerReviewProduct,
     updates: Partial<
-      Pick<CustomerReviewProductPropsWithId, 'ratingCount' | 'comment'>
+      Pick<CustomerReviewProductProps, 'ratingCount' | 'comment'>
     >,
     customer: Customer,
   ): CustomerReviewProduct {
