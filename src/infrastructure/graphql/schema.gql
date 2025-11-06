@@ -454,17 +454,6 @@ input GetCartPaginatedInput {
   page: Int = 1
 }
 
-input GetCustomerReviewsPaginatedInput {
-  """Number of items per page (max 50)"""
-  limit: Int = 25
-
-  """Page number for pagination (starts from 1)"""
-  page: Int = 1
-
-  """Optional filter by review IDs"""
-  reviewIds: [ID!]
-}
-
 input GetInTouchInput {
   annualRevenue: String!
   businessEmail: String!
@@ -474,17 +463,6 @@ input GetInTouchInput {
   fullName: String!
   isAgency: String!
   websiteUrl: String
-}
-
-input GetWishlistPaginatedInput {
-  """Number of items per page (max 50)"""
-  limit: Int = 25
-
-  """Page number for pagination (starts from 1)"""
-  page: Int = 1
-
-  """Optional filter by variant IDs"""
-  variantIds: [ID!]
 }
 
 type Installment {
@@ -654,13 +632,13 @@ type Query {
   getCart(input: GetCartPaginatedInput!): PaginatedCart!
   getCategoryById(id: ID!): Category!
   getCustomerById: Customer!
-  getCustomerReviews(input: GetCustomerReviewsPaginatedInput!): PaginatedCustomerReviewProductWithVariant!
+  getCustomerReviews(limit: Int = 25, page: Int = 1, reviewIds: [ID!] = []): PaginatedCustomerReviewProductWithVariant!
   getMediaUploadToken: MediaAuthResponse!
   getProductById(id: String!): Product!
   getStatesByCountryId(countryId: ID!): [StateType!]!
   getTenantById: Tenant!
   getWarehouseById(id: ID!, isArchived: Boolean): Warehouse!
-  getWishListItems(input: GetWishlistPaginatedInput!): PaginatedWishlist!
+  getWishListItems(limit: Int = 25, page: Int = 1, variantIds: [ID!] = []): PaginatedWishlist!
   validateToken: Response!
 }
 
