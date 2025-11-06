@@ -47,12 +47,7 @@ export class DeleteCustomerReviewProductHandler
       );
     }
 
-    // Validate that the review belongs to the customer
-    if (reviewFound.getCustomerIdValue() !== command.customerId) {
-      throw new NotFoundException(
-        `Review with ID ${command.reviewId} does not belong to customer ${command.customerId}`,
-      );
-    }
+    // The repository method removeReview will validate review ownership and throw if necessary
 
     // Use the domain method to emit the event
     Customer.removeCustomerReviewProduct(reviewFound, customerFound);
