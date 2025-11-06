@@ -180,20 +180,12 @@ export class CustomerReviewProductRepository
     const reviewIdValue = reviewId.getValue();
 
     try {
-      const deletedReview =
-        await this.postgresService.customerReviewProduct.delete({
-          where: {
-            id: reviewIdValue,
-            customerId: customerIdValue,
-          },
-        });
-
-      if (!deletedReview) {
-        throw new DatabaseOperationError(
-          'remove customer review product',
-          'Customer review product not found or does not belong to the specified customer',
-        );
-      }
+      await this.postgresService.customerReviewProduct.delete({
+        where: {
+          id: reviewIdValue,
+          customerId: customerIdValue,
+        },
+      });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         // Handle record not found error
