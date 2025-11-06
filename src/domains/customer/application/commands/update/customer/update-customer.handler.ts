@@ -18,9 +18,10 @@ export class UpdateCustomerHandler
   ) {}
 
   async execute(command: UpdateCustomerDto): Promise<CustomerDTO> {
+    const tenantId = Id.create(command.tenantId);
     const customerFound = await this.customerRepository.findCustomerById(
       Id.create(command.customerId),
-      Id.create(command.tenantId),
+      tenantId,
     );
 
     if (!customerFound) throw new NotFoundException('Customer not found.');
@@ -29,7 +30,7 @@ export class UpdateCustomerHandler
       Customer.update(customerFound, command.data),
     );
 
-    await this.customerRepository.update(customerWithEvents);
+    await this.customerRepository.update(customerWithEvents, tenantId);
 
     // Commit event
     customerWithEvents.commit();

@@ -33,7 +33,8 @@ export interface ICustomerRepository {
   /**
    * Updates an existing customer.
    * @param customer The customer object with updated information.
+   * @param tenantId Id of tenant.
    * @returns A promise that resolves to the updated customer.
    */
-  update(customer: Customer): Promise<Customer>;
+  update(customer: Customer, tenantId: Id): Promise<Customer>;
 }

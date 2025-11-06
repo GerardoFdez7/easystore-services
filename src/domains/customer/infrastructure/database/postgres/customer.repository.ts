@@ -80,13 +80,14 @@ export class CustomerRepository implements ICustomerRepository {
     }
   }
 
-  async update(customer: Customer): Promise<Customer> {
+  async update(customer: Customer, tenantId: Id): Promise<Customer> {
     try {
       const customerData = CustomerMapper.toDto(customer);
       const customerId = customer.get('id').getValue();
+      const tenantIdValue = tenantId.getValue();
 
       const updatedCustomer = await this.postgresService.customer.update({
-        where: { id: customerId },
+        where: { id: customerId, tenantId: tenantIdValue },
         data: {
           name: customerData.name,
           defaultPhoneNumberId: customerData.defaultPhoneNumberId,
