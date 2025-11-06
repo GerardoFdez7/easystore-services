@@ -28,7 +28,7 @@ export interface ICustomerRepository {
    * @param tenantId The ID of the tenant.
    * @returns A promise that resolves to the customer if found.
    */
-  findCustomerById(id: Id, tenantId: Id): Promise<Customer>;
+  findById(id: Id, tenantId: Id): Promise<Customer | null>;
 
   /**
    * Updates an existing customer.

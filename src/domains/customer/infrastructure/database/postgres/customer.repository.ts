@@ -117,15 +117,13 @@ export class CustomerRepository implements ICustomerRepository {
     }
   }
 
-  async findCustomerById(id: Id, tenantId: Id): Promise<Customer> {
+  async findById(id: Id, tenantId: Id): Promise<Customer> {
     try {
       const customerFound = await this.postgresService.customer.findFirst({
         where: { id: id.getValue(), tenantId: tenantId.getValue() },
       });
 
-      if (!customerFound) {
-        throw new ResourceNotFoundError('Customer');
-      }
+      if (!customerFound) return null;
 
       return CustomerMapper.fromPersistence(customerFound);
     } catch (error) {
