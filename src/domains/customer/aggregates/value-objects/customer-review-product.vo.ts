@@ -72,7 +72,12 @@ export class CustomerReviewProduct {
       variantId: existingReview.getVariantIdValue(),
     };
 
-    customerReviewProductSchema.parse(updatedProps);
+    customerReviewProductSchema.parse({
+      ratingCount: updatedProps.ratingCount,
+      comment: updatedProps.comment,
+      customerId: updatedProps.customerId,
+      variantId: updatedProps.variantId,
+    });
     return new CustomerReviewProduct(
       updatedProps,
       existingReview.getIdValue(),
