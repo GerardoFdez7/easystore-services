@@ -24,7 +24,7 @@ export class DeleteCustomerReviewProductHandler
     const tenantId = Id.create(command.tenantId);
 
     // Find the customer to validate it exists
-    const customerFound = await this.customerRepository.findCustomerById(
+    const customerFound = await this.customerRepository.findById(
       customerId,
       tenantId,
     );

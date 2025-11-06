@@ -25,7 +25,7 @@ export class CreateWishListHandler
     const variantId = Id.create(command.wishListItem.variantId);
 
     // Find the customer to validate it exists
-    const customerFound = await this.customerRepository.findCustomerById(
+    const customerFound = await this.customerRepository.findById(
       customerId,
       tenantId,
     );
