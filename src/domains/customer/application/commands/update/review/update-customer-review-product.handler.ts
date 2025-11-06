@@ -1,7 +1,7 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { UpdateCustomerReviewProductDto } from './update-customer-review-product.dto';
 import { CustomerReviewProductDTO } from '../../../mappers/review/customer-review-product.dto';
-import { Inject } from '@nestjs/common';
+import { Inject, NotFoundException } from '@nestjs/common';
 import { ICustomerRepository } from '../../../../aggregates/repositories/customer.interface';
 import { ICustomerReviewProductRepository } from '../../../../aggregates/repositories/customer-review-product.interface';
 import { Id } from '@shared/value-objects';
@@ -33,11 +33,23 @@ export class UpdateCustomerReviewProductHandler
       tenantId,
     );
 
+    if (!customerFound) {
+      throw new NotFoundException(
+        `Customer with id ${command.customerId} not found`,
+      );
+    }
+
     // Search review
     const existingReview = await this.reviewRepository.findById(
       reviewId,
       tenantId,
     );
+
+    if (!existingReview) {
+      throw new NotFoundException(
+        `Review with id ${command.review.id} not found`,
+      );
+    }
 
     // Create updated review
     const updatedReview = Customer.updateCustomerReviewProduct(
