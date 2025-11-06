@@ -3,7 +3,7 @@ import { z } from 'zod/v4';
 
 const customerReviewProductSchema = z.object({
   ratingCount: z.number().min(1).max(5),
-  comment: z.string().min(1),
+  comment: z.string(),
   customerId: z.uuid({ message: 'Id must be a valid UUID' }),
   variantId: z.uuid({ message: 'Id must be a valid UUID' }),
 });

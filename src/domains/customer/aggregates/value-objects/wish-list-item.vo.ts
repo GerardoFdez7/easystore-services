@@ -6,6 +6,11 @@ const wishListItemSchema = z.object({
   customerId: z.string().uuid({ message: 'Id must be a valid UUID' }),
 });
 
+const wishListItemWithIdSchema = wishListItemSchema.extend({
+  id: z.string().uuid(),
+  updatedAt: z.coerce.date(),
+});
+
 export interface WishListProps {
   variantId: string;
   customerId: string;
@@ -39,7 +44,7 @@ export class WishListItem {
   }
 
   static fromPersistence(props: WishListPropsWithId): WishListItem {
-    wishListItemSchema.parse(props);
+    wishListItemWithIdSchema.parse(props);
     return new WishListItem(props, props.id, props.updatedAt);
   }
 
