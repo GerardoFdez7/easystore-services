@@ -12,6 +12,7 @@ import { CategoryDomain } from './domains/category/category.module';
 import { AddressDomain } from './domains/address/address.module';
 import { InventoryDomain } from './domains/inventory/inventory.module';
 import { CartDomain } from './domains/cart/cart.module';
+import { CustomerDomain } from './domains/customer/customer.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { CartDomain } from './domains/cart/cart.module';
     MediaModule,
     AuthenticationDomain,
     TenantDomain,
+    CustomerDomain,
     ProductDomain,
     CategoryDomain,
     AddressDomain,

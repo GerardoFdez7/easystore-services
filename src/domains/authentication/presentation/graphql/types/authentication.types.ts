@@ -61,6 +61,9 @@ export class AuthenticationInput {
 
   @Field(() => AccountTypeEnum)
   accountType: AccountTypeEnum;
+
+  @Field({ nullable: true })
+  domain?: string;
 }
 
 // Input for forgot password request
