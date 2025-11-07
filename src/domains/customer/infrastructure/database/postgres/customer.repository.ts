@@ -117,7 +117,7 @@ export class CustomerRepository implements ICustomerRepository {
     }
   }
 
-  async findById(id: Id, tenantId: Id): Promise<Customer> {
+  async findById(id: Id, tenantId: Id): Promise<Customer | null> {
     try {
       const customerFound = await this.postgresService.customer.findFirst({
         where: { id: id.getValue(), tenantId: tenantId.getValue() },

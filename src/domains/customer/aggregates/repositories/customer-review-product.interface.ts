@@ -19,7 +19,7 @@ export interface ICustomerReviewProductRepository {
    * @returns Promise that resolves to an array of CustomerReviewProduct entities
    * @throws {Error} When repository operation fails
    */
-  findMany(customerId: Id, reviewIds?: Id[]): Promise<CustomerReviewProduct[]>;
+  findMany(customerId: Id, reviewIds: Id[]): Promise<CustomerReviewProduct[]>;
 
   /**
    * Removes a customer review product by customer ID and review ID.
