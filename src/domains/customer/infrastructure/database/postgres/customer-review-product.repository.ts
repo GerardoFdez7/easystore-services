@@ -137,7 +137,7 @@ export class CustomerReviewProductRepository
    */
   async findMany(
     customerId: Id,
-    reviewIds?: Id[],
+    reviewIds: Id[],
   ): Promise<CustomerReviewProduct[]> {
     const customerIdValue = customerId.getValue();
 
