@@ -4,10 +4,9 @@
   "description": "Backend project of EasyStore, the web application that empowers you to build your own e-commerce platform without any programming knowledge. This user-friendly solution provides all the tools you need to create, manage, and grow your online store with ease.",
   "author": "EasyStore Team",
   "private": true,
-  "license": "",
   "engines": {
-    "node": ">=20.0.0",
-    "npm": ">=10.0.0"
+    "node": ">=24.0.0",
+    "npm": ">=11.0.0"
   },
   "scripts": {
     "build": "npx nest build",
@@ -80,7 +79,7 @@
     "@types/helmet": "0.0.48",
     "@types/jest": "29.5.14",
     "@types/jsonwebtoken": "9.0.9",
-    "@types/node": "20.19.8",
+    "@types/node": "24",
     "@types/supertest": "2.0.12",
     "@typescript-eslint/eslint-plugin": "8.28.0",
     "@typescript-eslint/parser": "8.28.0",
