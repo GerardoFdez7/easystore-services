@@ -11,7 +11,7 @@ import {
   generateRefreshToken,
   JwtPayload,
 } from '../../../infrastructure/jwt';
-import { ICustomerRepository } from '../../../aggregates/repositories/customer.interface';
+import { ICustomerRepository } from '../../../../customer/aggregates/repositories/customer.interface';
 import { IEmployeeRepository } from '../../../aggregates/repositories/employee.interface';
 import { IAuthRepository } from '../../../aggregates/repositories/authentication.interface';
 import { ITenantRepository } from '../../../../tenant/aggregates/repositories/tenant.interface';

@@ -80,6 +80,7 @@ type AuthIdentity {
 
 input AuthenticationInput {
   accountType: AccountTypeEnum!
+  domain: String
   email: String!
   password: String!
 }
@@ -150,6 +151,17 @@ input CreateCategoryInput {
   name: String!
   parentId: ID
   subCategories: [CreateCategoryInput!]
+}
+
+input CreateCustomerReviewProductInput {
+  """Review comment"""
+  comment: String!
+
+  """Rating from 1.0 to 5.0"""
+  ratingCount: Float!
+
+  """Variant ID being reviewed"""
+  variantId: ID!
 }
 
 input CreateDimensionInput {
@@ -373,10 +385,50 @@ enum CurrencyCodes {
   ZWL
 }
 
+type Customer {
+  authIdentityId: ID!
+  createdAt: DateTime
+  defaultBillingAddressId: ID
+  defaultPhoneNumberId: ID
+  defaultShippingAddressId: ID
+  id: ID!
+  name: String!
+  tenantId: ID!
+  updatedAt: DateTime
+}
+
+type CustomerReviewProduct {
+  comment: String!
+  customerId: ID!
+  id: ID!
+  ratingCount: Float!
+  updatedAt: DateTime!
+  variantId: ID!
+}
+
+type CustomerReviewProductWithVariant {
+  comment: String!
+  customerId: ID!
+  firstAttribute: FirstAttribute
+  id: ID!
+  isArchived: Boolean
+  price: Float!
+  productName: String!
+  ratingCount: Float!
+  sku: String!
+  updatedAt: DateTime!
+  variantId: ID!
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
+
+input DeleteCustomerReviewProductInput {
+  """Review ID to delete"""
+  id: ID!
+}
 
 type Dimension {
   height: Float!
@@ -440,7 +492,9 @@ enum MediaTypeEnum {
 
 type Mutation {
   addItemToCart(input: AddItemToCartInput!): Cart!
+  addReviewProduct(input: CreateCustomerReviewProductInput!): CustomerReviewProduct!
   addStockToWarehouse(input: AddStockToWarehouseInput!, reason: String, variantId: ID!, warehouseId: ID!): Warehouse!
+  addVariantToWishList(input: WishListItemCreateInput!): Wishlist!
   archiveVariant(id: String!, productId: String!): Product!
   createAddress(input: CreateAddressInput!): AddressType!
   createCategory(input: CreateCategoryInput!): Category!
@@ -448,6 +502,7 @@ type Mutation {
   createWarehouse(input: CreateWarehouseInput!): Warehouse!
   deleteAddress(id: ID!): AddressType!
   deleteCategory(id: ID!): Category!
+  deleteReviewProduct(input: DeleteCustomerReviewProductInput!): Boolean!
   deleteWarehouse(id: ID!): Warehouse!
   forgotPassword(input: ForgotPasswordInput!): Response!
   getInTouch(input: GetInTouchInput!): Response!
@@ -457,16 +512,20 @@ type Mutation {
   register(input: AuthenticationInput!): AuthIdentity!
   removeItemFromCart(input: RemoveItemFromCartInput!): Cart!
   removeManyItemsFromCart(input: RemoveManyItemFromCartInput!): Cart!
+  removeManyVariantsFromWishList(input: WishListManyItemsInput!): Boolean!
   removeStockFromWarehouse(reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
   removeVariant(id: String!, productId: String!): Product!
+  removeVariantFromWishList(input: WishListItemDeleteInput!): Boolean!
   restoreProduct(id: String!): Product!
   restoreVariant(id: String!, productId: String!): Product!
   softDeleteProduct(id: String!): Product!
   updateAddress(id: ID!, input: UpdateAddressInput!): AddressType!
   updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
+  updateCustomer(input: UpdateCustomerInput!): Customer!
   updateItemQty(input: UpdateItemQtyInput!): Cart!
   updatePassword(input: UpdatePasswordInput!): Response!
   updateProduct(id: String!, input: UpdateProductInput!): Product!
+  updateReviewProduct(input: UpdateCustomerReviewProductInput!): CustomerReviewProduct!
   updateStockInWarehouse(input: UpdateStockInWarehouseInput!, reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
   updateTenant(input: UpdateTenantInput!): Tenant!
   updateWarehouse(id: ID!, input: UpdateWarehouseInput!): Warehouse!
@@ -491,6 +550,12 @@ type PaginatedCategoriesType {
   total: Int!
 }
 
+type PaginatedCustomerReviewProductWithVariant {
+  hasMore: Boolean!
+  reviews: [CustomerReviewProductWithVariant!]!
+  total: Int!
+}
+
 type PaginatedProductsType {
   hasMore: Boolean!
   products: [Product!]!
@@ -507,6 +572,12 @@ type PaginatedWarehousesType {
   hasMore: Boolean!
   total: Int!
   warehouses: [Warehouse!]!
+}
+
+type PaginatedWishlist {
+  hasMore: Boolean!
+  total: Int!
+  wishlistItems: [WishListWithVariant!]!
 }
 
 type Product {
@@ -560,11 +631,14 @@ type Query {
   getAllWarehouses(addressId: ID, includeAddresses: Boolean = false, limit: Int = 10, name: String, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, stockFilters: StockPerWarehouseFilterInput): PaginatedWarehousesType!
   getCart(input: GetCartPaginatedInput!): PaginatedCart!
   getCategoryById(id: ID!): Category!
+  getCustomerById: Customer!
+  getCustomerReviews(limit: Int = 25, page: Int = 1, reviewIds: [ID!] = []): PaginatedCustomerReviewProductWithVariant!
   getMediaUploadToken: MediaAuthResponse!
   getProductById(id: String!): Product!
   getStatesByCountryId(countryId: ID!): [StateType!]!
   getTenantById: Tenant!
   getWarehouseById(id: ID!, isArchived: Boolean): Warehouse!
+  getWishListItems(limit: Int = 25, page: Int = 1, variantIds: [ID!] = []): PaginatedWishlist!
   validateToken: Response!
 }
 
@@ -686,6 +760,24 @@ input UpdateCategoryInput {
   subCategories: [UpdateCategoryInput!]
 }
 
+input UpdateCustomerInput {
+  defaultBillingAddressId: ID
+  defaultPhoneNumberId: ID
+  defaultShippingAddressId: ID
+  name: String!
+}
+
+input UpdateCustomerReviewProductInput {
+  """Updated review comment"""
+  comment: String
+
+  """Review ID to update"""
+  id: ID!
+
+  """Updated rating from 1.0 to 5.0"""
+  ratingCount: Float
+}
+
 input UpdateItemQtyInput {
   quantity: Int!
   variantId: ID!
@@ -794,4 +886,35 @@ type Warranty {
   coverage: String!
   instructions: String!
   months: Float!
+}
+
+input WishListItemCreateInput {
+  variantId: String!
+}
+
+input WishListItemDeleteInput {
+  variantId: String!
+}
+
+input WishListManyItemsInput {
+  variantIds: [String!]!
+}
+
+type WishListWithVariant {
+  customerId: ID!
+  firstAttribute: FirstAttribute
+  id: ID!
+  isArchived: Boolean
+  price: Float!
+  productName: String!
+  sku: String!
+  updatedAt: DateTime!
+  variantId: ID!
+}
+
+type Wishlist {
+  customerId: ID!
+  id: ID!
+  updatedAt: DateTime!
+  variantId: ID!
 }

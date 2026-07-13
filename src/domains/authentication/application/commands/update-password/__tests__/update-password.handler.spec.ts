@@ -15,7 +15,7 @@ import {
   invalidateToken,
 } from '../../../../infrastructure/jwt';
 import { Id } from '../../../../aggregates/value-objects';
-import { v7 as uuidv7 } from 'uuid';
+import { v7 as uuid } from 'uuid';
 
 // Mock the JWT functions
 jest.mock('../../../../infrastructure/jwt', () => ({
@@ -58,7 +58,7 @@ describe('UpdatePasswordHandler', () => {
   const validToken = 'valid-reset-token';
   const validPassword = 'newPassword123!';
   const userEmail = 'test@example.com';
-  const userId = uuidv7();
+  const userId = uuid();
   const tokenPayload = {
     email: userEmail,
     authIdentityId: userId,

@@ -42,5 +42,6 @@ const EventHandlers = [
     ...QueryHandlers,
     ...EventHandlers,
   ],
+  exports: ['ITenantRepository'],
 })
 export class TenantDomain {}
