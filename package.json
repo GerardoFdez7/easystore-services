@@ -32,7 +32,7 @@
     "kafka:producer:test": "ts-node ./tools/kafka-producer-test.ts",
     "kafka:consumer:test": "ts-node ./tools/kafka-consumer-test.ts",
     "postinstall": "npm run generate",
-    "prepare": "husky install"
+    "prepare": "is-ci || node -e \"if(process.env.NODE_ENV!=='production'){process.exit(1)}\" || husky install"
   },
   "dependencies": {
     "@as-integrations/express5": "1.1.2",
