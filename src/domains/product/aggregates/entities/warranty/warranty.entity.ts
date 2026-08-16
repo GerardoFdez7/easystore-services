@@ -1,7 +1,8 @@
 import { Id, Months, MediumDescription } from '../../value-objects';
-import { IWarrantyBase, Entity, EntityProps } from '../';
+import { DomainEntity, DomainEntityProps } from '@shared/domain-entity.base';
+import { IWarrantyBase } from '../';
 
-export interface IWarrantyProps extends EntityProps {
+export interface IWarrantyProps extends DomainEntityProps {
   id: Id;
   months: Months;
   coverage: MediumDescription;
@@ -9,9 +10,13 @@ export interface IWarrantyProps extends EntityProps {
   variantId: Id;
 }
 
-export class Warranty extends Entity<IWarrantyProps> {
-  constructor(props: IWarrantyProps) {
+export class Warranty extends DomainEntity<IWarrantyProps> {
+  private constructor(props: IWarrantyProps) {
     super(props);
+  }
+
+  public static reconstitute(props: IWarrantyProps): Warranty {
+    return new Warranty(props);
   }
 
   public static create(props: IWarrantyBase): Warranty {

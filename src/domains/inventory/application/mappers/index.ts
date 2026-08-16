@@ -6,12 +6,12 @@ export {
 export { WarehouseMapper } from './warehouse/warehouse.mapper';
 
 // StockPerWarehouse mapper
-export { StockPerWarehouseDTO } from './stockPerWarehouse/stock-per-warehouse.dto';
-export { StockPerWarehouseMapper } from './stockPerWarehouse/stock-per-warehouse.mapper';
+export { StockPerWarehouseDTO } from './stock-per-warehouse/stock-per-warehouse.dto';
+export { StockPerWarehouseMapper } from './stock-per-warehouse/stock-per-warehouse.mapper';
 
 // StockMovement mapper
 export {
   StockMovementDTO,
   PaginatedStockMovementsDTO,
-} from './stockMovement/stock-movement.dto';
-export { StockMovementMapper } from './stockMovement/stock-movement.mapper';
+} from './stock-movement/stock-movement.dto';
+export { StockMovementMapper } from './stock-movement/stock-movement.mapper';

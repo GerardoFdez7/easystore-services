@@ -9,6 +9,13 @@ export interface ForgotPasswordEmailData extends IEmailTemplateData {
   locale: string;
 }
 
+interface ForgotPasswordTemplateContext {
+  resetUrl: string;
+  expirationMinutes: number;
+  translation: typeof translations.en;
+  currentYear: number;
+}
+
 /**
  * Email builder for forgot password emails
  * Handles the construction of HTML and text content for password reset emails
@@ -32,19 +39,35 @@ export class ForgotPasswordEmailBuilder
       message,
     );
   }
+
+  private getTemplateContext(
+    data: ForgotPasswordEmailData,
+  ): ForgotPasswordTemplateContext {
+    const { resetUrl, expirationMinutes = 15, locale } = data;
+
+    if (!locale) {
+      throw new Error('Locale is required for email generation');
+    }
+
+    return {
+      resetUrl,
+      expirationMinutes,
+      translation: this.getTranslation(locale),
+      currentYear: new Date().getFullYear(),
+    };
+  }
   /**
    * Builds the HTML content for the password reset email
    * @param data - The email template data
    * @returns HTML content for the email
    */
   buildHtml(data: ForgotPasswordEmailData): string {
-    const { resetUrl, expirationMinutes = 15, locale } = data;
-
-    if (!locale) {
-      throw new Error('Locale is required for email generation');
-    }
-    const t = this.getTranslation(locale);
-    const currentYear = new Date().getFullYear();
+    const {
+      resetUrl,
+      expirationMinutes,
+      translation: t,
+      currentYear,
+    } = this.getTemplateContext(data);
 
     return `
       <!doctype html>
@@ -181,13 +204,12 @@ export class ForgotPasswordEmailBuilder
    * @returns Plain text content for the email
    */
   buildText(data: ForgotPasswordEmailData): string {
-    const { resetUrl, expirationMinutes = 15, locale } = data;
-
-    if (!locale) {
-      throw new Error('Locale is required for email generation');
-    }
-    const t = this.getTranslation(locale);
-    const currentYear = new Date().getFullYear();
+    const {
+      resetUrl,
+      expirationMinutes,
+      translation: t,
+      currentYear,
+    } = this.getTemplateContext(data);
 
     return `
 ${t.greeting},

@@ -13,8 +13,8 @@ export interface EntityProps {
 }
 
 /**
- * Base class for all domain entities
- * Provides common functionality and type safety with generics
+ * Base class for aggregate roots.
+ * Provides domain-event support and type-safe property access.
  */
 export abstract class Entity<T extends EntityProps>
   extends AggregateRoot
@@ -59,6 +59,13 @@ export abstract class Entity<T extends EntityProps>
    */
   get<K extends keyof T>(prop: K): T[K] {
     return this.props[prop];
+  }
+
+  /**
+   * Exposes a typed, read-only view for mappers and collaborating entities.
+   */
+  getProps(): Readonly<T> {
+    return this.props;
   }
 
   /**

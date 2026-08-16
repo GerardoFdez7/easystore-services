@@ -13,9 +13,9 @@ export {
 export {
   StockPerWarehouse,
   IStockPerWarehouseProps,
-} from './stockPerWarehouse/stock-per-warehouse.entity';
+} from './stock-per-warehouse/stock-per-warehouse.entity';
 export {
   IStockPerWarehouseType,
   IStockPerWarehouseBase,
   IStockPerWarehouseSystem,
-} from './stockPerWarehouse/stock-per-warehouse.attributes';
+} from './stock-per-warehouse/stock-per-warehouse.attributes';

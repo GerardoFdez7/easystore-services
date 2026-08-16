@@ -1,9 +1,10 @@
 import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
-import { Inject, NotFoundException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { IProductRepository } from '../../../../aggregates/repositories/product.interface';
 import { Id } from '../../../../aggregates/value-objects';
 import { ProductMapper, ProductDTO } from '../../../mappers';
 import { RestoreVariantDTO } from './restore-variant.dto';
+import { findProductOrThrow } from '../../find-product-or-throw';
 
 @CommandHandler(RestoreVariantDTO)
 export class RestoreVariantHandler
@@ -17,13 +18,12 @@ export class RestoreVariantHandler
 
   async execute(command: RestoreVariantDTO): Promise<ProductDTO> {
     // Find the product by ID
-    const product = await this.productRepository.findById(
-      Id.create(command.tenantId),
-      Id.create(command.productId),
+    const product = await findProductOrThrow(
+      this.productRepository,
+      command.tenantId,
+      command.productId,
+      command.id,
     );
-    if (!product) {
-      throw new NotFoundException(`Product with ID ${command.id} not found`);
-    }
 
     // Call the domain entity method to restore the variant
     const restoredVariant = this.eventPublisher.mergeObjectContext(

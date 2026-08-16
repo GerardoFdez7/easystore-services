@@ -1,9 +1,4 @@
-import { Entity } from '@shared/entity.base';
-import {
-  Tenant,
-  ITenantProps,
-  ITenantType,
-} from '../../../aggregates/entities';
+import { Tenant, ITenantType } from '../../../aggregates/entities';
 import {
   Id,
   Name,
@@ -26,33 +21,33 @@ export class TenantMapper {
    * @returns The mapped Tenant domain entity
    */
   static fromPersistence(persistenceTenant: ITenantType): Tenant {
-    return Entity.fromPersistence<
-      typeof persistenceTenant,
-      ITenantProps,
-      Tenant
-    >(Tenant, persistenceTenant, (model) => ({
-      id: Id.create(model.id),
-      businessName: model.businessName ? Name.create(model.businessName) : null,
-      ownerName: Name.create(model.ownerName),
-      domain: model.domain ? Domain.create(model.domain) : null,
-      logo: Media.create(model.logo),
-      description: model.description
-        ? LongDescription.create(model.description)
+    return Tenant.reconstitute({
+      id: Id.create(persistenceTenant.id),
+      businessName: persistenceTenant.businessName
+        ? Name.create(persistenceTenant.businessName)
         : null,
-      currency: Currency.create(model.currency),
-      authIdentityId: Id.create(model.authIdentityId),
-      defaultPhoneNumberId: model.defaultPhoneNumberId
-        ? Id.create(model.defaultPhoneNumberId)
+      ownerName: Name.create(persistenceTenant.ownerName),
+      domain: persistenceTenant.domain
+        ? Domain.create(persistenceTenant.domain)
         : null,
-      defaultShippingAddressId: model.defaultShippingAddressId
-        ? Id.create(model.defaultShippingAddressId)
+      logo: Media.create(persistenceTenant.logo),
+      description: persistenceTenant.description
+        ? LongDescription.create(persistenceTenant.description)
         : null,
-      defaultBillingAddressId: model.defaultBillingAddressId
-        ? Id.create(model.defaultBillingAddressId)
+      currency: Currency.create(persistenceTenant.currency),
+      authIdentityId: Id.create(persistenceTenant.authIdentityId),
+      defaultPhoneNumberId: persistenceTenant.defaultPhoneNumberId
+        ? Id.create(persistenceTenant.defaultPhoneNumberId)
         : null,
-      createdAt: model.createdAt,
-      updatedAt: model.updatedAt,
-    }));
+      defaultShippingAddressId: persistenceTenant.defaultShippingAddressId
+        ? Id.create(persistenceTenant.defaultShippingAddressId)
+        : null,
+      defaultBillingAddressId: persistenceTenant.defaultBillingAddressId
+        ? Id.create(persistenceTenant.defaultBillingAddressId)
+        : null,
+      createdAt: persistenceTenant.createdAt,
+      updatedAt: persistenceTenant.updatedAt,
+    });
   }
 
   /**

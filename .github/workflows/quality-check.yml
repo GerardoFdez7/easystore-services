@@ -9,36 +9,50 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         node-version: [20.x]
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-          
+
       - name: Install dependencies
         run: npm ci
-        
+
       - name: Generate Prisma client
         run: npm run generate
-        
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install Semgrep
+        run: pipx install semgrep
+
+      - name: Check architecture
+        run: npm run architecture
+
+      - name: Check duplicated code
+        run: npm run duplication
+
       - name: Lint code
         run: npm run lint
-        
+
       - name: Build project
         run: npm run build
-        
+
       - name: Run unit tests
         run: npm run test
-        
+
       - name: Comment PR on failure
         if: failure()
         uses: actions/github-script@v7
@@ -48,9 +62,9 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '❌ **Build or tests failed!** Please fix the issues before merging this PR.'
+              body: '❌ **Quality check failed!** Please fix the issues before merging this PR.'
             })
-            
+
       - name: Comment PR on success
         if: success()
         uses: actions/github-script@v7
@@ -63,6 +77,7 @@ jobs:
               body: '✅ **Success! All checks have passed successfully!** \n\n' +
                     '- Build completed ✓\n' +
                     '- Tests passed ✓\n' +
-                    '- Code quality verified ✓\n\n' +
+                    '- Linter Code quality verified ✓\n' +
+                    '- Architecture rules verified ✓\n\n' +
                     'The PR has been validated. Great work! 🎉'
             })

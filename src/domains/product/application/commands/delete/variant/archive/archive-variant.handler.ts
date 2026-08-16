@@ -1,9 +1,10 @@
 import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
-import { Inject, NotFoundException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { IProductRepository } from '../../../../../aggregates/repositories/product.interface';
 import { Id } from '../../../../../aggregates/value-objects';
 import { ProductMapper, ProductDTO } from '../../../../mappers';
 import { ArchiveVariantDTO } from './archive-variant.dto';
+import { findProductOrThrow } from '../../../find-product-or-throw';
 
 @CommandHandler(ArchiveVariantDTO)
 export class ArchiveVariantHandler
@@ -17,15 +18,11 @@ export class ArchiveVariantHandler
 
   async execute(command: ArchiveVariantDTO): Promise<ProductDTO> {
     // Find the product by ID
-    const product = await this.productRepository.findById(
-      Id.create(command.tenantId),
-      Id.create(command.productId),
+    const product = await findProductOrThrow(
+      this.productRepository,
+      command.tenantId,
+      command.productId,
     );
-    if (!product) {
-      throw new NotFoundException(
-        `Product with ID ${command.productId} not found`,
-      );
-    }
 
     // Call the domain entity method to soft delete the variant
     const deletedVariant = this.eventPublisher.mergeObjectContext(

@@ -1,4 +1,5 @@
-import { Entity, EntityProps, ICategoryBase } from '../';
+import { Entity, EntityProps } from '@shared/entity.base';
+import { ICategoryBase } from '../';
 import { Id, Name, Media, ShortDescription } from '../../value-objects';
 import {
   CategoryCreatedEvent,

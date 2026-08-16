@@ -5,4 +5,4 @@ export {
   IAddressType,
   IAddressBase,
   IAddressSytem,
-} from './address/address.attribute';
+} from './address/address.attributes';

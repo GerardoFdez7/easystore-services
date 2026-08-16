@@ -1,15 +1,22 @@
-import { Entity, EntityProps, IProductCategoriesBase } from '../';
+import { DomainEntity, DomainEntityProps } from '@shared/domain-entity.base';
+import { IProductCategoriesBase } from '../';
 import { Id } from '../../value-objects';
 
-export interface IProductCategoriesProps extends EntityProps {
+export interface IProductCategoriesProps extends DomainEntityProps {
   id: Id;
   productId: Id;
   categoryId: Id;
 }
 
-export class ProductCategories extends Entity<IProductCategoriesProps> {
-  constructor(props: IProductCategoriesProps) {
+export class ProductCategories extends DomainEntity<IProductCategoriesProps> {
+  private constructor(props: IProductCategoriesProps) {
     super(props);
+  }
+
+  public static reconstitute(
+    props: IProductCategoriesProps,
+  ): ProductCategories {
+    return new ProductCategories(props);
   }
 
   public static create(props: IProductCategoriesBase): ProductCategories {

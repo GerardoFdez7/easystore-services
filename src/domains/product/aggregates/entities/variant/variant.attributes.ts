@@ -12,11 +12,10 @@ import {
   IInstallmentPaymentType,
 } from '../';
 
-export interface IVariantBase {
+interface VariantCoreAttributes {
   attributes: AttributeProps[];
   price: number;
   variantCover?: string;
-  personalizationOptions?: string[];
   weight?: number;
   dimension?: DimensionProps;
   condition: ConditionEnum;
@@ -27,6 +26,10 @@ export interface IVariantBase {
   isbn?: string;
   productId: string;
   tenantId: string;
+}
+
+export interface IVariantBase extends VariantCoreAttributes {
+  personalizationOptions?: string[];
   variantMedia?: IMediaInitData[];
   warranties?: IWarrantyInitData[];
   installmentPayments?: IInstallmentPaymentInitData[];
@@ -39,21 +42,8 @@ export interface IVariantSystem {
   createdAt: Date;
 }
 
-export interface IVariantType extends IVariantSystem {
-  attributes: AttributeProps[];
-  price: number;
-  variantCover?: string;
+export interface IVariantType extends IVariantSystem, VariantCoreAttributes {
   personalizationOptions: string[];
-  weight?: number;
-  dimension?: DimensionProps;
-  condition: ConditionEnum;
-  upc?: string;
-  ean?: string;
-  sku: string;
-  barcode?: string;
-  isbn?: string;
-  productId: string;
-  tenantId: string;
   variantMedia: IMediaType[];
   warranties: IWarrantyType[];
   installmentPayments: IInstallmentPaymentType[];

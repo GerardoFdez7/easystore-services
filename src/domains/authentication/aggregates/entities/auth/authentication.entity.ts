@@ -41,7 +41,7 @@ export class AuthIdentity extends Entity<IAuthIdentityProps> {
     return new AuthIdentity(props);
   }
 
-  static register(input: IAuthIdentityBaseType): AuthIdentity {
+  static create(input: IAuthIdentityBaseType): AuthIdentity {
     const now = new Date();
 
     const transformedProps = {

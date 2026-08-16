@@ -1,9 +1,4 @@
-import {
-  IWarrantyType,
-  IWarrantyProps,
-  Warranty,
-  Entity,
-} from '../../../aggregates/entities';
+import { IWarrantyType, Warranty } from '../../../aggregates/entities';
 import {
   Id,
   Months,
@@ -22,17 +17,13 @@ export class WarrantyMapper {
    * @returns The mapped Warranty domain entity.
    */
   static fromPersistence(persistenceWarranty: IWarrantyType): Warranty {
-    return Entity.fromPersistence<
-      typeof persistenceWarranty,
-      IWarrantyProps,
-      Warranty
-    >(Warranty, persistenceWarranty, (model) => ({
-      id: Id.create(model.id),
-      months: Months.create(model.months),
-      coverage: MediumDescription.create(model.coverage),
-      instructions: MediumDescription.create(model.instructions),
-      variantId: Id.create(model.variantId),
-    }));
+    return Warranty.reconstitute({
+      id: Id.create(persistenceWarranty.id),
+      months: Months.create(persistenceWarranty.months),
+      coverage: MediumDescription.create(persistenceWarranty.coverage),
+      instructions: MediumDescription.create(persistenceWarranty.instructions),
+      variantId: Id.create(persistenceWarranty.variantId),
+    });
   }
 
   /**

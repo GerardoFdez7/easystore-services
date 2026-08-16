@@ -1,10 +1,6 @@
-import {
-  Entity,
-  EntityProps,
-  IWarehouseBase,
-  StockPerWarehouse,
-  IStockPerWarehouseBase,
-} from '../';
+import { IWarehouseBase, StockPerWarehouse, IStockPerWarehouseBase } from '../';
+import { Entity, EntityProps } from '@shared/entity.base';
+import { ResourceNotFoundError } from '@shared/errors';
 import { Id, Name } from '../../value-objects';
 import {
   WarehouseCreatedEvent,
@@ -14,7 +10,6 @@ import {
   StockPerWarehouseUpdatedEvent,
   StockPerWarehouseRemovedEvent,
 } from '../../events';
-import { NotFoundException } from '@nestjs/common';
 
 export interface IWarehouseProps extends EntityProps {
   id: Id;
@@ -33,7 +28,7 @@ export class Warehouse extends Entity<IWarehouseProps> {
     super(props);
     this.stocksMap = new Map();
     props.stocks.forEach((stock) => {
-      const stockId = stock.get('id');
+      const stockId = stock.getProps().id;
       if (stockId && stockId.getValue() !== undefined) {
         this.stocksMap.set(stockId.getValue(), stock);
       }
@@ -50,7 +45,7 @@ export class Warehouse extends Entity<IWarehouseProps> {
     const warehouse = new Warehouse(props);
     warehouse.stocksMap = new Map();
     props.stocks.forEach((stock) => {
-      const stockId = stock.get('id');
+      const stockId = stock.getProps().id;
       if (
         stockId &&
         stockId.getValue() !== null &&
@@ -130,9 +125,7 @@ export class Warehouse extends Entity<IWarehouseProps> {
   private getStockOrThrow(stockId: string): StockPerWarehouse {
     const stock = this.stocksMap.get(stockId);
     if (!stock) {
-      throw new NotFoundException(
-        `Stock with ID ${stockId} not found in warehouse ${this.props.id.getValue()}.`,
-      );
+      throw new ResourceNotFoundError('Warehouse stock', stockId);
     }
     return stock;
   }
@@ -167,7 +160,7 @@ export class Warehouse extends Entity<IWarehouseProps> {
     const updatedStock = StockPerWarehouse.update(existingStock, updateData);
 
     const newStocks = this.props.stocks.map((stock) => {
-      const currentStockId = stock.get('id');
+      const currentStockId = stock.getProps().id;
       if (currentStockId && currentStockId.getValue() === stockId) {
         return updatedStock;
       }
@@ -191,7 +184,7 @@ export class Warehouse extends Entity<IWarehouseProps> {
     const stockToRemove = this.getStockOrThrow(stockId);
 
     const newStocks = this.props.stocks.filter((stock) => {
-      const currentStockId = stock.get('id');
+      const currentStockId = stock.getProps().id;
       return currentStockId && currentStockId.getValue() !== stockId;
     });
 

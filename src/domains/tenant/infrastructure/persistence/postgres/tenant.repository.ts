@@ -1,17 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PostgreService } from '@database/postgres.service';
-import {
-  UniqueConstraintViolationError,
-  DatabaseOperationError,
-  ResourceNotFoundError,
-  ForeignKeyConstraintViolationError,
-} from '@shared/errors';
+import { ResourceNotFoundError } from '@shared/errors';
 import { Id } from '@shared/value-objects';
 import { TenantMapper } from '../../../application/mappers';
 import { Tenant, ITenantType } from '../../../aggregates/entities';
-import { Prisma, Tenant as PrismaTenant } from '.prisma/postgres';
+import { Tenant as PrismaTenant } from '.prisma/postgres';
 import { ITenantRepository } from '../../../aggregates/repositories/tenant.interface';
-import { PrismaErrorUtils } from '@utils/prisma-error-utils';
+import { handlePrismaDatabaseError } from '@utils/prisma-error-utils';
 
 @Injectable()
 export default class TenantRepository implements ITenantRepository {
@@ -70,9 +65,6 @@ export default class TenantRepository implements ITenantRepository {
 
       return this.mapToDomain(prismaTenant);
     } catch (error) {
-      if (error instanceof ResourceNotFoundError) {
-        throw error;
-      }
       return this.handleDatabaseError(error, 'update tenant');
     }
   }
@@ -99,9 +91,6 @@ export default class TenantRepository implements ITenantRepository {
         });
       });
     } catch (error) {
-      if (error instanceof ResourceNotFoundError) {
-        throw error;
-      }
       return this.handleDatabaseError(error, 'delete tenant');
     }
   }
@@ -137,38 +126,12 @@ export default class TenantRepository implements ITenantRepository {
   }
 
   private handleDatabaseError(error: unknown, operation: string): never {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      switch (error.code) {
-        case 'P2002': {
-          const field =
-            PrismaErrorUtils.extractFieldFromUniqueConstraintError(error);
-          throw new UniqueConstraintViolationError(
-            field,
-            `Tenant ${field} already exists`,
-          );
-        }
-        case 'P2003': {
-          const field = PrismaErrorUtils.extractFieldFromForeignKeyError(error);
-          const fieldToEntityMap: Record<string, string> = {
-            authIdentityId: 'Auth Identity',
-          };
-          const relatedEntity = fieldToEntityMap[field] || 'Related Entity';
-          throw new ForeignKeyConstraintViolationError(field, relatedEntity);
-        }
-        case 'P2025':
-          throw new ResourceNotFoundError('Tenant');
-        default:
-          break;
-      }
-    }
-
-    const errorMessage =
-      error instanceof Error ? error.message : JSON.stringify(error);
-    throw new DatabaseOperationError(
-      operation,
-      errorMessage,
-      error instanceof Error ? error : new Error(errorMessage),
-    );
+    return handlePrismaDatabaseError(error, operation, {
+      resource: 'Tenant',
+      foreignKeyEntities: {
+        authIdentityId: 'Auth Identity',
+      },
+    });
   }
 
   private mapToDomain(clientPrisma: PrismaTenant): Tenant {

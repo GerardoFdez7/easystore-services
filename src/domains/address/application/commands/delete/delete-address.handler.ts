@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
 import { AddressDeleteDTO } from './delete-address.dto';
-import { Inject, NotFoundException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { IAddressRepository } from '../../../aggregates/repositories/address.interface';
 import { AddressDTO, AddressMapper } from '../../mappers';
-import { Id } from '../../../aggregates/value-objects';
+import { findAddressOrThrow } from '../../address-owner';
 
 @CommandHandler(AddressDeleteDTO)
 export class DeleteAddressHandler implements ICommandHandler<AddressDeleteDTO> {
@@ -16,20 +16,12 @@ export class DeleteAddressHandler implements ICommandHandler<AddressDeleteDTO> {
   async execute(command: AddressDeleteDTO): Promise<AddressDTO> {
     const { id, tenantId, customerId } = command;
 
-    if ((!tenantId && !customerId) || (tenantId && customerId)) {
-      throw new Error('You must provide either tenantId or customerId');
-    }
-
-    const addressId = Id.create(id);
-    const owner = tenantId
-      ? { tenantId: Id.create(tenantId) }
-      : { customerId: Id.create(customerId) };
-
-    //Find the address by Id
-    const address = await this.addressRepository.findById(addressId, owner);
-    if (!address) {
-      throw new NotFoundException(`Address with ID ${command.id} not found`);
-    }
+    const { address, addressId, owner } = await findAddressOrThrow(
+      this.addressRepository,
+      id,
+      tenantId,
+      customerId,
+    );
 
     //Delete the address
     const deletedAddress = this.eventPublisher.mergeObjectContext(

@@ -1,3 +1,4 @@
+import { Entity, EntityProps } from '@shared/entity.base';
 import {
   Id,
   Name,
@@ -16,8 +17,6 @@ import {
   ProductCategories,
   Media,
   Sustainability,
-  Entity,
-  EntityProps,
 } from '../';
 import {
   ProductCreatedEvent,
@@ -59,7 +58,7 @@ export class Product extends Entity<IProductProps> {
     super(props);
     this.variantsMap = new Map();
     props.variants.forEach((variant) => {
-      const variantId = variant.get('id');
+      const variantId = variant.getProps().id;
       if (variantId && variantId.getValue() !== undefined) {
         this.variantsMap.set(variantId.getValue(), variant);
       }
@@ -76,7 +75,7 @@ export class Product extends Entity<IProductProps> {
     const product = new Product(props);
     product.variantsMap = new Map();
     props.variants.forEach((variant) => {
-      const variantId = variant.get('id');
+      const variantId = variant.getProps().id;
       if (
         variantId &&
         variantId.getValue() !== null &&
@@ -380,7 +379,7 @@ export class Product extends Entity<IProductProps> {
     const updatedVariant = variantToUpdate.update(updateData);
 
     const newVariants = this.props.variants.map((v) => {
-      const currentVariantId = v.get('id');
+      const currentVariantId = v.getProps().id;
       return currentVariantId && currentVariantId.getValue() === variantId
         ? updatedVariant
         : v;
@@ -406,7 +405,7 @@ export class Product extends Entity<IProductProps> {
     const variantToArchive = this.getVariantOrThrow(variantId);
 
     // Check if the product is already archived
-    const isArchived = variantToArchive.get('isArchived');
+    const isArchived = variantToArchive.getProps().isArchived;
     if (isArchived === true) {
       throw new Error(
         `Variant with ID ${variantId} is already archived and cannot be archived again`,
@@ -415,7 +414,7 @@ export class Product extends Entity<IProductProps> {
 
     const archivedVariant = variantToArchive.archive();
     const newVariants = this.props.variants.map((v) =>
-      v.get('id').getValue() === variantId ? archivedVariant : v,
+      v.getProps().id.getValue() === variantId ? archivedVariant : v,
     );
     const newProps = {
       ...this.props,
@@ -438,7 +437,7 @@ export class Product extends Entity<IProductProps> {
     const variantToRestore = this.getVariantOrThrow(variantId);
 
     // Check if the variant is actually deleted
-    const isArchived = variantToRestore.get('isArchived');
+    const isArchived = variantToRestore.getProps().isArchived;
     if (isArchived === false) {
       throw new Error(
         `Variant with ID ${variantId} is not in a deleted state and cannot be restored`,
@@ -447,7 +446,7 @@ export class Product extends Entity<IProductProps> {
 
     const restoredVariant = variantToRestore.restore();
     const newVariants = this.props.variants.map((v) =>
-      v.get('id').getValue() === variantId ? restoredVariant : v,
+      v.getProps().id.getValue() === variantId ? restoredVariant : v,
     );
     const newProps = {
       ...this.props,
@@ -470,7 +469,7 @@ export class Product extends Entity<IProductProps> {
     const variantToRemove = this.getVariantOrThrow(variantId);
 
     const newVariants = this.props.variants.filter(
-      (v) => v.get('id').getValue() !== variantId,
+      (v) => v.getProps().id.getValue() !== variantId,
     );
     const newProps = {
       ...this.props,

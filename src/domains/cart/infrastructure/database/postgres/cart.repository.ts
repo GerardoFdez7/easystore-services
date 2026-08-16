@@ -1,17 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PostgreService } from '@database/postgres.service';
 import {
-  Prisma,
   Cart as PrismaCart,
   CartItem as PrismaCartItem,
 } from '.prisma/postgres';
-import {
-  ResourceNotFoundError,
-  UniqueConstraintViolationError,
-  ForeignKeyConstraintViolationError,
-  DatabaseOperationError,
-} from '@shared/errors';
-import { PrismaErrorUtils } from '@utils/prisma-error-utils';
+import { ResourceNotFoundError } from '@shared/errors';
+import { handlePrismaDatabaseError } from '@utils/prisma-error-utils';
 import { Cart } from '../../../aggregates/entities/cart.entity';
 import { CartItem, Id } from '../../../aggregates/value-objects';
 import { ICartRepository } from '../../../aggregates/repositories/cart.interface';
@@ -218,42 +212,14 @@ export class CartRepository implements ICartRepository {
    * Centralized error handling for database operations
    */
   private handleDatabaseError(error: unknown, operation: string): never {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      switch (error.code) {
-        case 'P2002': {
-          // Unique constraint violation
-          const field =
-            PrismaErrorUtils.extractFieldFromUniqueConstraintError(error);
-          throw new UniqueConstraintViolationError(
-            field,
-            `Cart ${field} already exists`,
-          );
-        }
-        case 'P2003': {
-          // Foreign key constraint violation
-          const field = PrismaErrorUtils.extractFieldFromForeignKeyError(error);
-          const fieldToEntityMap: Record<string, string> = {
-            customerId: 'Customer',
-            variantId: 'Variant',
-            promotionId: 'Promotion',
-          };
-          const relatedEntity = fieldToEntityMap[field] || 'Related Entity';
-          throw new ForeignKeyConstraintViolationError(field, relatedEntity);
-        }
-        case 'P2025': // Record not found
-          throw new ResourceNotFoundError('Cart');
-        default:
-          break;
-      }
-    }
-
-    const errorMessage =
-      error instanceof Error ? error.message : JSON.stringify(error);
-    throw new DatabaseOperationError(
-      operation,
-      errorMessage,
-      error instanceof Error ? error : new Error(errorMessage),
-    );
+    return handlePrismaDatabaseError(error, operation, {
+      resource: 'Cart',
+      foreignKeyEntities: {
+        customerId: 'Customer',
+        variantId: 'Variant',
+        promotionId: 'Promotion',
+      },
+    });
   }
 
   /**

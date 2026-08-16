@@ -1,17 +1,24 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PostgreService } from '@database/postgres.service';
-import { PrismaErrorUtils } from '@utils/prisma-error-utils';
-import { Prisma, Category as PrismaCategory } from '.prisma/postgres';
 import {
-  ResourceNotFoundError,
-  UniqueConstraintViolationError,
-  ForeignKeyConstraintViolationError,
-  DatabaseOperationError,
-} from '@shared/errors';
+  executeDatabaseOperation,
+  handlePrismaDatabaseError,
+} from '@utils/prisma-error-utils';
+import { Prisma, Category as PrismaCategory } from '.prisma/postgres';
+import { DatabaseOperationError, ResourceNotFoundError } from '@shared/errors';
 import { Category, ICategoryType } from '../../../aggregates/entities';
 import { CategoryMapper } from '../../../application/mappers';
 import { Id, SortBy, SortOrder } from '../../../aggregates/value-objects';
 import ICategoryRepository from '../../../aggregates/repositories/category.interface';
+
+const categoryRelations = Prisma.validator<Prisma.CategoryInclude>()({
+  subCategories: {
+    include: {
+      subCategories: true,
+    },
+  },
+  parent: true,
+});
 
 @Injectable()
 export default class CategoryRepository implements ICategoryRepository {
@@ -80,14 +87,7 @@ export default class CategoryRepository implements ICategoryRepository {
         // Return the created category with all relations
         return await tx.category.findUnique({
           where: { id: createdCategory.id },
-          include: {
-            subCategories: {
-              include: {
-                subCategories: true,
-              },
-            },
-            parent: true,
-          },
+          include: categoryRelations,
         });
       });
 
@@ -105,97 +105,86 @@ export default class CategoryRepository implements ICategoryRepository {
     const tenantIdValue = tenantId.getValue();
     const updatesDto = CategoryMapper.toDto(updates);
 
-    try {
-      const prismaCategory = await this.prisma.$transaction(async (tx) => {
-        // Update the main category
-        await tx.category.update({
-          where: {
-            id: idValue,
-            tenantId: tenantIdValue,
-          },
-          data: {
-            name: updatesDto.name,
-            cover: updatesDto.cover,
-            description: updatesDto.description,
-            parentId: updatesDto.parentId,
-          },
-          include: {
-            subCategories: true,
-            parent: true,
-          },
-        });
-
-        // Handle subcategories updates if provided
-        if (updatesDto.subCategories !== undefined) {
-          await this.updateSubCategories(tx, idValue, updatesDto.subCategories);
-        }
-
-        // Return updated category with all relations
-        return await tx.category.findUnique({
-          where: { id: idValue },
-          include: {
-            subCategories: {
-              include: {
-                subCategories: true,
-              },
+    return executeDatabaseOperation(
+      async () => {
+        const prismaCategory = await this.prisma.$transaction(async (tx) => {
+          // Update the main category
+          await tx.category.update({
+            where: {
+              id: idValue,
+              tenantId: tenantIdValue,
             },
-            parent: true,
-          },
-        });
-      });
+            data: {
+              name: updatesDto.name,
+              cover: updatesDto.cover,
+              description: updatesDto.description,
+              parentId: updatesDto.parentId,
+            },
+            include: {
+              subCategories: true,
+              parent: true,
+            },
+          });
 
-      return this.mapToDomain(prismaCategory);
-    } catch (error) {
-      if (error instanceof ResourceNotFoundError) {
-        throw error;
-      }
-      return this.handleDatabaseError(error, 'update category');
-    }
+          // Handle subcategories updates if provided
+          if (updatesDto.subCategories !== undefined) {
+            await this.updateSubCategories(
+              tx,
+              idValue,
+              updatesDto.subCategories,
+            );
+          }
+
+          // Return updated category with all relations
+          return await tx.category.findUnique({
+            where: { id: idValue },
+            include: categoryRelations,
+          });
+        });
+
+        return this.mapToDomain(prismaCategory);
+      },
+      (error) => this.handleDatabaseError(error, 'update category'),
+    );
   }
 
   /**
    * Deletes a category with transaction support
    */
   async delete(id: Id, tenantId: Id): Promise<void> {
-    const idValue = id.getValue();
-    const tenantIdValue = tenantId.getValue();
+    const categoryId = id.getValue();
+    const categoryOwner = {
+      id: categoryId,
+      tenantId: tenantId.getValue(),
+    };
 
     try {
       await this.prisma.$transaction(async (tx) => {
         // Check if category exists
         const existingCategory = await tx.category.findUnique({
-          where: {
-            id: idValue,
-            tenantId: tenantIdValue,
-          },
+          where: categoryOwner,
           include: {
             subCategories: true,
           },
         });
 
         if (!existingCategory) {
-          throw new ResourceNotFoundError('Category', idValue);
+          throw new ResourceNotFoundError('Category', categoryId);
         }
 
         // Delete subcategories first (cascade)
         await tx.category.deleteMany({
           where: {
-            parentId: idValue,
+            parentId: categoryId,
           },
         });
 
         // Delete the main category
         await tx.category.delete({
-          where: {
-            id: idValue,
-            tenantId: tenantIdValue,
-          },
+          where: categoryOwner,
         });
       });
     } catch (error) {
-      if (error instanceof ResourceNotFoundError) {
-        throw error;
-      }
       return this.handleDatabaseError(error, 'delete category');
     }
   }
@@ -519,13 +508,7 @@ export default class CategoryRepository implements ICategoryRepository {
         // Update existing subcategory
         await tx.category.update({
           where: { id: subCategory.id },
-          data: {
-            name: subCategory.name,
-            cover: subCategory.cover,
-            description: subCategory.description,
-            parentId: parentId,
-            tenantId: subCategory.tenantId,
-          },
+          data: this.getSubCategoryData(subCategory, parentId),
         });
 
         // Recursively update nested subcategories
@@ -537,26 +520,7 @@ export default class CategoryRepository implements ICategoryRepository {
           );
         }
       } else {
-        // Create new subcategory
-        const createdSubCategory = await tx.category.create({
-          data: {
-            id: subCategory.id,
-            name: subCategory.name,
-            cover: subCategory.cover,
-            description: subCategory.description,
-            parentId: parentId,
-            tenantId: subCategory.tenantId,
-          },
-        });
-
-        // Recursively create nested subcategories
-        if (subCategory.subCategories && subCategory.subCategories.length > 0) {
-          await this.createSubCategories(
-            tx,
-            createdSubCategory.id,
-            subCategory.subCategories,
-          );
-        }
+        await this.createSubCategoryTree(tx, parentId, subCategory);
       }
     }
   }
@@ -570,67 +534,58 @@ export default class CategoryRepository implements ICategoryRepository {
     subCategories: ICategoryType[],
   ): Promise<void> {
     for (const subCategory of subCategories) {
-      const createdSubCategory = await tx.category.create({
-        data: {
-          id: subCategory.id,
-          name: subCategory.name,
-          cover: subCategory.cover,
-          description: subCategory.description,
-          parentId: parentId,
-          tenantId: subCategory.tenantId,
-        },
-      });
-
-      // Recursively create nested subcategories
-      if (subCategory.subCategories && subCategory.subCategories.length > 0) {
-        await this.createSubCategories(
-          tx,
-          createdSubCategory.id,
-          subCategory.subCategories,
-        );
-      }
+      await this.createSubCategoryTree(tx, parentId, subCategory);
     }
+  }
+
+  private async createSubCategoryTree(
+    tx: Prisma.TransactionClient,
+    parentId: string,
+    subCategory: ICategoryType,
+  ): Promise<void> {
+    const createdSubCategory = await tx.category.create({
+      data: {
+        id: subCategory.id,
+        ...this.getSubCategoryData(subCategory, parentId),
+      },
+    });
+
+    if (subCategory.subCategories?.length) {
+      await this.createSubCategories(
+        tx,
+        createdSubCategory.id,
+        subCategory.subCategories,
+      );
+    }
+  }
+
+  private getSubCategoryData(
+    subCategory: ICategoryType,
+    parentId: string,
+  ): Pick<
+    Prisma.CategoryUncheckedCreateInput,
+    'name' | 'cover' | 'description' | 'parentId' | 'tenantId'
+  > {
+    return {
+      name: subCategory.name,
+      cover: subCategory.cover,
+      description: subCategory.description,
+      parentId,
+      tenantId: subCategory.tenantId,
+    };
   }
 
   /**
    * Centralized error handling for database operations
    */
   private handleDatabaseError(error: unknown, operation: string): never {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      switch (error.code) {
-        case 'P2002': {
-          // Unique constraint violation
-          const field =
-            PrismaErrorUtils.extractFieldFromUniqueConstraintError(error);
-          throw new UniqueConstraintViolationError(
-            field,
-            `Category ${field} already exists`,
-          );
-        }
-        case 'P2003': {
-          // Foreign key constraint violation
-          const field = PrismaErrorUtils.extractFieldFromForeignKeyError(error);
-          const fieldToEntityMap: Record<string, string> = {
-            parentId: 'Parent Category',
-            tenantId: 'Tenant',
-          };
-          const relatedEntity = fieldToEntityMap[field] || 'Related Entity';
-          throw new ForeignKeyConstraintViolationError(field, relatedEntity);
-        }
-        case 'P2025': // Record not found
-          throw new ResourceNotFoundError('Category');
-        default:
-          break;
-      }
-    }
-
-    const errorMessage =
-      error instanceof Error ? error.message : JSON.stringify(error);
-    throw new DatabaseOperationError(
-      operation,
-      errorMessage,
-      error instanceof Error ? error : new Error(errorMessage),
-    );
+    return handlePrismaDatabaseError(error, operation, {
+      resource: 'Category',
+      foreignKeyEntities: {
+        parentId: 'Parent Category',
+        tenantId: 'Tenant',
+      },
+    });
   }
 
   /**

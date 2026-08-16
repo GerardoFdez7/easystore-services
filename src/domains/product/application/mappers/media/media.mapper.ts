@@ -1,5 +1,4 @@
-import { Entity } from '@shared/entity.base';
-import { Media, IMediaProps, IMediaType } from '../../../aggregates/entities';
+import { Media, IMediaType } from '../../../aggregates/entities';
 import {
   Id,
   Media as MediaVO,
@@ -19,18 +18,18 @@ export class MediaMapper {
    * @returns The mapped Media domain entity.
    */
   static fromPersistence(persistenceMedia: IMediaType): Media {
-    return Entity.fromPersistence<typeof persistenceMedia, IMediaProps, Media>(
-      Media,
-      persistenceMedia,
-      (model) => ({
-        id: Id.create(model.id),
-        url: MediaVO.create(model.url),
-        position: Position.create(model.position),
-        mediaType: MediaType.create(model.mediaType),
-        productId: model.productId ? Id.create(model.productId) : null,
-        variantId: model.variantId ? Id.create(model.variantId) : null,
-      }),
-    );
+    return Media.reconstitute({
+      id: Id.create(persistenceMedia.id),
+      url: MediaVO.create(persistenceMedia.url),
+      position: Position.create(persistenceMedia.position),
+      mediaType: MediaType.create(persistenceMedia.mediaType),
+      productId: persistenceMedia.productId
+        ? Id.create(persistenceMedia.productId)
+        : null,
+      variantId: persistenceMedia.variantId
+        ? Id.create(persistenceMedia.variantId)
+        : null,
+    });
   }
 
   /**

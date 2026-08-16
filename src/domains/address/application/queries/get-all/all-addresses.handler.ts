@@ -1,9 +1,10 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { IAddressRepository } from '../../../aggregates/repositories/address.interface';
-import { Id, AddressType } from '../../../aggregates/value-objects';
+import { AddressType } from '../../../aggregates/value-objects';
 import { AddressMapper, AllAddressDTO } from '../../mappers';
 import { GetAllAddressesDTO } from './all-addresses.dto';
+import { resolveAddressOwner } from '../../address-owner';
 
 @QueryHandler(GetAllAddressesDTO)
 export class GetAllAddressesHandler
@@ -18,12 +19,7 @@ export class GetAllAddressesHandler
     const { tenantId, customerId, options } = query;
     const { page, limit, name, addressType } = options || {};
 
-    if ((!tenantId && !customerId) || (tenantId && customerId)) {
-      throw new Error('You must provide either tenantId or customerId');
-    }
-    const owner = tenantId
-      ? { tenantId: Id.create(tenantId) }
-      : { customerId: Id.create(customerId) };
+    const owner = resolveAddressOwner(tenantId, customerId);
 
     // result contains paginated Address domain entities with metadata
     const result = await this.addressRepository.findAll(owner, {

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PostgreService } from '@database/postgres.service';
-import { PrismaErrorUtils } from '@utils/prisma-error-utils';
+import { handlePrismaDatabaseError } from '@utils/prisma-error-utils';
 import {
   Product as PrismaProduct,
   Variant as PrismaVariant,
@@ -13,7 +13,6 @@ import {
 } from '.prisma/postgres';
 import {
   ResourceNotFoundError,
-  UniqueConstraintViolationError,
   ForeignKeyConstraintViolationError,
   DatabaseOperationError,
 } from '@shared/errors';
@@ -37,6 +36,33 @@ import {
   ProductFilterMode,
   ProductFilterModeEnum,
 } from '../../../aggregates/value-objects';
+
+const productRelations = Prisma.validator<Prisma.ProductInclude>()({
+  media: true,
+  variants: {
+    include: {
+      attributes: true,
+      dimension: true,
+      variantMedia: true,
+      warranties: true,
+      installmentPayments: true,
+    },
+  },
+  categories: {
+    include: {
+      category: true,
+    },
+  },
+  sustainabilities: true,
+});
+
+const productRelationsWithSortedVariants = {
+  ...productRelations,
+  variants: {
+    ...productRelations.variants,
+    orderBy: { sku: 'asc' as const },
+  },
+};
 
 @Injectable()
 export class ProductRepository implements IProductRepository {
@@ -334,24 +360,7 @@ export class ProductRepository implements IProductRepository {
         // Return the created product with all relations
         return tx.product.findUniqueOrThrow({
           where: { id: newProductId },
-          include: {
-            media: true,
-            variants: {
-              include: {
-                attributes: true,
-                dimension: true,
-                variantMedia: true,
-                warranties: true,
-                installmentPayments: true,
-              },
-            },
-            categories: {
-              include: {
-                category: true,
-              },
-            },
-            sustainabilities: true,
-          },
+          include: productRelations,
         });
       });
 
@@ -377,24 +386,7 @@ export class ProductRepository implements IProductRepository {
             id: idValue,
             tenantId: tenantIdValue,
           },
-          include: {
-            media: true,
-            variants: {
-              include: {
-                attributes: true,
-                dimension: true,
-                variantMedia: true,
-                warranties: true,
-                installmentPayments: true,
-              },
-            },
-            categories: {
-              include: {
-                category: true,
-              },
-            },
-            sustainabilities: true,
-          },
+          include: productRelations,
         });
 
         if (!existingProduct) {
@@ -458,9 +450,6 @@ export class ProductRepository implements IProductRepository {
 
       return this.mapToDomain(prismaProduct);
     } catch (error) {
-      if (error instanceof ResourceNotFoundError) {
-        throw error;
-      }
       return this.handleDatabaseError(error, 'update product');
     }
   }
@@ -507,24 +496,7 @@ export class ProductRepository implements IProductRepository {
           tenantId: tenantIdValue,
           id: idValue,
         },
-        include: {
-          media: true,
-          variants: {
-            include: {
-              attributes: true,
-              dimension: true,
-              variantMedia: true,
-              warranties: true,
-              installmentPayments: true,
-            },
-          },
-          categories: {
-            include: {
-              category: true,
-            },
-          },
-          sustainabilities: true,
-        },
+        include: productRelations,
       });
       return this.mapToDomain(prismaProduct);
     } catch (error) {
@@ -701,27 +673,7 @@ export class ProductRepository implements IProductRepository {
         const [allProducts, totalCount] = await Promise.all([
           this.prisma.product.findMany({
             where: whereClause,
-            include: {
-              media: true,
-              variants: {
-                include: {
-                  attributes: true,
-                  dimension: true,
-                  variantMedia: true,
-                  warranties: true,
-                  installmentPayments: true,
-                },
-                orderBy: {
-                  sku: 'asc', // For consistent first variant selection
-                },
-              },
-              categories: {
-                include: {
-                  category: true,
-                },
-              },
-              sustainabilities: true,
-            },
+            include: productRelationsWithSortedVariants,
           }),
           this.prisma.product.count({ where: whereClause }),
         ]);
@@ -767,24 +719,7 @@ export class ProductRepository implements IProductRepository {
             skip,
             take,
             orderBy,
-            include: {
-              media: true,
-              variants: {
-                include: {
-                  attributes: true,
-                  dimension: true,
-                  variantMedia: true,
-                  warranties: true,
-                  installmentPayments: true,
-                },
-              },
-              categories: {
-                include: {
-                  category: true,
-                },
-              },
-              sustainabilities: true,
-            },
+            include: productRelations,
           }),
           this.prisma.product.count({ where: whereClause }),
         ]);
@@ -907,41 +842,13 @@ export class ProductRepository implements IProductRepository {
    * Centralized error handling for database operations
    */
   private handleDatabaseError(error: unknown, operation: string): never {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      switch (error.code) {
-        case 'P2002': {
-          // Unique constraint violation
-          const field =
-            PrismaErrorUtils.extractFieldFromUniqueConstraintError(error);
-          throw new UniqueConstraintViolationError(
-            field,
-            `Product ${field} already exists`,
-          );
-        }
-        case 'P2003': {
-          // Foreign key constraint violation
-          const field = PrismaErrorUtils.extractFieldFromForeignKeyError(error);
-          const fieldToEntityMap: Record<string, string> = {
-            tenantId: 'Tenant',
-            categoryId: 'Category',
-          };
-          const relatedEntity = fieldToEntityMap[field] || 'Related Entity';
-          throw new ForeignKeyConstraintViolationError(field, relatedEntity);
-        }
-        case 'P2025': // Record not found
-          throw new ResourceNotFoundError('Product');
-        default:
-          break;
-      }
-    }
-
-    const errorMessage =
-      error instanceof Error ? error.message : JSON.stringify(error);
-    throw new DatabaseOperationError(
-      operation,
-      errorMessage,
-      error instanceof Error ? error : new Error(errorMessage),
-    );
+    return handlePrismaDatabaseError(error, operation, {
+      resource: 'Product',
+      foreignKeyEntities: {
+        tenantId: 'Tenant',
+        categoryId: 'Category',
+      },
+    });
   }
 
   /**

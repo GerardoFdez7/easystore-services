@@ -13,17 +13,11 @@ import {
   Barcode,
   ISBN,
 } from '../../value-objects';
-import {
-  IVariantBase,
-  Media,
-  InstallmentPayment,
-  Warranty,
-  Entity,
-  EntityProps,
-} from '../';
+import { IVariantBase, Media, InstallmentPayment, Warranty } from '../';
+import { DomainEntity, DomainEntityProps } from '@shared/domain-entity.base';
 
 // Props for the Variant entity, using Value Objects
-export interface IVariantProps extends EntityProps {
+export interface IVariantProps extends DomainEntityProps {
   id: Id;
   attributes: Attribute[];
   price: Price;
@@ -47,9 +41,13 @@ export interface IVariantProps extends EntityProps {
   warranties: Warranty[];
 }
 
-export class Variant extends Entity<IVariantProps> {
-  constructor(props: IVariantProps) {
+export class Variant extends DomainEntity<IVariantProps> {
+  private constructor(props: IVariantProps) {
     super(props);
+  }
+
+  public static reconstitute(props: IVariantProps): Variant {
+    return new Variant(props);
   }
 
   public static create(props: IVariantBase): Variant {

@@ -1,7 +1,5 @@
 import {
-  Entity,
   InstallmentPayment,
-  IInstallmentPaymentProps,
   IInstallmentPaymentType,
 } from '../../../aggregates/entities';
 import { Id, Months, InterestRate } from '../../../aggregates/value-objects';
@@ -20,16 +18,14 @@ export class InstallmentPaymentMapper {
   static fromPersistence(
     persistenceInstallmentPayment: IInstallmentPaymentType,
   ): InstallmentPayment {
-    return Entity.fromPersistence<
-      typeof persistenceInstallmentPayment,
-      IInstallmentPaymentProps,
-      InstallmentPayment
-    >(InstallmentPayment, persistenceInstallmentPayment, (model) => ({
-      id: Id.create(model.id),
-      months: Months.create(model.months),
-      interestRate: InterestRate.create(model.interestRate),
-      variantId: Id.create(model.variantId),
-    }));
+    return InstallmentPayment.reconstitute({
+      id: Id.create(persistenceInstallmentPayment.id),
+      months: Months.create(persistenceInstallmentPayment.months),
+      interestRate: InterestRate.create(
+        persistenceInstallmentPayment.interestRate,
+      ),
+      variantId: Id.create(persistenceInstallmentPayment.variantId),
+    });
   }
 
   /**

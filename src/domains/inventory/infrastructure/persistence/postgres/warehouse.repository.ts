@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PostgreService } from '@database/postgres.service';
-import { PrismaErrorUtils } from '@utils/prisma-error-utils';
+import {
+  executeDatabaseOperation,
+  handlePrismaDatabaseError,
+} from '@utils/prisma-error-utils';
 import { Prisma, Warehouse as PrismaWarehouse } from '.prisma/postgres';
 import {
   ResourceNotFoundError,
   UniqueConstraintViolationError,
-  ForeignKeyConstraintViolationError,
-  DatabaseOperationError,
-  DomainError,
 } from '@shared/errors';
 import {
   Warehouse,
@@ -15,7 +15,7 @@ import {
 } from '../../../aggregates/entities';
 import { WarehouseMapper } from '../../../application/mappers';
 import { Id, SortBy, SortOrder } from '@shared/value-objects';
-import { StockMovement } from '../../../aggregates/value-objects/stockMovement/stock-movement.vo';
+import { StockMovement } from '../../../aggregates/value-objects/stock-movement/stock-movement.vo';
 import IWarehouseRepository from '../../../aggregates/repositories/warehouse.interface';
 
 @Injectable()
@@ -67,99 +67,103 @@ export default class WarehouseRepository implements IWarehouseRepository {
     const tenantIdValue = tenantId.getValue();
     const updatesDto = WarehouseMapper.toDto(updates);
 
-    try {
-      const prismaWarehouse = await this.prisma.$transaction(async (tx) => {
-        // Check if warehouse exists and get current state (excluding soft-deleted stocks)
-        const existingWarehouse = await tx.warehouse.findUnique({
-          where: {
-            id: idValue,
-            tenantId: tenantIdValue,
-          },
-          include: {
-            stockPerWarehouses: {
-              where: {
-                deletedAt: null,
-              },
-            },
-          },
-        });
-
-        if (!existingWarehouse) {
-          throw new ResourceNotFoundError('Warehouse', idValue);
-        }
-
-        // Update the warehouse basic info
-        await tx.warehouse.update({
-          where: {
-            id: idValue,
-            tenantId: tenantIdValue,
-          },
-          data: {
-            name: updatesDto.name,
-            addressId: updatesDto.addressId,
-            updatedAt: updatesDto.updatedAt,
-          },
-        });
-
-        // Handle stock operations for each stock in the updated warehouse
-        for (const updatedStock of updatesDto.stockPerWarehouses) {
-          // Check if stock already exists for this variant (including soft-deleted)
-          const existingStock = await tx.stockPerWarehouse.findFirst({
+    return executeDatabaseOperation(
+      async () => {
+        const prismaWarehouse = await this.prisma.$transaction(async (tx) => {
+          // Check if warehouse exists and get current state (excluding soft-deleted stocks)
+          const existingWarehouse = await tx.warehouse.findUnique({
             where: {
-              warehouseId: idValue,
-              variantId: updatedStock.variantId,
+              id: idValue,
+              tenantId: tenantIdValue,
+            },
+            include: {
+              stockPerWarehouses: {
+                where: {
+                  deletedAt: null,
+                },
+              },
             },
           });
 
-          let actualStockId: string;
+          if (!existingWarehouse) {
+            throw new ResourceNotFoundError('Warehouse', idValue);
+          }
 
-          if (existingStock) {
-            if (existingStock.deletedAt !== null) {
-              // Reactivate soft-deleted stock
-              await tx.stockPerWarehouse.update({
-                where: { id: existingStock.id },
-                data: {
-                  qtyAvailable: updatedStock.qtyAvailable,
-                  qtyReserved: updatedStock.qtyReserved,
-                  productLocation: updatedStock.productLocation,
-                  estimatedReplenishmentDate:
-                    updatedStock.estimatedReplenishmentDate,
-                  lotNumber: updatedStock.lotNumber,
-                  serialNumbers: updatedStock.serialNumbers,
-                  deletedAt: null, // Reactivate
-                },
-              });
-              actualStockId = existingStock.id;
+          // Update the warehouse basic info
+          await tx.warehouse.update({
+            where: {
+              id: idValue,
+              tenantId: tenantIdValue,
+            },
+            data: {
+              name: updatesDto.name,
+              addressId: updatesDto.addressId,
+              updatedAt: updatesDto.updatedAt,
+            },
+          });
 
-              // Create stock movement for reactivated stock (only if quantity changes)
-              const deltaQty =
-                updatedStock.qtyAvailable - existingStock.qtyAvailable;
-              if (deltaQty !== 0) {
-                const stockMovement = StockMovement.create(
-                  deltaQty,
-                  stockMovementContext?.reason,
-                  stockMovementContext?.createdById,
-                  new Date(),
-                );
+          // Handle stock operations for each stock in the updated warehouse
+          for (const updatedStock of updatesDto.stockPerWarehouses) {
+            // Check if stock already exists for this variant (including soft-deleted)
+            const existingStock = await tx.stockPerWarehouse.findFirst({
+              where: {
+                warehouseId: idValue,
+                variantId: updatedStock.variantId,
+              },
+            });
 
-                const movementData = stockMovement.getMovement();
-                await tx.stockMovement.create({
+            let actualStockId: string;
+
+            if (existingStock) {
+              if (existingStock.deletedAt !== null) {
+                // Reactivate soft-deleted stock
+                await tx.stockPerWarehouse.update({
+                  where: { id: existingStock.id },
                   data: {
-                    id: movementData.id,
-                    deltaQty: movementData.deltaQty,
-                    reason: movementData.reason,
-                    createdById: movementData.createdById,
-                    warehouseId: idValue,
-                    stockPerWarehouseId: actualStockId,
-                    occurredAt: movementData.occurredAt,
+                    ...this.getStockUpdateData(updatedStock),
+                    deletedAt: null, // Reactivate
                   },
                 });
+                actualStockId = existingStock.id;
+
+                // Create stock movement for reactivated stock (only if quantity changes)
+                const deltaQty =
+                  updatedStock.qtyAvailable - existingStock.qtyAvailable;
+                if (deltaQty !== 0) {
+                  await this.createStockMovement(
+                    tx,
+                    idValue,
+                    actualStockId,
+                    deltaQty,
+                    stockMovementContext,
+                  );
+                }
+              } else {
+                // Stock already exists and is active - update it
+                await tx.stockPerWarehouse.update({
+                  where: { id: existingStock.id },
+                  data: this.getStockUpdateData(updatedStock),
+                });
+                actualStockId = existingStock.id;
+
+                // Create stock movement for updated stock
+                const deltaQty =
+                  updatedStock.qtyAvailable - existingStock.qtyAvailable;
+                if (deltaQty !== 0) {
+                  await this.createStockMovement(
+                    tx,
+                    idValue,
+                    actualStockId,
+                    deltaQty,
+                    stockMovementContext,
+                  );
+                }
               }
             } else {
-              // Stock already exists and is active - update it
-              await tx.stockPerWarehouse.update({
-                where: { id: existingStock.id },
+              // Create new stock
+              const newStock = await tx.stockPerWarehouse.create({
                 data: {
+                  id: updatedStock.id,
                   qtyAvailable: updatedStock.qtyAvailable,
                   qtyReserved: updatedStock.qtyReserved,
                   productLocation: updatedStock.productLocation,
@@ -167,103 +171,46 @@ export default class WarehouseRepository implements IWarehouseRepository {
                     updatedStock.estimatedReplenishmentDate,
                   lotNumber: updatedStock.lotNumber,
                   serialNumbers: updatedStock.serialNumbers,
+                  variantId: updatedStock.variantId,
+                  warehouseId: idValue,
+                  deletedAt: null,
                 },
               });
-              actualStockId = existingStock.id;
+              actualStockId = newStock.id;
 
-              // Create stock movement for updated stock
-              const deltaQty =
-                updatedStock.qtyAvailable - existingStock.qtyAvailable;
-              if (deltaQty !== 0) {
-                const stockMovement = StockMovement.create(
-                  deltaQty,
-                  stockMovementContext?.reason,
-                  stockMovementContext?.createdById,
-                  new Date(),
-                );
-
-                const movementData = stockMovement.getMovement();
-                await tx.stockMovement.create({
-                  data: {
-                    id: movementData.id,
-                    deltaQty: movementData.deltaQty,
-                    reason: movementData.reason,
-                    createdById: movementData.createdById,
-                    warehouseId: idValue,
-                    stockPerWarehouseId: actualStockId,
-                    occurredAt: movementData.occurredAt,
-                  },
-                });
-              }
+              // Create stock movement for new stock
+              await this.createStockMovement(
+                tx,
+                idValue,
+                actualStockId,
+                updatedStock.qtyAvailable,
+                stockMovementContext,
+              );
             }
-          } else {
-            // Create new stock
-            const newStock = await tx.stockPerWarehouse.create({
-              data: {
-                id: updatedStock.id,
-                qtyAvailable: updatedStock.qtyAvailable,
-                qtyReserved: updatedStock.qtyReserved,
-                productLocation: updatedStock.productLocation,
-                estimatedReplenishmentDate:
-                  updatedStock.estimatedReplenishmentDate,
-                lotNumber: updatedStock.lotNumber,
-                serialNumbers: updatedStock.serialNumbers,
-                variantId: updatedStock.variantId,
-                warehouseId: idValue,
-                deletedAt: null,
-              },
-            });
-            actualStockId = newStock.id;
-
-            // Create stock movement for new stock
-            const stockMovement = StockMovement.create(
-              updatedStock.qtyAvailable,
-              stockMovementContext?.reason,
-              stockMovementContext?.createdById,
-              new Date(),
-            );
-
-            const movementData = stockMovement.getMovement();
-            await tx.stockMovement.create({
-              data: {
-                id: movementData.id,
-                deltaQty: movementData.deltaQty,
-                reason: movementData.reason,
-                createdById: movementData.createdById,
-                warehouseId: idValue,
-                stockPerWarehouseId: actualStockId,
-                occurredAt: movementData.occurredAt,
-              },
-            });
           }
-        }
 
-        // Fetch the updated warehouse with all stocks (excluding soft-deleted)
-        const finalWarehouse = await tx.warehouse.findUnique({
-          where: {
-            id: idValue,
-            tenantId: tenantIdValue,
-          },
-          include: {
-            stockPerWarehouses: {
-              where: {
-                deletedAt: null,
+          // Fetch the updated warehouse with all stocks (excluding soft-deleted)
+          const finalWarehouse = await tx.warehouse.findUnique({
+            where: {
+              id: idValue,
+              tenantId: tenantIdValue,
+            },
+            include: {
+              stockPerWarehouses: {
+                where: {
+                  deletedAt: null,
+                },
               },
             },
-          },
+          });
+
+          return finalWarehouse;
         });
 
-        return finalWarehouse;
-      });
-
-      return this.mapToDomain(prismaWarehouse);
-    } catch (error) {
-      // Check if it's a DomainError (which includes UniqueConstraintViolationError)
-      if (error instanceof DomainError) {
-        throw error;
-      }
-      return this.handleDatabaseError(error, 'update warehouse');
-    }
+        return this.mapToDomain(prismaWarehouse);
+      },
+      (error) => this.handleDatabaseError(error, 'update warehouse'),
+    );
   }
 
   /**
@@ -322,9 +269,6 @@ export default class WarehouseRepository implements IWarehouseRepository {
         });
       });
     } catch (error) {
-      if (error instanceof ResourceNotFoundError) {
-        throw error;
-      }
       return this.handleDatabaseError(error, 'delete warehouse');
     }
   }
@@ -367,25 +311,13 @@ export default class WarehouseRepository implements IWarehouseRepository {
         // Check if this is a removal operation (quantity set to 0 or negative)
         if (stockUpdate.qtyAvailable <= 0) {
           // Create negative stock movement BEFORE deletion
-          const stockMovement = StockMovement.create(
+          await this.createStockMovement(
+            tx,
+            warehouseIdValue,
+            existingStock.id,
             -existingStock.qtyAvailable,
-            stockMovementContext?.reason,
-            stockMovementContext?.createdById,
-            new Date(),
+            stockMovementContext,
           );
-
-          const movementData = stockMovement.getMovement();
-          await tx.stockMovement.create({
-            data: {
-              id: movementData.id,
-              deltaQty: movementData.deltaQty,
-              reason: movementData.reason,
-              createdById: movementData.createdById,
-              warehouseId: warehouseIdValue,
-              stockPerWarehouseId: existingStock.id,
-              occurredAt: movementData.occurredAt,
-            },
-          });
 
           // Soft delete the stock
           await tx.stockPerWarehouse.update({
@@ -411,25 +343,13 @@ export default class WarehouseRepository implements IWarehouseRepository {
             const deltaQty =
               stockUpdate.qtyAvailable - existingStock.qtyAvailable;
 
-            const stockMovement = StockMovement.create(
+            await this.createStockMovement(
+              tx,
+              warehouseIdValue,
+              existingStock.id,
               deltaQty,
-              stockMovementContext?.reason,
-              stockMovementContext?.createdById,
-              new Date(),
+              stockMovementContext,
             );
-
-            const movementData = stockMovement.getMovement();
-            await tx.stockMovement.create({
-              data: {
-                id: movementData.id,
-                deltaQty: movementData.deltaQty,
-                reason: movementData.reason,
-                createdById: movementData.createdById,
-                warehouseId: warehouseIdValue,
-                stockPerWarehouseId: existingStock.id,
-                occurredAt: movementData.occurredAt,
-              },
-            });
           }
 
           // Update the stock record
@@ -470,9 +390,6 @@ export default class WarehouseRepository implements IWarehouseRepository {
 
       return this.mapToDomain(prismaWarehouse);
     } catch (error) {
-      if (error instanceof ResourceNotFoundError) {
-        throw error;
-      }
       return this.handleDatabaseError(error, 'update single stock');
     }
   }
@@ -634,59 +551,70 @@ export default class WarehouseRepository implements IWarehouseRepository {
    * Centralized error handling for database operations
    */
   private handleDatabaseError(error: unknown, operation: string): never {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      switch (error.code) {
-        case 'P2002': {
-          // Unique constraint violation
-          const field =
-            PrismaErrorUtils.extractFieldFromUniqueConstraintError(error);
-          const target = error.meta?.target as string[] | undefined;
+    return handlePrismaDatabaseError(error, operation, {
+      resource: 'Warehouse',
+      foreignKeyEntities: {
+        addressId: 'Address',
+        tenantId: 'Tenant',
+        stockPerWarehouseId: 'StockPerWarehouse',
+        warehouseId: 'Warehouse',
+        variantId: 'Variant',
+        createdById: 'Employee',
+      },
+      uniqueConstraintError: (prismaError) => {
+        const target = prismaError.meta?.target as string[] | undefined;
 
-          // Handle StockPerWarehouse unique constraint specifically
-          if (
-            target &&
-            target.includes('warehouseId') &&
-            target.includes('variantId')
-          ) {
-            throw new UniqueConstraintViolationError(
-              'variantId',
-              `Stock for this variant already exists in the warehouse`,
-            );
-          }
-
-          throw new UniqueConstraintViolationError(
-            field,
-            `Warehouse ${field} already exists`,
+        if (target?.includes('warehouseId') && target.includes('variantId')) {
+          return new UniqueConstraintViolationError(
+            'variantId',
+            'Stock for this variant already exists in the warehouse',
           );
         }
-        case 'P2003': {
-          // Foreign key constraint violation
-          const field = PrismaErrorUtils.extractFieldFromForeignKeyError(error);
-          const fieldToEntityMap: Record<string, string> = {
-            addressId: 'Address',
-            tenantId: 'Tenant',
-            stockPerWarehouseId: 'StockPerWarehouse',
-            warehouseId: 'Warehouse',
-            variantId: 'Variant',
-            createdById: 'Employee',
-          };
-          const relatedEntity = fieldToEntityMap[field] || 'Related Entity';
-          throw new ForeignKeyConstraintViolationError(field, relatedEntity);
-        }
-        case 'P2025': // Record not found
-          throw new ResourceNotFoundError('Warehouse');
-        default:
-          break;
-      }
-    }
 
-    const errorMessage =
-      error instanceof Error ? error.message : JSON.stringify(error);
-    throw new DatabaseOperationError(
-      operation,
-      errorMessage,
-      error instanceof Error ? error : new Error(errorMessage),
+        return undefined;
+      },
+    });
+  }
+
+  private async createStockMovement(
+    tx: Prisma.TransactionClient,
+    warehouseId: string,
+    stockPerWarehouseId: string,
+    deltaQty: number,
+    context?: { reason?: string; createdById?: string },
+  ): Promise<void> {
+    const stockMovement = StockMovement.create(
+      deltaQty,
+      context?.reason,
+      context?.createdById,
+      new Date(),
     );
+    const movement = stockMovement.getMovement();
+
+    await tx.stockMovement.create({
+      data: {
+        id: movement.id,
+        deltaQty: movement.deltaQty,
+        reason: movement.reason,
+        createdById: movement.createdById,
+        warehouseId,
+        stockPerWarehouseId,
+        occurredAt: movement.occurredAt,
+      },
+    });
+  }
+
+  private getStockUpdateData(
+    stock: IStockPerWarehouseBase,
+  ): Prisma.StockPerWarehouseUncheckedUpdateInput {
+    return {
+      qtyAvailable: stock.qtyAvailable,
+      qtyReserved: stock.qtyReserved,
+      productLocation: stock.productLocation,
+      estimatedReplenishmentDate: stock.estimatedReplenishmentDate,
+      lotNumber: stock.lotNumber,
+      serialNumbers: stock.serialNumbers,
+    };
   }
 
   /**

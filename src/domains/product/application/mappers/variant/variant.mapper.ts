@@ -1,9 +1,4 @@
-import {
-  Entity,
-  Variant,
-  IVariantProps,
-  IVariantType,
-} from '../../../aggregates/entities';
+import { Variant, IVariantType } from '../../../aggregates/entities';
 import {
   Id,
   Attribute,
@@ -37,47 +32,51 @@ export class VariantMapper {
    * @returns The mapped Variant domain entity.
    */
   static fromPersistence(persistenceVariant: IVariantType): Variant {
-    return Entity.fromPersistence<
-      typeof persistenceVariant,
-      IVariantProps,
-      Variant
-    >(Variant, persistenceVariant, (model) => ({
-      id: Id.create(model.id),
-      attributes: (model.attributes || []).map((attr) =>
+    return Variant.reconstitute({
+      id: Id.create(persistenceVariant.id),
+      attributes: (persistenceVariant.attributes || []).map((attr) =>
         Attribute.create(attr.key, attr.value),
       ),
-      price: Price.create(Number(model.price)),
-      variantCover: model.variantCover
-        ? Media.create(model.variantCover)
+      price: Price.create(Number(persistenceVariant.price)),
+      variantCover: persistenceVariant.variantCover
+        ? Media.create(persistenceVariant.variantCover)
         : null,
-      personalizationOptions: model.personalizationOptions
-        ? model.personalizationOptions.map((opt) =>
+      personalizationOptions: persistenceVariant.personalizationOptions
+        ? persistenceVariant.personalizationOptions.map((opt) =>
             PersonalizationOptions.create(opt),
           )
         : [],
-      weight: model.weight ? Weight.create(model.weight) : null,
-      dimension: model.dimension ? Dimension.create(model.dimension) : null,
-      condition: Condition.create(model.condition),
-      upc: model.upc ? UPC.create(model.upc) : null,
-      ean: model.ean ? EAN.create(model.ean) : null,
-      sku: SKU.create(model.sku),
-      barcode: model.barcode ? Barcode.create(model.barcode) : null,
-      isbn: model.isbn ? ISBN.create(model.isbn) : null,
-      isArchived: model.isArchived,
-      productId: Id.create(model.productId),
-      tenantId: Id.create(model.tenantId),
-      updatedAt: model.updatedAt,
-      createdAt: model.createdAt,
-      variantMedia: (model.variantMedia || []).map((mediaItem) =>
+      weight: persistenceVariant.weight
+        ? Weight.create(persistenceVariant.weight)
+        : null,
+      dimension: persistenceVariant.dimension
+        ? Dimension.create(persistenceVariant.dimension)
+        : null,
+      condition: Condition.create(persistenceVariant.condition),
+      upc: persistenceVariant.upc ? UPC.create(persistenceVariant.upc) : null,
+      ean: persistenceVariant.ean ? EAN.create(persistenceVariant.ean) : null,
+      sku: SKU.create(persistenceVariant.sku),
+      barcode: persistenceVariant.barcode
+        ? Barcode.create(persistenceVariant.barcode)
+        : null,
+      isbn: persistenceVariant.isbn
+        ? ISBN.create(persistenceVariant.isbn)
+        : null,
+      isArchived: persistenceVariant.isArchived,
+      productId: Id.create(persistenceVariant.productId),
+      tenantId: Id.create(persistenceVariant.tenantId),
+      updatedAt: persistenceVariant.updatedAt,
+      createdAt: persistenceVariant.createdAt,
+      variantMedia: (persistenceVariant.variantMedia || []).map((mediaItem) =>
         MediaMapper.fromPersistence(mediaItem),
       ),
-      warranties: (model.warranties || []).map((warrantyItem) =>
+      warranties: (persistenceVariant.warranties || []).map((warrantyItem) =>
         WarrantyMapper.fromPersistence(warrantyItem),
       ),
-      installmentPayments: (model.installmentPayments || []).map(
+      installmentPayments: (persistenceVariant.installmentPayments || []).map(
         (paymentItem) => InstallmentPaymentMapper.fromPersistence(paymentItem),
       ),
-    }));
+    });
   }
 
   /**

@@ -1,0 +1,81 @@
+rules:
+  - id: ddd.aggregate-imports-outside-layer
+    message: Aggregate code must not import application, infrastructure, or presentation layers.
+    severity: ERROR
+    languages: [typescript]
+    paths:
+      include:
+        - /src/domains/*/aggregates/**/*.ts
+    patterns:
+      - pattern-either:
+          - pattern: import $DEFAULT from "$SOURCE"
+          - pattern: import { $...MEMBERS } from "$SOURCE"
+          - pattern: import * as $NAMESPACE from "$SOURCE"
+      - metavariable-regex:
+          metavariable: $SOURCE
+          regex: (^|/)(application|infrastructure|presentation)(/|$)
+
+  - id: ddd.aggregate-unapproved-external-dependency
+    message: This external package is not approved for the aggregates layer.
+    severity: ERROR
+    languages: [typescript]
+    paths:
+      include:
+        - /src/domains/*/aggregates/**/*.ts
+    patterns:
+      - pattern-either:
+          - pattern: import $DEFAULT from "$SOURCE"
+          - pattern: import { $...MEMBERS } from "$SOURCE"
+          - pattern: import * as $NAMESPACE from "$SOURCE"
+      - metavariable-regex:
+          metavariable: $SOURCE
+          regex: ^(?!(?:\.|@shared/|@nestjs/cqrs$|zod(?:/v4)?$)).+
+
+  - id: ddd.entity-base-import-must-be-direct
+    message: Aggregate roots must import Entity and EntityProps directly from @shared/entity.base.
+    severity: ERROR
+    languages: [typescript]
+    paths:
+      include:
+        - /src/domains/address/aggregates/entities/address/address.entity.ts
+        - /src/domains/authentication/aggregates/entities/auth/authentication.entity.ts
+        - /src/domains/cart/aggregates/entities/cart.entity.ts
+        - /src/domains/category/aggregates/entities/category/category.entity.ts
+        - /src/domains/inventory/aggregates/entities/warehouse/warehouse.entity.ts
+        - /src/domains/product/aggregates/entities/product/product.entity.ts
+        - /src/domains/tenant/aggregates/entities/tenant/tenant.entity.ts
+    patterns:
+      - pattern: import { $...BEFORE, Entity, $...AFTER } from "$SOURCE"
+      - metavariable-regex:
+          metavariable: $SOURCE
+          regex: ^(?!@shared/entity\.base$).+
+
+  - id: ddd.entity-must-extend-entity
+    message: Aggregate roots must extend Entity<TProps>.
+    severity: ERROR
+    languages: [typescript]
+    paths:
+      include:
+        - /src/domains/address/aggregates/entities/address/address.entity.ts
+        - /src/domains/authentication/aggregates/entities/auth/authentication.entity.ts
+        - /src/domains/cart/aggregates/entities/cart.entity.ts
+        - /src/domains/category/aggregates/entities/category/category.entity.ts
+        - /src/domains/inventory/aggregates/entities/warehouse/warehouse.entity.ts
+        - /src/domains/product/aggregates/entities/product/product.entity.ts
+        - /src/domains/tenant/aggregates/entities/tenant/tenant.entity.ts
+    patterns:
+      - pattern: export class $ENTITY extends $BASE { ... }
+      - pattern-not: export class $ENTITY extends Entity<$PROPS> { ... }
+
+  - id: ddd.entity-no-string-key-access
+    message: Use typed props or an explicit getter instead of string-key get(...).
+    severity: ERROR
+    languages: [typescript]
+    paths:
+      include:
+        - /src/domains/*/aggregates/entities/**/*.entity.ts
+    patterns:
+      - pattern: $ENTITY.get($KEY)
+      - metavariable-regex:
+          metavariable: $KEY
+          regex: ^['"].*['"]$

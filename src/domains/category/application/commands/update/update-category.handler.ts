@@ -1,9 +1,10 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
-import { NotFoundException, Inject } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { UpdateCategoryDTO } from './update-category.dto';
 import ICategoryRepository from '../../../aggregates/repositories/category.interface';
 import { CategoryMapper, CategoryDTO } from '../../mappers';
 import { Id } from '../../../aggregates/value-objects';
+import { findCategoryOrThrow } from '../find-category-or-throw';
 
 @CommandHandler(UpdateCategoryDTO)
 export class UpdateCategoryHandler
@@ -21,13 +22,11 @@ export class UpdateCategoryHandler
     const tenantId = Id.create(command.tenantId);
 
     // Find the category by ID
-    const category = await this.categoryRepository.findById(
+    const category = await findCategoryOrThrow(
+      this.categoryRepository,
       categoryId,
       tenantId,
     );
-    if (!category) {
-      throw new NotFoundException(`Category with ID ${command.id} not found`);
-    }
 
     // Update the category using the domain method
     const updatedCategory = this.eventPublisher.mergeObjectContext(

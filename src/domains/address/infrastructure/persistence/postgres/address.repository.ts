@@ -1,13 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PostgreService } from '@database/postgres.service';
-import { PrismaErrorUtils } from '@utils/prisma-error-utils';
+import { handlePrismaDatabaseError } from '@utils/prisma-error-utils';
 import { Prisma, Address as prismaAddress } from '.prisma/postgres';
-import {
-  ResourceNotFoundError,
-  UniqueConstraintViolationError,
-  ForeignKeyConstraintViolationError,
-  DatabaseOperationError,
-} from '@shared/errors';
+import { ResourceNotFoundError } from '@shared/errors';
 import { Address, IAddressType } from '../../../aggregates/entities';
 import {
   IAddressRepository,
@@ -61,15 +56,7 @@ export default class AddressRepository implements IAddressRepository {
       const prismaAddress = await this.prisma.$transaction(async (tsx) => {
         //Update the address
         await tsx.address.update({
-          where: {
-            id: idValue,
-            ...('tenantId' in owner
-              ? { tenantId: owner.tenantId.getValue() }
-              : {}),
-            ...('customerId' in owner
-              ? { customerId: owner.customerId.getValue() }
-              : {}),
-          },
+          where: this.getOwnerWhere(idValue, owner),
           data: {
             name: updatesDto.name,
             addressLine1: updatesDto.addressLine1,
@@ -92,9 +79,6 @@ export default class AddressRepository implements IAddressRepository {
 
       return this.mapToDomain(prismaAddress);
     } catch (error) {
-      if (error instanceof ResourceNotFoundError) {
-        throw error;
-      }
       return this.handleDatabaseError(error, 'update address');
     }
   }
@@ -104,15 +88,7 @@ export default class AddressRepository implements IAddressRepository {
     try {
       await this.prisma.$transaction(async (tx) => {
         const address = await tx.address.findFirst({
-          where: {
-            id: idValue,
-            ...('tenantId' in owner
-              ? { tenantId: owner.tenantId.getValue() }
-              : {}),
-            ...('customerId' in owner
-              ? { customerId: owner.customerId.getValue() }
-              : {}),
-          },
+          where: this.getOwnerWhere(idValue, owner),
         });
 
         if (!address) {
@@ -121,15 +97,7 @@ export default class AddressRepository implements IAddressRepository {
 
         //Delete the address
         await tx.address.delete({
-          where: {
-            id: idValue,
-            ...('tenantId' in owner
-              ? { tenantId: owner.tenantId.getValue() }
-              : {}),
-            ...('customerId' in owner
-              ? { customerId: owner.customerId.getValue() }
-              : {}),
-          },
+          where: this.getOwnerWhere(idValue, owner),
         });
       });
     } catch (error) {
@@ -146,15 +114,7 @@ export default class AddressRepository implements IAddressRepository {
     const idValue = id.getValue();
     try {
       const prismaAddress = await this.prisma.address.findFirst({
-        where: {
-          id: idValue,
-          ...('tenantId' in owner
-            ? { tenantId: owner.tenantId.getValue() }
-            : {}),
-          ...('customerId' in owner
-            ? { customerId: owner.customerId.getValue() }
-            : {}),
-        },
+        where: this.getOwnerWhere(idValue, owner),
       });
 
       if (!prismaAddress) {
@@ -267,41 +227,25 @@ export default class AddressRepository implements IAddressRepository {
    * Centralized error handling for database operations
    */
   private handleDatabaseError(error: unknown, operation: string): never {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      switch (error.code) {
-        case 'P2002': {
-          // Unique constraint violation
-          const field =
-            PrismaErrorUtils.extractFieldFromUniqueConstraintError(error);
-          throw new UniqueConstraintViolationError(
-            field,
-            `Address ${field} already exists`,
-          );
-        }
-        case 'P2003': {
-          // Foreign key constraint violation
-          const field = PrismaErrorUtils.extractFieldFromForeignKeyError(error);
-          const fieldToEntityMap: Record<string, string> = {
-            customerId: 'Customer',
-            tenantId: 'Tenant',
-          };
-          const relatedEntity = fieldToEntityMap[field] || 'Related Entity';
-          throw new ForeignKeyConstraintViolationError(field, relatedEntity);
-        }
-        case 'P2025': // Record not found
-          throw new ResourceNotFoundError('Address');
-        default:
-          break;
-      }
-    }
+    return handlePrismaDatabaseError(error, operation, {
+      resource: 'Address',
+      foreignKeyEntities: {
+        customerId: 'Customer',
+        tenantId: 'Tenant',
+      },
+    });
+  }
 
-    const errorMessage =
-      error instanceof Error ? error.message : JSON.stringify(error);
-    throw new DatabaseOperationError(
-      operation,
-      errorMessage,
-      error instanceof Error ? error : new Error(errorMessage),
-    );
+  private getOwnerWhere(
+    id: string,
+    owner: Owner,
+  ): Prisma.AddressWhereUniqueInput {
+    return {
+      id,
+      ...('tenantId' in owner
+        ? { tenantId: owner.tenantId.getValue() }
+        : { customerId: owner.customerId.getValue() }),
+    };
   }
 
   /**

@@ -1,16 +1,21 @@
 import { Id, Certification, RecycledPercentage } from '../../value-objects';
-import { ISustainabilityBase, Entity, EntityProps } from '..';
+import { DomainEntity, DomainEntityProps } from '@shared/domain-entity.base';
+import { ISustainabilityBase } from '..';
 
-export interface ISustainabilityProps extends EntityProps {
+export interface ISustainabilityProps extends DomainEntityProps {
   id: Id;
   certification: Certification;
   recycledPercentage: RecycledPercentage;
   productId: Id;
 }
 
-export class Sustainability extends Entity<ISustainabilityProps> {
-  constructor(props: ISustainabilityProps) {
+export class Sustainability extends DomainEntity<ISustainabilityProps> {
+  private constructor(props: ISustainabilityProps) {
     super(props);
+  }
+
+  public static reconstitute(props: ISustainabilityProps): Sustainability {
+    return new Sustainability(props);
   }
 
   public static create(props: ISustainabilityBase): Sustainability {

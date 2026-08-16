@@ -1,13 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import bcrypt from 'bcrypt';
 import { PostgreService } from '@database/postgres.service';
-import { Prisma, AuthIdentity as PrismaAuthIdentity } from '.prisma/postgres';
+import { AuthIdentity as PrismaAuthIdentity } from '.prisma/postgres';
 import {
   ResourceNotFoundError,
   UniqueConstraintViolationError,
-  DatabaseOperationError,
 } from '@shared/errors';
-import { PrismaErrorUtils } from '@utils/prisma-error-utils';
+import { handlePrismaDatabaseError } from '@utils/prisma-error-utils';
 import { AuthenticationMapper } from '../../../application/mappers';
 import { AuthIdentity, IAuthIdentityType } from '../../../aggregates/entities';
 import { IAuthRepository } from '../../../aggregates/repositories/authentication.interface';
@@ -91,9 +90,6 @@ export class AuthenticationRepository implements IAuthRepository {
 
       return this.mapToDomain(prismaAuth);
     } catch (error) {
-      if (error instanceof ResourceNotFoundError) {
-        throw error;
-      }
       return this.handleDatabaseError(error, 'update auth identity');
     }
   }
@@ -143,30 +139,9 @@ export class AuthenticationRepository implements IAuthRepository {
    * Centralized error handling for database operations
    */
   private handleDatabaseError(error: unknown, operation: string): never {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      switch (error.code) {
-        case 'P2002': {
-          const field =
-            PrismaErrorUtils.extractFieldFromUniqueConstraintError(error);
-          throw new UniqueConstraintViolationError(
-            field,
-            `AuthIdentity ${field} already exists`,
-          );
-        }
-        case 'P2025':
-          throw new ResourceNotFoundError('AuthIdentity');
-        default:
-          break;
-      }
-    }
-
-    const errorMessage =
-      error instanceof Error ? error.message : JSON.stringify(error);
-    throw new DatabaseOperationError(
-      operation,
-      errorMessage,
-      error instanceof Error ? error : new Error(errorMessage),
-    );
+    return handlePrismaDatabaseError(error, operation, {
+      resource: 'AuthIdentity',
+    });
   }
 
   /**

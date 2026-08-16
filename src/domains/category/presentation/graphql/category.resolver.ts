@@ -1,13 +1,14 @@
 import {
   ID,
-  Int,
   Resolver,
   Mutation,
   Args,
   Query,
   registerEnumType,
 } from '@nestjs/graphql';
+import { optionalArg } from '@common/graphql/argument-options';
 import { CurrentUser, JwtPayload } from '@common/decorators';
+import { PaginationArgs } from '@common/graphql/pagination.args';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   CategoryType,
@@ -91,19 +92,16 @@ export default class CategoryResolver {
   @Query(() => PaginatedCategoriesType)
   async getAllCategories(
     @CurrentUser() user: JwtPayload,
-    @Args('page', { defaultValue: 1, nullable: true, type: () => Int })
-    page?: number,
-    @Args('limit', { defaultValue: 10, nullable: true, type: () => Int })
-    limit?: number,
-    @Args('name', { nullable: true, type: () => String }) name?: string,
-    @Args('parentId', { nullable: true, type: () => ID })
-    parentId?: string,
+    @Args() pagination: PaginationArgs,
+    @Args('parentId', optionalArg(() => ID)) parentId?: string,
     @Args('includeSubcategories', { defaultValue: true, nullable: true })
     includeSubcategories?: boolean,
-    @Args('sortBy', { nullable: true, type: () => SortBy }) sortBy?: SortBy,
-    @Args('sortOrder', { nullable: true, type: () => SortOrder })
+    @Args('sortBy', optionalArg(() => SortBy)) sortBy?: SortBy,
+    @Args('sortOrder', optionalArg(() => SortOrder))
     sortOrder?: SortOrder,
   ): Promise<PaginatedCategoriesDTO> {
+    const { page, limit, name } = pagination;
+
     return this.queryBus.execute(
       new GetAllCategoriesDTO(user.tenantId, {
         page,

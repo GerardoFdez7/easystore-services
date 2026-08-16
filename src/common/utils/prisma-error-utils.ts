@@ -1,4 +1,20 @@
 import { Prisma } from '.prisma/postgres';
+import {
+  DatabaseOperationError,
+  DomainError,
+  ForeignKeyConstraintViolationError,
+  ResourceNotFoundError,
+  UniqueConstraintViolationError,
+} from '@shared/errors';
+
+interface PrismaDatabaseErrorOptions {
+  resource: string;
+  foreignKeyEntities?: Readonly<Record<string, string>>;
+  uniqueConstraintError?: (
+    error: Prisma.PrismaClientKnownRequestError,
+    field: string,
+  ) => UniqueConstraintViolationError | undefined;
+}
 
 /**
  * Utility functions for handling Prisma errors across all domains
@@ -30,5 +46,66 @@ export class PrismaErrorUtils {
   ): string {
     const field = error.meta?.field_name as string | undefined;
     return field || 'unknown field';
+  }
+}
+
+/**
+ * Translates infrastructure-specific Prisma failures into shared domain errors.
+ */
+export function handlePrismaDatabaseError(
+  error: unknown,
+  operation: string,
+  options: PrismaDatabaseErrorOptions,
+): never {
+  if (error instanceof DomainError) {
+    throw error;
+  }
+
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (error.code === 'P2002') {
+      const field =
+        PrismaErrorUtils.extractFieldFromUniqueConstraintError(error);
+      const customError = options.uniqueConstraintError?.(error, field);
+
+      throw (
+        customError ??
+        new UniqueConstraintViolationError(
+          field,
+          `${options.resource} ${field} already exists`,
+        )
+      );
+    }
+
+    if (error.code === 'P2003') {
+      const field = PrismaErrorUtils.extractFieldFromForeignKeyError(error);
+      const relatedEntity =
+        options.foreignKeyEntities?.[field] ?? 'Related Entity';
+
+      throw new ForeignKeyConstraintViolationError(field, relatedEntity);
+    }
+
+    if (error.code === 'P2025') {
+      throw new ResourceNotFoundError(options.resource);
+    }
+  }
+
+  const errorMessage =
+    error instanceof Error ? error.message : JSON.stringify(error);
+
+  throw new DatabaseOperationError(
+    operation,
+    errorMessage,
+    error instanceof Error ? error : new Error(errorMessage),
+  );
+}
+
+export async function executeDatabaseOperation<T>(
+  operation: () => Promise<T>,
+  handleError: (error: unknown) => never,
+): Promise<T> {
+  try {
+    return await operation();
+  } catch (error) {
+    return handleError(error);
   }
 }

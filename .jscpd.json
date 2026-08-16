@@ -1,0 +1,18 @@
+{
+  "path": ["src"],
+  "threshold": 0.1,
+  "minLines": 5,
+  "minTokens": 50,
+  "reporters": ["console"],
+  "ignore": [
+    "**/__tests__/**",
+    "**/*.spec.ts",
+    "**/migrations/**",
+    "**/aggregates/repositories/*.interface.ts",
+    "**/presentation/graphql/types/**",
+    "**/infrastructure/adapters/*.adapter.ts",
+    "domains/shared/domain-entity.base.ts",
+    "domains/shared/entity.base.ts"
+  ],
+  "gitignore": true
+}

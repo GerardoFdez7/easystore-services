@@ -1,7 +1,5 @@
 import {
-  Entity,
   ProductCategories,
-  IProductCategoriesProps,
   IProductCategoriesType,
 } from '../../../aggregates/entities';
 import { Id } from '../../../aggregates/value-objects';
@@ -20,15 +18,11 @@ export class ProductCategoriesMapper {
   static fromPersistence(
     persistenceProductCategories: IProductCategoriesType,
   ): ProductCategories {
-    return Entity.fromPersistence<
-      typeof persistenceProductCategories,
-      IProductCategoriesProps,
-      ProductCategories
-    >(ProductCategories, persistenceProductCategories, (model) => ({
-      id: Id.create(model.id),
-      productId: Id.create(model.productId),
-      categoryId: Id.create(model.categoryId),
-    }));
+    return ProductCategories.reconstitute({
+      id: Id.create(persistenceProductCategories.id),
+      productId: Id.create(persistenceProductCategories.productId),
+      categoryId: Id.create(persistenceProductCategories.categoryId),
+    });
   }
 
   /**

@@ -6,6 +6,7 @@ import {
   Query,
   registerEnumType,
 } from '@nestjs/graphql';
+import { optionalArg, pageArg } from '@common/graphql/argument-options';
 import { CurrentUser, JwtPayload } from '@common/decorators';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
@@ -156,14 +157,14 @@ export class ProductResolver {
   @Query(() => PaginatedProductsType)
   async getAllProducts(
     @CurrentUser() user: JwtPayload,
-    @Args('page', { defaultValue: 1, nullable: true }) page?: number,
-    @Args('limit', { defaultValue: 25, nullable: true }) limit?: number,
-    @Args('name', { nullable: true }) name?: string,
-    @Args('categoriesIds', { nullable: true, type: () => [ID] })
+    @Args('page', pageArg(1)) page?: number,
+    @Args('limit', pageArg(25)) limit?: number,
+    @Args('name', optionalArg(() => String)) name?: string,
+    @Args('categoriesIds', optionalArg(() => [ID]))
     categoriesIds?: string[],
-    @Args('type', { nullable: true, type: () => TypeEnum }) type?: TypeEnum,
-    @Args('sortBy', { nullable: true, type: () => SortBy }) sortBy?: SortBy,
-    @Args('sortOrder', { nullable: true, type: () => SortOrder })
+    @Args('type', optionalArg(() => TypeEnum)) type?: TypeEnum,
+    @Args('sortBy', optionalArg(() => SortBy)) sortBy?: SortBy,
+    @Args('sortOrder', optionalArg(() => SortOrder))
     sortOrder?: SortOrder,
     @Args('filterMode', {
       defaultValue: ProductFilterModeEnum.ALL,

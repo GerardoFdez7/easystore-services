@@ -63,7 +63,7 @@ export class AuthenticationMapper {
    * @returns The mapped AuthIdentity domain entity
    */
   static fromRegisterDto(dto: AuthenticationRegisterDTO): AuthIdentity {
-    return AuthIdentity.register(dto.data);
+    return AuthIdentity.create(dto.data);
   }
 
   /**

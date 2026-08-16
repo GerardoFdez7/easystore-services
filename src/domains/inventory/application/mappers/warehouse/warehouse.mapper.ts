@@ -7,7 +7,7 @@ import {
 } from '../../../aggregates/entities';
 import { Name } from '../../../aggregates/value-objects';
 import { WarehouseDTO, PaginatedWarehousesDTO } from './warehouse.dto';
-import { StockPerWarehouseMapper } from '../stockPerWarehouse/stock-per-warehouse.mapper';
+import { StockPerWarehouseMapper } from '../stock-per-warehouse/stock-per-warehouse.mapper';
 import { Id } from '@shared/value-objects';
 
 /**

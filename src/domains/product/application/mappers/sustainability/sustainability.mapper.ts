@@ -1,7 +1,5 @@
 import {
-  Entity,
   Sustainability,
-  ISustainabilityProps,
   ISustainabilityType,
 } from '../../../aggregates/entities';
 import {
@@ -24,18 +22,16 @@ export class SustainabilityMapper {
   static fromPersistence(
     persistenceSustainability: ISustainabilityType,
   ): Sustainability {
-    return Entity.fromPersistence<
-      typeof persistenceSustainability,
-      ISustainabilityProps,
-      Sustainability
-    >(Sustainability, persistenceSustainability, (model) => ({
-      id: Id.create(model.id),
-      certification: model.certification
-        ? Certification.create(model.certification)
+    return Sustainability.reconstitute({
+      id: Id.create(persistenceSustainability.id),
+      certification: persistenceSustainability.certification
+        ? Certification.create(persistenceSustainability.certification)
         : null,
-      recycledPercentage: RecycledPercentage.create(model.recycledPercentage),
-      productId: Id.create(model.productId),
-    }));
+      recycledPercentage: RecycledPercentage.create(
+        persistenceSustainability.recycledPercentage,
+      ),
+      productId: Id.create(persistenceSustainability.productId),
+    });
   }
 
   /**

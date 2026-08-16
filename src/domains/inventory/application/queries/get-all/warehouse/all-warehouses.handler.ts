@@ -5,7 +5,7 @@ import { GetAllWarehousesDTO } from './all-warehouses.dto';
 import { WarehouseMapper, PaginatedWarehousesDTO } from '../../../mappers';
 import { Id, SortOrder } from '../../../../aggregates/value-objects';
 import { IProductAdapter, IAddressAdapter } from '../../../ports';
-import { IStockPerWarehouseType } from '../../../../aggregates/entities/stockPerWarehouse/stock-per-warehouse.attributes';
+import { IStockPerWarehouseType } from '../../../../aggregates/entities/stock-per-warehouse/stock-per-warehouse.attributes';
 
 @QueryHandler(GetAllWarehousesDTO)
 export class GetAllWarehousesHandler

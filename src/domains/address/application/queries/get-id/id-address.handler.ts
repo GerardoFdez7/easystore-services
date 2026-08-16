@@ -4,6 +4,7 @@ import { IAddressRepository } from '../../../aggregates/repositories/address.int
 import { Id } from '../../../aggregates/value-objects';
 import { AddressMapper, AddressDTO } from '../../mappers';
 import { GetAddressIdDto } from './id-address.dto';
+import { resolveAddressOwner } from '../../address-owner';
 
 @QueryHandler(GetAddressIdDto)
 export class GetAddressByIdHandler implements IQueryHandler<GetAddressIdDto> {
@@ -15,13 +16,7 @@ export class GetAddressByIdHandler implements IQueryHandler<GetAddressIdDto> {
   async execute(query: GetAddressIdDto): Promise<AddressDTO> {
     const { id, tenantId, customerId } = query;
 
-    if ((!tenantId && !customerId) || (tenantId && customerId)) {
-      throw new Error('You must provide either tenantId or customerId');
-    }
-
-    const owner = tenantId
-      ? { tenantId: Id.create(tenantId) }
-      : { customerId: Id.create(customerId) };
+    const owner = resolveAddressOwner(tenantId, customerId);
 
     const address = await this.addressRepository.findById(Id.create(id), owner);
     if (!address) {

@@ -4,7 +4,7 @@ import { IWarehouseRepository } from '../../../../aggregates/repositories';
 import { UpdateWarehouseDTO } from './update-warehouse.dto';
 import { WarehouseMapper, WarehouseDTO } from '../../../mappers';
 import { Id } from '@shared/value-objects';
-import { NotFoundException } from '@nestjs/common';
+import { findWarehouseOrThrow } from '../../find-warehouse-or-throw';
 
 @CommandHandler(UpdateWarehouseDTO)
 export class UpdateWarehouseHandler
@@ -17,13 +17,11 @@ export class UpdateWarehouseHandler
   ) {}
 
   async execute(command: UpdateWarehouseDTO): Promise<WarehouseDTO> {
-    const warehouse = await this.warehouseRepository.findById(
-      Id.create(command.id),
-      Id.create(command.tenantId),
+    const warehouse = await findWarehouseOrThrow(
+      this.warehouseRepository,
+      command.id,
+      command.tenantId,
     );
-    if (!warehouse) {
-      throw new NotFoundException(`Warehouse with id ${command.id} not found`);
-    }
 
     const updatedWarehouse = this.eventPublisher.mergeObjectContext(
       WarehouseMapper.fromUpdateDto(warehouse, command.data),

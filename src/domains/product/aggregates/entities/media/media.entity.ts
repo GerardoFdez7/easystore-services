@@ -1,7 +1,8 @@
 import { Id, Media as MediaVO, Position, MediaType } from '../../value-objects';
-import { IMediaBase, Entity, EntityProps } from '../';
+import { DomainEntity, DomainEntityProps } from '@shared/domain-entity.base';
+import { IMediaBase } from '../';
 
-export interface IMediaProps extends EntityProps {
+export interface IMediaProps extends DomainEntityProps {
   id: Id;
   url: MediaVO;
   position: Position;
@@ -10,9 +11,13 @@ export interface IMediaProps extends EntityProps {
   variantId?: Id;
 }
 
-export class Media extends Entity<IMediaProps> {
-  constructor(props: IMediaProps) {
+export class Media extends DomainEntity<IMediaProps> {
+  private constructor(props: IMediaProps) {
     super(props);
+  }
+
+  public static reconstitute(props: IMediaProps): Media {
+    return new Media(props);
   }
 
   public static create(props: IMediaBase): Media {

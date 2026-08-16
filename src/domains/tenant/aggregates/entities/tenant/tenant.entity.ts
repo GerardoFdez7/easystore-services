@@ -21,8 +21,12 @@ export interface ITenantProps extends EntityProps {
 }
 
 export class Tenant extends Entity<ITenantProps> {
-  constructor(props: ITenantProps) {
+  private constructor(props: ITenantProps) {
     super(props);
+  }
+
+  static reconstitute(props: ITenantProps): Tenant {
+    return new Tenant(props);
   }
 
   // Factory method to create a new Tenant

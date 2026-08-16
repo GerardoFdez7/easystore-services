@@ -1,13 +1,14 @@
 import {
   ID,
-  Int,
   Resolver,
   Mutation,
   Args,
   Query,
   registerEnumType,
 } from '@nestjs/graphql';
+import { optionalArg, pageArg } from '@common/graphql/argument-options';
 import { CurrentUser, JwtPayload } from '@common/decorators';
+import { PaginationArgs } from '@common/graphql/pagination.args';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   WarehouseType,
@@ -160,16 +161,10 @@ export default class InventoryResolver {
   @Query(() => PaginatedWarehousesType)
   async getAllWarehouses(
     @CurrentUser() user: JwtPayload,
-    @Args('page', { defaultValue: 1, nullable: true, type: () => Int })
-    page?: number,
-    @Args('limit', { defaultValue: 10, nullable: true, type: () => Int })
-    limit?: number,
-    @Args('name', { nullable: true, type: () => String }) name?: string,
-    @Args('addressId', { nullable: true, type: () => ID })
-    addressId?: string,
-    @Args('sortBy', { nullable: true, type: () => SortBy })
-    sortBy?: SortBy,
-    @Args('sortOrder', { nullable: true, type: () => SortOrder })
+    @Args() pagination: PaginationArgs,
+    @Args('addressId', optionalArg(() => ID)) addressId?: string,
+    @Args('sortBy', optionalArg(() => SortBy)) sortBy?: SortBy,
+    @Args('sortOrder', optionalArg(() => SortOrder))
     sortOrder?: SortOrder,
     @Args('includeAddresses', {
       nullable: true,
@@ -183,6 +178,8 @@ export default class InventoryResolver {
     })
     stockFilters?: StockPerWarehouseFilterInput,
   ): Promise<PaginatedWarehousesDTO> {
+    const { page, limit, name } = pagination;
+
     return this.queryBus.execute(
       new GetAllWarehousesDTO(
         user.tenantId,
@@ -210,21 +207,16 @@ export default class InventoryResolver {
   async getAllStockMovements(
     @Args('warehouseId', { type: () => ID })
     warehouseId: string,
-    @Args('page', { defaultValue: 1, nullable: true, type: () => Int })
-    page?: number,
-    @Args('limit', { defaultValue: 10, nullable: true, type: () => Int })
-    limit?: number,
-    @Args('variantId', { nullable: true, type: () => ID })
-    variantId?: string,
-    @Args('createdById', { nullable: true, type: () => ID })
-    createdById?: string,
+    @Args('page', pageArg(1)) page?: number,
+    @Args('limit', pageArg(10)) limit?: number,
+    @Args('variantId', optionalArg(() => ID)) variantId?: string,
+    @Args('createdById', optionalArg(() => ID)) createdById?: string,
     @Args('dateFrom', { nullable: true })
     dateFrom?: Date,
     @Args('dateTo', { nullable: true })
     dateTo?: Date,
-    @Args('sortBy', { nullable: true, type: () => SortBy })
-    sortBy?: SortBy,
-    @Args('sortOrder', { nullable: true, type: () => SortOrder })
+    @Args('sortBy', optionalArg(() => SortBy)) sortBy?: SortBy,
+    @Args('sortOrder', optionalArg(() => SortOrder))
     sortOrder?: SortOrder,
     @Args('includeDeleted', { defaultValue: false, nullable: true })
     includeDeleted?: boolean,
