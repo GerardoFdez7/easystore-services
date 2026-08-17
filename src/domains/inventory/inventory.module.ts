@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { ProductDomain } from '@product/product.module';
-import { AddressDomain } from '@address/address.module';
 
 // Commands Handlers
 import {
@@ -57,7 +55,7 @@ const EventHandlers = [
 ];
 
 @Module({
-  imports: [CqrsModule, ProductDomain, AddressDomain],
+  imports: [CqrsModule],
   providers: [
     { provide: 'IWarehouseRepository', useClass: WarehouseRepository },
     { provide: 'IStockMovementRepository', useClass: StockMovementRepository },

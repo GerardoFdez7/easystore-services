@@ -7,6 +7,9 @@ import {
   ProductFilterMode,
 } from '../value-objects';
 
+/**
+ * Persistence contract for the Product aggregate and its tenant-scoped queries.
+ */
 export interface IProductRepository {
   /**
    * Creates a new product

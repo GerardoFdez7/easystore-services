@@ -4,7 +4,7 @@ import { CartDTO, CartMapper } from '../../mappers';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { ICartRepository } from '../../../aggregates/repositories/cart.interface';
 import { Id, Qty } from '../../../aggregates/value-objects';
-import { Cart } from '../../../aggregates/entities/cart.entity';
+import { Cart } from '../../../aggregates/entities/cart/cart.entity';
 
 @CommandHandler(UpdateItemQuantityDto)
 export class UpdateItemQuantityHandler

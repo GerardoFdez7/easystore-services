@@ -6,7 +6,7 @@ import { RemoveManyItemsFromCartHandler } from '../remove-many-items-from-cart.h
 import { RemoveManyItemsFromCartDto } from '../remove-many-items-from-cart.dto';
 import { ICartRepository } from '../../../../../aggregates/repositories/cart.interface';
 import { CartMapper, CartDTO } from '../../../../mappers';
-import { Cart } from '../../../../../aggregates/entities/cart.entity';
+import { Cart } from '../../../../../aggregates/entities/cart/cart.entity';
 import { Id } from '../../../../../aggregates/value-objects';
 
 interface MockCart {

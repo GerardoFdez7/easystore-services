@@ -4,7 +4,7 @@ import { IProductRepository } from '../../../../aggregates/repositories/product.
 import { Id } from '../../../../aggregates/value-objects';
 import { ProductMapper, ProductDTO } from '../../../mappers';
 import { RestoreVariantDTO } from './restore-variant.dto';
-import { findProductOrThrow } from '../../find-product-or-throw';
+import { findProductOrThrow } from '../../shared/find-product-or-throw';
 
 @CommandHandler(RestoreVariantDTO)
 export class RestoreVariantHandler
@@ -41,6 +41,6 @@ export class RestoreVariantHandler
     restoredVariant.commit();
 
     // Return the product as DTO
-    return ProductMapper.toDto(product) as ProductDTO;
+    return ProductMapper.toDto(restoredVariant) as ProductDTO;
   }
 }

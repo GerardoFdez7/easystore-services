@@ -1,6 +1,6 @@
 import { Entity, EntityProps } from '@shared/entity.base';
 import { Id, Name, LongDescription, Currency } from '../../value-objects';
-import { ITenantType } from '..';
+import { ITenantBase, ITenantType } from '..';
 import { Domain, Media } from '../../value-objects';
 import { TenantCreatedEvent, TenantUpdatedEvent } from '../../events';
 
@@ -30,7 +30,7 @@ export class Tenant extends Entity<ITenantProps> {
   }
 
   // Factory method to create a new Tenant
-  static create(props: ITenantType): Tenant {
+  static create(props: ITenantBase): Tenant {
     const transformedProps = {
       ownerName: Name.create(props.ownerName),
       businessName: props.businessName ? Name.create(props.businessName) : null,

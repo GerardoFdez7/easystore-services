@@ -4,7 +4,7 @@ import { UpdateCategoryDTO } from './update-category.dto';
 import ICategoryRepository from '../../../aggregates/repositories/category.interface';
 import { CategoryMapper, CategoryDTO } from '../../mappers';
 import { Id } from '../../../aggregates/value-objects';
-import { findCategoryOrThrow } from '../find-category-or-throw';
+import { findCategoryOrThrow } from '../shared/find-category-or-throw';
 
 @CommandHandler(UpdateCategoryDTO)
 export class UpdateCategoryHandler

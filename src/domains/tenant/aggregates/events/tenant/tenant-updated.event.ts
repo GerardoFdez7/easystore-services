@@ -1,5 +1,6 @@
+import { IEvent } from '@nestjs/cqrs';
 import { Tenant } from '../../entities/tenant/tenant.entity';
 
-export class TenantUpdatedEvent {
+export class TenantUpdatedEvent implements IEvent {
   constructor(public readonly tenant: Tenant) {}
 }

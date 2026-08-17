@@ -1,4 +1,45 @@
 rules:
+  - id: ddd.domain-relative-import-must-stay-in-context
+    message: A domain must integrate with another bounded context through application/ports and infrastructure/adapters.
+    severity: ERROR
+    languages: [typescript]
+    paths:
+      include:
+        - /src/domains/**/*.ts
+      exclude:
+        - /src/domains/shared/**/*.ts
+        - /src/domains/*/infrastructure/adapters/**/*.ts
+    patterns:
+      - pattern-either:
+          - pattern: import $DEFAULT from $SOURCE
+          - pattern: import { $...MEMBERS } from $SOURCE
+          - pattern: import * as $NAMESPACE from $SOURCE
+          - pattern: export { $...MEMBERS } from $SOURCE
+      - metavariable-regex:
+          metavariable: $SOURCE
+          regex: ^(?:\.\./)+(?:address|authentication|cart|category|inventory|product|tenant)(?:/|$)
+
+  - id: ddd.lower-layers-must-not-import-presentation
+    message: Aggregate, application, and infrastructure code must not import a domain presentation layer.
+    severity: ERROR
+    languages: [typescript]
+    paths:
+      include:
+        - /src/domains/*/aggregates/**/*.ts
+        - /src/domains/*/application/**/*.ts
+        - /src/domains/*/infrastructure/**/*.ts
+      exclude:
+        - /src/domains/**/__tests__/**/*.ts
+    patterns:
+      - pattern-either:
+          - pattern: import $DEFAULT from $SOURCE
+          - pattern: import { $...MEMBERS } from $SOURCE
+          - pattern: import * as $NAMESPACE from $SOURCE
+          - pattern: export { $...MEMBERS } from $SOURCE
+      - metavariable-regex:
+          metavariable: $SOURCE
+          regex: .*presentation.*
+
   - id: ddd.aggregate-imports-outside-layer
     message: Aggregate code must not import application, infrastructure, or presentation layers.
     severity: ERROR
@@ -39,7 +80,7 @@ rules:
       include:
         - /src/domains/address/aggregates/entities/address/address.entity.ts
         - /src/domains/authentication/aggregates/entities/auth/authentication.entity.ts
-        - /src/domains/cart/aggregates/entities/cart.entity.ts
+        - /src/domains/cart/aggregates/entities/cart/cart.entity.ts
         - /src/domains/category/aggregates/entities/category/category.entity.ts
         - /src/domains/inventory/aggregates/entities/warehouse/warehouse.entity.ts
         - /src/domains/product/aggregates/entities/product/product.entity.ts
@@ -58,7 +99,7 @@ rules:
       include:
         - /src/domains/address/aggregates/entities/address/address.entity.ts
         - /src/domains/authentication/aggregates/entities/auth/authentication.entity.ts
-        - /src/domains/cart/aggregates/entities/cart.entity.ts
+        - /src/domains/cart/aggregates/entities/cart/cart.entity.ts
         - /src/domains/category/aggregates/entities/category/category.entity.ts
         - /src/domains/inventory/aggregates/entities/warehouse/warehouse.entity.ts
         - /src/domains/product/aggregates/entities/product/product.entity.ts

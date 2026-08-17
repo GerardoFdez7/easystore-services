@@ -1,8 +1,11 @@
-import { Cart } from '../../../aggregates/entities/cart.entity';
+import { Cart } from '../../../aggregates/entities/cart/cart.entity';
 import { CartItem } from '../../../aggregates/value-objects/cart-item.vo';
 import { CartDTO, CartItemDTO } from './cart.dto';
 import { VariantDetailsDTO } from '@shared/dtos';
 
+/**
+ * Maps Cart aggregates to application DTOs enriched with product variant data.
+ */
 export class CartMapper {
   static toDto(cart: Cart, variantDetails: VariantDetailsDTO[] = []): CartDTO {
     const cartItems = Array.from(cart.get('cartItems').values()).map((item) =>

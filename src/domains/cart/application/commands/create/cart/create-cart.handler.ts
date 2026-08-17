@@ -3,7 +3,7 @@ import { Inject } from '@nestjs/common';
 import { CreateCartDto } from './create-cart.dto';
 import { ICartRepository } from '../../../../aggregates/repositories/cart.interface';
 import { CartDTO, CartMapper } from '../../../mappers';
-import { Cart } from '../../../../aggregates/entities/cart.entity';
+import { Cart } from '../../../../aggregates/entities/cart/cart.entity';
 
 @CommandHandler(CreateCartDto)
 export class CartCreateHandler implements ICommandHandler<CreateCartDto> {

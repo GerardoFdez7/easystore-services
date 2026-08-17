@@ -1,4 +1,4 @@
-import { Tenant, ITenantType } from '../../../aggregates/entities';
+import { Tenant, ITenantBase, ITenantType } from '../../../aggregates/entities';
 import {
   Id,
   Name,
@@ -85,7 +85,7 @@ export class TenantMapper {
    */
   static fromCreateDto(dto: TenantSingUpDTO): Tenant {
     // Create a new tenant using the factory method
-    return Tenant.create(dto.data as ITenantType);
+    return Tenant.create(dto.data);
   }
 
   /**
@@ -96,7 +96,7 @@ export class TenantMapper {
    */
   static fromUpdateDto(
     tenant: Tenant,
-    dto: { data: Partial<ITenantType> },
+    dto: { data: Partial<Omit<ITenantBase, 'authIdentityId'>> },
   ): Tenant {
     tenant.update(dto.data);
     return tenant;

@@ -1,4 +1,4 @@
-import { ICartItemBaseType } from '../../../../aggregates/entities/cart.attributes';
+import { ICartItemBaseType } from '../../../../aggregates/entities/cart/cart.attributes';
 
 export class AddItemToCartDto {
   constructor(

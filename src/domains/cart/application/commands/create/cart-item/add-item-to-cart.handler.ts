@@ -3,7 +3,7 @@ import { AddItemToCartDto } from './add-item-to-cart.dto';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { ICartRepository } from '../../../../aggregates/repositories/cart.interface';
 import { CartDTO, CartMapper } from '../../../mappers';
-import { Cart } from '../../../../aggregates/entities/cart.entity';
+import { Cart } from '../../../../aggregates/entities/cart/cart.entity';
 import { CartItem, Id } from '../../../../aggregates/value-objects';
 
 @CommandHandler(AddItemToCartDto)

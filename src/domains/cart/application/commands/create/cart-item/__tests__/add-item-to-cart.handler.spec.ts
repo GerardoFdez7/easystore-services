@@ -6,7 +6,7 @@ import { AddItemToCartHandler } from '../add-item-to-cart.handler';
 import { AddItemToCartDto } from '../add-item-to-cart.dto';
 import { ICartRepository } from '../../../../../aggregates/repositories/cart.interface';
 import { CartMapper, CartDTO } from '../../../../mappers';
-import { Cart } from '../../../../../aggregates/entities/cart.entity';
+import { Cart } from '../../../../../aggregates/entities/cart/cart.entity';
 import { CartItem } from '../../../../../aggregates/value-objects/cart-item.vo';
 
 interface MockCart {

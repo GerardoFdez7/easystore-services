@@ -21,11 +21,11 @@ src/domains/inventory/
 ├── aggregates/
 │   ├── entities/
 │   │   ├── index.ts
-│   │   ├── stockPerWarehouse/
+│   │   ├── stock-per-warehouse/
 │   │   └── warehouse/
 │   ├── events/
 │   │   ├── index.ts
-│   │   ├── stockPerWarehouse/
+│   │   ├── stock-per-warehouse/
 │   │   └── warehouse/
 │   ├── repositories/
 │   │   ├── index.ts
@@ -33,8 +33,8 @@ src/domains/inventory/
 │   │   └── warehouse.interface.ts
 │   └── value-objects/
 │       ├── index.ts
-│       ├── stockMovement/
-│       └── stockPerWarehouse/
+│       ├── stock-movement/
+│       └── stock-per-warehouse/
 ├── application/
 │   ├── commands/
 │   │   ├── create/
@@ -43,12 +43,12 @@ src/domains/inventory/
 │   │   └── update/
 │   ├── events/
 │   │   ├── index.ts
-│   │   ├── stockPerWarehouse/
+│   │   ├── stock-per-warehouse/
 │   │   └── warehouse/
 │   ├── mappers/
 │   │   ├── index.ts
-│   │   ├── stockMovement/
-│   │   ├── stockPerWarehouse/
+│   │   ├── stock-movement/
+│   │   ├── stock-per-warehouse/
 │   │   └── warehouse/
 │   ├── ports/ (if needs to communicate with other domains)
 │   │   ├── address.port.ts

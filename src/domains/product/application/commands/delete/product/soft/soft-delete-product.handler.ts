@@ -4,7 +4,7 @@ import { IProductRepository } from '../../../../../aggregates/repositories/produ
 import { Id } from '../../../../../aggregates/value-objects';
 import { ProductMapper, ProductDTO } from '../../../../mappers';
 import { SoftDeleteProductDTO } from './soft-delete-product.dto';
-import { findProductOrThrow } from '../../../find-product-or-throw';
+import { findProductOrThrow } from '../../../shared/find-product-or-throw';
 
 @CommandHandler(SoftDeleteProductDTO)
 export class SoftDeleteProductHandler

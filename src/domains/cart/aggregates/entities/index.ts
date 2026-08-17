@@ -1,8 +1,8 @@
-export { Cart, ICartProps } from './cart.entity';
+export { Cart, ICartProps } from './cart/cart.entity';
 export {
   ICartBaseType,
   ICartItemBaseType,
   IRemoveItemFromCartData,
   IUpdateItemQuantityData,
   RemoveManyItemsFromCartData,
-} from './cart.attributes';
+} from './cart/cart.attributes';

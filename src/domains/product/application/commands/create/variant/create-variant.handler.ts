@@ -4,7 +4,7 @@ import { ProductMapper, ProductDTO } from '../../../mappers';
 import { CreateVariantDTO } from './create-variant.dto';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { Id } from '../../../../aggregates/value-objects';
-import { validateVariantForProductType } from '../validate-variant-for-product-type';
+import { validateVariantForProductType } from '../../shared/validate-variant-for-product-type';
 
 @CommandHandler(CreateVariantDTO)
 export class CreateVariantHandler implements ICommandHandler<CreateVariantDTO> {

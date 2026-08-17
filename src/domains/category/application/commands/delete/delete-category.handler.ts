@@ -4,7 +4,7 @@ import ICategoryRepository from '../../../aggregates/repositories/category.inter
 import { Id } from '../../../aggregates/value-objects';
 import { CategoryMapper, CategoryDTO } from '../../mappers';
 import { DeleteCategoryDTO } from './delete-category.dto';
-import { findCategoryOrThrow } from '../find-category-or-throw';
+import { findCategoryOrThrow } from '../shared/find-category-or-throw';
 
 @CommandHandler(DeleteCategoryDTO)
 export class DeleteCategoryHandler

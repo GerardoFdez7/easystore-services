@@ -1,5 +1,5 @@
 import { Id } from '@shared/value-objects';
-import { Cart } from '../entities/cart.entity';
+import { Cart } from '../entities/cart/cart.entity';
 
 /**
  * Repository interface for Cart domain operations.

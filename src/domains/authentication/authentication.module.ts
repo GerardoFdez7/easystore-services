@@ -21,13 +21,14 @@ import {
   IdentityLoggedOutHandler,
   IdentityPasswordUpdatedHandler,
   IdentityEmailUpdatedHandler,
+  TenantProvisioningHandler,
 } from './application/events';
 import {
   AuthenticationRepository,
   CustomerRepository,
   EmployeeRepository,
 } from './infrastructure/persistence/postgres';
-import TenantRepository from '../tenant/infrastructure/persistence/postgres/tenant.repository';
+import { TenantAdapter } from './infrastructure/adapters';
 import AuthGuard from './infrastructure/guard/auth.guard';
 import {
   AuthEmailService,
@@ -55,6 +56,7 @@ const EventHandlers = [
   IdentityLoggedOutHandler,
   IdentityPasswordUpdatedHandler,
   IdentityEmailUpdatedHandler,
+  TenantProvisioningHandler,
 ];
 
 const EmailBuilders = [ForgotPasswordEmailBuilder, GetInTouchEmailBuilder];
@@ -71,8 +73,8 @@ const CronServices = [CleanupService];
       useClass: AuthenticationRepository,
     },
     {
-      provide: 'ITenantRepository',
-      useClass: TenantRepository,
+      provide: 'ITenantAdapter',
+      useClass: TenantAdapter,
     },
     {
       provide: 'CustomerRepository',

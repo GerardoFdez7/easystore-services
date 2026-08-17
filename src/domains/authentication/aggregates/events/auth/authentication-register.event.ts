@@ -1,5 +1,6 @@
+import { IEvent } from '@nestjs/cqrs';
 import { AuthIdentity } from '../../entities';
 
-export class AuthenticationRegisterEvent {
+export class AuthenticationRegisterEvent implements IEvent {
   constructor(public readonly auth: AuthIdentity) {}
 }

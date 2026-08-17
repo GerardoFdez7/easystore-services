@@ -4,7 +4,7 @@ import { IWarehouseRepository } from '../../../../aggregates/repositories';
 import { UpdateWarehouseDTO } from './update-warehouse.dto';
 import { WarehouseMapper, WarehouseDTO } from '../../../mappers';
 import { Id } from '@shared/value-objects';
-import { findWarehouseOrThrow } from '../../find-warehouse-or-throw';
+import { findWarehouseOrThrow } from '../../shared/find-warehouse-or-throw';
 
 @CommandHandler(UpdateWarehouseDTO)
 export class UpdateWarehouseHandler

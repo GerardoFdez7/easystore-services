@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { InventoryDomain } from '../inventory/inventory.module';
 import {
   CartCreateHandler,
   AddItemToCartHandler,
@@ -18,7 +17,7 @@ import {
   ItemQuantityUpdatedHandler,
 } from './application/events';
 import { CartResolver } from './presentation/graphql/cart.resolver';
-import { CartRepository } from './infrastructure/database/postgres/cart.repository';
+import { CartRepository } from './infrastructure/persistence/postgres/cart.repository';
 import { ProductAdapter } from './infrastructure/adapters/product.adapter';
 
 const CommandHandlers = [
@@ -41,7 +40,7 @@ const EventHandlers = [
 ];
 
 @Module({
-  imports: [CqrsModule, InventoryDomain],
+  imports: [CqrsModule],
   providers: [
     { provide: 'ICartRepository', useClass: CartRepository },
     { provide: 'IProductAdapter', useClass: ProductAdapter },

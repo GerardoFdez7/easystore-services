@@ -18,6 +18,9 @@ import {
 import { AddressDTO, AllAddressDTO } from './address.dto';
 import { UpdateAddressDTO } from '../../commands';
 
+/**
+ * Translates address persistence records, domain entities, and application DTOs.
+ */
 export class AddressMapper {
   /**
    * Maps a persistence Address moodel to a domain Address entity

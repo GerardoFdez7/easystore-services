@@ -6,7 +6,7 @@ import { RemoveItemFromCartHandler } from '../remove-item-from-cart.handler';
 import { RemoveItemFromCartDto } from '../remove-item-from-cart.dto';
 import { ICartRepository } from '../../../../../aggregates/repositories/cart.interface';
 import { CartMapper, CartDTO } from '../../../../mappers';
-import { Cart } from '../../../../../aggregates/entities/cart.entity';
+import { Cart } from '../../../../../aggregates/entities/cart/cart.entity';
 import { Id } from '../../../../../aggregates/value-objects';
 
 interface MockCart {

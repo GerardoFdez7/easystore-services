@@ -4,7 +4,7 @@ import { UpdateProductDTO } from './update-product.dto';
 import { IProductRepository } from '../../../../aggregates/repositories/product.interface';
 import { ProductMapper, ProductDTO } from '../../../mappers';
 import { Id } from '../../../../aggregates/value-objects';
-import { findProductOrThrow } from '../../find-product-or-throw';
+import { findProductOrThrow } from '../../shared/find-product-or-throw';
 
 @CommandHandler(UpdateProductDTO)
 export class UpdateProductHandler implements ICommandHandler<UpdateProductDTO> {

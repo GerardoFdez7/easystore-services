@@ -4,7 +4,7 @@ import { CartCreateHandler } from '../create-cart.handler';
 import { CreateCartDto } from '../create-cart.dto';
 import { ICartRepository } from '../../../../../aggregates/repositories/cart.interface';
 import { CartMapper, CartDTO } from '../../../../mappers';
-import { Cart } from '../../../../../aggregates/entities/cart.entity';
+import { Cart } from '../../../../../aggregates/entities/cart/cart.entity';
 
 interface MockCart {
   commit: jest.Mock;

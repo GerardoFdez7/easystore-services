@@ -1,5 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { Inject, BadRequestException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { IAuthRepository } from '../../../aggregates/repositories/authentication.interface';
 import { ResponseDTO } from '../../mappers';
 import { ForgotPasswordDTO } from './forgot-password.dto';
@@ -25,8 +26,9 @@ export class ForgotPasswordHandler
     // Check rate limiting first
     if (this.rateLimiter.isRateLimited(email)) {
       const timeUntilReset = this.rateLimiter.getTimeUntilReset(email);
-      throw new BadRequestException(
+      throw new HttpException(
         `Too many password reset attempts. Please try again in ${timeUntilReset} minutes.`,
+        HttpStatus.TOO_MANY_REQUESTS,
       );
     }
 

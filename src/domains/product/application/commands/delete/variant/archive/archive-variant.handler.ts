@@ -4,7 +4,7 @@ import { IProductRepository } from '../../../../../aggregates/repositories/produ
 import { Id } from '../../../../../aggregates/value-objects';
 import { ProductMapper, ProductDTO } from '../../../../mappers';
 import { ArchiveVariantDTO } from './archive-variant.dto';
-import { findProductOrThrow } from '../../../find-product-or-throw';
+import { findProductOrThrow } from '../../../shared/find-product-or-throw';
 
 @CommandHandler(ArchiveVariantDTO)
 export class ArchiveVariantHandler
@@ -40,6 +40,6 @@ export class ArchiveVariantHandler
     deletedVariant.commit();
 
     // Return the product as DTO
-    return ProductMapper.toDto(product) as ProductDTO;
+    return ProductMapper.toDto(deletedVariant) as ProductDTO;
   }
 }

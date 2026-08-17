@@ -4,7 +4,7 @@ import { IWarehouseRepository } from '../../../../aggregates/repositories';
 import { DeleteStockPerWarehouseDTO } from './delete-stock-per-warehouse.dto';
 import { WarehouseMapper, WarehouseDTO } from '../../../mappers';
 import { Id } from '@shared/value-objects';
-import { findWarehouseOrThrow } from '../../find-warehouse-or-throw';
+import { findWarehouseOrThrow } from '../../shared/find-warehouse-or-throw';
 
 @CommandHandler(DeleteStockPerWarehouseDTO)
 export class DeleteStockPerWarehouseHandler

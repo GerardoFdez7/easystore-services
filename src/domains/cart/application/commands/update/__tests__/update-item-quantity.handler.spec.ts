@@ -6,7 +6,7 @@ import { UpdateItemQuantityHandler } from '../update-item-quantity.handler';
 import { UpdateItemQuantityDto } from '../update-item-quantity.dto';
 import { ICartRepository } from '../../../../aggregates/repositories/cart.interface';
 import { CartMapper, CartDTO } from '../../../mappers';
-import { Cart } from '../../../../aggregates/entities/cart.entity';
+import { Cart } from '../../../../aggregates/entities/cart/cart.entity';
 import { Id, Qty } from '../../../../aggregates/value-objects';
 
 interface MockCart {

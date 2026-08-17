@@ -1,6 +1,6 @@
-export { CartCreatedHandler } from './cart-created.handler';
-export { CustomerCreatedHandler } from './customer-created.handler';
-export { AddItemToCartHandler } from './add-item-to-cart.handler';
-export { ItemRemovedFromCartHandler } from './item-removed-from-cart.handler';
-export { RemoveManyItemsFromCartHandler } from './remove-many-items-from-cart.handler';
-export { ItemQuantityUpdatedHandler } from './item-quantity-updated.handler';
+export { CartCreatedHandler } from './cart/cart-created.handler';
+export { CustomerCreatedHandler } from './cart/customer-created.handler';
+export { AddItemToCartHandler } from './cart/add-item-to-cart.handler';
+export { ItemRemovedFromCartHandler } from './cart/item-removed-from-cart.handler';
+export { RemoveManyItemsFromCartHandler } from './cart/remove-many-items-from-cart.handler';
+export { ItemQuantityUpdatedHandler } from './cart/item-quantity-updated.handler';

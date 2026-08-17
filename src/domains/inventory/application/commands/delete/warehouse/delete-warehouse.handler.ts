@@ -4,7 +4,7 @@ import { IWarehouseRepository } from '../../../../aggregates/repositories';
 import { DeleteWarehouseDTO } from './delete-warehouse.dto';
 import { WarehouseMapper, WarehouseDTO } from '../../../mappers';
 import { Id } from '@shared/value-objects';
-import { findWarehouseOrThrow } from '../../find-warehouse-or-throw';
+import { findWarehouseOrThrow } from '../../shared/find-warehouse-or-throw';
 
 @CommandHandler(DeleteWarehouseDTO)
 export class DeleteWarehouseHandler

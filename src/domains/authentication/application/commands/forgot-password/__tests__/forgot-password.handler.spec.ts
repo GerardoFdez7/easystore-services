@@ -3,7 +3,7 @@
 process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret-key';
 
 import { Test, TestingModule } from '@nestjs/testing';
-import { BadRequestException } from '@nestjs/common';
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { ForgotPasswordHandler } from '../forgot-password.handler';
 import { ForgotPasswordDTO } from '../forgot-password.dto';
 import { IAuthRepository } from '../../../../aggregates/repositories/authentication.interface';
@@ -88,25 +88,25 @@ describe('ForgotPasswordHandler', () => {
         authRepository.findByEmailAndAccountType.mockResolvedValue(null);
       });
 
-      it('should throw BadRequestException when rate limited', async () => {
+      it('should throw HttpException with 429 status when rate limited', async () => {
         rateLimiter.isRateLimited.mockReturnValue(true);
         rateLimiter.getTimeUntilReset.mockReturnValue(45);
 
-        await expect(handler.execute(baseCommand)).rejects.toThrow(
-          BadRequestException,
-        );
-        await expect(handler.execute(baseCommand)).rejects.toThrow(
-          'Too many password reset attempts. Please try again in 45 minutes.',
-        );
+        await expect(handler.execute(baseCommand)).rejects.toMatchObject({
+          constructor: HttpException,
+          status: HttpStatus.TOO_MANY_REQUESTS,
+          message:
+            'Too many password reset attempts. Please try again in 45 minutes.',
+        });
       });
 
       it('should check rate limiting before any other operations', async () => {
         rateLimiter.isRateLimited.mockReturnValue(true);
         rateLimiter.getTimeUntilReset.mockReturnValue(30);
 
-        await expect(handler.execute(baseCommand)).rejects.toThrow(
-          BadRequestException,
-        );
+        await expect(handler.execute(baseCommand)).rejects.toMatchObject({
+          status: HttpStatus.TOO_MANY_REQUESTS,
+        });
 
         expect(rateLimiter.isRateLimited).toHaveBeenCalledWith(validEmail);
         expect(authRepository.findByEmailAndAccountType).not.toHaveBeenCalled();

@@ -3,6 +3,10 @@ import { Address } from '../entities';
 import { AddressDetailsDTO } from '@shared/dtos';
 
 export type Owner = { tenantId: Id } | { customerId: Id };
+
+/**
+ * Persistence contract for addresses scoped to exactly one tenant or customer.
+ */
 export interface IAddressRepository {
   /**
    * Creates a new address in the repository.

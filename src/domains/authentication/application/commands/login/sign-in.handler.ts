@@ -14,7 +14,7 @@ import {
 import { ICustomerRepository } from '../../../aggregates/repositories/customer.interface';
 import { IEmployeeRepository } from '../../../aggregates/repositories/employee.interface';
 import { IAuthRepository } from '../../../aggregates/repositories/authentication.interface';
-import { ITenantRepository } from '../../../../tenant/aggregates/repositories/tenant.interface';
+import { ITenantAdapter } from '../../ports';
 import { ResponseDTO } from '../../mappers';
 import {
   Id,
@@ -31,8 +31,8 @@ export class AuthenticationLoginHandler
   constructor(
     @Inject('AuthRepository')
     private readonly authRepository: IAuthRepository,
-    @Inject('ITenantRepository')
-    private readonly tenantRepository: ITenantRepository,
+    @Inject('ITenantAdapter')
+    private readonly tenantAdapter: ITenantAdapter,
     @Inject('CustomerRepository')
     private readonly customerRepository: ICustomerRepository,
     @Inject('EmployeeRepository')
@@ -86,10 +86,6 @@ export class AuthenticationLoginHandler
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // Success flow
-    auth.loginSucceeded();
-    await this.authRepository.update(IdVO, auth);
-
     // Get authIdentity ID
     const authIdentityId = auth.get('id');
     const authIdentityIdValue = authIdentityId.getValue();
@@ -101,13 +97,15 @@ export class AuthenticationLoginHandler
 
     // Determine IDs based on account type
     if (accountTypeVO.getValue() === AccountTypeEnum.TENANT) {
-      // For tenants, find the tenant entity
-      const tenant =
-        await this.tenantRepository.findByAuthIdentityId(authIdentityId);
-      if (!tenant) {
+      // For tenants, resolve the tenant through the tenant boundary adapter
+      const resolvedTenantId =
+        await this.tenantAdapter.getTenantIdByAuthIdentityId(
+          authIdentityIdValue,
+        );
+      if (!resolvedTenantId) {
         throw new NotFoundException('Tenant not found for this auth identity');
       }
-      tenantId = tenant.get('id').getValue();
+      tenantId = resolvedTenantId;
     } else if (accountTypeVO.getValue() === AccountTypeEnum.CUSTOMER) {
       // For customers, find customer and tenant
       const customer =
@@ -133,6 +131,9 @@ export class AuthenticationLoginHandler
     } else {
       throw new UnauthorizedException('Invalid account type');
     }
+
+    auth.loginSucceeded();
+    await this.authRepository.update(IdVO, auth);
 
     // Generate tokens with enhanced payload
     const payload: JwtPayload = {

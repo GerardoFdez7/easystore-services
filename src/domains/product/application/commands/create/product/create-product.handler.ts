@@ -3,7 +3,7 @@ import { Inject } from '@nestjs/common';
 import { IProductRepository } from '../../../../aggregates/repositories/product.interface';
 import { CreateProductDTO } from './create-product.dto';
 import { ProductMapper, ProductDTO } from '../../../mappers';
-import { validateVariantForProductType } from '../validate-variant-for-product-type';
+import { validateVariantForProductType } from '../../shared/validate-variant-for-product-type';
 
 @CommandHandler(CreateProductDTO)
 export class CreateProductHandler implements ICommandHandler<CreateProductDTO> {

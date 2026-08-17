@@ -51,6 +51,6 @@ export class RestoreProductHandler
     restoredProduct.commit();
 
     // Return the product as DTO
-    return ProductMapper.toDto(product) as ProductDTO;
+    return ProductMapper.toDto(restoredProduct) as ProductDTO;
   }
 }
