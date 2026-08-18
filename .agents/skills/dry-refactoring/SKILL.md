@@ -1,38 +1,39 @@
 ---
 name: dry-refactoring
-description: Guided workflow to eliminate copy-paste duplication detected by jscpd. Refactor clones using extract function, module, constant, or base class strategies.
+description: Eliminate meaningful copy-paste duplication reported jscpd gate using semantics-preserving extraction and verification. Use when npm run duplication fails, when adding repeated domain/application code, or when reviewing whether similar interfaces, functions, classes, DTOs, or tests should share an abstraction.
 ---
 
-# dry-refactoring
+# DRY refactoring
 
-Guided workflow to eliminate copy-paste duplication in source code. Use after running [jscpd](../jscpd/SKILL.md) to detect clones.
+Eliminate copy-paste duplication without coupling unrelated bounded contexts or
+weakening the repository's duplication policy.
 
 ## Prerequisites
 
-First, run jscpd to identify duplications:
+First, run the repository-configured jscpd gate:
 
 ```bash
-npx jscpd --reporters ai <path>
+npm run duplication
 ```
 
-In codebases that mix related formats (e.g. JavaScript and TypeScript), add `--cross-formats` so clones spanning both are detected too:
+For focused diagnosis, preserve `.jscpd.json` settings and add the AI reporter:
 
 ```bash
-npx jscpd --reporters ai --cross-formats "js-ts" <path>
+npx jscpd --config .jscpd.json --reporters console,ai <path>
 ```
-
-See the **[jscpd](../jscpd/SKILL.md)** skill for full option reference, including cross-format group syntax.
 
 ## Workflow
 
-1. Run jscpd with `--reporters ai` on the target path
-2. Parse each clone line to identify the two duplicated locations (file + line range)
-3. Read both code fragments from the source files
-4. Understand what the duplicated code does
-5. Design a refactoring: extract a shared function, class, module, or constant
-6. Apply the refactoring — update both locations and all other usages
-7. Re-run jscpd to confirm the clone is eliminated
-8. Repeat for remaining clones, highest-impact first
+1. Run `npm run duplication` and locate both sides of each clone.
+2. Read the complete containing functions/classes and their tests.
+3. Decide whether the code has the same semantics, owner, invariants, and reasons to
+   change. Similar syntax across bounded contexts is not sufficient.
+4. Extract the smallest clear function, type, value object, test builder, module, or
+   stable base behavior.
+5. Update every call site and add/adjust tests that preserve behavior.
+6. Run focused tests, `npm run lint`, `npm run architecture`, and
+   `npm run duplication`.
+7. Repeat with the highest-impact meaningful clone.
 
 ## Refactoring Strategies
 
@@ -49,12 +50,18 @@ See the **[jscpd](../jscpd/SKILL.md)** skill for full option reference, includin
 
 **Extract constant or config** — when the duplicate is repeated data or configuration.
 
-**Template/base class** — when the duplicate is structural (e.g., repeated class shape).
+**Composition/shared value object** — when behavior and invariants are genuinely
+ubiquitous across domains.
+
+**Template/base class** — only when the duplicate represents a stable behavioral
+contract, not merely a similar class shape.
 
 Always ensure:
 - All call sites are updated, not just the two reported by jscpd
 - Tests still pass after refactoring
 - The extracted abstraction has a clear, descriptive name
+- No bounded context now imports another context's internal implementation
+- No jscpd threshold or ignore was changed merely to silence the finding
 
 ## Tips
 
@@ -62,4 +69,5 @@ Always ensure:
 - A clone between test files may indicate a missing test helper
 - Clones across unrelated modules may signal a missing shared utility
 - A cross-format clone (same logic in a `.js` and a `.ts` file, found with `--cross-formats`) often means code was ported without deleting the original — consolidate into one implementation (usually the TypeScript one) and update imports, rather than extracting a third shared copy
-- Use `--min-lines 10` to filter noise and focus on meaningful duplications
+- Prefer focused reporters for diagnosis, but validate with the checked-in config
+- Some repeated orchestration is preferable to a misleading cross-domain abstraction

@@ -21,9 +21,11 @@
     "seed": "npx ts-node src/infrastructure/database/seed.ts",
     "database": "set PRISMA_HIDE_UPDATE_MESSAGE=1 && npx prisma migrate dev --schema src/infrastructure/database/postgres.schema.prisma && npm run seed",
     "architecture": "npm run architecture:structure && npm run architecture:semgrep",
-    "architecture:structure": "node tools/check-architecture.mjs",
+    "architecture:structure": "node tools/architecture/check.mjs",
     "architecture:semgrep": "semgrep scan --config .semgrep.yml --error src/domains",
     "duplication": "jscpd --config .jscpd.json",
+    "install:semgrep": "node tools/install-semgrep.mjs",
+    "verify": "npm run build && npm run lint && npm run test && npm run architecture && npm run duplication",
     "lint": "eslint",
     "lint:fix": "prettier --write \"src/**/*.{ts,js,json}\" \"test/**/*.{ts,js,json}\" \"*.{ts,js,json}\"",
     "test": "jest",
@@ -31,7 +33,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "postinstall": "npm run generate",
+    "postinstall": "npm run generate && npm run install:semgrep",
     "prepare": "is-ci || node -e \"if(process.env.NODE_ENV!=='production'){process.exit(1)}\" || husky install"
   },
   "dependencies": {

@@ -5,7 +5,7 @@ import {
   allowedAggregateDependencies,
   persistenceRepositoryContractExceptions,
   specializedMutationDtos,
-} from './architecture.config.mjs';
+} from '../architecture.config.mjs';
 
 const repositoryRoot = resolve(import.meta.dirname, '..');
 const domainsRoot = process.env.ARCHITECTURE_DOMAINS_ROOT
@@ -904,7 +904,7 @@ for (const domainName of readdirSync(domainsRoot)) {
   if (!configuredRoot) {
     report(
       entitiesRoot,
-      `domain "${domainName}" must declare its aggregate root in tools/architecture.config.mjs`,
+      `domain "${domainName}" must declare its aggregate root in tools/architecture/config.mjs`,
     );
     continue;
   }

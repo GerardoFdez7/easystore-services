@@ -242,6 +242,7 @@ model Subscription {
   Plan      Plan               @relation(fields: [planId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   payments  Payment[]
 
+  @@index([planId])
   @@schema("tenant")
 }
 
@@ -274,6 +275,7 @@ model Employee {
   authIdentity   AuthIdentity    @relation("EmployeeAuth", fields: [authIdentityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   StockMovement  StockMovement[]
 
+  @@index([roleId])
   @@schema("tenant")
 }
 
@@ -285,6 +287,7 @@ model EmployeeRole {
   employees    Employee[]
   roleFeatures RoleFeatures[]
 
+  @@index([tenantId])
   @@schema("tenant")
 }
 
@@ -295,6 +298,8 @@ model RoleFeatures {
   employeeRole EmployeeRole @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   feature      Feature      @relation(fields: [featureId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
+  @@index([roleId])
+  @@index([featureId])
   @@schema("tenant")
 }
 
@@ -325,6 +330,7 @@ model Warehouse {
 
   @@unique([tenantId, name])
   @@unique([tenantId, addressId])
+  @@index([addressId])
   @@schema("inventory")
 }
 
@@ -340,6 +346,9 @@ model StockMovement {
   createdBy           Employee?         @relation(fields: [createdById], references: [id], onDelete: SetNull, onUpdate: Cascade)
   StockPerWarehouse   StockPerWarehouse @relation(fields: [stockPerWarehouseId], references: [id])
 
+  @@index([createdById])
+  @@index([warehouseId])
+  @@index([stockPerWarehouseId])
   @@schema("inventory")
 }
 
@@ -359,6 +368,7 @@ model StockPerWarehouse {
   warehouse                  Warehouse       @relation(fields: [warehouseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@unique([warehouseId, variantId])
+  @@index([variantId])
   @@schema("inventory")
 }
 
@@ -382,6 +392,7 @@ model ShippingRule {
   @@unique([tenantId, slug])
   @@unique([tenantId, priority])
   @@index([tenantId, type])
+  @@index([variantId])
   @@schema("shipping")
 }
 
@@ -409,6 +420,8 @@ model ShipmentRate {
 
   @@unique([tenantId, shippingRuleId, countryId, stateId], name: "unique_tenant_method_rate")
   @@index([tenantId, shippingRuleId])
+  @@index([countryId])
+  @@index([stateId])
   @@schema("shipping")
 }
 
@@ -435,6 +448,9 @@ model TaxRate {
   state      State?    @relation(fields: [stateId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
   @@unique([tenantId, countryId, stateId, categoryId], name: "tenant_cannot_have_the_same_tax_rate_config")
+  @@index([countryId])
+  @@index([stateId])
+  @@index([categoryId])
   @@schema("product")
 }
 
@@ -465,6 +481,8 @@ model ProductCategories {
   product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+  @@index([productId])
+  @@index([categoryId])
   @@schema("product")
 }
 
@@ -528,6 +546,7 @@ model InstallmentPayment {
   variantId    String
   variant      Variant @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+  @@index([variantId])
   @@schema("product")
 }
 
@@ -538,6 +557,7 @@ model Sustainability {
   productId          String
   product            Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+  @@index([productId])
   @@schema("product")
 }
 
@@ -549,6 +569,7 @@ model Warranty {
   variantId    String
   variant      Variant @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+  @@index([variantId])
   @@schema("product")
 }
 
@@ -586,6 +607,7 @@ model Variant {
 
   @@unique([tenantId, sku])
   @@unique([tenantId, barcode])
+  @@index([productId])
   @@schema("product")
 }
 
@@ -596,6 +618,7 @@ model Attribute {
   variantId String
   variant   Variant @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+  @@index([variantId])
   @@schema("product")
 }
 
@@ -682,6 +705,8 @@ model Coupon {
   tenant           Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@unique([tenantId, code])
+  @@index([promotionId])
+  @@index([customerId])
   @@schema("pricing")
 }
 
@@ -694,6 +719,7 @@ model CouponUsage {
   order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@unique([orderId, couponId])
+  @@index([couponId])
   @@schema("pricing")
 }
 
@@ -704,6 +730,8 @@ model CartPromotions {
   cart        Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   promotion   Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+  @@index([cartId])
+  @@index([promotionId])
   @@schema("pricing")
 }
 
@@ -714,6 +742,8 @@ model OrderPromotions {
   order       Order     @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   promotion   Promotion @relation(fields: [promotionId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
+  @@index([orderId])
+  @@index([promotionId])
   @@schema("pricing")
 }
 
@@ -726,6 +756,7 @@ model Cart {
   customer       Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   CartPromotions CartPromotions[]
 
+  @@index([customerId])
   @@schema("sales")
 }
 
@@ -740,6 +771,9 @@ model CartItem {
   promotion   Promotion? @relation(fields: [promotionId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   variant     Variant    @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+  @@index([cartId])
+  @@index([promotionId])
+  @@index([variantId])
   @@schema("sales")
 }
 
@@ -765,6 +799,9 @@ model Order {
   tenant          Tenant            @relation(fields: [tenantId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
   @@unique([tenantId, orderNumber])
+  @@index([customerId])
+  @@index([cartId])
+  @@index([addressId])
   @@schema("sales")
 }
 
@@ -791,6 +828,8 @@ model OrderDetail {
   order       Order    @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   variant     Variant  @relation(fields: [variantId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
+  @@index([orderId])
+  @@index([variantId])
   @@schema("sales")
 }
 
@@ -805,6 +844,8 @@ model Return {
   order        Order    @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   variant      Variant  @relation(fields: [variantId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
+  @@index([orderId])
+  @@index([variantId])
   @@schema("sales")
 }
 
@@ -822,6 +863,9 @@ model Payment {
   paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   Subscription    Subscription  @relation(fields: [subscriptionId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
+  @@index([orderId])
+  @@index([paymentMethodId])
+  @@index([subscriptionId])
   @@schema("sales")
 }
 
@@ -846,6 +890,8 @@ model PaymentMethod {
   customer               Customer?               @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   payments               Payment[]
 
+  @@index([tenantId])
+  @@index([customerId])
   @@schema("sales")
 }
 
@@ -886,6 +932,7 @@ model Customer {
   defaultShippingAddress   Address?                @relation("CustomerDefaultShippingAddress", fields: [defaultShippingAddressId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   defaultBillingAddress    Address?                @relation("CustomerDefaultBillingAddress", fields: [defaultBillingAddressId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 
+  @@index([tenantId])
   @@schema("customer")
 }
 
@@ -897,6 +944,8 @@ model WishList {
   customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   variant    Variant  @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+  @@index([customerId])
+  @@index([variantId])
   @@schema("customer")
 }
 
@@ -911,6 +960,8 @@ model CustomerReviewProduct {
   customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   variant     Variant  @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+  @@index([customerId])
+  @@index([variantId])
   @@schema("customer")
 }
 
@@ -925,6 +976,8 @@ model PhoneNumber {
   customer           Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   tenant             Tenant?   @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+  @@index([customerId])
+  @@index([tenantId])
   @@schema("common")
 }
 
@@ -955,6 +1008,8 @@ model Address {
 
   @@unique([tenantId, name])
   @@unique([customerId, name])
+  @@index([countryId])
+  @@index([stateId])
   @@schema("common")
 }
 
@@ -1017,5 +1072,6 @@ model State {
   shippmentRates ShipmentRate[]
   country        Country        @relation(fields: [countryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+  @@index([countryId])
   @@schema("geography")
 }

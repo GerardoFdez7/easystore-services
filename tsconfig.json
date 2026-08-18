@@ -18,6 +18,7 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "resolveJsonModule": true,
+    "types": ["jest", "node"],
     "paths": {
       "@test/*": ["./src/test/*"],
       "@config/*": ["./src/config/*"],

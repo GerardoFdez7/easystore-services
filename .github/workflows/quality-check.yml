@@ -24,12 +24,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Generate Prisma client
-        run: npm run generate
-
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -37,6 +31,12 @@ jobs:
 
       - name: Install Semgrep
         run: pipx install semgrep
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npm run generate
 
       - name: Check architecture
         run: npm run architecture
