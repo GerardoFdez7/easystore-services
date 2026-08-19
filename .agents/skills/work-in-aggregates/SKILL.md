@@ -1,6 +1,14 @@
 ---
 name: work-in-aggregates
-description: Implement, debug, review, or refactor aggregate-layer code, including aggregate roots, nested entities, attribute contracts, value objects, domain events, and repository interfaces. Use for any task touching src/domains/*/aggregates, whether it is new behavior, a bug fix, or maintenance.
+description: >-
+  Implement, debug, review, or refactor aggregate-layer code, including
+  aggregate roots, nested entities, attribute contracts, value objects, domain
+  events, and repository interfaces. Use for any task touching
+  src/domains/*/aggregates, whether it is new behavior, a bug fix, or
+  maintenance.
+modeSlugs:
+  - debug
+  - code
 ---
 
 # Work in aggregates

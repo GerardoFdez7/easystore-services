@@ -10,7 +10,7 @@ import {
   generateToken,
   generateRefreshToken,
   JwtPayload,
-} from '../../../infrastructure/jwt';
+} from '../../../infrastructure/strategies';
 import { ICustomerRepository } from '../../../aggregates/repositories/customer.interface';
 import { IEmployeeRepository } from '../../../aggregates/repositories/employee.interface';
 import { IAuthRepository } from '../../../aggregates/repositories/authentication.interface';

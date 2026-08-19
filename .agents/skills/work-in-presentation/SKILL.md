@@ -1,6 +1,13 @@
 ---
 name: work-in-presentation
-description: Implement, debug, review, test, or refactor GraphQL presentation code, including resolvers, object/input/args types, authentication context mapping, and transport validation. Use for any task touching src/domains/*/presentation.
+description: >-
+  Implement, debug, review, test, or refactor GraphQL presentation code,
+  including resolvers, object/input/args types, authentication context mapping,
+  and transport validation. Use for any task touching
+  src/domains/*/presentation.
+modeSlugs:
+  - debug
+  - code
 ---
 
 # Work in presentation

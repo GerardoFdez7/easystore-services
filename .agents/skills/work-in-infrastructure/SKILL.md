@@ -1,6 +1,13 @@
 ---
 name: work-in-infrastructure
-description: Implement, debug, review, test, or refactor infrastructure-layer code, including Prisma/PostgreSQL repositories, persistence mapping, transactions, database error translation, and cross-domain adapters. Use for any task touching src/domains/*/infrastructure.
+description: >-
+  Implement, debug, review, test, or refactor infrastructure-layer code,
+  including Prisma/PostgreSQL repositories, persistence mapping, transactions,
+  database error translation, and cross-domain adapters. Use for any task
+  touching src/domains/*/infrastructure.
+modeSlugs:
+  - debug
+  - code
 ---
 
 # Work in infrastructure

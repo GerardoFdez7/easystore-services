@@ -1,6 +1,12 @@
 ---
 name: build-domain
-description: Discover, model, and coordinate a new bounded context or a domain capability that changes ownership or spans multiple architectural layers. Use for domain-level planning and cross-layer integration; use the applicable layer skills for implementation details.
+description: >-
+  Discover, model, and coordinate a new bounded context or a domain capability
+  that changes ownership or spans multiple architectural layers. Use for
+  domain-level planning and cross-layer integration; use the applicable layer
+  skills for implementation details.
+modeSlugs:
+  - architect
 ---
 
 # Build a domain

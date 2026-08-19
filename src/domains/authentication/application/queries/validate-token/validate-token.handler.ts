@@ -1,6 +1,6 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { AuthenticationValidateTokenDTO } from './validate-token.dto';
-import { verifyToken } from '../../../infrastructure/jwt';
+import { verifyToken } from '../../../infrastructure/strategies';
 import { ResponseDTO } from '../../mappers';
 
 @QueryHandler(AuthenticationValidateTokenDTO)

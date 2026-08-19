@@ -10,4 +10,4 @@ export {
   setTokenCookies,
   clearTokenCookies,
   extractTokenFromCookies,
-} from './jwt-handler';
+} from './jwt/jwt.handler';

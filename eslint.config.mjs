@@ -13,7 +13,7 @@ const ignorePatterns = [
   '*.config.js',
   '*.config.ts',
   '*.config.mjs',
-  'tools/*.mjs',
+  'tools/*',
   'dist',
   'node_modules',
   'test/',

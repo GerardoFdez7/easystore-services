@@ -1,6 +1,13 @@
 ---
 name: compose-domain
-description: Implement, debug, review, or refactor NestJS domain composition, including domain modules, provider tokens, handler/resolver registration, imports/exports, and AppModule integration. Use for tasks touching src/domains/*/*.module.ts or domain registration in src/app.module.ts.
+description: >-
+  Implement, debug, review, or refactor NestJS domain composition, including
+  domain modules, provider tokens, handler/resolver registration,
+  imports/exports, and AppModule integration. Use for tasks touching
+  src/domains/*/*.module.ts or domain registration in src/app.module.ts.
+modeSlugs:
+  - code
+  - debug
 ---
 
 # Compose a domain

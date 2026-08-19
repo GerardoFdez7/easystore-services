@@ -9,7 +9,7 @@ import { AccountTypeEnum } from '../../../../aggregates/value-objects';
 import {
   generateRefreshToken,
   generateToken,
-} from '../../../../infrastructure/jwt';
+} from '../../../../infrastructure/strategies';
 import { AuthenticationLoginDTO } from '../sign-in.dto';
 import { AuthenticationLoginHandler } from '../sign-in.handler';
 
@@ -17,7 +17,7 @@ jest.mock('bcrypt', () => ({
   __esModule: true,
   default: { compare: jest.fn() },
 }));
-jest.mock('../../../../infrastructure/jwt', () => ({
+jest.mock('../../../../infrastructure/strategies', () => ({
   generateToken: jest.fn(),
   generateRefreshToken: jest.fn(),
 }));

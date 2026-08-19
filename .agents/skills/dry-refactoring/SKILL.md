@@ -1,6 +1,14 @@
 ---
 name: dry-refactoring
-description: Eliminate meaningful copy-paste duplication reported jscpd gate using semantics-preserving extraction and verification. Use when npm run duplication fails, when adding repeated domain/application code, or when reviewing whether similar interfaces, functions, classes, DTOs, or tests should share an abstraction.
+description: >-
+  Eliminate meaningful copy-paste duplication reported jscpd gate using
+  semantics-preserving extraction and verification. Use when npm run duplication
+  fails, when adding repeated domain/application code, or when reviewing whether
+  similar interfaces, functions, classes, DTOs, or tests should share an
+  abstraction.
+modeSlugs:
+  - code
+  - debug
 ---
 
 # DRY refactoring

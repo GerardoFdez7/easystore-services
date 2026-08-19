@@ -13,12 +13,12 @@ import { AuthenticationMapper } from '../../../mappers';
 import {
   verifyPasswordResetToken,
   invalidateToken,
-} from '../../../../infrastructure/jwt';
+} from '../../../../infrastructure/strategies';
 import { Id } from '../../../../aggregates/value-objects';
 import { v7 as uuidv7 } from 'uuid';
 
 // Mock the JWT functions
-jest.mock('../../../../infrastructure/jwt', () => ({
+jest.mock('../../../../infrastructure/strategies', () => ({
   verifyPasswordResetToken: jest.fn(),
   invalidateToken: jest.fn(),
   generatePasswordResetToken: jest.fn(),

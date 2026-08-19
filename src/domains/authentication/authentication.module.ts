@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
 import { CqrsModule } from '@nestjs/cqrs';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EmailModule } from '@email/index';
@@ -30,6 +31,7 @@ import {
 } from './infrastructure/persistence/postgres';
 import { TenantAdapter } from './infrastructure/adapters';
 import AuthGuard from './infrastructure/guard/auth.guard';
+import { JwtStrategy } from './infrastructure/strategies/jwt/jwt.strategy';
 import {
   AuthEmailService,
   ForgotPasswordEmailBuilder,
@@ -66,7 +68,12 @@ const RateLimiters = [PasswordResetRateLimiter];
 const CronServices = [CleanupService];
 
 @Module({
-  imports: [CqrsModule, ScheduleModule.forRoot(), EmailModule],
+  imports: [
+    CqrsModule,
+    ScheduleModule.forRoot(),
+    EmailModule,
+    JwtModule.register({ secret: process.env.JWT_SECRET }),
+  ],
   providers: [
     {
       provide: 'AuthRepository',
@@ -90,6 +97,7 @@ const CronServices = [CleanupService];
     },
     AuthenticationResolver,
     AuthGuard,
+    JwtStrategy,
     ...CommandHandlers,
     ...QueryHandlers,
     ...EventHandlers,

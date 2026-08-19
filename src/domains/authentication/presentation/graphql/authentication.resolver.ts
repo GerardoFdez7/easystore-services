@@ -6,7 +6,7 @@ import {
   setTokenCookies,
   clearTokenCookies,
   extractTokenFromCookies,
-} from '../../infrastructure/jwt';
+} from '../../infrastructure/strategies';
 import {
   AuthIdentityType,
   AuthenticationInput,

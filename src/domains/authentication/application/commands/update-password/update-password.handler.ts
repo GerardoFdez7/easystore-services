@@ -7,7 +7,7 @@ import { AuthenticationMapper, ResponseDTO } from '../../mappers';
 import {
   verifyPasswordResetToken,
   invalidateToken,
-} from '../../../infrastructure/jwt';
+} from '../../../infrastructure/strategies';
 import { PasswordResetRateLimiter } from '../../../infrastructure/rate-limiting/password-reset-rate-limiter';
 
 @CommandHandler(UpdatePasswordDTO)

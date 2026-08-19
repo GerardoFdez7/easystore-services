@@ -1,6 +1,6 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
-import { JwtPayload } from '../../domains/authentication/infrastructure/jwt/jwt-handler';
+import { JwtPayload } from '@authentication/infrastructure/strategies';
 
 // Re-export JwtPayload for convenience
 export { JwtPayload };

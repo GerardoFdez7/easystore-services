@@ -5,9 +5,10 @@ import {
   allowedAggregateDependencies,
   persistenceRepositoryContractExceptions,
   specializedMutationDtos,
-} from '../architecture.config.mjs';
+} from './config.mjs';
 
-const repositoryRoot = resolve(import.meta.dirname, '..');
+const repositoryRoot = resolve(import.meta.dirname, '../..');
+
 const domainsRoot = process.env.ARCHITECTURE_DOMAINS_ROOT
   ? resolve(process.env.ARCHITECTURE_DOMAINS_ROOT)
   : join(repositoryRoot, 'src', 'domains');
@@ -567,7 +568,7 @@ function validateDomainModule(domainRoot, domainName) {
 }
 
 function validateConfiguredExceptions(exceptions, label) {
-  const configFile = join(repositoryRoot, 'tools', 'architecture.config.mjs');
+  const configFile = join(repositoryRoot, 'tools', 'architecture' , 'config.mjs');
   for (const [path, reason] of Object.entries(exceptions)) {
     if (typeof reason !== 'string' || reason.trim().length === 0) {
       report(configFile, `${label} exception "${path}" requires a reason`);

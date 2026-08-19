@@ -9,7 +9,7 @@ import {
   GetInTouchEmailBuilder,
   GetInTouchEmailData,
 } from './get-in-touch/get-in-touch.builder';
-import { generatePasswordResetToken } from '../jwt';
+import { generatePasswordResetToken } from '../strategies';
 import { GetInTouchDTO } from '@authentication/application/commands/get-in-touch/get-in-touch.dto';
 
 /**

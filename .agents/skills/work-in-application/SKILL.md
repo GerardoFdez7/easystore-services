@@ -1,6 +1,12 @@
 ---
 name: work-in-application
-description: Implement, debug, review, test, or refactor application-layer code, including CQRS command/query/event handlers, use-case DTOs, mappers, and cross-domain ports. Use for any task touching src/domains/*/application.
+description: >-
+  Implement, debug, review, test, or refactor application-layer code, including
+  CQRS command/query/event handlers, use-case DTOs, mappers, and cross-domain
+  ports. Use for any task touching src/domains/*/application.
+modeSlugs:
+  - debug
+  - code
 ---
 
 # Work in application

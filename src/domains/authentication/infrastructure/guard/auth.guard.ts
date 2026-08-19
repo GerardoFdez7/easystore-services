@@ -7,11 +7,13 @@ import {
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
+import { JwtService } from '@nestjs/jwt';
+import { AuthGuard as PassportAuthGuard } from '@nestjs/passport';
 import {
-  verifyToken,
   JwtPayload,
   extractTokenFromCookies,
-} from '../jwt/jwt-handler';
+  isTokenBlacklisted,
+} from '../strategies/jwt/jwt.handler';
 import { IsPublicKey, IsAuthenticatedKey } from '../../../../common/decorators';
 
 interface RequestWithUser extends Request {
@@ -19,8 +21,16 @@ interface RequestWithUser extends Request {
 }
 
 @Injectable()
-export default class AuthGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+export default class AuthGuard
+  extends PassportAuthGuard('jwt')
+  implements CanActivate
+{
+  constructor(
+    private readonly reflector: Reflector,
+    private readonly jwtService: JwtService,
+  ) {
+    super();
+  }
 
   canActivate(context: ExecutionContext): boolean {
     // Check if the method is explicitly marked as authenticated
@@ -66,8 +76,11 @@ export default class AuthGuard implements CanActivate {
 
   private handleToken(token: string, req: RequestWithUser): boolean {
     try {
+      if (isTokenBlacklisted(token)) {
+        throw new Error('Token has been already invalidated');
+      }
       // Verify the JWT token
-      const payload = verifyToken(token);
+      const payload = this.jwtService.verify<JwtPayload>(token);
 
       // Attach user info to the request context
       req.user = payload;

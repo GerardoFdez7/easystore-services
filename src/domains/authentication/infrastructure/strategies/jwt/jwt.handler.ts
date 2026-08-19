@@ -1,5 +1,5 @@
-import jwt from 'jsonwebtoken';
 import { Response, Request } from 'express';
+import { JwtService } from '@nestjs/jwt';
 
 const jwtSecret = process.env.JWT_SECRET;
 const jwtExpiration = '1d';
@@ -10,6 +10,10 @@ if (!jwtSecret) {
 }
 
 const blacklistedTokens = new Set<string>();
+const jwtService = new JwtService({ secret: jwtSecret });
+
+export const isTokenBlacklisted = (token: string): boolean =>
+  blacklistedTokens.has(token);
 
 export interface JwtPayload {
   email: string;
@@ -28,26 +32,26 @@ export interface PasswordResetPayload {
 }
 
 export const generateToken = (payload: JwtPayload): string => {
-  return jwt.sign(payload, jwtSecret, {
+  return jwtService.sign(payload, {
     expiresIn: jwtExpiration,
   });
 };
 
 export const verifyToken = (token: string): JwtPayload => {
-  if (blacklistedTokens.has(token)) {
+  if (isTokenBlacklisted(token)) {
     throw new Error('Token has been already invalidated');
   }
 
   try {
-    return jwt.verify(token, jwtSecret) as JwtPayload;
+    return jwtService.verify<JwtPayload>(token);
   } catch (error) {
-    if (error instanceof jwt.JsonWebTokenError) {
+    if (error instanceof Error && error.name === 'JsonWebTokenError') {
       throw new Error('Invalid token');
     }
-    if (error instanceof jwt.TokenExpiredError) {
+    if (error instanceof Error && error.name === 'TokenExpiredError') {
       throw new Error('Token has expired');
     }
-    if (error instanceof jwt.NotBeforeError) {
+    if (error instanceof Error && error.name === 'NotBeforeError') {
       throw new Error('Token not active');
     }
     throw new Error('Token verification failed');
@@ -55,7 +59,7 @@ export const verifyToken = (token: string): JwtPayload => {
 };
 
 export const generateRefreshToken = (payload: JwtPayload): string => {
-  return jwt.sign(payload, jwtSecret, {
+  return jwtService.sign(payload, {
     expiresIn: refreshTokenExpiration,
   });
 };
@@ -69,7 +73,7 @@ export const generatePasswordResetToken = (
     purpose: 'password_reset',
   };
 
-  return jwt.sign(resetPayload, jwtSecret, {
+  return jwtService.sign(resetPayload, {
     expiresIn: '15m',
   });
 };
@@ -78,12 +82,12 @@ export const generatePasswordResetToken = (
 export const verifyPasswordResetToken = (
   token: string,
 ): PasswordResetPayload => {
-  if (blacklistedTokens.has(token)) {
+  if (isTokenBlacklisted(token)) {
     throw new Error('Reset token has been invalidated');
   }
 
   try {
-    const payload = jwt.verify(token, jwtSecret) as PasswordResetPayload;
+    const payload = jwtService.verify<PasswordResetPayload>(token);
 
     if (payload.purpose !== 'password_reset') {
       throw new Error('Invalid token purpose');
@@ -91,13 +95,13 @@ export const verifyPasswordResetToken = (
 
     return payload;
   } catch (error) {
-    if (error instanceof jwt.JsonWebTokenError) {
+    if (error instanceof Error && error.name === 'JsonWebTokenError') {
       throw new Error('Invalid reset token');
     }
-    if (error instanceof jwt.TokenExpiredError) {
+    if (error instanceof Error && error.name === 'TokenExpiredError') {
       throw new Error('Reset token has expired');
     }
-    if (error instanceof jwt.NotBeforeError) {
+    if (error instanceof Error && error.name === 'NotBeforeError') {
       throw new Error('Reset token not active');
     }
     throw new Error('Reset token verification failed');
@@ -116,7 +120,7 @@ export const setTokenCookies = (res: Response, accessToken: string): void => {
   res.cookie('accessToken', accessToken, {
     httpOnly: true,
     secure: true,
-    sameSite: 'none', // (frontend on Vercel, backend on OCI)
+    sameSite: 'none',
     maxAge: 24 * 60 * 60 * 1000, // 1 day in milliseconds
     path: '/',
   });

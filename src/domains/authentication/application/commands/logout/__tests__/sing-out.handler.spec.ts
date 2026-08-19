@@ -1,10 +1,13 @@
 import { EventPublisher } from '@nestjs/cqrs';
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { invalidateToken, verifyToken } from '../../../../infrastructure/jwt';
+import {
+  invalidateToken,
+  verifyToken,
+} from '../../../../infrastructure/strategies';
 import { AuthenticationLogoutDTO } from '../sing-out.dto';
 import { AuthenticationLogoutHandler } from '../sing-out.handler';
 
-jest.mock('../../../../infrastructure/jwt', () => ({
+jest.mock('../../../../infrastructure/strategies', () => ({
   verifyToken: jest.fn(),
   invalidateToken: jest.fn(),
 }));
