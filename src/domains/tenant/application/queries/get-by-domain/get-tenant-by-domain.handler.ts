@@ -13,9 +13,14 @@ export class GetTenantByDomainHandler
     private readonly tenantRepository: ITenantRepository,
   ) {}
 
-  execute(query: GetTenantByDomainDto): Promise<string | null> {
-    return this.tenantRepository.getTenantIdByDomain(
-      Domain.create(query.domain),
-    );
+  async execute(query: GetTenantByDomainDto): Promise<string | null> {
+    let domain: Domain;
+    try {
+      domain = Domain.create(query.domain);
+    } catch {
+      return null;
+    }
+
+    return this.tenantRepository.getTenantIdByDomain(domain);
   }
 }

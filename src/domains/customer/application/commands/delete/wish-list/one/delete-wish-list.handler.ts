@@ -2,7 +2,7 @@ import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { DeleteWishListDto } from './delete-wish-list.dto';
 import { IWishListRepository } from '../../../../../aggregates/repositories/wish-list.interface';
 import { ICustomerRepository } from '../../../../../aggregates/repositories/customer.interface';
-import { Inject } from '@nestjs/common';
+import { Inject, NotFoundException } from '@nestjs/common';
 import { Id } from '@shared/value-objects';
 import { Customer } from '../../../../../aggregates/entities';
 import { findCustomerOrThrow } from '../../../../shared/find-customer-or-throw';
@@ -29,7 +29,6 @@ export class DeleteWishListHandler
       this.customerRepository,
       customerId,
       tenantId,
-      command.customerId,
     );
 
     // Remove the variant from wishlist using repository method and get the deleted item
@@ -38,6 +37,12 @@ export class DeleteWishListHandler
         customerId,
         variantId,
       );
+
+    if (!deletedWishListItem) {
+      throw new NotFoundException(
+        `Wish list item for variant ${command.variantId} not found`,
+      );
+    }
 
     // Use the domain method to emit the event with the actual deleted item
     Customer.removeVariantFromWishList(deletedWishListItem, customerFound);

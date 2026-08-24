@@ -6,6 +6,7 @@ import { ICustomerRepository } from '../../../../aggregates/repositories/custome
 import { Id } from '@shared/value-objects';
 import { Customer } from '../../../../aggregates/entities';
 import { WishListDTO, WishListMapper } from '../../../mappers';
+import { findCustomerOrThrow } from '../../../shared/find-customer-or-throw';
 
 @CommandHandler(CreateWishListDto)
 export class CreateWishListHandler
@@ -25,14 +26,18 @@ export class CreateWishListHandler
     const variantId = Id.create(command.wishListItem.variantId);
 
     // Find the customer to validate it exists
-    const customerFound = await this.customerRepository.findById(
+    const customerFound = await findCustomerOrThrow(
+      this.customerRepository,
       customerId,
       tenantId,
     );
 
     // Check if not exist a wishlist item already
     const wishListItemFound =
-      await this.wishListRepository.findWishListItemByVariantId(variantId);
+      await this.wishListRepository.findWishListItemByVariantId(
+        customerId,
+        variantId,
+      );
 
     if (wishListItemFound !== null)
       throw new BadRequestException(

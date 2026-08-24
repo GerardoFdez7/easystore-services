@@ -32,7 +32,6 @@ export class DeleteManyWishListHandler
       this.customerRepository,
       customerId,
       tenantId,
-      command.customerId,
     );
 
     // Remove multiple variants from wishlist using repository method and get the deleted items

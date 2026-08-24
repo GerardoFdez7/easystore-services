@@ -11,13 +11,13 @@ import {
 } from './development.seed';
 
 describe('development database seed fixtures', () => {
-  it('generates UUIDs for each fixture and does not reuse IDs between runs', () => {
+  it('uses stable UUIDs for idempotent fixture upserts', () => {
     const firstRunIds = Object.values(createDevelopmentFixtureIds());
     const secondRunIds = Object.values(createDevelopmentFixtureIds());
 
     firstRunIds.forEach((id) => Id.create(id));
     expect(new Set(firstRunIds).size).toBe(firstRunIds.length);
-    expect(secondRunIds).not.toEqual(firstRunIds);
+    expect(secondRunIds).toEqual(firstRunIds);
   });
 
   it('passes the applicable domain validators', () => {

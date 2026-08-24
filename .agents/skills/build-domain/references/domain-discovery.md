@@ -31,17 +31,17 @@ from established conventions.
 
 Before editing, map each behavior to an owner:
 
-| Concern | Owner |
-| --- | --- |
-| invariants and state transitions | aggregate root/value objects |
-| creation and reconstitution | entity factories/mappers |
-| durable access contract | aggregate repository interface |
-| use-case orchestration | command/query handler |
-| cross-domain capability needed | consumer application port |
-| cross-domain translation | consumer infrastructure adapter |
-| SQL/Prisma behavior | infrastructure repository |
-| transport validation and authentication context | GraphQL resolver/types |
-| dependency registration | domain module |
+| Concern                                         | Owner                           |
+| ----------------------------------------------- | ------------------------------- |
+| invariants and state transitions                | aggregate root/value objects    |
+| creation and reconstitution                     | entity factories/mappers        |
+| durable access contract                         | aggregate repository interface  |
+| use-case orchestration                          | command/query handler           |
+| cross-domain capability needed                  | consumer application port       |
+| cross-domain translation                        | consumer infrastructure adapter |
+| SQL/Prisma behavior                             | infrastructure repository       |
+| transport validation and authentication context | GraphQL resolver/types          |
+| dependency registration                         | domain module                   |
 
 If a rule has two owners, clarify the boundary. Do not duplicate the same validation in
 GraphQL, a handler, and the entity unless each validation serves a different boundary.
@@ -76,4 +76,3 @@ Confirm that:
 - deletions are explicitly hard, soft, archival, or prohibited;
 - concurrency and transactions are defined for multi-record invariants;
 - event handlers are idempotent when delivery may repeat.
-

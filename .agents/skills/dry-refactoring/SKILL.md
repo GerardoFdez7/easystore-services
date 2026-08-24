@@ -46,12 +46,14 @@ npx jscpd --config .jscpd.json --reporters console,ai <path>
 ## Refactoring Strategies
 
 **Extract function** — when the duplicate is a block of logic:
+
 ```ts
 // Before: same block in two places
 // After: shared function called from both places
 ```
 
 **Extract module/utility** — when the duplicate spans multiple files in different domains:
+
 ```ts
 // Move shared logic to a shared utility file and import it
 ```
@@ -65,6 +67,7 @@ ubiquitous across domains.
 contract, not merely a similar class shape.
 
 Always ensure:
+
 - All call sites are updated, not just the two reported by jscpd
 - Tests still pass after refactoring
 - The extracted abstraction has a clear, descriptive name

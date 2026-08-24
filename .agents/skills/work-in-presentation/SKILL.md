@@ -32,4 +32,3 @@ authentication decorators, shared GraphQL helpers, and an analogous resolver.
 
 Presentation may depend inward on its own domain but may not import another bounded
 context directly.
-

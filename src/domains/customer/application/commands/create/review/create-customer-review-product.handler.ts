@@ -2,7 +2,7 @@ import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { CreateCustomerReviewProductDto } from './create-customer-review-product.dto';
 import { CustomerReviewProductDTO } from '../../../mappers/review/customer-review-product.dto';
 import { ICustomerRepository } from '../../../../aggregates/repositories/customer.interface';
-import { Inject } from '@nestjs/common';
+import { Inject, NotFoundException } from '@nestjs/common';
 import { ICustomerReviewProductRepository } from '../../../../aggregates/repositories/customer-review-product.interface';
 import { Id } from '@shared/value-objects';
 import { Customer } from '../../../../aggregates/entities';
@@ -31,6 +31,12 @@ export class CreateCustomerReviewProductHandler
       customerId,
       tenantIdId,
     );
+
+    if (!customer) {
+      throw new NotFoundException(
+        `Customer with ID ${command.customerId} not found`,
+      );
+    }
 
     // Create review
     const review = Customer.addCustomerReviewProduct(

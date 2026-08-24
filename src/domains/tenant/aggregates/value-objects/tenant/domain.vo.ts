@@ -43,7 +43,7 @@ export class Domain {
 
   public static create(value: string | null): Domain {
     DomainSchema.parse(value);
-    return new Domain(value);
+    return new Domain(value !== null ? value.toLowerCase() : value);
   }
 
   public static createDefault(businessName: string): Domain {

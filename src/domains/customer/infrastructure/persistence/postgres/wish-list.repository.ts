@@ -12,11 +12,15 @@ export class WishListRepository implements IWishListRepository {
   constructor(private readonly postgresService: PostgreService) {}
 
   async findWishListItemByVariantId(
+    customerId: Id,
     variantId: Id,
   ): Promise<WishListItem | null> {
     try {
       const wishListItemFound = await this.postgresService.wishList.findFirst({
-        where: { variantId: variantId.getValue() },
+        where: {
+          customerId: customerId.getValue(),
+          variantId: variantId.getValue(),
+        },
       });
 
       if (!wishListItemFound) return null;

@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventPublisher } from '@nestjs/cqrs';
+import { NotFoundException } from '@nestjs/common';
 import { UpdateCustomerReviewProductHandler } from '../update-customer-review-product.handler';
 import { UpdateCustomerReviewProductDto } from '../update-customer-review-product.dto';
 import { ICustomerRepository } from '../../../../../aggregates/repositories/customer.interface';
@@ -376,6 +377,14 @@ describe('UpdateCustomerReviewProductHandler', () => {
         );
       });
 
+      it('should throw NotFoundException when the customer does not exist', async () => {
+        findCustomerByIdMock.mockResolvedValue(null);
+
+        await expect(handler.execute(baseCommand)).rejects.toThrow(
+          NotFoundException,
+        );
+      });
+
       it('should propagate review retrieval errors', async () => {
         const retrieverError = new Error('Review database read failed');
         findCustomerByIdMock.mockResolvedValue(
@@ -385,6 +394,17 @@ describe('UpdateCustomerReviewProductHandler', () => {
 
         await expect(handler.execute(baseCommand)).rejects.toThrow(
           retrieverError,
+        );
+      });
+
+      it('should throw NotFoundException when the review does not exist', async () => {
+        findCustomerByIdMock.mockResolvedValue(
+          mockCustomer as unknown as Customer,
+        );
+        findByIdMock.mockResolvedValue(null);
+
+        await expect(handler.execute(baseCommand)).rejects.toThrow(
+          NotFoundException,
         );
       });
 

@@ -70,7 +70,11 @@ jobs:
               filter: 'latest',
               per_page: 100,
             });
-            const currentJob = data.jobs.find((job) => job.name === context.job);
+            const currentJob = data.jobs.find(
+              (job) =>
+                job.name === context.job ||
+                job.name.startsWith(`${context.job} (`),
+            );
             const failedSteps = currentJob?.steps
               .filter((step) => step.conclusion === 'failure')
               .map((step) => `- ${step.name}`) ?? [];

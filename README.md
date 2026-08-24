@@ -122,12 +122,14 @@ The Apollo Playground provides an interactive environment to:
 ### Key Patterns
 
 1. **Command Query Responsibility Segregation (CQRS)**
+
    - Separate models for:
      - Commands (write operations with business validation)
      - Queries (read operations with optimized projections)
    - Event sourcing for critical domain operations
 
 2. **Repository Pattern**
+
    - Abstract data access through `IRepository` interfaces
    - Database-agnostic domain layer
    - Concrete implementations in infrastructure layer
