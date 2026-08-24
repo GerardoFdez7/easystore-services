@@ -1,0 +1,16 @@
+export { CreateCustomerDto } from './create/customer/create-customer.dto';
+export { CreateCustomerHandler } from './create/customer/create-customer.handler';
+export { CreateCustomerReviewProductDto } from './create/review/create-customer-review-product.dto';
+export { CreateCustomerReviewProductHandler } from './create/review/create-customer-review-product.handler';
+export { CreateWishListDto } from './create/wish-list/create-wish-list.dto';
+export { CreateWishListHandler } from './create/wish-list/create-wish-list.handler';
+export { DeleteCustomerReviewProductDto } from './delete/review/delete-customer-review-product.dto';
+export { DeleteCustomerReviewProductHandler } from './delete/review/delete-customer-review-product.handler';
+export { DeleteManyWishListDto } from './delete/wish-list/many/delete-many-wish-list.dto';
+export { DeleteManyWishListHandler } from './delete/wish-list/many/delete-many-wish-list.handler';
+export { DeleteWishListDto } from './delete/wish-list/one/delete-wish-list.dto';
+export { DeleteWishListHandler } from './delete/wish-list/one/delete-wish-list.handler';
+export { UpdateCustomerDto } from './update/customer/update-customer.dto';
+export { UpdateCustomerHandler } from './update/customer/update-customer.handler';
+export { UpdateCustomerReviewProductDto } from './update/review/update-customer-review-product.dto';
+export { UpdateCustomerReviewProductHandler } from './update/review/update-customer-review-product.handler';

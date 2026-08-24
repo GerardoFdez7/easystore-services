@@ -5,6 +5,7 @@ import { TenantProvisioningHandler } from '../tenant-provisioning.handler';
 describe('TenantProvisioningHandler', () => {
   const tenantAdapter = {
     provisionTenant: jest.fn(),
+    getTenantIdByDomain: jest.fn(),
     getTenantIdByAuthIdentityId: jest.fn(),
   };
 

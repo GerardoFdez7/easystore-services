@@ -2,9 +2,11 @@ import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { DeleteManyWishListDto } from './delete-many-wish-list.dto';
 import { IWishListRepository } from '../../../../../aggregates/repositories/wish-list.interface';
 import { ICustomerRepository } from '../../../../../aggregates/repositories/customer.interface';
-import { Inject, NotFoundException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { Id } from '@shared/value-objects';
 import { Customer } from '../../../../../aggregates/entities';
+import { findCustomerOrThrow } from '../../../../shared/find-customer-or-throw';
+import { WishListMultiStatusDTO } from '../../../../mappers/wish-list/wish-list.dto';
 
 @CommandHandler(DeleteManyWishListDto)
 export class DeleteManyWishListHandler
@@ -18,22 +20,20 @@ export class DeleteManyWishListHandler
     private readonly eventPublisher: EventPublisher,
   ) {}
 
-  async execute(command: DeleteManyWishListDto): Promise<void> {
+  async execute(
+    command: DeleteManyWishListDto,
+  ): Promise<WishListMultiStatusDTO> {
     const customerId = Id.create(command.customerId);
     const variantIds = command.variantIds.map((id) => Id.create(id));
     const tenantId = Id.create(command.tenantId);
 
     // Find the customer to validate it exists
-    const customerFound = await this.customerRepository.findById(
+    const customerFound = await findCustomerOrThrow(
+      this.customerRepository,
       customerId,
       tenantId,
+      command.customerId,
     );
-
-    if (!customerFound) {
-      throw new NotFoundException(
-        `Customer with ID ${command.customerId} not found`,
-      );
-    }
 
     // Remove multiple variants from wishlist using repository method and get the deleted items
     const deletedWishListItems =
@@ -42,15 +42,40 @@ export class DeleteManyWishListHandler
         variantIds,
       );
 
-    // Use the domain method to emit the event with the actual deleted items
-    Customer.removeManyVariantsFromWishList(
-      deletedWishListItems,
-      customerFound,
+    const deletedItemsByVariantId = new Map(
+      deletedWishListItems.map((item) => [item.getVariantIdValue(), item]),
     );
+    const results = command.variantIds.map((variantId) => {
+      const deletedItem = deletedItemsByVariantId.get(variantId);
 
-    // Merge the customer with events context and commit events
-    const customerWithEvents =
-      this.eventPublisher.mergeObjectContext(customerFound);
-    customerWithEvents.commit();
+      deletedItemsByVariantId.delete(variantId);
+
+      return {
+        id: deletedItem?.getIdValue() ?? null,
+        variantId,
+        status: deletedItem ? 200 : 404,
+        message: deletedItem ? 'Deleted' : 'Item not found',
+      };
+    });
+
+    if (deletedWishListItems.length > 0) {
+      Customer.removeManyVariantsFromWishList(
+        deletedWishListItems,
+        customerFound,
+      );
+
+      const customerWithEvents =
+        this.eventPublisher.mergeObjectContext(customerFound);
+      customerWithEvents.commit();
+    }
+
+    return {
+      summary: {
+        total: results.length,
+        successful: results.filter((result) => result.status === 200).length,
+        failed: results.filter((result) => result.status === 404).length,
+      },
+      results,
+    };
   }
 }

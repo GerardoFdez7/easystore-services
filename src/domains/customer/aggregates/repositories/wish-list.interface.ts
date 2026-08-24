@@ -1,6 +1,7 @@
 import { Id } from '@shared/value-objects';
 import { WishListItem } from '../value-objects';
 
+/** Durable operations required for customer-owned wish-list items. */
 export interface IWishListRepository {
   /**
    * Creates a new wish list item.
@@ -38,14 +39,6 @@ export interface IWishListRepository {
     variantIds: Id[],
   ): Promise<WishListItem[]>;
 
-  /**
-   * Retrieves multiple wish list items by their variant IDs for a specific customer.
-   * @param variantsIds An array of variant IDs to search for.
-   * @param customerId The ID of the customer.
-   * @returns A promise that resolves to an array of wish list items.
-   */
-  getManyWishListsByVariantIds(
-    variantIds: Id[],
-    customerId: Id,
-  ): Promise<WishListItem[]>;
+  /** Retrieves all wish-list items owned by one customer. */
+  findMany(customerId: Id): Promise<WishListItem[]>;
 }

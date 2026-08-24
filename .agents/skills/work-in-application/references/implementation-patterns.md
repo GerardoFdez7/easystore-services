@@ -2,6 +2,12 @@
 
 ## CQRS DTOs and handlers
 
+For every `findAll` or paginated collection query, define typed pagination and
+sorting inputs explicitly. Carry `page`, `limit`, `sortBy`, and `sortOrder` from
+the query DTO through the handler to its repository/ports; apply sorting before
+pagination. When a sort key belongs to data supplied by another domain, enrich the
+complete scoped collection first, sort the enriched DTOs, and only then paginate.
+
 Each command/query use case has its own kebab-case folder with sibling `.dto.ts` and
 `.handler.ts` files. Use the matching decorator and generic interface.
 
@@ -20,9 +26,7 @@ contract, and document the reason.
 
 ```ts
 @CommandHandler(CreateWidgetDTO)
-export class CreateWidgetHandler
-  implements ICommandHandler<CreateWidgetDTO>
-{
+export class CreateWidgetHandler implements ICommandHandler<CreateWidgetDTO> {
   constructor(
     @Inject('IWidgetRepository')
     private readonly repository: IWidgetRepository,

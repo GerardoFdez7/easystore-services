@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '.prisma/postgres';
 import { PostgreService } from '@database/postgres.service';
-import { DatabaseOperationError } from '@shared/errors';
 import { Id } from '@shared/value-objects';
-import { ICustomerReviewProductRepository } from '../../../aggregates/repositories/customer-review-product.interface';
+import { handlePrismaDatabaseError } from '@utils/prisma-error-utils';
+import { ICustomerReviewProductRepository } from '../../../aggregates/repositories';
 import { CustomerReviewProduct } from '../../../aggregates/value-objects';
-import { CustomerReviewProductMapper } from '../../../application/mappers/review/customer-review-product.mapper';
+import { CustomerReviewProductMapper } from '../../../application/mappers';
 
 @Injectable()
 export class CustomerReviewProductRepository
@@ -22,39 +22,23 @@ export class CustomerReviewProductRepository
     try {
       const reviewData = CustomerReviewProductMapper.toPersistence(review);
 
-      const createdReview =
-        await this.postgresService.customerReviewProduct.create({
-          data: {
-            id: reviewData.id,
-            ratingCount: reviewData.ratingCount,
-            comment: reviewData.comment,
-            customerId: reviewData.customerId,
-            variantId: reviewData.variantId,
-            updatedAt: reviewData.updatedAt,
-          },
-        });
+      const createdReview = await this.postgresService.$transaction(
+        async (tx) =>
+          tx.customerReviewProduct.create({
+            data: {
+              id: reviewData.id,
+              ratingCount: reviewData.ratingCount,
+              comment: reviewData.comment,
+              customerId: reviewData.customerId,
+              variantId: reviewData.variantId,
+              updatedAt: reviewData.updatedAt,
+            },
+          }),
+      );
 
       return CustomerReviewProductMapper.fromPersistence(createdReview);
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        // Handle unique constraint violations or other known Prisma errors
-        if (error.code === 'P2002') {
-          throw new DatabaseOperationError(
-            'create customer review product',
-            'Customer review already exists for this customer and variant',
-            error,
-          );
-        }
-        if (error.code === 'P2003') {
-          throw new DatabaseOperationError(
-            'create customer review product',
-            'Referenced customer or variant does not exist',
-            error,
-          );
-        }
-      }
-
-      this.handleDatabaseError(error, 'create customer review product');
+      return this.handleDatabaseError(error, 'create customer review product');
     }
   }
 
@@ -68,38 +52,21 @@ export class CustomerReviewProductRepository
       const reviewData = CustomerReviewProductMapper.toPersistence(review);
       const reviewId = review.getIdValue();
 
-      const updatedReview =
-        await this.postgresService.customerReviewProduct.update({
-          where: { id: reviewId },
-          data: {
-            ratingCount: reviewData.ratingCount,
-            comment: reviewData.comment,
-            updatedAt: reviewData.updatedAt,
-          },
-        });
+      const updatedReview = await this.postgresService.$transaction(
+        async (tx) =>
+          tx.customerReviewProduct.update({
+            where: { id: reviewId, customerId: reviewData.customerId },
+            data: {
+              ratingCount: reviewData.ratingCount,
+              comment: reviewData.comment,
+              updatedAt: reviewData.updatedAt,
+            },
+          }),
+      );
 
       return CustomerReviewProductMapper.fromPersistence(updatedReview);
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        // Handle record not found error
-        if (error.code === 'P2025') {
-          throw new DatabaseOperationError(
-            'update customer review product',
-            'Customer review product not found',
-            error,
-          );
-        }
-        // Handle foreign key constraint violations
-        if (error.code === 'P2003') {
-          throw new DatabaseOperationError(
-            'update customer review product',
-            'Referenced customer or variant does not exist',
-            error,
-          );
-        }
-      }
-
-      this.handleDatabaseError(error, 'update customer review product');
+      return this.handleDatabaseError(error, 'update customer review product');
     }
   }
 
@@ -125,7 +92,10 @@ export class CustomerReviewProductRepository
         ? CustomerReviewProductMapper.fromPersistence(reviewProduct)
         : null;
     } catch (error) {
-      this.handleDatabaseError(error, 'find customer review product by id');
+      return this.handleDatabaseError(
+        error,
+        'find customer review product by id',
+      );
     }
   }
 
@@ -165,7 +135,10 @@ export class CustomerReviewProductRepository
         CustomerReviewProductMapper.fromPersistence(reviewProduct),
       );
     } catch (error) {
-      this.handleDatabaseError(error, 'find many customer review products');
+      return this.handleDatabaseError(
+        error,
+        'find many customer review products',
+      );
     }
   }
 
@@ -180,38 +153,26 @@ export class CustomerReviewProductRepository
     const reviewIdValue = reviewId.getValue();
 
     try {
-      await this.postgresService.customerReviewProduct.delete({
-        where: {
-          id: reviewIdValue,
-          customerId: customerIdValue,
-        },
+      await this.postgresService.$transaction(async (tx) => {
+        await tx.customerReviewProduct.delete({
+          where: {
+            id: reviewIdValue,
+            customerId: customerIdValue,
+          },
+        });
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        // Handle record not found error
-        if (error.code === 'P2025') {
-          throw new DatabaseOperationError(
-            'remove customer review product',
-            'Customer review product not found or does not belong to the specified customer',
-            error,
-          );
-        }
-      }
-
-      this.handleDatabaseError(error, 'remove customer review product');
+      return this.handleDatabaseError(error, 'remove customer review product');
     }
   }
 
-  /**
-   * Centralized error handling for database operations
-   */
   private handleDatabaseError(error: unknown, operation: string): never {
-    const errorMessage =
-      error instanceof Error ? error.message : JSON.stringify(error);
-    throw new DatabaseOperationError(
-      operation,
-      errorMessage,
-      error instanceof Error ? error : new Error(errorMessage),
-    );
+    return handlePrismaDatabaseError(error, operation, {
+      resource: 'Customer Review Product',
+      foreignKeyEntities: {
+        customerId: 'Customer',
+        variantId: 'Variant',
+      },
+    });
   }
 }

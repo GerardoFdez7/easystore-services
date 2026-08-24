@@ -11,7 +11,7 @@ datasource postgres {
 
 // generator erd {
 //   provider                  = "prisma-erd-generator"
-//   output                    = "./erd.svg"
+//   output                    = "./docs/erd.svg"
 //   theme                     = "default"
 //   ignoreEnums               = true
 //   includeRelationFromFields = true

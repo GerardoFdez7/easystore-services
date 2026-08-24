@@ -1,30 +1,48 @@
-import { Args, Mutation, Query, Resolver, Int, ID } from '@nestjs/graphql';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
+  Args,
+  Mutation,
+  Query,
+  Resolver,
+  registerEnumType,
+} from '@nestjs/graphql';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { CurrentUser, JwtPayload } from '@common/decorators';
+import { PaginationArgs } from '@common/graphql/pagination.args';
+import { SortOrder } from '@shared/value-objects';
+import {
+  CreateCustomerReviewProductDto,
+  CreateWishListDto,
+  DeleteCustomerReviewProductDto,
+  DeleteManyWishListDto,
+  DeleteWishListDto,
+  UpdateCustomerDto,
+  UpdateCustomerReviewProductDto,
+} from '../../application/commands';
+import {
+  FindCustomerByIdDto,
+  FindManyCustomerReviewsDto,
+  FindWishlistItemsDto,
+  WishListSortBy,
+} from '../../application/queries';
+import {
+  CreateCustomerReviewProductInput,
+  CustomerReviewPaginationArgs,
+  CustomerReviewProductType,
   CustomerType,
+  DeleteCustomerReviewProductInput,
+  PaginatedCustomerReviewProductWithVariantType,
+  PaginatedWishlistType,
+  UpdateCustomerInput,
+  UpdateCustomerReviewProductInput,
   WishListItemCreateInput,
   WishListItemDeleteInput,
   WishListManyItemsInput,
+  WishListMultiStatusType,
   WishListType,
-  PaginatedWishlistType,
-  CustomerReviewProductType,
-  CreateCustomerReviewProductInput,
-  UpdateCustomerReviewProductInput,
-  DeleteCustomerReviewProductInput,
-  PaginatedCustomerReviewProductWithVariantType,
-  UpdateCustomerInput,
-} from './types/customer.types';
-import { CurrentUser, JwtPayload } from '@common/decorators';
-import { FindCustomerByIdDto } from '../../application/queries/one/customer/find-customer-by-id.dto';
-import { CreateWishListDto } from '../../application/commands/create/wish-list/create-wish-list.dto';
-import { DeleteWishListDto } from '../../application/commands/delete/wish-list/one/delete-wish-list.dto';
-import { DeleteManyWishListDto } from '../../application/commands/delete/wish-list/many/delete-many-wish-list.dto';
-import { FindWishlistItemsDto } from '../../application/queries/many/wish-list/find-wish-list-items.dto';
-import { CreateCustomerReviewProductDto } from '../../application/commands/create/review/create-customer-review-product.dto';
-import { UpdateCustomerReviewProductDto } from '../../application/commands/update/review/update-customer-review-product.dto';
-import { DeleteCustomerReviewProductDto } from '../../application/commands/delete/review/delete-customer-review-product.dto';
-import { FindManyCustomerReviewsDto } from '../../application/queries/many/review/find-many-customer-reviews.dto';
-import { UpdateCustomerDto } from '../../application/commands/update/customer/update-customer.dto';
+} from './types';
+
+registerEnumType(WishListSortBy, { name: 'WishListSortBy' });
+registerEnumType(SortOrder, { name: 'SortOrder' });
 
 @Resolver(() => CustomerType)
 export class CustomerResolver {
@@ -36,6 +54,7 @@ export class CustomerResolver {
   ///////////////
   // Mutations //
   ///////////////
+
   @Mutation(() => WishListType)
   async addVariantToWishList(
     @Args('input', { type: () => WishListItemCreateInput })
@@ -111,25 +130,25 @@ export class CustomerResolver {
     return true;
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => WishListMultiStatusType)
   async removeManyVariantsFromWishList(
     @Args('input', { type: () => WishListManyItemsInput })
     input: WishListManyItemsInput,
     @CurrentUser() user: JwtPayload,
-  ): Promise<boolean> {
-    await this.commandBus.execute(
+  ): Promise<WishListMultiStatusType> {
+    return this.commandBus.execute(
       new DeleteManyWishListDto(
         user.customerId,
         input.variantIds,
         user.tenantId,
       ),
     );
-    return true;
   }
 
   ///////////////
-  // Queries //
+  // Queries   //
   ///////////////
+
   @Query(() => CustomerType)
   async getCustomerById(
     @CurrentUser() user: JwtPayload,
@@ -142,32 +161,30 @@ export class CustomerResolver {
   @Query(() => PaginatedWishlistType)
   async getWishListItems(
     @CurrentUser() user: JwtPayload,
-    @Args('page', { type: () => Int, nullable: true, defaultValue: 1 })
-    page: number,
-    @Args('limit', { type: () => Int, nullable: true, defaultValue: 25 })
-    limit: number,
-    @Args('variantIds', {
-      type: () => [ID],
-      nullable: true,
-      defaultValue: [],
-    })
-    variantIds: string[],
+    @Args() pagination: PaginationArgs,
+    @Args('sortBy', { type: () => WishListSortBy, nullable: true })
+    sortBy?: WishListSortBy,
+    @Args('sortOrder', { type: () => SortOrder, nullable: true })
+    sortOrder?: SortOrder,
   ): Promise<PaginatedWishlistType> {
     return this.queryBus.execute(
-      new FindWishlistItemsDto(user.customerId, variantIds, page, limit),
+      new FindWishlistItemsDto(
+        user.customerId,
+        pagination.page,
+        pagination.limit,
+        sortBy,
+        sortOrder,
+      ),
     );
   }
 
   @Query(() => PaginatedCustomerReviewProductWithVariantType)
   async getCustomerReviews(
     @CurrentUser() user: JwtPayload,
-    @Args('page', { type: () => Int, nullable: true, defaultValue: 1 })
-    page: number,
-    @Args('limit', { type: () => Int, nullable: true, defaultValue: 25 })
-    limit: number,
-    @Args('reviewIds', { type: () => [ID], nullable: true, defaultValue: [] })
-    reviewIds: string[],
+    @Args() pagination: CustomerReviewPaginationArgs,
   ): Promise<PaginatedCustomerReviewProductWithVariantType> {
+    const { page, limit, reviewIds } = pagination;
+
     return this.queryBus.execute(
       new FindManyCustomerReviewsDto(user.customerId, reviewIds, page, limit),
     );

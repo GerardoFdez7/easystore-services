@@ -4,7 +4,7 @@ import { NotFoundException } from '@nestjs/common';
 import { UpdateCustomerHandler } from '../update-customer.handler';
 import { UpdateCustomerDto } from '../update-customer.dto';
 import { ICustomerRepository } from '../../../../../aggregates/repositories/customer.interface';
-import { Customer } from '../../../../../aggregates/entities/customer.entity';
+import { Customer } from '../../../../../aggregates/entities/customer/customer.entity';
 import { CustomerDTO, CustomerMapper } from '../../../../mappers';
 import { Id } from '@shared/value-objects';
 
@@ -35,7 +35,7 @@ describe('UpdateCustomerHandler', () => {
     customerRepository = {
       findByAuthIdentityId: jest.fn(),
       create: jest.fn(),
-      findCustomerById: findCustomerByIdMock,
+      findById: findCustomerByIdMock,
       update: updateMock,
     } as unknown as jest.Mocked<ICustomerRepository>;
 
@@ -227,7 +227,10 @@ describe('UpdateCustomerHandler', () => {
       it('should update the customer in repository', async () => {
         await handler.execute(baseCommand);
 
-        expect(updateMock).toHaveBeenCalledWith(mockCustomer);
+        expect(updateMock).toHaveBeenCalledWith(
+          mockCustomer,
+          expect.anything(),
+        );
       });
 
       it('should update after domain update and before committing events', async () => {
@@ -459,7 +462,10 @@ describe('UpdateCustomerHandler', () => {
           mockCustomer,
           customerData,
         );
-        expect(updateMock).toHaveBeenCalledWith(mockCustomer);
+        expect(updateMock).toHaveBeenCalledWith(
+          mockCustomer,
+          expect.anything(),
+        );
         expect(toDtoMock).toHaveBeenCalledWith(mockCustomer);
       });
     });

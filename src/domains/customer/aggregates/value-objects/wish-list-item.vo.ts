@@ -2,12 +2,12 @@ import { Id } from '@shared/value-objects';
 import { z } from 'zod/v4';
 
 const wishListItemSchema = z.object({
-  variantId: z.string().uuid({ message: 'Id must be a valid UUID' }),
-  customerId: z.string().uuid({ message: 'Id must be a valid UUID' }),
+  variantId: z.uuid({ message: 'Id must be a valid UUID' }),
+  customerId: z.uuid({ message: 'Id must be a valid UUID' }),
 });
 
 const wishListItemWithIdSchema = wishListItemSchema.extend({
-  id: z.string().uuid(),
+  id: z.uuid(),
   updatedAt: z.coerce.date(),
 });
 
@@ -27,7 +27,7 @@ export class WishListItem {
   private readonly customerId: Id;
   private readonly updatedAt: Date;
 
-  constructor(
+  private constructor(
     props: WishListProps,
     existingId?: string,
     existingUpdatedAt?: Date,

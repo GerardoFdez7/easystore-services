@@ -10,6 +10,7 @@ import {
 import {
   GetTenantByIdHandler,
   GetTenantByAuthIdentityHandler,
+  GetTenantByDomainHandler,
 } from './application/queries';
 // Event Handlers
 import {
@@ -23,7 +24,11 @@ import TenantResolver from './presentation/graphql/tenant.resolver';
 const CommandHandlers = [TenantSingUpHandler, UpdateTenantHandler];
 
 // Query handlers
-const QueryHandlers = [GetTenantByIdHandler, GetTenantByAuthIdentityHandler];
+const QueryHandlers = [
+  GetTenantByIdHandler,
+  GetTenantByAuthIdentityHandler,
+  GetTenantByDomainHandler,
+];
 
 // Event handlers
 const EventHandlers = [TenantCreatedHandler, TenantUpdatedHandler];

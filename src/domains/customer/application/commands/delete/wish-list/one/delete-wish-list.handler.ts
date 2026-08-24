@@ -2,9 +2,10 @@ import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { DeleteWishListDto } from './delete-wish-list.dto';
 import { IWishListRepository } from '../../../../../aggregates/repositories/wish-list.interface';
 import { ICustomerRepository } from '../../../../../aggregates/repositories/customer.interface';
-import { Inject, NotFoundException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { Id } from '@shared/value-objects';
 import { Customer } from '../../../../../aggregates/entities';
+import { findCustomerOrThrow } from '../../../../shared/find-customer-or-throw';
 
 @CommandHandler(DeleteWishListDto)
 export class DeleteWishListHandler
@@ -24,16 +25,12 @@ export class DeleteWishListHandler
     const tenantId = Id.create(command.tenantId);
 
     // Find the customer to validate it exists
-    const customerFound = await this.customerRepository.findById(
+    const customerFound = await findCustomerOrThrow(
+      this.customerRepository,
       customerId,
       tenantId,
+      command.customerId,
     );
-
-    if (!customerFound) {
-      throw new NotFoundException(
-        `Customer with ID ${command.customerId} not found`,
-      );
-    }
 
     // Remove the variant from wishlist using repository method and get the deleted item
     const deletedWishListItem =

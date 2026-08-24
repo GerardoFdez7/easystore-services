@@ -1,15 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { CustomerCreatedEvent } from '../../../aggregates/events';
+import { ICartAdapter } from '../../ports';
 
 @Injectable()
 @EventsHandler(CustomerCreatedEvent)
 export class CustomerCreatedHandler
   implements IEventHandler<CustomerCreatedEvent>
 {
-  handle(event: CustomerCreatedEvent): void {
-    logger.log(
-      `Customer created: ${event.customer.get('name').getValue()}, with id: ${event.customer.get('id').getValue()}`,
-    );
+  constructor(
+    @Inject('ICartAdapter') private readonly cartAdapter: ICartAdapter,
+  ) {}
+
+  async handle(event: CustomerCreatedEvent): Promise<void> {
+    await this.cartAdapter.createCart(event.customer.getProps().id.getValue());
   }
 }

@@ -29,7 +29,7 @@ export class CustomerReviewProduct {
   private readonly variantId: Id;
   private readonly updatedAt: Date;
 
-  constructor(
+  private constructor(
     props: CustomerReviewProductProps,
     existingId?: string,
     existingUpdatedAt?: Date,

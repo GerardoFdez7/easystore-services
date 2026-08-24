@@ -29,6 +29,12 @@ Register all handlers exported by the selected use cases and ensure every regist
 implementation is explicitly exported from its layer barrel. Do not register domain
 entities or value objects as providers.
 
+Organize module imports by source layer: Nest dependencies first, then grouped
+application command, event, and query barrel imports, followed by infrastructure
+adapter and persistence barrels, and finally presentation. Prefer one grouped import
+per layer barrel over individual deep imports so the composition root remains easy to
+audit.
+
 Export only capabilities intended for external consumers. Cross-domain calls still
 flow through consumer ports/adapters and provider application contracts; module
 imports do not authorize direct imports of another domain's aggregate or repository.

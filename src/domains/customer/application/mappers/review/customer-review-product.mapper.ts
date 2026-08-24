@@ -54,14 +54,7 @@ export class CustomerReviewProductMapper {
    * @returns The DTO object
    */
   static toDto(review: CustomerReviewProduct): CustomerReviewProductDTO {
-    return {
-      id: review.getIdValue(),
-      ratingCount: review.getRatingCount(),
-      comment: review.getCommentValue(),
-      customerId: review.getCustomerIdValue(),
-      variantId: review.getVariantIdValue(),
-      updatedAt: review.getUpdatedAt(),
-    };
+    return this.toPersistence(review);
   }
 
   /**
@@ -84,13 +77,18 @@ export class CustomerReviewProductMapper {
    */
   static toPaginatedDto(
     reviews: CustomerReviewProduct[],
-    total: number,
-    hasMore: boolean,
+    page = 1,
+    limit = 25,
   ): PaginatedCustomerReviewProductDTO {
+    const normalizedPage = Math.max(1, page);
+    const normalizedLimit = Math.min(50, Math.max(1, limit));
+    const offset = (normalizedPage - 1) * normalizedLimit;
+    const paginatedReviews = reviews.slice(offset, offset + normalizedLimit);
+
     return {
-      reviews: this.toDtoArray(reviews),
-      total,
-      hasMore,
+      reviews: this.toDtoArray(paginatedReviews),
+      total: reviews.length,
+      hasMore: offset + paginatedReviews.length < reviews.length,
     };
   }
 }

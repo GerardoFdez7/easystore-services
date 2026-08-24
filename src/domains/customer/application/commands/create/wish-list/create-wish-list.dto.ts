@@ -1,8 +1,8 @@
-import { IWishListCreated } from '../../../../aggregates/entities';
+import { IWishListBase } from '../../../../aggregates/entities';
 
 export class CreateWishListDto {
   constructor(
-    public readonly wishListItem: IWishListCreated,
+    public readonly wishListItem: IWishListBase,
     public readonly tenantId: string,
   ) {}
 }

@@ -1,7 +1,21 @@
 import { Id, CustomerReviewProduct } from '../value-objects';
 
+/** Durable operations required for customer-owned product reviews. */
 export interface ICustomerReviewProductRepository {
+  /**
+   * Persists a new customer review product entity to the repository.
+   * @param review - The CustomerReviewProduct entity to be created
+   * @returns Promise that resolves to the created CustomerReviewProduct entity
+   * @throws {Error} When repository operation fails
+   */
   create(review: CustomerReviewProduct): Promise<CustomerReviewProduct>;
+
+  /**
+   * Updates an existing customer review product entity in the repository.
+   * @param review - The CustomerReviewProduct entity to be updated
+   * @returns Promise that resolves to the updated CustomerReviewProduct entity
+   * @throws {Error} When repository operation fails or review not found
+   */
   update(review: CustomerReviewProduct): Promise<CustomerReviewProduct>;
 
   /**

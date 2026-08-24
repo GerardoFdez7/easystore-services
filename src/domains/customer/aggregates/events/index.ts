@@ -1,5 +1,5 @@
 export { CustomerCreatedEvent } from './customer/customer-created.event';
-export { CustomerUpdatedEvent } from './customer//customer-updated.event';
+export { CustomerUpdatedEvent } from './customer/customer-updated.event';
 export { WishlistItemCreatedEvent } from './wishlist/wishlist-created.event';
 export { WishlistItemDeletedEvent } from './wishlist/wishlist-deleted.event';
 export { WishlistManyItemsDeletedEvent } from './wishlist/wishlist-many-items-deleted.event';

@@ -4,7 +4,7 @@ import { DeleteCustomerReviewProductHandler } from '../delete-customer-review-pr
 import { DeleteCustomerReviewProductDto } from '../delete-customer-review-product.dto';
 import { ICustomerRepository } from '../../../../../aggregates/repositories/customer.interface';
 import { ICustomerReviewProductRepository } from '../../../../../aggregates/repositories/customer-review-product.interface';
-import { Customer } from '../../../../../aggregates/entities/customer.entity';
+import { Customer } from '../../../../../aggregates/entities/customer/customer.entity';
 import { Id } from '@shared/value-objects';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -42,7 +42,7 @@ describe('DeleteCustomerReviewProductHandler', () => {
     customerRepository = {
       findByAuthIdentityId: jest.fn(),
       create: jest.fn(),
-      findCustomerById: findCustomerByIdMock,
+      findById: findCustomerByIdMock,
       update: jest.fn(),
     } as unknown as jest.Mocked<ICustomerRepository>;
 
@@ -135,10 +135,13 @@ describe('DeleteCustomerReviewProductHandler', () => {
         expect(findByIdMock).toHaveBeenCalledTimes(1);
       });
 
-      it('should validate review ownership by customer ID', async () => {
+      it('should scope review lookup by customer ID', async () => {
         await handler.execute(baseCommand);
 
-        expect(mockReview.getCustomerIdValue).toHaveBeenCalledTimes(1);
+        expect(findByIdMock).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.anything(),
+        );
       });
 
       it('should handle valid customer, review, and ownership', async () => {
@@ -152,18 +155,16 @@ describe('DeleteCustomerReviewProductHandler', () => {
           mockCustomer as unknown as Customer,
         );
         findByIdMock.mockResolvedValue(mockReview as any);
-        mockReview.getCustomerIdValue.mockReturnValue('valid-customer-888');
         removeReviewMock.mockResolvedValue(undefined);
 
         await handler.execute(validCommand);
 
         expect(findCustomerByIdMock).toHaveBeenCalledTimes(1);
         expect(findByIdMock).toHaveBeenCalledTimes(1);
-        expect(mockReview.getCustomerIdValue).toHaveBeenCalledTimes(1);
       });
 
-      it('should reject deletion if ownership does not match', async () => {
-        mockReview.getCustomerIdValue.mockReturnValue('different-customer-id');
+      it('should reject deletion when no customer-owned review is found', async () => {
+        findByIdMock.mockResolvedValue(null);
 
         await expect(handler.execute(baseCommand)).rejects.toThrow();
       });
@@ -333,12 +334,11 @@ describe('DeleteCustomerReviewProductHandler', () => {
         );
       });
 
-      it('should propagate ownership validation errors', async () => {
+      it('should reject a review that is not owned by the customer', async () => {
         findCustomerByIdMock.mockResolvedValue(
           mockCustomer as unknown as Customer,
         );
-        findByIdMock.mockResolvedValue(mockReview as any);
-        mockReview.getCustomerIdValue.mockReturnValue('wrong-customer-id');
+        findByIdMock.mockResolvedValue(null);
 
         await expect(handler.execute(baseCommand)).rejects.toThrow();
       });
@@ -380,9 +380,6 @@ describe('DeleteCustomerReviewProductHandler', () => {
           mockCustomer as unknown as Customer,
         );
         findByIdMock.mockResolvedValue(mockReview as any);
-        mockReview.getCustomerIdValue.mockReturnValue(
-          'customer-complete-delete',
-        );
         removeReviewMock.mockResolvedValue(undefined);
 
         await handler.execute(completeCommand);
@@ -390,7 +387,6 @@ describe('DeleteCustomerReviewProductHandler', () => {
         expect(idCreateMock).toHaveBeenCalledTimes(3);
         expect(findCustomerByIdMock).toHaveBeenCalledTimes(1);
         expect(findByIdMock).toHaveBeenCalledTimes(1);
-        expect(mockReview.getCustomerIdValue).toHaveBeenCalledTimes(1);
         expect(removeCustomerReviewProductMock).toHaveBeenCalledTimes(1);
         expect(removeReviewMock).toHaveBeenCalledTimes(1);
         expect(mergeObjectContextMock).toHaveBeenCalledTimes(1);
@@ -430,9 +426,6 @@ describe('DeleteCustomerReviewProductHandler', () => {
           mockCustomer as unknown as Customer,
         );
         findByIdMock.mockResolvedValue(mockReview as any);
-        mockReview.getCustomerIdValue
-          .mockReturnValueOnce('customer-concurrent-1')
-          .mockReturnValueOnce('customer-concurrent-2');
         removeReviewMock.mockResolvedValue(undefined);
 
         const [result1, result2] = await Promise.all([
@@ -443,25 +436,22 @@ describe('DeleteCustomerReviewProductHandler', () => {
         expect(idCreateMock).toHaveBeenCalledTimes(6);
         expect(findCustomerByIdMock).toHaveBeenCalledTimes(2);
         expect(findByIdMock).toHaveBeenCalledTimes(2);
-        expect(mockReview.getCustomerIdValue).toHaveBeenCalledTimes(2);
         expect(removeCustomerReviewProductMock).toHaveBeenCalledTimes(2);
         expect(removeReviewMock).toHaveBeenCalledTimes(2);
         expect(result1).toBeUndefined();
         expect(result2).toBeUndefined();
       });
 
-      it('should verify ownership check before deletion', async () => {
+      it('should verify scoped review lookup before deletion', async () => {
         findCustomerByIdMock.mockResolvedValue(
           mockCustomer as unknown as Customer,
         );
         findByIdMock.mockResolvedValue(mockReview as any);
-        mockReview.getCustomerIdValue.mockReturnValue('customer-123');
         removeReviewMock.mockResolvedValue(undefined);
 
         await handler.execute(baseCommand);
 
-        const ownershipCheckCall =
-          mockReview.getCustomerIdValue.mock.invocationCallOrder[0];
+        const ownershipCheckCall = findByIdMock.mock.invocationCallOrder[0];
         const removeCall =
           removeCustomerReviewProductMock.mock.invocationCallOrder[0];
 

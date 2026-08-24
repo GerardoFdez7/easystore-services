@@ -4,7 +4,7 @@ import { UpdateCustomerReviewProductHandler } from '../update-customer-review-pr
 import { UpdateCustomerReviewProductDto } from '../update-customer-review-product.dto';
 import { ICustomerRepository } from '../../../../../aggregates/repositories/customer.interface';
 import { ICustomerReviewProductRepository } from '../../../../../aggregates/repositories/customer-review-product.interface';
-import { Customer } from '../../../../../aggregates/entities/customer.entity';
+import { Customer } from '../../../../../aggregates/entities/customer/customer.entity';
 import { CustomerReviewProductDTO } from '../../../../mappers/review/customer-review-product.dto';
 import { CustomerReviewProductMapper } from '../../../../mappers/review/customer-review-product.mapper';
 import { Id } from '@shared/value-objects';
@@ -46,7 +46,7 @@ describe('UpdateCustomerReviewProductHandler', () => {
     customerRepository = {
       findByAuthIdentityId: jest.fn(),
       create: jest.fn(),
-      findCustomerById: findCustomerByIdMock,
+      findById: findCustomerByIdMock,
       update: jest.fn(),
     } as unknown as jest.Mocked<ICustomerRepository>;
 
@@ -157,6 +157,22 @@ describe('UpdateCustomerReviewProductHandler', () => {
 
         expect(idCreateMock).toHaveBeenCalledWith('review-id-123');
         expect(findByIdMock).toHaveBeenCalledTimes(1);
+      });
+
+      it('should scope the review lookup to the authenticated customer, not the tenant', async () => {
+        const customerId = { getValue: (): string => 'customer-123' } as Id;
+        const tenantId = { getValue: (): string => 'tenant-456' } as Id;
+        const reviewId = { getValue: (): string => 'review-id-123' } as Id;
+
+        idCreateMock
+          .mockReturnValueOnce(customerId)
+          .mockReturnValueOnce(tenantId)
+          .mockReturnValueOnce(reviewId);
+
+        await handler.execute(baseCommand);
+
+        expect(findByIdMock).toHaveBeenCalledWith(reviewId, customerId);
+        expect(findByIdMock).not.toHaveBeenCalledWith(reviewId, tenantId);
       });
 
       it('should handle valid customer and review IDs', async () => {

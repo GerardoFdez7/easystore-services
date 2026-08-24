@@ -4,7 +4,7 @@ import { CreateCustomerReviewProductHandler } from '../create-customer-review-pr
 import { CreateCustomerReviewProductDto } from '../create-customer-review-product.dto';
 import { ICustomerRepository } from '../../../../../aggregates/repositories/customer.interface';
 import { ICustomerReviewProductRepository } from '../../../../../aggregates/repositories/customer-review-product.interface';
-import { Customer } from '../../../../../aggregates/entities/customer.entity';
+import { Customer } from '../../../../../aggregates/entities/customer/customer.entity';
 import { CustomerReviewProductDTO } from '../../../../mappers/review/customer-review-product.dto';
 import { CustomerReviewProductMapper } from '../../../../mappers/review/customer-review-product.mapper';
 import { Id } from '@shared/value-objects';
@@ -42,7 +42,7 @@ describe('CreateCustomerReviewProductHandler', () => {
     customerRepository = {
       findByAuthIdentityId: jest.fn(),
       create: jest.fn(),
-      findCustomerById: findCustomerByIdMock,
+      findById: findCustomerByIdMock,
       update: jest.fn(),
     } as unknown as jest.Mocked<ICustomerRepository>;
 
