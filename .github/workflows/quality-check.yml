@@ -79,7 +79,7 @@ jobs:
               .filter((step) => step.conclusion === 'failure')
               .map((step) => `- ${step.name}`) ?? [];
             const failureSummary = failedSteps.length > 0
-              ? `**Failed check(s):**\n${failedSteps.join('\n')}`
+              ? `**Check:**\n${failedSteps.join('\n')}`
               : 'A quality-check step failed. Review the workflow logs for details.';
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
 

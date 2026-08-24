@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { v7 as uuidV7 } from 'uuid';
+import { v5 as uuidV5 } from 'uuid';
 import { CustomLoggerService } from '../../../config/logger';
 import {
   AddressLine1,
@@ -38,6 +38,7 @@ import { PostgreService } from '../postgres.service';
 
 const logger = new CustomLoggerService();
 const dataDir = path.join(__dirname, '..', 'countries');
+const developmentSeedUuidNamespace = '2f8f2b5e-4f1e-5a92-9a9c-4bc1c0a6a5d1';
 
 export const developmentSeedPassword = 'EasyStoreDev123!';
 
@@ -53,7 +54,7 @@ export const developmentSeedPasswordHash =
 export const developmentSeedTenantDomain = 'owner.easystore.lat';
 
 function createDevelopmentFixtureId(name: string): string {
-  return uuidV7();
+  return uuidV5(`development:${name}`, developmentSeedUuidNamespace);
 }
 
 export function createDevelopmentFixtureIds(): Record<
