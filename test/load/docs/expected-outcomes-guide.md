@@ -46,11 +46,13 @@ Saturation    | 40+ | 1500ms+      | App: 90%+    | App: 2.5GB+
 #### Expected Bottlenecks (in order of likelihood)
 
 1. **CPU Bottleneck** (Most Likely)
+
    - **Symptoms**: App CPU > 90%, response times increase exponentially
    - **Cause**: bcrypt hashing operations saturate CPU cores
    - **Threshold**: ~30-35 concurrent login attempts
 
 2. **Database Connection Pool** (Secondary)
+
    - **Symptoms**: Connection timeout errors, DB CPU spikes
    - **Cause**: Limited connection pool size
    - **Threshold**: Depends on pool configuration (typically 10-20 connections)
@@ -90,11 +92,13 @@ Very Heavy    | 50  | 300-600ms    | App: 50-80%  | App: 1.8-2.8GB
 #### Expected Bottlenecks (in order of likelihood)
 
 1. **Database CPU** (Most Likely)
+
    - **Symptoms**: DB CPU > 90%, query response times increase
    - **Cause**: Complex GraphQL queries, lack of proper indexing
    - **Threshold**: ~40-60 concurrent read operations
 
 2. **Database Memory** (Secondary)
+
    - **Symptoms**: Swap usage on DB container, query plan changes
    - **Cause**: Large result sets, inefficient query execution
    - **Threshold**: >8GB memory usage on DB
@@ -134,11 +138,13 @@ Saturation    | 40+ | 800ms+       | App: 75%+    | App: 2.2GB+
 #### Expected Bottlenecks (in order of likelihood)
 
 1. **Application CPU** (Most Likely)
+
    - **Symptoms**: App CPU > 85%, mixed operation slowdown
    - **Cause**: Authentication operations dominate CPU usage
    - **Threshold**: ~25-35 concurrent users
 
 2. **Database Connection Pool** (Secondary)
+
    - **Symptoms**: Connection timeouts, variable response times
    - **Cause**: Mixed read/write operations compete for connections
    - **Threshold**: Depends on pool size and operation mix
@@ -167,6 +173,7 @@ Saturation    | 40+ | 800ms+       | App: 75%+    | App: 2.2GB+
 #### Diagnostic Questions
 
 1. Which container shows high CPU usage?
+
    - **App Container**: Authentication/GraphQL processing bottleneck
    - **DB Container**: Query processing bottleneck
    - **Both**: System-wide resource exhaustion
@@ -193,6 +200,7 @@ Saturation    | 40+ | 800ms+       | App: 75%+    | App: 2.2GB+
 #### Diagnostic Questions
 
 1. Which container shows memory pressure?
+
    - **App Container**: Session/cache memory leaks
    - **DB Container**: Large query results, inefficient indexing
    - **Both**: System-wide memory exhaustion
@@ -218,6 +226,7 @@ Saturation    | 40+ | 800ms+       | App: 75%+    | App: 2.2GB+
 #### Diagnostic Questions
 
 1. What type of queries are slow?
+
    - **Simple Selects**: Indexing problem
    - **Complex Joins**: Query optimization needed
    - **All Queries**: Database resource exhaustion
@@ -244,6 +253,7 @@ Saturation    | 40+ | 800ms+       | App: 75%+    | App: 2.2GB+
 #### Diagnostic Questions
 
 1. Are response times consistent?
+
    - **Consistent**: Predictable bottleneck
    - **Variable**: Network or I/O issues
 

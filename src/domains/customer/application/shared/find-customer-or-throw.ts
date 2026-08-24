@@ -8,12 +8,11 @@ export async function findCustomerOrThrow(
   customerRepository: ICustomerRepository,
   customerId: Id,
   tenantId: Id,
-  customerIdValue: string,
 ): Promise<Customer> {
   const customer = await customerRepository.findById(customerId, tenantId);
   if (!customer) {
     throw new NotFoundException(
-      `Customer with ID ${customerIdValue} not found`,
+      `Customer with ID ${customerId.getValue()} not found`,
     );
   }
 

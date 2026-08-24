@@ -944,6 +944,7 @@ model WishList {
   customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   variant    Variant  @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+  @@unique([customerId, variantId])
   @@index([customerId])
   @@index([variantId])
   @@schema("customer")

@@ -40,4 +40,3 @@ their implementation guidance.
 6. Run the repository quality harness from root `AGENTS.md` and report exact evidence.
 
 For a localized layer task, skip this skill and use only the matching layer skill.
-

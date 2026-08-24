@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { v7 as uuidV7 } from 'uuid';
 import { CustomLoggerService } from '../../../config/logger';
 import {
   AddressLine1,
@@ -48,6 +49,12 @@ export const developmentSeedAccounts = [
 
 export const developmentSeedPasswordHash =
   '$2b$10$P2d7dp29uQyDPINXmrduAOVzn4..nJr8bRGzcv09ya7lUoIommgyG';
+
+export const developmentSeedTenantDomain = 'owner.easystore.lat';
+
+function createDevelopmentFixtureId(name: string): string {
+  return uuidV7();
+}
 
 export function createDevelopmentFixtureIds(): Record<
   | 'tenantAuth'
@@ -98,51 +105,51 @@ export function createDevelopmentFixtureIds(): Record<
   string
 > {
   return {
-    tenantAuth: Id.generate().getValue(),
-    tenant: Id.generate().getValue(),
-    customerAuth: Id.generate().getValue(),
-    customer: Id.generate().getValue(),
-    employeeRole: Id.generate().getValue(),
-    employee: Id.generate().getValue(),
-    plan: Id.generate().getValue(),
-    subscription: Id.generate().getValue(),
-    tenantPhone: Id.generate().getValue(),
-    customerPhone: Id.generate().getValue(),
-    warehouseAddress: Id.generate().getValue(),
-    customerAddress: Id.generate().getValue(),
-    warehouse: Id.generate().getValue(),
-    category: Id.generate().getValue(),
-    product: Id.generate().getValue(),
-    variant: Id.generate().getValue(),
-    media: Id.generate().getValue(),
-    dimension: Id.generate().getValue(),
-    attribute: Id.generate().getValue(),
-    installment: Id.generate().getValue(),
-    sustainability: Id.generate().getValue(),
-    warranty: Id.generate().getValue(),
-    productCategory: Id.generate().getValue(),
-    taxRate: Id.generate().getValue(),
-    shippingRule: Id.generate().getValue(),
-    shipmentRate: Id.generate().getValue(),
-    stock: Id.generate().getValue(),
-    stockMovement: Id.generate().getValue(),
-    promotion: Id.generate().getValue(),
-    coupon: Id.generate().getValue(),
-    cart: Id.generate().getValue(),
-    cartItem: Id.generate().getValue(),
-    cartPromotion: Id.generate().getValue(),
-    order: Id.generate().getValue(),
-    orderDetail: Id.generate().getValue(),
-    orderPromotion: Id.generate().getValue(),
-    couponUsage: Id.generate().getValue(),
-    return: Id.generate().getValue(),
-    tenantPaymentMethod: Id.generate().getValue(),
-    customerPaymentMethod: Id.generate().getValue(),
-    payment: Id.generate().getValue(),
-    wishList: Id.generate().getValue(),
-    review: Id.generate().getValue(),
-    feature: Id.generate().getValue(),
-    roleFeature: Id.generate().getValue(),
+    tenantAuth: createDevelopmentFixtureId('tenantAuth'),
+    tenant: createDevelopmentFixtureId('tenant'),
+    customerAuth: createDevelopmentFixtureId('customerAuth'),
+    customer: createDevelopmentFixtureId('customer'),
+    employeeRole: createDevelopmentFixtureId('employeeRole'),
+    employee: createDevelopmentFixtureId('employee'),
+    plan: createDevelopmentFixtureId('plan'),
+    subscription: createDevelopmentFixtureId('subscription'),
+    tenantPhone: createDevelopmentFixtureId('tenantPhone'),
+    customerPhone: createDevelopmentFixtureId('customerPhone'),
+    warehouseAddress: createDevelopmentFixtureId('warehouseAddress'),
+    customerAddress: createDevelopmentFixtureId('customerAddress'),
+    warehouse: createDevelopmentFixtureId('warehouse'),
+    category: createDevelopmentFixtureId('category'),
+    product: createDevelopmentFixtureId('product'),
+    variant: createDevelopmentFixtureId('variant'),
+    media: createDevelopmentFixtureId('media'),
+    dimension: createDevelopmentFixtureId('dimension'),
+    attribute: createDevelopmentFixtureId('attribute'),
+    installment: createDevelopmentFixtureId('installment'),
+    sustainability: createDevelopmentFixtureId('sustainability'),
+    warranty: createDevelopmentFixtureId('warranty'),
+    productCategory: createDevelopmentFixtureId('productCategory'),
+    taxRate: createDevelopmentFixtureId('taxRate'),
+    shippingRule: createDevelopmentFixtureId('shippingRule'),
+    shipmentRate: createDevelopmentFixtureId('shipmentRate'),
+    stock: createDevelopmentFixtureId('stock'),
+    stockMovement: createDevelopmentFixtureId('stockMovement'),
+    promotion: createDevelopmentFixtureId('promotion'),
+    coupon: createDevelopmentFixtureId('coupon'),
+    cart: createDevelopmentFixtureId('cart'),
+    cartItem: createDevelopmentFixtureId('cartItem'),
+    cartPromotion: createDevelopmentFixtureId('cartPromotion'),
+    order: createDevelopmentFixtureId('order'),
+    orderDetail: createDevelopmentFixtureId('orderDetail'),
+    orderPromotion: createDevelopmentFixtureId('orderPromotion'),
+    couponUsage: createDevelopmentFixtureId('couponUsage'),
+    return: createDevelopmentFixtureId('return'),
+    tenantPaymentMethod: createDevelopmentFixtureId('tenantPaymentMethod'),
+    customerPaymentMethod: createDevelopmentFixtureId('customerPaymentMethod'),
+    payment: createDevelopmentFixtureId('payment'),
+    wishList: createDevelopmentFixtureId('wishList'),
+    review: createDevelopmentFixtureId('review'),
+    feature: createDevelopmentFixtureId('feature'),
+    roleFeature: createDevelopmentFixtureId('roleFeature'),
   };
 }
 
@@ -152,7 +159,7 @@ export function validateDevelopmentFixtures(): void {
     AccountType.create(accountType);
   });
   Password.create(developmentSeedPassword);
-  Domain.create('demo.easystore.lat');
+  Domain.create(developmentSeedTenantDomain);
   Currency.create('GTQ');
   [
     'EasyStore Demo',
@@ -281,7 +288,7 @@ async function seedDevelopmentDataForDatabase(
     update: {
       businessName: 'EasyStore Demo',
       ownerName: 'Demo Owner',
-      domain: 'demo.easystore.local',
+      domain: developmentSeedTenantDomain,
       currency: 'GTQ',
       authIdentityId: ids.tenantAuth,
     },
@@ -289,7 +296,7 @@ async function seedDevelopmentDataForDatabase(
       id: ids.tenant,
       businessName: 'EasyStore Demo',
       ownerName: 'Demo Owner',
-      domain: 'demo.easystore.local',
+      domain: developmentSeedTenantDomain,
       currency: 'GTQ',
       authIdentityId: ids.tenantAuth,
     },

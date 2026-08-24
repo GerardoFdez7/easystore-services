@@ -167,7 +167,7 @@ describe('DeleteManyWishListHandler', () => {
           NotFoundException,
         );
         await expect(handler.execute(baseCommand)).rejects.toThrow(
-          'Customer with ID customer-123 not found',
+          'Customer with ID mocked-id not found',
         );
       });
     });

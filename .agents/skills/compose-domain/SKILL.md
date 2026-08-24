@@ -29,4 +29,3 @@ repository, adapter, and resolver exports first.
    internals as a shortcut.
 4. Register a new domain module in `src/app.module.ts`.
 5. Run module-focused tests or compile checks, then architecture and the root harness.
-

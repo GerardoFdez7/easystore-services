@@ -26,6 +26,9 @@ CREATE INDEX "WishList_customerId_idx" ON "customer"."WishList"("customerId");
 CREATE INDEX "WishList_variantId_idx" ON "customer"."WishList"("variantId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "WishList_customerId_variantId_key" ON "customer"."WishList"("customerId", "variantId");
+
+-- CreateIndex
 CREATE INDEX "State_countryId_idx" ON "geography"."State"("countryId");
 
 -- CreateIndex

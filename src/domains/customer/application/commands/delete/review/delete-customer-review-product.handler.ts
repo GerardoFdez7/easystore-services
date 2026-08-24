@@ -29,7 +29,6 @@ export class DeleteCustomerReviewProductHandler
       this.customerRepository,
       customerId,
       tenantId,
-      command.customerId,
     );
 
     // Find the review to validate it exists and belongs to the customer
@@ -44,7 +43,8 @@ export class DeleteCustomerReviewProductHandler
       );
     }
 
-    // The repository method removeReview will validate review ownership and throw if necessary
+    // Remove the review using repository method before emitting the domain event
+    await this.reviewRepository.removeReview(customerId, reviewId);
 
     // Use the domain method to emit the event
     Customer.removeCustomerReviewProduct(reviewFound, customerFound);
@@ -53,8 +53,5 @@ export class DeleteCustomerReviewProductHandler
     const customerWithEvents =
       this.eventPublisher.mergeObjectContext(customerFound);
     customerWithEvents.commit();
-
-    // Remove the review using repository method
-    await this.reviewRepository.removeReview(customerId, reviewId);
   }
 }

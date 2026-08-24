@@ -6,13 +6,13 @@ the files themselves before changing architecture.
 
 ## Dependency direction
 
-| Source | May depend on | Must not depend on |
-| --- | --- | --- |
-| `aggregates` | same aggregate layer, `@shared/*`, approved aggregate packages | application, infrastructure, presentation, another domain |
-| `application` | own aggregates, own application, shared code | presentation, another domain directly |
-| `infrastructure` | own aggregate/application contracts, shared/global `@infrastructure/*` | presentation; another domain except from an adapter to that domain's public application contracts |
-| `presentation` | own application contracts and safe domain types | persistence implementation details |
-| `<domain>.module.ts` | all own layers needed for composition | another domain's internals |
+| Source               | May depend on                                                          | Must not depend on                                                                                |
+| -------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `aggregates`         | same aggregate layer, `@shared/*`, approved aggregate packages         | application, infrastructure, presentation, another domain                                         |
+| `application`        | own aggregates, own application, shared code                           | presentation, another domain directly                                                             |
+| `infrastructure`     | own aggregate/application contracts, shared/global `@infrastructure/*` | presentation; another domain except from an adapter to that domain's public application contracts |
+| `presentation`       | own application contracts and safe domain types                        | persistence implementation details                                                                |
+| `<domain>.module.ts` | all own layers needed for composition                                  | another domain's internals                                                                        |
 
 Current aggregate external allowlist: `@nestjs/cqrs`, `zod`, and `zod/v4`.
 Everything else must remain aggregate-local or use `@shared/*`.
@@ -156,4 +156,3 @@ Inspect these rather than copying snippets blindly:
   `inventory/inventory.module.ts`.
 
 For a new bounded context, also register its domain module in `src/app.module.ts`.
-

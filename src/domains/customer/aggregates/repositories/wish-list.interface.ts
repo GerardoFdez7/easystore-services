@@ -11,11 +11,15 @@ export interface IWishListRepository {
   create(wishlistItem: WishListItem): Promise<WishListItem>;
 
   /**
-   * Finds a wish list item by its variant ID.
+   * Finds a wish list item by its variant ID scoped to a specific customer.
+   * @param customerId The ID of the owning customer.
    * @param variantId The ID of the variant to search for.
    * @returns A promise that resolves to the wish list item if found, otherwise null.
    */
-  findWishListItemByVariantId(variantId: Id): Promise<WishListItem | null>;
+  findWishListItemByVariantId(
+    customerId: Id,
+    variantId: Id,
+  ): Promise<WishListItem | null>;
 
   /**
    * Removes a variant from the customer's wish list.

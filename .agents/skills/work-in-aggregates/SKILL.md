@@ -33,4 +33,3 @@ configuration, and a relevant existing aggregate.
 6. Run focused tests, lint, and architecture checks before the full root harness.
 
 Do not import application, infrastructure, presentation, or another bounded context.
-

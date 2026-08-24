@@ -31,7 +31,7 @@ describe('enrichWithVariantDetails', () => {
         productName: '',
         firstAttribute: { key: '', value: '' },
         price: 0,
-        isArchived: false,
+        isArchived: true,
       },
     ]);
   });

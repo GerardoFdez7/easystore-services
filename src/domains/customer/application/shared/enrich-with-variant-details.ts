@@ -20,7 +20,7 @@ export function enrichWithVariantDetails<T extends { variantId: string }>(
       productName: variant?.productName ?? '',
       firstAttribute: variant?.firstAttribute ?? { key: '', value: '' },
       price: variant?.price ?? 0,
-      isArchived: variant?.isArchived ?? false,
+      isArchived: variant?.isArchived ?? true,
     };
   });
 }

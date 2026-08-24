@@ -26,10 +26,12 @@ code is safely typed. Follow these stronger rules and the type-aware ESLint chec
 - Keep variables and functions camelCase; keep classes, interfaces, enums, and other
   type-like declarations PascalCase.
 - Use kebab-case paths and descriptive artifact suffixes within domains.
-- Do not use `console`; where operational logging is necessary, use the project global logger: 
+- Do not use `console`; where operational logging is necessary, use the project global logger:
+
 ```typescript
 logger.log/error/warn/debug/verbose/fatal(message: any, context?: any)
 ```
+
 - Do not use wildcard/namespace imports or `export *`. Import and export explicit
   symbols so architectural APIs remain reviewable.
 - Prefer named exports unless the surrounding repository convention requires a
