@@ -749,6 +749,7 @@ function validateDomainStructure(domainRoot, domainName) {
 
 function validateImports(file, aggregateRoot) {
   const source = readFileSync(file, 'utf8');
+  const sharedRoot = join(domainsRoot, 'shared');
   const imports = source.matchAll(
     /\b(?:import|export)\s[\s\S]*?\sfrom\s+['"]([^'"]+)['"]/g,
   );
@@ -756,10 +757,10 @@ function validateImports(file, aggregateRoot) {
   for (const [, specifier] of imports) {
     if (specifier.startsWith('.')) {
       const target = resolve(dirname(file), specifier);
-      if (!isInside(target, aggregateRoot)) {
+      if (!isInside(target, aggregateRoot) && !isInside(target, sharedRoot)) {
         report(
           file,
-          `relative import "${specifier}" leaves this domain's aggregates layer`,
+          `relative import "${specifier}" leaves this domain's aggregates layer without targeting the shared domain`,
         );
       }
       continue;

@@ -651,10 +651,14 @@ export class ProductRepository implements IProductRepository {
         case SortBy.SKU:
           requiresCustomSorting = true;
           break;
-        default:
-          orderBy[sortBy] =
-            sortOrder ||
-            (sortBy === SortBy.NAME ? SortOrder.ASC : SortOrder.DESC);
+        case SortBy.CREATED_AT:
+          orderBy.createdAt = sortOrder || SortOrder.DESC;
+          break;
+        case SortBy.UPDATED_AT:
+          orderBy.updatedAt = sortOrder || SortOrder.DESC;
+          break;
+        case SortBy.NAME:
+          orderBy.name = sortOrder || SortOrder.ASC;
           break;
       }
     } else {

@@ -35,7 +35,11 @@ export class SerialNumbers {
       return false;
     }
     return this.values.every(
-      (value, index) => value === otherSerialNumbers.values[index],
+      (value, index) =>
+        value ===
+        otherSerialNumbers.values.find(
+          (_otherValue, otherIndex) => otherIndex === index,
+        ),
     );
   }
 

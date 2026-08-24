@@ -34,8 +34,7 @@ export class ForgotPasswordEmailBuilder
     replacements: Record<string, string | number>,
   ): string {
     return Object.entries(replacements).reduce(
-      (text, [key, value]) =>
-        text.replace(new RegExp(`\\{${key}\\}`, 'g'), String(value)),
+      (text, [key, value]) => text.split(`{${key}}`).join(String(value)),
       message,
     );
   }

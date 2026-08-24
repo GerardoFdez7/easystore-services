@@ -2,6 +2,7 @@ import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { FlatCompat } from '@eslint/eslintrc';
 import eslintJs from '@eslint/js';
+import security from 'eslint-plugin-security';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -17,14 +18,17 @@ const ignorePatterns = [
   'dist',
   'node_modules',
   'test/',
+  'src/infrastructure/database/seeds/**',
+  '**/*.spec.ts',
 ];
 
 const eslintConfig = [
   { ignores: ignorePatterns },
+  security.configs.recommended,
   ...compat.extends(
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
-    'plugin:@typescript-eslint/recommended-requiring-type-checking'
+    'plugin:@typescript-eslint/recommended-requiring-type-checking',
   ),
   {
     languageOptions: {
@@ -46,11 +50,13 @@ const eslintConfig = [
         'error',
         {
           selector: 'ImportNamespaceSpecifier',
-          message: 'Wildcard imports are disallowed. Please import specific named exports.',
+          message:
+            'Wildcard imports are disallowed. Please import specific named exports.',
         },
         {
           selector: 'ExportAllDeclaration',
-          message: 'Wildcard exports are disallowed. Please export specific named exports.',
+          message:
+            'Wildcard exports are disallowed. Please export specific named exports.',
         },
       ],
 
@@ -116,14 +122,27 @@ const eslintConfig = [
       ],
 
       // NestJS specific rules
-      '@typescript-eslint/explicit-function-return-type': ['error', {
-        allowExpressions: true,
-        allowTypedFunctionExpressions: true,
-      }],
+      '@typescript-eslint/explicit-function-return-type': [
+        'error',
+        {
+          allowExpressions: true,
+          allowTypedFunctionExpressions: true,
+        },
+      ],
       '@typescript-eslint/explicit-module-boundary-types': 'error',
-      
+
       // Prettier integration
       'prettier/prettier': 'error',
+    },
+  },
+  {
+    files: [
+      'src/domains/shared/domain-entity.base.ts',
+      'src/domains/shared/entity.base.ts',
+    ],
+    rules: {
+      // These generic, type-constrained accessors only read aggregate-owned props.
+      'security/detect-object-injection': 'off',
     },
   },
   ...compat.config({

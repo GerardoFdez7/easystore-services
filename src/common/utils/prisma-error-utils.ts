@@ -78,8 +78,17 @@ export function handlePrismaDatabaseError(
 
     if (error.code === 'P2003') {
       const field = PrismaErrorUtils.extractFieldFromForeignKeyError(error);
-      const relatedEntity =
-        options.foreignKeyEntities?.[field] ?? 'Related Entity';
+      let relatedEntity = 'Related Entity';
+      if (options.foreignKeyEntities) {
+        for (const [foreignKeyField, entityName] of Object.entries(
+          options.foreignKeyEntities,
+        )) {
+          if (foreignKeyField === field && typeof entityName === 'string') {
+            relatedEntity = entityName;
+            break;
+          }
+        }
+      }
 
       throw new ForeignKeyConstraintViolationError(field, relatedEntity);
     }
