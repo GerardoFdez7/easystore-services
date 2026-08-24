@@ -272,9 +272,7 @@ export default class CategoryRepository implements ICategoryRepository {
         whereClause.parentId = null;
       }
 
-      // Build order by clause
-      const orderBy: Prisma.CategoryOrderByWithRelationInput = {};
-      orderBy[sortBy] = sortOrder;
+      const orderBy = this.getOrderBy(sortBy, sortOrder);
 
       // Type for recursive include structure
       type RecursiveInclude =
@@ -399,6 +397,21 @@ export default class CategoryRepository implements ICategoryRepository {
     }
 
     return depth;
+  }
+
+  private getOrderBy(
+    sortBy: SortBy,
+    sortOrder: SortOrder,
+  ): Prisma.CategoryOrderByWithRelationInput {
+    switch (sortBy) {
+      case SortBy.CREATED_AT:
+        return { createdAt: sortOrder };
+      case SortBy.UPDATED_AT:
+        return { updatedAt: sortOrder };
+      case SortBy.NAME:
+      default:
+        return { name: sortOrder };
+    }
   }
 
   /**

@@ -471,9 +471,7 @@ export default class WarehouseRepository implements IWarehouseRepository {
         };
       }
 
-      // Build order by clause
-      const orderBy: Prisma.WarehouseOrderByWithRelationInput = {};
-      orderBy[sortBy] = sortOrder;
+      const orderBy = this.getOrderBy(sortBy, sortOrder);
 
       // Execute queries in parallel
       const [warehouses, total] = await Promise.all([
@@ -544,6 +542,21 @@ export default class WarehouseRepository implements IWarehouseRepository {
       };
     } catch (error) {
       return this.handleDatabaseError(error, 'find all warehouses');
+    }
+  }
+
+  private getOrderBy(
+    sortBy: SortBy,
+    sortOrder: SortOrder,
+  ): Prisma.WarehouseOrderByWithRelationInput {
+    switch (sortBy) {
+      case SortBy.CREATED_AT:
+        return { createdAt: sortOrder };
+      case SortBy.UPDATED_AT:
+        return { updatedAt: sortOrder };
+      case SortBy.NAME:
+      default:
+        return { name: sortOrder };
     }
   }
 

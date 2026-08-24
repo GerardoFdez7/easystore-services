@@ -36,25 +36,14 @@ export class Mapper {
       return mappingFn(entity);
     }
 
-    // Default mapping for entities with getValue() methods on their properties
-    const dto = {} as Record<string, unknown>;
+    const entries = Object.entries(entity)
+      .filter(([, prop]) => typeof prop !== 'function')
+      .map(([key, prop]) => [
+        key,
+        isValueObject(prop) ? prop.getValue() : prop,
+      ]);
 
-    // Get all properties from the entity
-    for (const key in entity) {
-      if (Object.prototype.hasOwnProperty.call(entity, key)) {
-        const prop = entity[key];
-
-        // If the property has a getValue method, use it
-        if (isValueObject(prop)) {
-          dto[key] = prop.getValue();
-        } else if (typeof prop !== 'function') {
-          // Otherwise use the property value directly (if it's not a method)
-          dto[key] = prop;
-        }
-      }
-    }
-
-    return dto as U;
+    return Object.fromEntries(entries) as U;
   }
 
   /**

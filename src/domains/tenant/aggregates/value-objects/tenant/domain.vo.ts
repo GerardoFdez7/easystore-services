@@ -1,9 +1,36 @@
 import { z } from 'zod';
 
+function isDomainLabel(value: string): boolean {
+  if (value.length === 0 || value.length > 63) {
+    return false;
+  }
+
+  if (value.startsWith('-') || value.endsWith('-')) {
+    return false;
+  }
+
+  return Array.from(value).every((character) => {
+    const isLowercaseLetter = character >= 'a' && character <= 'z';
+    const isDigit = character >= '0' && character <= '9';
+    return isLowercaseLetter || isDigit || character === '-';
+  });
+}
+
+function isDomain(value: string): boolean {
+  const normalizedValue = value.toLowerCase();
+  const labels = normalizedValue.split('.');
+
+  return (
+    normalizedValue.length <= 253 &&
+    labels.length >= 2 &&
+    labels.every(isDomainLabel)
+  );
+}
+
 const DomainSchema = z
   .string()
-  .regex(
-    /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$/i,
+  .refine(
+    isDomain,
     'Invalid domain format. Example of valid domain: example.com',
   );
 
