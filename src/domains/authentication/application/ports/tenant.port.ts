@@ -12,5 +12,6 @@ export interface ITenantProvisioningData {
  */
 export interface ITenantAdapter {
   provisionTenant(data: ITenantProvisioningData): Promise<void>;
+  getTenantIdByDomain(domain: string): Promise<string | null>;
   getTenantIdByAuthIdentityId(authIdentityId: string): Promise<string | null>;
 }

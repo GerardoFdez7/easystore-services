@@ -40,7 +40,7 @@ describe('DeleteWishListHandler', () => {
     customerRepository = {
       findByAuthIdentityId: jest.fn(),
       create: jest.fn(),
-      findCustomerById: findCustomerByIdMock,
+      findById: findCustomerByIdMock,
       update: jest.fn(),
     } as unknown as jest.Mocked<ICustomerRepository>;
 
@@ -49,7 +49,7 @@ describe('DeleteWishListHandler', () => {
       findWishListItemByVariantId: jest.fn(),
       removeVariantFromWishList: removeVariantFromWishListMock,
       removeManyFromWishList: jest.fn(),
-      getManyWishListsByVariantIds: jest.fn(),
+      findMany: jest.fn(),
     } as unknown as jest.Mocked<IWishListRepository>;
 
     mockCustomer = {

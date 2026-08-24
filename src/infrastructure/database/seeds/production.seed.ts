@@ -1,11 +1,11 @@
-import { PostgreService } from './postgres.service';
-import { Id } from '../../domains/shared/value-objects';
-import { CustomLoggerService } from '../../config/logger';
 import fs from 'fs';
 import path from 'path';
+import { CustomLoggerService } from '../../../config/logger';
+import { Id } from '../../../domains/shared/value-objects';
+import { PostgreService } from '../postgres.service';
 
 const logger = new CustomLoggerService();
-const dataDir = path.join(__dirname, 'countries');
+const dataDir = path.join(__dirname, '..', 'countries');
 
 interface StateData {
   name: string;
@@ -20,7 +20,7 @@ interface CountryFileData {
   states: StateData[];
 }
 
-async function main(): Promise<void> {
+export async function seedProductionData(): Promise<void> {
   const prisma = new PostgreService();
   await prisma.onModuleInit();
 
@@ -89,15 +89,7 @@ async function main(): Promise<void> {
     }
 
     logger.log('Seeding completed for all countries.');
-  } catch (error) {
-    logger.error('Error during seeding:', error);
-    process.exit(1);
   } finally {
     await prisma.onModuleDestroy();
   }
 }
-
-main().catch((error) => {
-  logger.error('Error during seeding:', error);
-  process.exit(1);
-});

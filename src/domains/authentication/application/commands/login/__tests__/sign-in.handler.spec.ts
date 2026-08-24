@@ -168,7 +168,7 @@ describe('AuthenticationLoginHandler', () => {
       expect(auth.loginSucceeded).toHaveBeenCalledTimes(1);
       expect(authRepository.update).toHaveBeenCalledTimes(1);
       expect(provider[profileMethod]).toHaveBeenCalledWith(
-        accountType === AccountTypeEnum.TENANT ? authIdentityId : id,
+        accountType === AccountTypeEnum.EMPLOYEE ? id : authIdentityId,
       );
       expect(generateToken).toHaveBeenCalledWith({
         email: 'user@example.com',

@@ -1,5 +1,36 @@
-import { ObjectType, Field, ID, InputType, Float, Int } from '@nestjs/graphql';
-import { FirstAttributeType } from '../../../../cart/presentation/graphql/types/cart.types';
+import {
+  ArgsType,
+  Field,
+  Float,
+  ID,
+  InputType,
+  Int,
+  ObjectType,
+} from '@nestjs/graphql';
+import { WishListSortBy } from '../../../application/queries/many/wish-list/find-wish-list-items.dto';
+
+export { WishListSortBy };
+
+@ArgsType()
+export class CustomerReviewPaginationArgs {
+  @Field(() => Int, { defaultValue: 1, nullable: true })
+  page?: number;
+
+  @Field(() => Int, { defaultValue: 25, nullable: true })
+  limit?: number;
+
+  @Field(() => [ID], { defaultValue: [], nullable: true })
+  reviewIds?: string[];
+}
+
+@ObjectType('CustomerFirstAttribute')
+export class FirstAttributeType {
+  @Field()
+  key: string;
+
+  @Field()
+  value: string;
+}
 
 @ObjectType('Customer')
 export class CustomerType {
@@ -62,6 +93,42 @@ export class WishListItemDeleteInput {
 export class WishListManyItemsInput {
   @Field(() => [String])
   variantIds: string[];
+}
+
+@ObjectType('WishListMultiStatusSummary')
+export class WishListMultiStatusSummaryType {
+  @Field(() => Int)
+  total: number;
+
+  @Field(() => Int)
+  successful: number;
+
+  @Field(() => Int)
+  failed: number;
+}
+
+@ObjectType('WishListMultiStatusResult')
+export class WishListMultiStatusResultType {
+  @Field(() => ID, { nullable: true })
+  id: string | null;
+
+  @Field(() => ID)
+  variantId: string;
+
+  @Field(() => Int)
+  status: number;
+
+  @Field()
+  message: string;
+}
+
+@ObjectType('WishListMultiStatus')
+export class WishListMultiStatusType {
+  @Field(() => WishListMultiStatusSummaryType)
+  summary: WishListMultiStatusSummaryType;
+
+  @Field(() => [WishListMultiStatusResultType])
+  results: WishListMultiStatusResultType[];
 }
 
 @ObjectType('Wishlist')

@@ -397,6 +397,11 @@ type Customer {
   updatedAt: DateTime
 }
 
+type CustomerFirstAttribute {
+  key: String!
+  value: String!
+}
+
 type CustomerReviewProduct {
   comment: String!
   customerId: ID!
@@ -409,7 +414,7 @@ type CustomerReviewProduct {
 type CustomerReviewProductWithVariant {
   comment: String!
   customerId: ID!
-  firstAttribute: FirstAttribute
+  firstAttribute: CustomerFirstAttribute
   id: ID!
   isArchived: Boolean
   price: Float!
@@ -512,7 +517,7 @@ type Mutation {
   register(input: AuthenticationInput!): AuthIdentity!
   removeItemFromCart(input: RemoveItemFromCartInput!): Cart!
   removeManyItemsFromCart(input: RemoveManyItemFromCartInput!): Cart!
-  removeManyVariantsFromWishList(input: WishListManyItemsInput!): Boolean!
+  removeManyVariantsFromWishList(input: WishListManyItemsInput!): WishListMultiStatus!
   removeStockFromWarehouse(reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
   removeVariant(id: String!, productId: String!): Product!
   removeVariantFromWishList(input: WishListItemDeleteInput!): Boolean!
@@ -626,7 +631,7 @@ type Query {
   getAllAddresses(addressType: AddressTypeEnum, limit: Int, name: String, page: Int): PaginatedAddressesType!
   getAllCategories(includeSubcategories: Boolean = true, limit: Int = 10, name: String, page: Int = 1, parentId: ID, sortBy: SortBy, sortOrder: SortOrder): PaginatedCategoriesType!
   getAllCountries: [CountryType!]!
-  getAllProducts(categoriesIds: [ID!], filterMode: ProductFilterMode = ALL, limit: Float = 25, name: String, page: Float = 1, sortBy: ProductSortBy, sortOrder: SortOrder, type: TypeEnum): PaginatedProductsType!
+  getAllProducts(categoriesIds: [ID!], filterMode: ProductFilterMode = ALL, limit: Int = 25, name: String, page: Int = 1, sortBy: ProductSortBy, sortOrder: SortOrder, type: TypeEnum): PaginatedProductsType!
   getAllStockMovements(createdById: ID, dateFrom: DateTime, dateTo: DateTime, includeDeleted: Boolean = false, limit: Int = 10, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID, warehouseId: ID!): PaginatedStockMovementsType!
   getAllWarehouses(addressId: ID, includeAddresses: Boolean = false, limit: Int = 10, name: String, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, stockFilters: StockPerWarehouseFilterInput): PaginatedWarehousesType!
   getCart(input: GetCartPaginatedInput!): PaginatedCart!
@@ -638,7 +643,7 @@ type Query {
   getStatesByCountryId(countryId: ID!): [StateType!]!
   getTenantById: Tenant!
   getWarehouseById(id: ID!, isArchived: Boolean): Warehouse!
-  getWishListItems(limit: Int = 25, page: Int = 1, variantIds: [ID!] = []): PaginatedWishlist!
+  getWishListItems(limit: Int = 10, name: String, page: Int = 1, sortBy: WishListSortBy, sortOrder: SortOrder): PaginatedWishlist!
   validateToken: Response!
 }
 
@@ -900,9 +905,33 @@ input WishListManyItemsInput {
   variantIds: [String!]!
 }
 
+type WishListMultiStatus {
+  results: [WishListMultiStatusResult!]!
+  summary: WishListMultiStatusSummary!
+}
+
+type WishListMultiStatusResult {
+  id: ID
+  message: String!
+  status: Int!
+  variantId: ID!
+}
+
+type WishListMultiStatusSummary {
+  failed: Int!
+  successful: Int!
+  total: Int!
+}
+
+enum WishListSortBy {
+  ADDED_AT
+  NAME
+  PRICE
+}
+
 type WishListWithVariant {
   customerId: ID!
-  firstAttribute: FirstAttribute
+  firstAttribute: CustomerFirstAttribute
   id: ID!
   isArchived: Boolean
   price: Float!

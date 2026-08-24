@@ -1,11 +1,9 @@
 import {
-  Customer,
-  ICustomerProps,
-} from '../../../aggregates/entities/customer.entity';
-import {
   ICustomerCreate,
   ICustomerEntity,
-} from '../../../aggregates/entities/customer.attributes';
+  Customer,
+  ICustomerProps,
+} from '../../../aggregates/entities';
 import { Id, Name } from '@shared/value-objects';
 import { CustomerDTO, PaginatedCustomersDTO } from './customer.dto';
 

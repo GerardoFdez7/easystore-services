@@ -10,7 +10,6 @@ import {
 import { GetCartByIdHandler } from './application/queries';
 import {
   CartCreatedHandler,
-  CustomerCreatedHandler,
   AddItemToCartHandler as AddItemToCartEventHandler,
   ItemRemovedFromCartHandler,
   RemoveManyItemsFromCartHandler as RemoveManyItemsFromCartEventHandler,
@@ -32,7 +31,6 @@ const QueryHandlers = [GetCartByIdHandler];
 
 const EventHandlers = [
   CartCreatedHandler,
-  CustomerCreatedHandler,
   AddItemToCartEventHandler,
   ItemRemovedFromCartHandler,
   RemoveManyItemsFromCartEventHandler,

@@ -28,6 +28,11 @@ and trusted fields out of client inputs.
 
 ## Resolvers
 
+Every GraphQL `findAll`/collection query must accept the shared `PaginationArgs`
+with `@Args()`, plus typed enum `sortBy` and `sortOrder` arguments when the resource
+supports sorting. Pass those values unchanged to the application query DTO; do not
+sort or paginate in the resolver.
+
 Resolvers use `@Resolver`, end in `Resolver`, and translate transport/auth data into
 application DTOs:
 
@@ -42,7 +47,7 @@ export class WidgetResolver {
   ///////////////
   // Mutations //
   ///////////////
-  
+
   @Mutation(() => WidgetType)
   createWidget(
     @Args('input') input: CreateWidgetInput,
@@ -54,6 +59,12 @@ export class WidgetResolver {
   }
 }
 ```
+
+Import related command DTOs from the application command barrel and related query
+DTOs from the application query barrel, grouping each set in one import declaration.
+Model related pagination and filter arguments in an `@ArgsType` class, following
+`common/graphql/pagination.args.ts`, and accept the class with `@Args()` instead of
+repeating individual `page`, `limit`, and filter decorators in resolver methods.
 
 Obtain trusted tenant, user, employee, and authorization data from server context.
 Never allow client input to override it. Apply `@Public()` or authentication overrides
@@ -69,4 +80,3 @@ Test delegation, authenticated identity injection, input-to-DTO mapping, nullabi
 and public/protected behavior where meaningful. Do not duplicate application or domain
 tests in resolver tests. Export every GraphQL type explicitly from
 `presentation/graphql/types/index.ts`.
-

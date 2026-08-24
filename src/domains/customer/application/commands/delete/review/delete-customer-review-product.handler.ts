@@ -5,6 +5,7 @@ import { ICustomerRepository } from '../../../../aggregates/repositories/custome
 import { Inject, NotFoundException } from '@nestjs/common';
 import { Id } from '@shared/value-objects';
 import { Customer } from '../../../../aggregates/entities';
+import { findCustomerOrThrow } from '../../../shared/find-customer-or-throw';
 
 @CommandHandler(DeleteCustomerReviewProductDto)
 export class DeleteCustomerReviewProductHandler
@@ -24,21 +25,17 @@ export class DeleteCustomerReviewProductHandler
     const tenantId = Id.create(command.tenantId);
 
     // Find the customer to validate it exists
-    const customerFound = await this.customerRepository.findById(
+    const customerFound = await findCustomerOrThrow(
+      this.customerRepository,
       customerId,
       tenantId,
+      command.customerId,
     );
-
-    if (!customerFound) {
-      throw new NotFoundException(
-        `Customer with ID ${command.customerId} not found`,
-      );
-    }
 
     // Find the review to validate it exists and belongs to the customer
     const reviewFound = await this.reviewRepository.findById(
       reviewId,
-      tenantId,
+      customerId,
     );
 
     if (!reviewFound) {

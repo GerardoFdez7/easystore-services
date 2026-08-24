@@ -4,7 +4,7 @@ import { CreateCustomerHandler } from '../create-customer.handler';
 import { CreateCustomerDto } from '../create-customer.dto';
 import { ICustomerRepository } from '../../../../../aggregates/repositories/customer.interface';
 import { CustomerDTO, CustomerMapper } from '../../../../mappers';
-import { Customer } from '../../../../../aggregates/entities/customer.entity';
+import { Customer } from '../../../../../aggregates/entities/customer/customer.entity';
 
 interface MockCustomer {
   commit: jest.Mock;
@@ -30,7 +30,7 @@ describe('CreateCustomerHandler', () => {
     customerRepository = {
       findByAuthIdentityId: jest.fn(),
       create: createMock,
-      findCustomerById: jest.fn(),
+      findById: jest.fn(),
       update: jest.fn(),
     } as unknown as jest.Mocked<ICustomerRepository>;
 

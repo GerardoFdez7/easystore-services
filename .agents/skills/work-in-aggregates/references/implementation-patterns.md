@@ -107,21 +107,20 @@ oriented and have immediately preceding contract JSDoc:
 ```ts
 /** Durable operations required for the Widget aggregate. */
 export interface IWidgetRepository {
-
   /**
-    * Creates a new widget.
-    * @param widget The widget to create.
-    * @returns The created widget.
-    * @throws If the widget could not be created.
+   * Creates a new widget.
+   * @param widget The widget to create.
+   * @returns The created widget.
+   * @throws If the widget could not be created.
    */
   create(widget: Widget): Promise<Widget>;
 
   /**
-    * Finds an existing widget.
-    * @param id The ID of the widget to find.
-    * @param tenantId The tenant ID of the widget to find.
-    * @returns The found widget, or null if not found.
-    * @throws If the widget could not be found.
+   * Finds an existing widget.
+   * @param id The ID of the widget to find.
+   * @param tenantId The tenant ID of the widget to find.
+   * @returns The found widget, or null if not found.
+   * @throws If the widget could not be found.
    */
   findById(id: Id, tenantId: Id): Promise<Widget | null>;
 }
@@ -130,10 +129,14 @@ export interface IWidgetRepository {
 Use entities/value objects rather than Prisma or GraphQL types. Make tenant scope and
 not-found semantics explicit.
 
+For aggregate repository collection contracts, represent supported pagination and
+sorting as typed options (`page`, `limit`, `sortBy`, `sortOrder`) rather than free-form
+strings. Name only sort keys the aggregate can own, document their defaults, and keep
+the owner or tenant scope mandatory for every collection read.
+
 ## Tests and completion
 
 Test accepted and rejected factory inputs, `create` versus `reconstitute` event
 behavior, transition invariants, immutable state, nested-entity coordination, and
 event payloads. Export every public aggregate artifact explicitly from the required
 barrels; never use `export *`.
-

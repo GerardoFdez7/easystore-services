@@ -1,11 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { PostgreService } from '@database/postgres.service';
 import { Prisma, StockMovement as PrismaStockMovement } from '.prisma/postgres';
-import { DatabaseOperationError } from '@shared/errors';
-import { StockMovement, Id } from '../../../aggregates/value-objects';
-import { SortBy, SortOrder } from '../../../aggregates/value-objects';
+import { PostgreService } from '@database/postgres.service';
+import { handlePrismaDatabaseError } from '@utils/prisma-error-utils';
+import { IStockMovementRepository } from '../../../aggregates/repositories';
+import {
+  Id,
+  SortBy,
+  SortOrder,
+  StockMovement,
+} from '../../../aggregates/value-objects';
 import { StockMovementMapper } from '../../../application/mappers';
-import IStockMovementRepository from '../../../aggregates/repositories/stock-movement.interface';
 
 @Injectable()
 export default class StockMovementRepository
@@ -108,17 +112,10 @@ export default class StockMovementRepository
     }
   }
 
-  /**
-   * Centralized error handling for database operations
-   */
   private handleDatabaseError(error: unknown, operation: string): never {
-    const errorMessage =
-      error instanceof Error ? error.message : JSON.stringify(error);
-    throw new DatabaseOperationError(
-      operation,
-      errorMessage,
-      error instanceof Error ? error : new Error(errorMessage),
-    );
+    return handlePrismaDatabaseError(error, operation, {
+      resource: 'Stock Movement',
+    });
   }
 
   /**

@@ -1,8 +1,13 @@
-export { Customer } from './customer.entity';
+export { Customer, ICustomerProps } from './customer/customer.entity';
 export {
   ICustomerBase,
   ICustomerCreate,
   ICustomerEntity,
-  IWishListCreated,
   ICustomerReviewCreated,
-} from './customer.attributes';
+  ICustomerReviewBase,
+  ICustomerReviewUpdateBase,
+  ICustomerType,
+  IWishListCreated,
+  IWishListBase,
+  ICustomerUpdateBase,
+} from './customer/customer.attributes';

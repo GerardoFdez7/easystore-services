@@ -11,10 +11,9 @@ import {
   generateRefreshToken,
   JwtPayload,
 } from '../../../infrastructure/strategies';
-import { ICustomerRepository } from '../../../aggregates/repositories/customer.interface';
 import { IEmployeeRepository } from '../../../aggregates/repositories/employee.interface';
 import { IAuthRepository } from '../../../aggregates/repositories/authentication.interface';
-import { ITenantAdapter } from '../../ports';
+import { ICustomerAdapter, ITenantAdapter } from '../../ports';
 import { ResponseDTO } from '../../mappers';
 import {
   Id,
@@ -33,8 +32,8 @@ export class AuthenticationLoginHandler
     private readonly authRepository: IAuthRepository,
     @Inject('ITenantAdapter')
     private readonly tenantAdapter: ITenantAdapter,
-    @Inject('CustomerRepository')
-    private readonly customerRepository: ICustomerRepository,
+    @Inject('ICustomerAdapter')
+    private readonly customerAdapter: ICustomerAdapter,
     @Inject('EmployeeRepository')
     private readonly employeeRepository: IEmployeeRepository,
     private readonly eventPublisher: EventPublisher,
@@ -109,7 +108,7 @@ export class AuthenticationLoginHandler
     } else if (accountTypeVO.getValue() === AccountTypeEnum.CUSTOMER) {
       // For customers, find customer and tenant
       const customer =
-        await this.customerRepository.findByAuthIdentityId(authIdentityId);
+        await this.customerAdapter.findByAuthIdentityId(authIdentityIdValue);
       if (!customer) {
         throw new NotFoundException(
           'Customer not found for this auth identity',

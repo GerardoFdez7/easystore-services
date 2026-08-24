@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { TenantSingUpDTO } from '../../../tenant/application/commands';
 import { GetTenantByAuthIdentityDTO } from '../../../tenant/application/queries';
+import { GetTenantByDomainDto } from '../../../tenant/application/queries';
 import {
   ITenantAdapter,
   ITenantProvisioningData,
@@ -24,5 +25,9 @@ export class TenantAdapter implements ITenantAdapter {
     return this.queryBus.execute(
       new GetTenantByAuthIdentityDTO(authIdentityId),
     );
+  }
+
+  getTenantIdByDomain(domain: string): Promise<string | null> {
+    return this.queryBus.execute(new GetTenantByDomainDto(domain));
   }
 }

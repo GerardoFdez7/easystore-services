@@ -1,5 +1,4 @@
 export { CartCreatedEvent } from './cart/cart-created.event';
-export { CustomerCreatedEvent } from './cart/customer-created.event';
 export { ItemRemovedFromCartEvent } from './cart/remove-item-cart.event';
 export { AddItemToCartEvent } from './cart/add-item-to-cart.event';
 export { ItemQuantityUpdatedEvent } from './cart/item-quantity-updated.event';

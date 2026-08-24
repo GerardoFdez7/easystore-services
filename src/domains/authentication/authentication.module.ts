@@ -23,13 +23,13 @@ import {
   IdentityPasswordUpdatedHandler,
   IdentityEmailUpdatedHandler,
   TenantProvisioningHandler,
+  CustomerProvisioningHandler,
 } from './application/events';
 import {
   AuthenticationRepository,
-  CustomerRepository,
   EmployeeRepository,
 } from './infrastructure/persistence/postgres';
-import { TenantAdapter } from './infrastructure/adapters';\
+import { CustomerAdapter, TenantAdapter } from './infrastructure/adapters';
 import AuthGuard from './infrastructure/guard/auth.guard';
 import { JwtStrategy } from './infrastructure/strategies/jwt/jwt.strategy';
 import {
@@ -59,6 +59,7 @@ const EventHandlers = [
   IdentityPasswordUpdatedHandler,
   IdentityEmailUpdatedHandler,
   TenantProvisioningHandler,
+  CustomerProvisioningHandler,
 ];
 
 const EmailBuilders = [ForgotPasswordEmailBuilder, GetInTouchEmailBuilder];
@@ -84,8 +85,8 @@ const CronServices = [CleanupService];
       useClass: TenantAdapter,
     },
     {
-      provide: 'CustomerRepository',
-      useClass: CustomerRepository,
+      provide: 'ICustomerAdapter',
+      useClass: CustomerAdapter,
     },
     {
       provide: 'EmployeeRepository',
@@ -105,6 +106,6 @@ const CronServices = [CleanupService];
     ...RateLimiters,
     ...CronServices,
   ],
-  exports: [AuthGuard],
+  exports: [AuthGuard, JwtModule],
 })
 export class AuthenticationDomain {}

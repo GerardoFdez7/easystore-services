@@ -1,10 +1,8 @@
-import { CustomerReviewProductPropsWithId } from '../../../../aggregates/value-objects/customer-review-product.vo';
+import { ICustomerReviewUpdateBase } from '../../../../aggregates/entities';
 
 export class UpdateCustomerReviewProductDto {
   constructor(
-    public readonly review: Partial<
-      Pick<CustomerReviewProductPropsWithId, 'id' | 'ratingCount' | 'comment'>
-    >,
+    public readonly review: ICustomerReviewUpdateBase,
     public readonly customerId: string,
     public readonly tenantId: string,
   ) {}

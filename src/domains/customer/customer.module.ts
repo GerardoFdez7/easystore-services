@@ -1,31 +1,38 @@
-import { Module } from '@nestjs/common';
-import { CustomerResolver } from './presentation/graphql/customer.resolver';
 import { CqrsModule } from '@nestjs/cqrs';
-import { CreateCustomerHandler } from './application/commands/create/customer/create-customer.handler';
-import { CustomerRepository } from './infrastructure/database/postgres/customer.repository';
-import { IdentityCreatedHandler } from './application/events/customer/identity-created.handler';
-import { CustomerCreatedHandler } from './application/events/customer/customer-created.handler';
-import { TenantDomain } from '../tenant/tenant.module';
-import { FindCustomerByIdHandler } from './application/queries';
-import { UpdateCustomerHandler } from './application/commands/update/customer/update-customer.handler';
-import { CustomerUpdatedHandler } from './application/events/customer/customer-updated.handler';
-import { WishlistItemCreatedHandler } from './application/events/wishlist/wish-list-created.handler';
-import { WishlistItemDeletedHandler } from './application/events/wishlist/wish-list-deleted.handler';
-import { WishlistManyItemsDeletedHandler } from './application/events/wishlist/wish-list-many-items-deleted.handler';
-import { WishListRepository } from './infrastructure/database/postgres/wish-list.repository';
-import { CreateWishListHandler } from './application/commands/create/wish-list/create-wish-list.handler';
-import { DeleteWishListHandler } from './application/commands/delete/wish-list/one/delete-wish-list.handler';
-import { DeleteManyWishListHandler } from './application/commands/delete/wish-list/many/delete-many-wish-list.handler';
-import { ProductAdapter } from './infrastructure/adapters';
-import { FindWishListItemsHandler } from './application/queries/many/wish-list/find-wish-list-items.handler';
-import { FindManyCustomerReviewsHandler } from './application/queries/many/review/find-many-customer-reviews.handler';
-import { CustomerReviewProductRepository } from './infrastructure/database/postgres/customer-review-product.repository';
-import { CreateCustomerReviewProductHandler } from './application/commands/create/review/create-customer-review-product.handler';
-import { CustomerReviewProductCreatedHandler } from './application/events/review/review-created.handler';
-import { UpdateCustomerReviewProductHandler } from './application/commands/update/review/update-customer-review-product.handler';
-import { CustomerReviewProductUpdatedHandler } from './application/events/review/review-updated.handler';
-import { DeleteCustomerReviewProductHandler } from './application/commands/delete/review/delete-customer-review-product.handler';
-import { CustomerReviewProductDeletedHandler } from './application/events/review/review-deleted.handler';
+import { Module } from '@nestjs/common';
+import {
+  CreateCustomerHandler,
+  CreateCustomerReviewProductHandler,
+  CreateWishListHandler,
+  DeleteCustomerReviewProductHandler,
+  DeleteManyWishListHandler,
+  DeleteWishListHandler,
+  UpdateCustomerHandler,
+  UpdateCustomerReviewProductHandler,
+} from './application/commands';
+import {
+  CustomerCreatedHandler,
+  CustomerReviewProductCreatedHandler,
+  CustomerReviewProductDeletedHandler,
+  CustomerReviewProductUpdatedHandler,
+  CustomerUpdatedHandler,
+  WishlistItemCreatedHandler,
+  WishlistItemDeletedHandler,
+  WishlistManyItemsDeletedHandler,
+} from './application/events';
+import {
+  FindCustomerByAuthIdentityIdHandler,
+  FindCustomerByIdHandler,
+  FindManyCustomerReviewsHandler,
+  FindWishListItemsHandler,
+} from './application/queries';
+import { CartAdapter, ProductAdapter } from './infrastructure/adapters';
+import {
+  CustomerRepository,
+  CustomerReviewProductRepository,
+  WishListRepository,
+} from './infrastructure/persistence/postgres';
+import { CustomerResolver } from './presentation/graphql/customer.resolver';
 
 const CommandHandlers = [
   CreateCustomerHandler,
@@ -39,7 +46,6 @@ const CommandHandlers = [
 ];
 
 const EventHandlers = [
-  IdentityCreatedHandler,
   CustomerCreatedHandler,
   CustomerUpdatedHandler,
   WishlistItemCreatedHandler,
@@ -51,13 +57,14 @@ const EventHandlers = [
 ];
 
 const QueryHandlers = [
+  FindCustomerByAuthIdentityIdHandler,
   FindCustomerByIdHandler,
   FindWishListItemsHandler,
   FindManyCustomerReviewsHandler,
 ];
 
 @Module({
-  imports: [CqrsModule, TenantDomain],
+  imports: [CqrsModule],
   providers: [
     CustomerResolver,
     {
@@ -69,6 +76,7 @@ const QueryHandlers = [
       useClass: WishListRepository,
     },
     { provide: 'IProductAdapter', useClass: ProductAdapter },
+    { provide: 'ICartAdapter', useClass: CartAdapter },
     {
       provide: 'ICustomerReviewProductRepository',
       useClass: CustomerReviewProductRepository,

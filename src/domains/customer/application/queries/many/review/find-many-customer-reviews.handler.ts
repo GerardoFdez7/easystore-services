@@ -4,10 +4,9 @@ import { Id } from '@shared/value-objects';
 import { FindManyCustomerReviewsDto } from './find-many-customer-reviews.dto';
 import { ICustomerReviewProductRepository } from '../../../../aggregates/repositories/customer-review-product.interface';
 import { IProductAdapter } from '../../../ports';
-import {
-  PaginatedCustomerReviewProductWithVariantDTO,
-  CustomerReviewProductWithVariantDTO,
-} from '../../../mappers/review/customer-review-product-enriched.dto';
+import { PaginatedCustomerReviewProductWithVariantDTO } from '../../../mappers/review/customer-review-product-enriched.dto';
+import { CustomerReviewProductMapper } from '../../../mappers/review/customer-review-product.mapper';
+import { enrichWithVariantDetails } from '../../../shared/enrich-with-variant-details';
 
 @QueryHandler(FindManyCustomerReviewsDto)
 export class FindManyCustomerReviewsHandler
@@ -32,60 +31,33 @@ export class FindManyCustomerReviewsHandler
       reviewIds,
     );
 
-    const total = reviews.length;
-
-    if (total === 0) {
+    const paginatedReviews = CustomerReviewProductMapper.toPaginatedDto(
+      reviews,
+      query.page,
+      query.limit,
+    );
+    if (paginatedReviews.total === 0) {
       return { reviews: [], total: 0, hasMore: false };
     }
 
-    // Normalize pagination params
-    const page = Math.max(1, query.page ?? 1);
-    const limit = Math.min(50, Math.max(1, query.limit ?? 25));
-    const offset = (page - 1) * limit;
-
-    // Slice items for requested page
-    const pagedReviews = reviews.slice(offset, offset + limit);
-
     // Extract variant IDs from paged reviews to get variant details
-    const variantIdStrings = pagedReviews.map((review) =>
-      review.getVariantIdValue(),
+    const variantIdStrings = paginatedReviews.reviews.map(
+      (review) => review.variantId,
     );
 
     // Get variant details from product adapter
     const variantDetails =
       await this.productAdapter.getVariantsDetails(variantIdStrings);
 
-    // Create a map for quick lookup of variant details
-    const variantDetailsMap = new Map(
-      variantDetails.map((variant) => [variant.variantId, variant]),
+    const enrichedReviews = enrichWithVariantDetails(
+      paginatedReviews.reviews,
+      variantDetails,
     );
-
-    // Combine reviews with variant details
-    const enrichedReviews: CustomerReviewProductWithVariantDTO[] =
-      pagedReviews.map((review) => {
-        const variant = variantDetailsMap.get(review.getVariantIdValue());
-
-        return {
-          id: review.getIdValue(),
-          ratingCount: review.getRatingCount(),
-          comment: review.getCommentValue(),
-          customerId: review.getCustomerIdValue(),
-          variantId: review.getVariantIdValue(),
-          updatedAt: review.getUpdatedAt(),
-          sku: variant?.sku || '',
-          productName: variant?.productName || '',
-          firstAttribute: variant?.firstAttribute || { key: '', value: '' },
-          price: variant?.price || 0,
-          isArchived: variant?.isArchived || false,
-        };
-      });
-
-    const hasMore = offset + enrichedReviews.length < total;
 
     return {
       reviews: enrichedReviews,
-      total,
-      hasMore,
+      total: paginatedReviews.total,
+      hasMore: paginatedReviews.hasMore,
     };
   }
 }

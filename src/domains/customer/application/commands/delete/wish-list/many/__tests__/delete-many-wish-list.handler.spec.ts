@@ -17,6 +17,8 @@ interface MockCustomer {
 
 interface MockWishListItem {
   getId: jest.Mock;
+  getIdValue: jest.Mock;
+  getVariantIdValue: jest.Mock;
 }
 
 describe('DeleteManyWishListHandler', () => {
@@ -41,7 +43,7 @@ describe('DeleteManyWishListHandler', () => {
     customerRepository = {
       findByAuthIdentityId: jest.fn(),
       create: jest.fn(),
-      findCustomerById: findCustomerByIdMock,
+      findById: findCustomerByIdMock,
       update: jest.fn(),
     } as unknown as jest.Mocked<ICustomerRepository>;
 
@@ -50,7 +52,7 @@ describe('DeleteManyWishListHandler', () => {
       findWishListItemByVariantId: jest.fn(),
       removeVariantFromWishList: jest.fn(),
       removeManyFromWishList: removeManyFromWishListMock,
-      getManyWishListsByVariantIds: jest.fn(),
+      findMany: jest.fn(),
     } as unknown as jest.Mocked<IWishListRepository>;
 
     mockCustomer = {
@@ -59,9 +61,21 @@ describe('DeleteManyWishListHandler', () => {
     };
 
     mockWishListItems = [
-      { getId: jest.fn().mockReturnValue('wishlist-item-id-1') },
-      { getId: jest.fn().mockReturnValue('wishlist-item-id-2') },
-      { getId: jest.fn().mockReturnValue('wishlist-item-id-3') },
+      {
+        getId: jest.fn().mockReturnValue('wishlist-item-id-1'),
+        getIdValue: jest.fn().mockReturnValue('wishlist-item-id-1'),
+        getVariantIdValue: jest.fn().mockReturnValue('variant-1'),
+      },
+      {
+        getId: jest.fn().mockReturnValue('wishlist-item-id-2'),
+        getIdValue: jest.fn().mockReturnValue('wishlist-item-id-2'),
+        getVariantIdValue: jest.fn().mockReturnValue('variant-2'),
+      },
+      {
+        getId: jest.fn().mockReturnValue('wishlist-item-id-3'),
+        getIdValue: jest.fn().mockReturnValue('wishlist-item-id-3'),
+        getVariantIdValue: jest.fn().mockReturnValue('variant-3'),
+      },
     ];
 
     mergeObjectContextMock.mockReturnValue(mockCustomer as never);
@@ -219,6 +233,37 @@ describe('DeleteManyWishListHandler', () => {
         await handler.execute(manyCommand);
 
         expect(removeManyFromWishListMock).toHaveBeenCalledTimes(1);
+      });
+
+      it('returns an ordered per-variant multi-status result', async () => {
+        removeManyFromWishListMock.mockResolvedValue([
+          mockWishListItems[0],
+          mockWishListItems[2],
+        ]);
+
+        await expect(handler.execute(baseCommand)).resolves.toEqual({
+          summary: { total: 3, successful: 2, failed: 1 },
+          results: [
+            {
+              id: 'wishlist-item-id-1',
+              variantId: 'variant-1',
+              status: 200,
+              message: 'Deleted',
+            },
+            {
+              id: null,
+              variantId: 'variant-2',
+              status: 404,
+              message: 'Item not found',
+            },
+            {
+              id: 'wishlist-item-id-3',
+              variantId: 'variant-3',
+              status: 200,
+              message: 'Deleted',
+            },
+          ],
+        });
       });
     });
 
@@ -393,8 +438,8 @@ describe('DeleteManyWishListHandler', () => {
         expect(removeManyVariantsFromWishListDomainMock).toHaveBeenCalledTimes(
           2,
         );
-        expect(result1).toBeUndefined();
-        expect(result2).toBeUndefined();
+        expect(result1.summary.total).toBe(2);
+        expect(result2.summary.total).toBe(3);
       });
 
       it('should preserve variant order in batch deletion', async () => {

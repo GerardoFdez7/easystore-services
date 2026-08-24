@@ -1,5 +1,5 @@
 import { Id } from '@shared/value-objects';
-import { Customer } from '../entities/customer.entity';
+import { Customer } from '../entities';
 
 /**
  * Simple interface for customer repository operations needed for authentication.

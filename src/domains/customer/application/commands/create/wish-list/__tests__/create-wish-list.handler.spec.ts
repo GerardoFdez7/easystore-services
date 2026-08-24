@@ -46,7 +46,7 @@ describe('CreateWishListHandler', () => {
     customerRepository = {
       findByAuthIdentityId: jest.fn(),
       create: jest.fn(),
-      findCustomerById: findCustomerByIdMock,
+      findById: findCustomerByIdMock,
       update: jest.fn(),
     } as unknown as jest.Mocked<ICustomerRepository>;
 
@@ -55,7 +55,7 @@ describe('CreateWishListHandler', () => {
       findWishListItemByVariantId: findWishListItemByVariantIdMock,
       removeVariantFromWishList: jest.fn(),
       removeManyFromWishList: jest.fn(),
-      getManyWishListsByVariantIds: jest.fn(),
+      findMany: jest.fn(),
     } as unknown as jest.Mocked<IWishListRepository>;
 
     mockCustomer = {

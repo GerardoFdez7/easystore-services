@@ -1,6 +1,6 @@
 import { WishListPropsWithId } from '../../../aggregates/value-objects/wish-list-item.vo';
 import { WishListItem } from '../../../aggregates/value-objects';
-import { WishListDTO } from './wish-list.dto';
+import { PaginatedWishListItemsDTO, WishListDTO } from './wish-list.dto';
 
 /**
  * Mapper class for WishList entity
@@ -46,6 +46,27 @@ export class WishListMapper {
       variantId: wishListItem.getVariantIdValue(),
       customerId: wishListItem.getCustomerIdValue(),
       updatedAt: wishListItem.getUpdatedAt(),
+    };
+  }
+
+  /** Maps wishlist items to a paginated application DTO. */
+  static toPaginatedDto(
+    wishListItems: WishListItem[],
+    page = 1,
+    limit = 25,
+  ): PaginatedWishListItemsDTO {
+    const normalizedPage = Math.max(1, page);
+    const normalizedLimit = Math.min(50, Math.max(1, limit));
+    const offset = (normalizedPage - 1) * normalizedLimit;
+    const paginatedItems = wishListItems.slice(
+      offset,
+      offset + normalizedLimit,
+    );
+
+    return {
+      wishlistItems: paginatedItems.map((item) => this.toDto(item)),
+      total: wishListItems.length,
+      hasMore: offset + paginatedItems.length < wishListItems.length,
     };
   }
 }

@@ -9,17 +9,17 @@ import {
   WishlistItemCreatedEvent,
   WishlistItemDeletedEvent,
   WishlistManyItemsDeletedEvent,
-} from '../events';
+} from '../../events';
 import {
   ICustomerCreate,
   ICustomerReviewCreated,
   IWishListCreated,
 } from './customer.attributes';
-import { WishListItem } from '../value-objects';
+import { WishListItem } from '../../value-objects';
 import {
   CustomerReviewProduct,
   CustomerReviewProductProps,
-} from '../value-objects/customer-review-product.vo';
+} from '../../value-objects/customer-review-product.vo';
 
 export interface ICustomerProps extends EntityProps {
   id: Id;
@@ -78,22 +78,23 @@ export class Customer extends Entity<ICustomerProps> {
     customer: Customer,
     input: Partial<Omit<ICustomerCreate, 'tenantId' | 'authIdentityId'>>,
   ): Customer {
+    const customerProps = customer.getProps();
     const customerUpdated = new Customer({
-      id: customer.get('id'),
-      name: input.name ? Name.create(input.name) : customer.get('name'),
-      tenantId: customer.get('tenantId'),
-      authIdentityId: customer.get('authIdentityId'),
+      id: customerProps.id,
+      name: input.name ? Name.create(input.name) : customerProps.name,
+      tenantId: customerProps.tenantId,
+      authIdentityId: customerProps.authIdentityId,
       defaultPhoneNumberId: input.defaultPhoneNumberId
         ? Id.create(input.defaultPhoneNumberId)
-        : customer.get('defaultPhoneNumberId'),
+        : customerProps.defaultPhoneNumberId,
       defaultShippingAddressId: input.defaultShippingAddressId
         ? Id.create(input.defaultShippingAddressId)
-        : customer.get('defaultShippingAddressId'),
+        : customerProps.defaultShippingAddressId,
       defaultBillingAddressId: input.defaultBillingAddressId
         ? Id.create(input.defaultBillingAddressId)
-        : customer.get('defaultBillingAddressId'),
+        : customerProps.defaultBillingAddressId,
       updatedAt: new Date(),
-      createdAt: customer.get('createdAt'),
+      createdAt: customerProps.createdAt,
     });
 
     customerUpdated.apply(new CustomerUpdatedEvent(customerUpdated));
@@ -136,7 +137,7 @@ export class Customer extends Entity<ICustomerProps> {
     const review = CustomerReviewProduct.create({
       ratingCount: customerReviewProduct.ratingCount,
       comment: customerReviewProduct.comment,
-      customerId: customer.get('id').getValue(),
+      customerId: customer.getProps().id.getValue(),
       variantId: customerReviewProduct.variantId,
     });
 

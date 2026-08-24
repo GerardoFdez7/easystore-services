@@ -10,6 +10,15 @@ export interface WishListDTO {
 }
 
 /**
+ * Paginated response DTO for base wishlist items.
+ */
+export interface PaginatedWishListItemsDTO {
+  wishlistItems: WishListDTO[];
+  total: number;
+  hasMore: boolean;
+}
+
+/**
  * Data Transfer Object for WishList item enriched with variant details
  * Used for API responses when retrieving wishlist items with product information
  */
@@ -29,4 +38,22 @@ export interface PaginatedWishlistDTO {
   wishlistItems: WishlistItemWithVariantDTO[];
   total: number;
   hasMore: boolean;
+}
+
+export interface WishListDeletionResultDTO {
+  id: string | null;
+  variantId: string;
+  status: number;
+  message: string;
+}
+
+export interface WishListDeletionSummaryDTO {
+  total: number;
+  successful: number;
+  failed: number;
+}
+
+export interface WishListMultiStatusDTO {
+  summary: WishListDeletionSummaryDTO;
+  results: WishListDeletionResultDTO[];
 }
