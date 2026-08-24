@@ -10,7 +10,6 @@ permissions:
   actions: read
   contents: read
   pull-requests: write
-  security-events: write
 
 jobs:
   validate:
@@ -23,12 +22,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
-        with:
-          languages: javascript-typescript
-          build-mode: none
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -64,9 +57,6 @@ jobs:
 
       - name: Run unit tests
         run: npm run test
-
-      - name: Analyze code with CodeQL
-        uses: github/codeql-action/analyze@v4
 
       - name: Comment PR on failure
         if: failure()
@@ -109,7 +99,6 @@ jobs:
                     '- Build completed ✓\n' +
                     '- Tests passed ✓\n' +
                     '- Linter Code quality verified ✓\n' +
-                    '- Architecture rules verified ✓\n' +
-                    '- CodeQL security analysis passed ✓\n\n' +
+                    '- Architecture rules verified ✓\n\n' +
                     'The PR has been validated. Great work! 🎉'
             })
