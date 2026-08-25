@@ -22,6 +22,7 @@ const ignorePatterns = [
   'test/',
   'src/infrastructure/database/seeds/**',
   '**/*.spec.ts',
+  '.roo/*'
 ];
 
 const eslintConfig = [

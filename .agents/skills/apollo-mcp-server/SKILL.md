@@ -1,17 +1,17 @@
 ---
 name: apollo-mcp-server
 description: >
-  Guide for using Apollo MCP Server to connect AI agents with GraphQL APIs.
-  Use this skill when: (1) setting up or configuring Apollo MCP Server,
-  (2) defining MCP tools from GraphQL operations, (3) using introspection
-  tools (introspect, search, validate, execute), (4) troubleshooting
-  MCP server connectivity or tool execution issues.
+  Guide for using Apollo MCP Server to connect AI agents with GraphQL APIs. Use
+  this skill when: (1) setting up or configuring Apollo MCP Server, (2) defining
+  MCP tools from GraphQL operations, (3) using introspection tools (introspect,
+  search, validate, execute), (4) troubleshooting MCP server connectivity or
+  tool execution issues.
 license: MIT
-compatibility: Works with Claude Code, Claude Desktop, Cursor.
+compatibility: 'Works with Claude Code, Claude Desktop, Cursor.'
 metadata:
   author: apollographql
-  version: '1.1.1'
-allowed-tools: Bash(rover:*) Bash(npx:*) Read Write Edit Glob Grep
+  version: 1.1.1
+allowed-tools: 'Bash(rover:*) Bash(npx:*) Read Write Edit Glob Grep'
 ---
 
 # Apollo MCP Server Guide

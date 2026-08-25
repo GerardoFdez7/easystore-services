@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "postgres": {
+      "command": "node",
+      "args": [".roo/postgres-mcp.cjs"]
+    }
+  }
+}

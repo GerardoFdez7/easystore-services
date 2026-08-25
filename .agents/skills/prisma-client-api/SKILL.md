@@ -1,10 +1,17 @@
 ---
 name: prisma-client-api
-description: Prisma Client API reference covering model queries, filters, operators, and client methods. Use when writing database queries, using CRUD operations, filtering data, or configuring Prisma Client. Triggers on "prisma query", "findMany", "create", "update", "delete", "$transaction".
+description: >-
+  Prisma Client API reference covering model queries, filters, operators, and
+  client methods. Use when writing database queries, using CRUD operations,
+  filtering data, or configuring Prisma Client. Triggers on "prisma query",
+  "findMany", "create", "update", "delete", "$transaction".
 license: MIT
 metadata:
   author: prisma
-  version: '7.9.1'
+  version: 7.9.1
+modeSlugs:
+  - debug
+  - code
 ---
 
 # Prisma Client API Reference
