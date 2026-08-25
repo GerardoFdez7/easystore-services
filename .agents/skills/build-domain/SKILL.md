@@ -23,8 +23,9 @@ their implementation guidance.
 
 ## Workflow
 
-1. Inspect the current worktree, executable architecture rules, and an analogous
-   domain without assuming its business model should be copied.
+1. Use the supplied Explorer brief, including executable architecture rules and an
+   analogous domain, without assuming its business model should be copied. Request
+   targeted follow-up research when evidence is missing.
 2. Define ownership, aggregate boundaries, invariants, commands, queries, events,
    external capabilities, tenant scope, persistence impact, and public API behavior.
 3. Map each concern to the layers that must change. Do not scaffold or edit layers
@@ -37,6 +38,6 @@ their implementation guidance.
    - `compose-domain` for module and provider wiring.
 5. Reconcile contracts across the selected layers, explicit barrels, architecture
    configuration, Semgrep coverage, Prisma artifacts, and module registration.
-6. Run the repository quality harness from root `AGENTS.md` and report exact evidence.
+6. Define focused and repository-level verification for the write-capable modes.
 
 For a localized layer task, skip this skill and use only the matching layer skill.

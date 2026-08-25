@@ -8,6 +8,7 @@ description: >-
 modeSlugs:
   - code
   - debug
+  - reviewer
 ---
 
 # Compose a domain
@@ -28,4 +29,5 @@ repository, adapter, and resolver exports first.
 3. Add only required Nest module imports and exports; avoid using another domain's
    internals as a shortcut.
 4. Register a new domain module in `src/app.module.ts`.
-5. Run module-focused tests or compile checks, then architecture and the root harness.
+5. Identify the module-focused tests, compile checks, and architecture checks that
+   verify the wiring.

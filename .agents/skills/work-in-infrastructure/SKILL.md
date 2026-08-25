@@ -8,6 +8,7 @@ description: >-
 modeSlugs:
   - debug
   - code
+  - reviewer
 ---
 
 # Work in infrastructure
@@ -25,11 +26,13 @@ schema/generated types, error utilities, and an analogous implementation.
    and persistence or external-service representation.
 2. Make the smallest implementation change while keeping mapping at the boundary.
 3. Use adapters—not direct imports elsewhere—for cross-domain communication.
-4. Add tests proportional to branching and risk, especially tenant isolation,
-   transactions, constraints, soft deletion, and error translation.
+4. Add focused repository or adapter contract tests proportional to branching and
+   risk, especially tenant isolation, transactions, constraints, soft deletion, and
+   error translation. Integration tests belong to application command handlers.
 5. Update explicit barrels and module providers when the implementation surface
    changes.
-6. Run focused tests, lint, build, and architecture checks before the full harness.
+6. Identify focused contract tests and any lint, build, or architecture checks
+   specific to the change.
 
 Infrastructure must not import presentation. Never weaken tenant filters or expose raw
 Prisma/external errors to satisfy a test.

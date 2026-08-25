@@ -7,6 +7,10 @@ description: >-
   limits, plugins, and centralized error formatting. Use for changes under
   src/domains/*/presentation or src/infrastructure/graphql, or whenever public
   GraphQL behavior, schema nullability, security, or operations change.
+modeSlugs:
+  - debug
+  - code
+  - reviewer
 ---
 
 # Work in GraphQL presentation

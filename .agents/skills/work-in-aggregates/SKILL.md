@@ -9,6 +9,7 @@ description: >-
 modeSlugs:
   - debug
   - code
+  - reviewer
 ---
 
 # Work in aggregates

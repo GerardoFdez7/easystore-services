@@ -7,6 +7,8 @@ description: >-
 modeSlugs:
   - debug
   - code
+  - tester
+  - reviewer
 ---
 
 # Work in application
@@ -15,8 +17,8 @@ Keep application code focused on use-case orchestration and inward-facing contra
 
 Read [implementation-patterns.md](references/implementation-patterns.md) before
 changing handlers, DTOs, mappers, or ports. Read
-[testing-and-quality.md](references/testing-and-quality.md) whenever application
-behavior or its tests change.
+[testing-and-quality.md](references/testing-and-quality.md) whenever an application
+command handler or its integration test changes.
 
 ## Workflow
 
@@ -27,6 +29,7 @@ behavior or its tests change.
    persist, commit successful events, and map results.
 4. Introduce an application port for a capability owned by another domain; pair it
    with an infrastructure adapter rather than importing that domain directly.
-5. Update explicit barrels and meaningful behavioral tests.
+5. Update explicit barrels. When a command handler changes, update its matching
+   colocated integration test.
 
 Application code must not import presentation or another bounded context directly.

@@ -78,10 +78,10 @@ Validate and narrow external-service responses before mapping them. Apply timeou
 retry/idempotency behavior, and credential handling only when the integration needs
 them; do not log secrets or complete payloads.
 
-## Tests and completion
+## Contract tests and completion
 
 Test tenant-qualified filters, null/not-found behavior, mapping, transaction success
 and rollback, expected constraint translations, archive/delete visibility, and adapter
-request/response translation. Integration tests are preferable where mocking Prisma
-would hide query semantics. Export implementations explicitly and update their
-provider bindings when necessary.
+request/response translation with focused repository or adapter contract tests. Do not
+place integration tests in infrastructure; application command handlers own them.
+Export implementations explicitly and update their provider bindings when necessary.

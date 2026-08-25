@@ -57,8 +57,6 @@ Transport validation protects the API shape; domain validation protects the inva
   the correct base props interface.
 - Use discriminated unions, branded/value-object types, and explicit result types where
   they make invalid states unrepresentable.
-- Do not use `any`. Avoid `unknown as` and non-null assertions; when boundary data is
-  unknown, validate/narrow it before entering the domain.
 - Reuse a shared type only when its semantics, invariants, and lifecycle are genuinely
   identical. Similar field shapes alone are not a reason to couple bounded contexts.
 
