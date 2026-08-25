@@ -40,12 +40,6 @@ export class CustomerType {
   @Field()
   name: string;
 
-  @Field(() => ID)
-  tenantId: string;
-
-  @Field(() => ID)
-  authIdentityId: string;
-
   @Field(() => ID, { nullable: true })
   defaultPhoneNumberId?: string;
 
@@ -139,9 +133,6 @@ export class WishListType {
   @Field(() => ID)
   variantId: string;
 
-  @Field(() => ID)
-  customerId: string;
-
   @Field()
   updatedAt: Date;
 }
@@ -188,27 +179,6 @@ export class PaginatedCustomerReviewProductWithVariantType {
   hasMore: boolean;
 }
 
-@InputType()
-export class CreateCustomerInput {
-  @Field()
-  name: string;
-
-  @Field(() => ID)
-  tenantId: string;
-
-  @Field(() => ID)
-  authIdentityId: string;
-
-  @Field(() => ID, { nullable: true })
-  defaultPhoneNumberId?: string;
-
-  @Field(() => ID, { nullable: true })
-  defaultShippingAddressId?: string;
-
-  @Field(() => ID, { nullable: true })
-  defaultBillingAddressId?: string;
-}
-
 @ObjectType('CustomerReviewProduct')
 export class CustomerReviewProductType {
   @Field(() => ID)
@@ -219,9 +189,6 @@ export class CustomerReviewProductType {
 
   @Field()
   comment: string;
-
-  @Field(() => ID)
-  customerId: string;
 
   @Field(() => ID)
   variantId: string;

@@ -33,8 +33,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "postinstall": "npm run generate && npm run install:semgrep",
-    "prepare": "is-ci || node -e \"if(process.env.NODE_ENV!=='production'){process.exit(1)}\" || husky install"
+    "postinstall": "npm run generate && node -e \"if(process.env.NODE_ENV==='development'){require('child_process').execFileSync(process.execPath,['tools/install-semgrep.mjs'],{stdio:'inherit'})}\"",
+    "prepare": "node -e \"if(process.env.NODE_ENV==='development' && !process.env.CI){require('child_process').execFileSync(process.execPath,['node_modules/husky/lib/bin.js','install'],{stdio:'inherit'})}\""
   },
   "dependencies": {
     "@as-integrations/express5": "1.1.2",
@@ -60,10 +60,10 @@
     "imagekit": "6.0.0",
     "jsonwebtoken": "9.0.2",
     "nestjs-pino": "4.4.1",
-    "pino": "9.0.0",
-    "pino-http": "10.5.0",
     "passport": "0.7.0",
     "passport-jwt": "4.0.1",
+    "pino": "9.0.0",
+    "pino-http": "10.5.0",
     "resend": "4.7.0",
     "uuid": "11.1.0",
     "zod": "4.1.12"
@@ -71,6 +71,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "3",
     "@eslint/js": "9.0.0",
+    "@graphql-eslint/eslint-plugin": "4.4.1",
     "@mermaid-js/mermaid-cli": "11.4.2",
     "@nestjs/cli": "10.0.0",
     "@nestjs/schematics": "10.0.0",

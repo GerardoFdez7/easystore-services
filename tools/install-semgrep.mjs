@@ -1,8 +1,8 @@
 import { spawnSync } from 'node:child_process';
 
-const isProduction = process.env.NODE_ENV === 'production';
+const isDevelopment = process.env.NODE_ENV === 'development';
 
-if (isProduction) {
+if (!isDevelopment) {
   process.exit(0);
 }
 

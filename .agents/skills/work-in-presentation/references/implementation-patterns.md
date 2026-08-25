@@ -2,36 +2,21 @@
 
 ## GraphQL types
 
-Use code-first Nest GraphQL decorators and explicit field types/nullability:
+Use NestJS code-first decorators and explicit field types/nullability. A `.types.ts`
+file declares at least one `@ObjectType`, `@InputType`, `@ArgsType`, or
+`@InterfaceType`.
 
-```ts
-@InputType()
-export class CreateWidgetInput {
-  @Field()
-  name: string;
-}
+Inputs contain only client-controlled data. Never expose trusted `tenantId`,
+`customerId`, `employeeId`, auth identity, role, or permissions when server context
+can provide them. Outputs contain only fields needed by the public client contract;
+ownership foreign keys and persistence metadata are private by default.
 
-@ObjectType('Widget')
-export class WidgetType {
-  @Field(() => ID)
-  id: string;
-
-  @Field()
-  name: string;
-}
-```
-
-A `.types.ts` file declares at least one `@ObjectType`, `@InputType`, `@ArgsType`, or
-`@InterfaceType`. Model nullable, optional, list, enum, ID, date, and pagination fields
-explicitly rather than relying on TypeScript reflection alone. Keep persistence-only
-and trusted fields out of client inputs.
+Use `ID` for identifiers, explicit enum functions, and explicit list item/container
+nullability. Export every public GraphQL type by name from
+`presentation/graphql/types/index.ts`; remove unused exported input types so they
+cannot be accidentally exposed later.
 
 ## Resolvers
-
-Every GraphQL `findAll`/collection query must accept the shared `PaginationArgs`
-with `@Args()`, plus typed enum `sortBy` and `sortOrder` arguments when the resource
-supports sorting. Pass those values unchanged to the application query DTO; do not
-sort or paginate in the resolver.
 
 Resolvers use `@Resolver`, end in `Resolver`, and translate transport/auth data into
 application DTOs:
@@ -39,14 +24,7 @@ application DTOs:
 ```ts
 @Resolver(() => WidgetType)
 export class WidgetResolver {
-  constructor(
-    private readonly commandBus: CommandBus,
-    private readonly queryBus: QueryBus,
-  ) {}
-
-  ///////////////
-  // Mutations //
-  ///////////////
+  constructor(private readonly commandBus: CommandBus) {}
 
   @Mutation(() => WidgetType)
   createWidget(
@@ -54,29 +32,40 @@ export class WidgetResolver {
     @CurrentUser() user: JwtPayload,
   ): Promise<WidgetType> {
     return this.commandBus.execute(
-      new CreateWidgetDTO({ ...input, tenantId: user.tenantId }),
+      new CreateWidgetDTO(input, user.tenantId, user.employeeId),
     );
   }
 }
 ```
 
-Import related command DTOs from the application command barrel and related query
-DTOs from the application query barrel, grouping each set in one import declaration.
-Model related pagination and filter arguments in an `@ArgsType` class, following
-`common/graphql/pagination.args.ts`, and accept the class with `@Args()` instead of
-repeating individual `page`, `limit`, and filter decorators in resolver methods.
+Prefer separate DTO constructor parameters for trusted identity. If the established
+DTO accepts one object, spread client input first and assign trusted fields last.
 
-Obtain trusted tenant, user, employee, and authorization data from server context.
-Never allow client input to override it. Apply `@Public()` or authentication overrides
-only when the operation's security contract explicitly requires them.
+Every collection query accepts the shared `PaginationArgs`, `NamedPaginationArgs` or a cohesive domain
+`@ArgsType`, plus typed sort enums where supported. Pass values unchanged; consistent
+bounds and validation belong to the application contract. Do not duplicate individual
+pagination decorators across resolver methods.
 
-Do not catch and rewrite errors unless transport semantics require a safe, stable
-mapping. Never expose stack traces, Prisma errors, credentials, or cross-tenant
-existence information.
+Import related command DTOs from the command barrel and query DTOs from the query
+barrel. Return the application's typed result or an explicit presentation mapping;
+do not use unchecked casts.
+
+## Authentication and errors
+
+The global guard protects operations by default. Apply `@Public()` directly to each
+operation whose contract is public; do not mark an entire resolver public when it
+also contains authenticated operations. Use `@Authenticated()` only for a deliberate
+method override on an otherwise public class during migration.
+
+Do not catch and rewrite failures unless transport semantics require a tested safe
+mapping. Do not return `null`, `[]`, `false`, or a success-shaped response for
+authorization, tenant, repository, or unexpected failures. Never expose stack traces,
+Prisma/external errors, exception metadata, credentials, tokens, internal IDs, or
+cross-tenant existence.
 
 ## Tests and completion
 
-Test delegation, authenticated identity injection, input-to-DTO mapping, nullability,
-and public/protected behavior where meaningful. Do not duplicate application or domain
-tests in resolver tests. Export every GraphQL type explicitly from
-`presentation/graphql/types/index.ts`.
+Test CQRS delegation, authenticated identity injection, client-input separation,
+public/protected metadata, output exposure, and intentional nullability. Do not
+duplicate application/domain behavior in resolver tests. Regenerate and lint the SDL
+after output or input type changes.

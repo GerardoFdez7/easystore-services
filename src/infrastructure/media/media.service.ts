@@ -1,4 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import ImageKit from 'imagekit';
 import { JwtPayload } from '@common/decorators';
 
@@ -6,11 +7,11 @@ import { JwtPayload } from '@common/decorators';
 export default class MediaService {
   private imagekit: ImageKit;
 
-  constructor() {
+  constructor(configService: ConfigService) {
     this.imagekit = new ImageKit({
-      publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
-      privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
-      urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
+      publicKey: configService.getOrThrow<string>('IMAGEKIT_PUBLIC_KEY'),
+      privateKey: configService.getOrThrow<string>('IMAGEKIT_PRIVATE_KEY'),
+      urlEndpoint: configService.getOrThrow<string>('IMAGEKIT_URL_ENDPOINT'),
     });
   }
 
@@ -38,7 +39,7 @@ export default class MediaService {
 
     return {
       ...authParams,
-      publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+      publicKey: this.imagekit.options.publicKey,
     };
   }
 }

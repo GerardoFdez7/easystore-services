@@ -15,7 +15,9 @@ export class CustomLoggerService implements LoggerService {
       messageStr.includes('dependencies initialized') ||
       messageStr.includes('Mapped {/gql, POST} route') ||
       messageStr.includes('Nest application successfully started') ||
-      messageStr.includes('Starting Nest application...')
+      messageStr.includes('Starting Nest application...') ||
+      messageStr.includes('Mapped {/health, GET} route') ||
+      messageStr.includes('HealthController {/health}:')
     ) {
       return;
     }

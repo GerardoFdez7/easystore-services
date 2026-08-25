@@ -44,9 +44,6 @@ export class CartType {
   @Field(() => ID)
   id: string;
 
-  @Field(() => ID)
-  customerId: string;
-
   @Field(() => [CartItemType])
   cartItems: CartItemType[];
 
@@ -97,21 +94,4 @@ export class UpdateItemQtyInput {
 
   @Field(() => Int)
   quantity: number;
-}
-
-@InputType()
-export class GetCartPaginatedInput {
-  @Field(() => Int, {
-    defaultValue: 1,
-    description: 'Page number for pagination (starts from 1)',
-    nullable: true,
-  })
-  page?: number;
-
-  @Field(() => Int, {
-    defaultValue: 25,
-    description: 'Number of items per page (max 50)',
-    nullable: true,
-  })
-  limit?: number;
 }

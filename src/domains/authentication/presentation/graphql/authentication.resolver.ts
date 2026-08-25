@@ -26,7 +26,6 @@ import {
 import { AuthenticationValidateTokenDTO } from '../../application/queries';
 import { ResponseDTO } from '../../application/mappers';
 
-@Public()
 @Resolver(() => AuthIdentityType)
 export default class AuthenticationResolver {
   constructor(
@@ -38,6 +37,7 @@ export default class AuthenticationResolver {
   // Mutations //
   ///////////////
 
+  @Public()
   @Mutation(() => AuthIdentityType)
   async register(
     @Args('input') input: AuthenticationInput,
@@ -45,6 +45,7 @@ export default class AuthenticationResolver {
     return await this.commandBus.execute(new AuthenticationRegisterDTO(input));
   }
 
+  @Public()
   @Mutation(() => ResponseType)
   async login(
     @Args('input') input: AuthenticationInput,
@@ -96,6 +97,7 @@ export default class AuthenticationResolver {
     };
   }
 
+  @Public()
   @Mutation(() => ResponseType)
   async forgotPassword(
     @Args('input') input: ForgotPasswordInput,
@@ -115,6 +117,7 @@ export default class AuthenticationResolver {
     };
   }
 
+  @Public()
   @Mutation(() => ResponseType)
   async updatePassword(
     @Args('input') input: UpdatePasswordInput,
@@ -130,6 +133,7 @@ export default class AuthenticationResolver {
     };
   }
 
+  @Public()
   @Mutation(() => ResponseType)
   async getInTouch(
     @Args('input') input: GetInTouchInput,

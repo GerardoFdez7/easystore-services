@@ -30,6 +30,5 @@ configuration, and a relevant existing aggregate.
    when the changed behavior requires them.
 5. Add or update focused tests for factories, reconstitution, value validation,
    invariants, state transitions, and emitted events.
-6. Run focused tests, lint, and architecture checks before the full root harness.
 
 Do not import application, infrastructure, presentation, or another bounded context.

@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
 import {
@@ -15,20 +16,21 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, {
     logger: new CustomLoggerService(),
   });
+  const configService = app.get(ConfigService);
 
   // Cookie parser middleware
   app.use(cookieParser());
 
   // CORS Config
   app.enableCors({
-    origin: [process.env.FRONTEND_URL],
+    origin: [configService.getOrThrow<string>('FRONTEND_URL')],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
     credentials: true,
   });
 
-  const port = process.env.PORT;
+  const port = configService.getOrThrow<string>('PORT');
   await app.listen(port);
-  logger.info(`Environment: ${process.env.NODE_ENV}`);
+  logger.info(`Environment: ${configService.get<string>('NODE_ENV')}`);
   logger.info(`GraphQL endpoint available at: http://localhost:${port}/gql`);
 }
 

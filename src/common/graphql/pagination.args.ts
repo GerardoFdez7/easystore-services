@@ -7,7 +7,10 @@ export class PaginationArgs {
 
   @Field(() => Int, { defaultValue: 10, nullable: true })
   limit?: number;
+}
 
+@ArgsType()
+export class NamedPaginationArgs extends PaginationArgs {
   @Field(() => String, { nullable: true })
   name?: string;
 }

@@ -28,6 +28,5 @@ behavior or its tests change.
 4. Introduce an application port for a capability owned by another domain; pair it
    with an infrastructure adapter rather than importing that domain directly.
 5. Update explicit barrels and meaningful behavioral tests.
-6. Run focused Jest tests, lint, and architecture checks before the full root harness.
 
 Application code must not import presentation or another bounded context directly.

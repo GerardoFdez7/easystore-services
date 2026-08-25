@@ -3,7 +3,6 @@ export {
   CartType,
   CartItemType,
   PaginatedCartType,
-  GetCartPaginatedInput,
   AddItemToCartInput,
   RemoveItemFromCartInput,
   RemoveManyItemFromCartInput,

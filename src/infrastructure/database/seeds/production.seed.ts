@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { ConfigService } from '@nestjs/config';
 import { CustomLoggerService } from '../../../config/logger';
 import { Id } from '../../../domains/shared/value-objects';
 import { PostgreService } from '../postgres.service';
@@ -21,7 +22,7 @@ interface CountryFileData {
 }
 
 export async function seedProductionData(): Promise<void> {
-  const prisma = new PostgreService();
+  const prisma = new PostgreService(new ConfigService(process.env));
   await prisma.onModuleInit();
 
   try {

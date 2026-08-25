@@ -8,7 +8,7 @@ import {
 } from '@nestjs/graphql';
 import { optionalArg } from '@common/graphql/argument-options';
 import { CurrentUser, JwtPayload } from '@common/decorators';
-import { PaginationArgs } from '@common/graphql/pagination.args';
+import { NamedPaginationArgs } from '@common/graphql/pagination.args';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   CategoryType,
@@ -92,7 +92,7 @@ export default class CategoryResolver {
   @Query(() => PaginatedCategoriesType)
   async getAllCategories(
     @CurrentUser() user: JwtPayload,
-    @Args() pagination: PaginationArgs,
+    @Args() pagination: NamedPaginationArgs,
     @Args('parentId', optionalArg(() => ID)) parentId?: string,
     @Args('includeSubcategories', { defaultValue: true, nullable: true })
     includeSubcategories?: boolean,

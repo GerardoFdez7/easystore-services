@@ -98,14 +98,7 @@ export function handlePrismaDatabaseError(
     }
   }
 
-  const errorMessage =
-    error instanceof Error ? error.message : JSON.stringify(error);
-
-  throw new DatabaseOperationError(
-    operation,
-    errorMessage,
-    error instanceof Error ? error : new Error(errorMessage),
-  );
+  throw new DatabaseOperationError(operation);
 }
 
 export async function executeDatabaseOperation<T>(

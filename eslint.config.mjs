@@ -2,6 +2,7 @@ import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { FlatCompat } from '@eslint/eslintrc';
 import eslintJs from '@eslint/js';
+import graphqlPlugin from '@graphql-eslint/eslint-plugin';
 import security from 'eslint-plugin-security';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -10,6 +11,7 @@ const compat = new FlatCompat({
   baseDirectory: __dirname,
   recommendedConfig: eslintJs.configs.recommended,
 });
+const sourceFilePatterns = ['**/*.{js,jsx,mjs,cjs,ts,tsx}'];
 const ignorePatterns = [
   '*.config.js',
   '*.config.ts',
@@ -24,13 +26,16 @@ const ignorePatterns = [
 
 const eslintConfig = [
   { ignores: ignorePatterns },
-  security.configs.recommended,
-  ...compat.extends(
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:@typescript-eslint/recommended-requiring-type-checking',
-  ),
+  { ...security.configs.recommended, files: sourceFilePatterns },
+  ...compat
+    .extends(
+      'eslint:recommended',
+      'plugin:@typescript-eslint/recommended',
+      'plugin:@typescript-eslint/recommended-requiring-type-checking',
+    )
+    .map((config) => ({ ...config, files: sourceFilePatterns })),
   {
+    files: sourceFilePatterns,
     languageOptions: {
       parser: await import('@typescript-eslint/parser'),
       parserOptions: {
@@ -145,10 +150,44 @@ const eslintConfig = [
       'security/detect-object-injection': 'off',
     },
   },
-  ...compat.config({
-    extends: ['plugin:prettier/recommended'],
-    plugins: ['@typescript-eslint/eslint-plugin'],
-  }),
+  {
+    files: ['src/infrastructure/graphql/schema.gql'],
+    languageOptions: {
+      parser: graphqlPlugin.parser,
+      parserOptions: {
+        graphQLConfig: {
+          schema: './src/infrastructure/graphql/schema.gql',
+        },
+      },
+    },
+    plugins: {
+      '@graphql-eslint': graphqlPlugin,
+    },
+    rules: {
+      ...graphqlPlugin.configs['flat/schema-recommended'].rules,
+      '@graphql-eslint/description-style': 'off',
+      '@graphql-eslint/naming-convention': [
+        'error',
+        {
+          types: 'PascalCase',
+          FieldDefinition: 'camelCase',
+          InputValueDefinition: 'camelCase',
+          Argument: 'camelCase',
+          DirectiveDefinition: 'camelCase',
+          EnumValueDefinition: 'UPPER_CASE',
+        },
+      ],
+      '@graphql-eslint/no-typename-prefix': 'off',
+      '@graphql-eslint/require-description': 'off',
+      '@graphql-eslint/strict-id-in-types': 'off',
+    },
+  },
+  ...compat
+    .config({
+      extends: ['plugin:prettier/recommended'],
+      plugins: ['@typescript-eslint/eslint-plugin'],
+    })
+    .map((config) => ({ ...config, files: sourceFilePatterns })),
 ];
 
 export default eslintConfig;

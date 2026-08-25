@@ -2,7 +2,8 @@ import { SortBy, SortOrder } from '../../../../aggregates/value-objects';
 
 export class GetAllStockMovementsDTO {
   constructor(
-    public readonly warehouseId?: string,
+    public readonly tenantId: string,
+    public readonly warehouseId: string,
     public readonly options?: {
       page?: number;
       limit?: number;

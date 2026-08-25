@@ -386,7 +386,6 @@ enum CurrencyCodes {
 }
 
 type Customer {
-  authIdentityId: ID!
   createdAt: DateTime
   defaultBillingAddressId: ID
   defaultPhoneNumberId: ID
@@ -449,14 +448,6 @@ type FirstAttribute {
 input ForgotPasswordInput {
   accountType: AccountTypeEnum!
   email: String!
-}
-
-input GetCartPaginatedInput {
-  """Number of items per page (max 50)"""
-  limit: Int = 25
-
-  """Page number for pagination (starts from 1)"""
-  page: Int = 1
 }
 
 input GetInTouchInput {
@@ -634,7 +625,7 @@ type Query {
   getAllProducts(categoriesIds: [ID!], filterMode: ProductFilterMode = ALL, limit: Int = 25, name: String, page: Int = 1, sortBy: ProductSortBy, sortOrder: SortOrder, type: TypeEnum): PaginatedProductsType!
   getAllStockMovements(createdById: ID, dateFrom: DateTime, dateTo: DateTime, includeDeleted: Boolean = false, limit: Int = 10, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID, warehouseId: ID!): PaginatedStockMovementsType!
   getAllWarehouses(addressId: ID, includeAddresses: Boolean = false, limit: Int = 10, name: String, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, stockFilters: StockPerWarehouseFilterInput): PaginatedWarehousesType!
-  getCart(input: GetCartPaginatedInput!): PaginatedCart!
+  getCart(limit: Int = 10, page: Int = 1): PaginatedCart!
   getCategoryById(id: ID!): Category!
   getCustomerById: Customer!
   getCustomerReviews(limit: Int = 25, page: Int = 1, reviewIds: [ID!] = []): PaginatedCustomerReviewProductWithVariant!

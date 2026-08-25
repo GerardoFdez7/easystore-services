@@ -1,4 +1,5 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaClient } from '.prisma/postgres';
 
 @Injectable()
@@ -6,12 +7,12 @@ export class PostgreService
   extends PrismaClient
   implements OnModuleInit, OnModuleDestroy
 {
-  constructor() {
+  constructor(configService: ConfigService) {
     // Use Docker database URL only when explicitly running in Docker
     const databaseUrl =
-      process.env.DOCKER_ENV === 'true'
-        ? process.env.DATABASE_URL_POSTGRES_DOCKER
-        : process.env.DATABASE_URL_POSTGRES;
+      configService.get<string>('DOCKER_ENV') === 'true'
+        ? configService.getOrThrow<string>('DATABASE_URL_POSTGRES_DOCKER')
+        : configService.getOrThrow<string>('DATABASE_URL_POSTGRES');
 
     super({
       datasources: {

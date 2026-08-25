@@ -1,4 +1,4 @@
-import { isDevelopmentEnvironment } from './environment';
+import { isDevelopmentEnvironment } from '../src/config/environment/environment';
 
 describe('isDevelopmentEnvironment', () => {
   it('only identifies the development environment', () => {

@@ -1,5 +1,4 @@
 export {
-  CreateCustomerInput,
   CreateCustomerReviewProductInput,
   CustomerReviewPaginationArgs,
   CustomerReviewProductType,

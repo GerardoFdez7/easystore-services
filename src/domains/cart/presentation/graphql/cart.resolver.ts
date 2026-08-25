@@ -1,10 +1,10 @@
 import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CurrentUser, JwtPayload } from '@common/decorators';
+import { PaginationArgs } from '@common/graphql/pagination.args';
 import {
   CartType,
   PaginatedCartType,
-  GetCartPaginatedInput,
   AddItemToCartInput,
   RemoveItemFromCartInput,
   RemoveManyItemFromCartInput,
@@ -74,17 +74,15 @@ export class CartResolver {
   }
 
   ///////////////
-  // Queries //
+  // Queries   //
   ///////////////
+
   @Query(() => PaginatedCartType)
   async getCart(
     @CurrentUser() user: JwtPayload,
-    @Args('input', { type: () => GetCartPaginatedInput })
-    input: GetCartPaginatedInput,
+    @Args() pagination: PaginationArgs,
   ): Promise<PaginatedCartType> {
-    // Validate and constrain pagination parameters
-    const page = Math.max(1, input.page);
-    const limit = Math.min(50, Math.max(1, input.limit));
+    const { page, limit } = pagination;
 
     return this.queryBus.execute(
       new GetCartByCustomerIdDTO(user.customerId, page, limit),

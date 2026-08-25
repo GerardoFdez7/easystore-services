@@ -1,11 +1,29 @@
 {
   "version": 1,
   "skills": {
+    "apollo-mcp-server": {
+      "source": "apollographql/skills",
+      "sourceType": "github",
+      "skillPath": "skills/apollo-mcp-server/SKILL.md",
+      "computedHash": "28fa888ec7a8023149865869cfbe68f6168632283668ae2ada3a8b849a6cf6c1"
+    },
     "dry-refactoring": {
       "source": "kucherenko/jscpd",
       "sourceType": "github",
       "skillPath": "skills/dry-refactoring/SKILL.md",
       "computedHash": "ae599cfc4fcd0cc7e1c287f291e84c839002d0c3725654432c457d92e5cdaae4"
+    },
+    "prisma-cli": {
+      "source": "prisma/skills",
+      "sourceType": "github",
+      "skillPath": "prisma-cli/SKILL.md",
+      "computedHash": "b92e55aef78f6796d81433c44738a6733211a04c16e65cbad6d42c5f71092aab"
+    },
+    "prisma-client-api": {
+      "source": "prisma/skills",
+      "sourceType": "github",
+      "skillPath": "prisma-client-api/SKILL.md",
+      "computedHash": "5dcc0793337151efa73a444e5adbc7e1c24180778e83b4fe94c9109c391bd333"
     }
   }
 }

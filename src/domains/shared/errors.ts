@@ -78,23 +78,12 @@ export class DatabaseOperationError extends DomainError {
   /**
    * Constructs a new DatabaseOperationError.
    * @param operation The type of database operation that failed (e.g., 'save', 'find').
-   * @param detail Optional detailed message about the failure.
-   * @param originalError Optional original error that caused this database operation error.
+   * @param _detail Deprecated detail retained for source compatibility and never exposed.
+   * @param _originalError Deprecated cause retained for source compatibility and never stored.
    */
-  constructor(operation: string, detail?: string, originalError?: Error) {
-    const message = detail
-      ? `Database ${operation} failed: ${detail}`
-      : `Database ${operation} failed`;
-
-    super('DATABASE_OPERATION_ERROR', message, {
+  constructor(operation: string, _detail?: string, _originalError?: Error) {
+    super('DATABASE_OPERATION_ERROR', 'Database operation failed', {
       operation,
-      originalError: originalError
-        ? {
-            name: originalError.name,
-            message: originalError.message,
-            stack: originalError.stack,
-          }
-        : undefined,
     });
   }
 }

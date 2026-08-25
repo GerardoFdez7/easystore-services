@@ -23,7 +23,7 @@ export class GetAllStockMovementsHandler
   async execute(
     query: GetAllStockMovementsDTO,
   ): Promise<PaginatedStockMovementsDTO> {
-    const { warehouseId, options } = query;
+    const { tenantId, warehouseId, options } = query;
     const {
       page,
       limit,
@@ -49,8 +49,9 @@ export class GetAllStockMovementsHandler
     }
 
     const stockMovements = await this.stockMovementRepository.findAll(
-      Id.create(warehouseId),
+      Id.create(tenantId),
       {
+        warehouseId: Id.create(warehouseId),
         page,
         limit,
         variantId: variantId ? Id.create(variantId) : undefined,

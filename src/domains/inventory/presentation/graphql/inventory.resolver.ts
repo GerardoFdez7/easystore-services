@@ -8,7 +8,7 @@ import {
 } from '@nestjs/graphql';
 import { optionalArg, pageArg } from '@common/graphql/argument-options';
 import { CurrentUser, JwtPayload } from '@common/decorators';
-import { PaginationArgs } from '@common/graphql/pagination.args';
+import { NamedPaginationArgs } from '@common/graphql/pagination.args';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   WarehouseType,
@@ -161,7 +161,7 @@ export default class InventoryResolver {
   @Query(() => PaginatedWarehousesType)
   async getAllWarehouses(
     @CurrentUser() user: JwtPayload,
-    @Args() pagination: PaginationArgs,
+    @Args() pagination: NamedPaginationArgs,
     @Args('addressId', optionalArg(() => ID)) addressId?: string,
     @Args('sortBy', optionalArg(() => SortBy)) sortBy?: SortBy,
     @Args('sortOrder', optionalArg(() => SortOrder))
@@ -205,6 +205,7 @@ export default class InventoryResolver {
 
   @Query(() => PaginatedStockMovementsType)
   async getAllStockMovements(
+    @CurrentUser() user: JwtPayload,
     @Args('warehouseId', { type: () => ID })
     warehouseId: string,
     @Args('page', pageArg(1)) page?: number,
@@ -222,7 +223,7 @@ export default class InventoryResolver {
     includeDeleted?: boolean,
   ): Promise<PaginatedStockMovementsType> {
     return this.queryBus.execute(
-      new GetAllStockMovementsDTO(warehouseId, {
+      new GetAllStockMovementsDTO(user.tenantId, warehouseId, {
         page,
         limit,
         variantId,

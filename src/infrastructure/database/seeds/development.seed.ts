@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { ConfigService } from '@nestjs/config';
 import { v5 as uuidV5 } from 'uuid';
 import { CustomLoggerService } from '../../../config/logger';
 import {
@@ -981,7 +982,7 @@ async function seedDevelopmentDataForDatabase(
 export async function seedDevelopmentData(): Promise<void> {
   validateDevelopmentFixtures();
 
-  const prisma = new PostgreService();
+  const prisma = new PostgreService(new ConfigService(process.env));
   await prisma.onModuleInit();
 
   try {
