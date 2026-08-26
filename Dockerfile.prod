@@ -1,5 +1,5 @@
 # Stage 1: Install dependencies
-FROM node:20-alpine AS deps
+FROM node:24-alpine AS deps
 WORKDIR /app
 
 # Install system dependencies for building
@@ -27,7 +27,7 @@ RUN npm run generate
 RUN npm run build
 
 # Stage 3: Production dependencies
-FROM node:20-alpine AS prod-deps
+FROM node:24-alpine AS prod-deps
 WORKDIR /app
 
 # Install system dependencies for production
@@ -46,7 +46,7 @@ RUN npx prisma generate --schema src/infrastructure/database/postgres.schema.pri
 RUN npm rebuild bcrypt --build-from-source
 
 # Stage 4: Production image
-FROM node:20-alpine AS production
+FROM node:24-alpine AS production
 WORKDIR /app
 
 # Install dumb-init and build tools for bcrypt
