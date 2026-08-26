@@ -22,3 +22,4 @@ Look for correctness defects, security or tenant-isolation failures, broken cont
 architecture violations, regressions, and missing behavioral coverage. Report only
 actionable findings, ordered by severity, with precise file and line references. If
 there are no findings, say so and state any residual risk or unverified assumption.
+Execute `npm run verify` before completion.
