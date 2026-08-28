@@ -71,6 +71,49 @@ function measureSelectionSet(
   return { depth, fields };
 }
 
+function hasOnlyRootIntrospectionFields(
+  selectionSet: SelectionSetNode,
+  fragments: ReadonlyMap<string, FragmentDefinitionNode>,
+  activeFragments: ReadonlySet<string>,
+): boolean {
+  for (const selection of selectionSet.selections) {
+    if (selection.kind === Kind.FIELD) {
+      if (!selection.name.value.startsWith('__')) {
+        return false;
+      }
+    } else if (selection.kind === Kind.INLINE_FRAGMENT) {
+      if (
+        !hasOnlyRootIntrospectionFields(
+          selection.selectionSet,
+          fragments,
+          activeFragments,
+        )
+      ) {
+        return false;
+      }
+    } else if (!activeFragments.has(selection.name.value)) {
+      const fragment = fragments.get(selection.name.value);
+
+      if (fragment) {
+        const nextActiveFragments = new Set(activeFragments);
+        nextActiveFragments.add(selection.name.value);
+
+        if (
+          !hasOnlyRootIntrospectionFields(
+            fragment.selectionSet,
+            fragments,
+            nextActiveFragments,
+          )
+        ) {
+          return false;
+        }
+      }
+    }
+  }
+
+  return selectionSet.selections.length > 0;
+}
+
 export function createOperationLimitRule(
   limits: OperationLimits,
 ): ValidationRule {
@@ -85,6 +128,16 @@ export function createOperationLimitRule(
 
     return {
       OperationDefinition(node): void {
+        if (
+          hasOnlyRootIntrospectionFields(
+            node.selectionSet,
+            fragments,
+            new Set<string>(),
+          )
+        ) {
+          return;
+        }
+
         const measurements = measureSelectionSet(
           node.selectionSet,
           fragments,

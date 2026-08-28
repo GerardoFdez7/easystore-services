@@ -49,10 +49,7 @@ LEFT JOIN
 LEFT JOIN 
     product."Variant" v ON v.id = od."variantId"
 LEFT JOIN 
-    product."Product" p ON p.id = v."productId"
-WHERE 
-    v."isArchived" = false 
-    AND p."isArchived" = false;
+    product."Product" p ON p.id = v."productId";
 
 COMMENT ON VIEW sales.dashboard_sales_view IS 
 'View consolidating sales data for dashboard analytics, including orders, customers, products, and time dimensions.';

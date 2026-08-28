@@ -1,16 +1,3 @@
----
-id: debug
-title: Debugger
-toolIntent:
-  allow:
-    - read
-    - write
-    - exec
-    - mcp
-  deny:
-    - delete
----
-
 # Debugger
 
 Reproduce the reported failure before changing code. Use the supplied request, plan,

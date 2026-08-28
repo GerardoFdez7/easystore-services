@@ -16,7 +16,7 @@ const operationLimitRule = createOperationLimitRule({
 export function createGraphqlOptions(
   configService: ConfigService,
 ): ApolloDriverConfig {
-  const isProduction = configService.get<string>('NODE_ENV') === 'production';
+  const isDevelopment = configService.get<string>('NODE_ENV') === 'development';
 
   return {
     autoSchemaFile: join(
@@ -25,9 +25,9 @@ export function createGraphqlOptions(
     ),
     sortSchema: true,
     playground: false,
-    plugins: isProduction ? [] : [ApolloServerPluginLandingPageLocalDefault()],
-    introspection: !isProduction,
-    includeStacktraceInErrorResponses: false,
+    plugins: isDevelopment ? [ApolloServerPluginLandingPageLocalDefault()] : [],
+    introspection: isDevelopment,
+    includeStacktraceInErrorResponses: isDevelopment,
     csrfPrevention: true,
     allowBatchedHttpRequests: false,
     validationRules: [operationLimitRule],

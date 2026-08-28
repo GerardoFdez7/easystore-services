@@ -8,11 +8,11 @@ import { GetDashboardDTO } from './get-dashboard.dto';
 export class GetDashboardHandler implements IQueryHandler<GetDashboardDTO> {
   constructor(
     @Inject('IAnalyticsRepository')
-    private readonly dashboardRepository: IAnalyticsRepository,
+    private readonly analyticsRepository: IAnalyticsRepository,
   ) {}
 
   async execute(query: GetDashboardDTO): Promise<DashboardDTO> {
-    const result = await this.dashboardRepository.getDashboard(query.tenantId);
+    const result = await this.analyticsRepository.getDashboard(query.tenantId);
 
     if (!result) {
       throw new NotFoundException(

@@ -42,7 +42,7 @@ validation limits, error formatting, plugins, observability, or caching.
    use `@Public()` only for explicitly public operations.
 7. Keep server-wide authentication, query limits, error masking, and operational
    behavior centralized in `src/infrastructure/graphql`.
-8. Update explicit type barrels and the generated SDL
+8. Update explicit type barrels.
 
 Presentation may depend inward on its own domain but may not import another bounded
 context directly. Central Apollo error formatting owns transport error codes and

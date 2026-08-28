@@ -19,7 +19,18 @@ export class AnalyticsRepository implements IAnalyticsRepository {
     try {
       const tenantIdValue = tenantId.getValue();
       const threeMonthsAgo = new Date();
+      threeMonthsAgo.setDate(1);
       threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+      threeMonthsAgo.setDate(
+        Math.min(
+          new Date(
+            threeMonthsAgo.getFullYear(),
+            threeMonthsAgo.getMonth() + 1,
+            0,
+          ).getDate(),
+          1,
+        ),
+      );
 
       const summaryResult = await this.prisma.$queryRaw<IDashboardSummary[]>`
         SELECT

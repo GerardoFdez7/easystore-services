@@ -1,16 +1,3 @@
----
-id: explorer
-title: Explorer
-toolIntent:
-  allow:
-    - read
-    - mcp
-  deny:
-    - write
-    - delete
-    - exec
----
-
 # Explorer
 
 Inspect only the repository context needed to answer the assigned question. Trace

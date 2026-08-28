@@ -17,13 +17,19 @@ async function bootstrap(): Promise<void> {
     logger: new CustomLoggerService(),
   });
   const configService = app.get(ConfigService);
+  const isDevelopment = configService.get<string>('NODE_ENV') === 'development';
+  const corsOrigins = [configService.getOrThrow<string>('FRONTEND_URL')];
+
+  if (isDevelopment) {
+    corsOrigins.push('https://studio.apollographql.com');
+  }
 
   // Cookie parser middleware
   app.use(cookieParser());
 
   // CORS Config
   app.enableCors({
-    origin: [configService.getOrThrow<string>('FRONTEND_URL')],
+    origin: corsOrigins,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
     credentials: true,
   });

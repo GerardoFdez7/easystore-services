@@ -1,4 +1,10 @@
-import { buildSchema, parse, specifiedRules, validate } from 'graphql';
+import {
+  buildSchema,
+  getIntrospectionQuery,
+  parse,
+  specifiedRules,
+  validate,
+} from 'graphql';
 import { createOperationLimitRule } from '../validation-rules';
 
 const schema = buildSchema(`
@@ -75,5 +81,42 @@ describe('createOperationLimitRule', () => {
     ]);
 
     expect(errors).toEqual([]);
+  });
+
+  it('accepts the standard schema introspection operation', () => {
+    const document = parse(getIntrospectionQuery());
+
+    const errors = validate(schema, document, [
+      ...specifiedRules,
+      createOperationLimitRule({ maxDepth: 3, maxFields: 3 }),
+    ]);
+
+    expect(errors).toEqual([]);
+  });
+
+  it('still limits mixed introspection and application operations', () => {
+    const document = parse(`
+      query MixedOperation {
+        __typename
+        root {
+          child {
+            child {
+              value
+            }
+          }
+        }
+      }
+    `);
+
+    const errors = validate(schema, document, [
+      ...specifiedRules,
+      createOperationLimitRule({ maxDepth: 3, maxFields: 20 }),
+    ]);
+
+    expect(errors).toEqual([
+      expect.objectContaining({
+        extensions: { code: 'QUERY_DEPTH_LIMIT_EXCEEDED' },
+      }),
+    ]);
   });
 });
