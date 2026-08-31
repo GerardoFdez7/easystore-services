@@ -31,9 +31,10 @@ affected layer's test conventions.
   protections, and constant-time verification. Never log or expose secrets, raw
   infrastructure errors, or unnecessary personal data.
 
-Run `npm run verify` exactly once after all implementation and test edits are complete;
+Run `npm run verify` after all implementation and test edits are complete;
 do not run independent lint, typecheck, test, formatting, architecture, Semgrep,
-duplication, or other verification commands. Use that single result to determine
-whether the work is complete or whether a local fix with a second run of `npm run verify` is needed, and report any
-remaining failure that is out of scope precisely. Do not add dependencies, destructive migrations, or
-breaking public behavior without approval.
+duplication, or other verification commands. Use that result to determine
+whether the work is complete or whether an in-scope local fix is needed. If a fix is required,
+make it and run `npm run verify` once more. Determine completion from the final
+verification result, and report any remaining failure that is out of scope precisely.
+Do not add dependencies, destructive migrations, or breaking public behavior without approval.

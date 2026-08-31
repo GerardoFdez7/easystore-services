@@ -3,14 +3,14 @@ import { GetCartByCustomerIdDTO } from './get-cart-by-customer-id.dto';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { ICartRepository } from '../../../aggregates/repositories/cart.interface';
 import { CartDTO, CartMapper } from '../../mappers';
-import { Id } from '@shared/value-objects';
-import { IProductAdapter } from '../../ports/product.port';
+import { Id, IMoney, Money } from '@shared/value-objects';
+import { IProductAdapter, ITenantCurrencyAdapter } from '../../ports';
 
 export interface PaginatedCartDTO {
   cartItems: CartDTO['cartItems'];
   total: number;
   hasMore: boolean;
-  totalCart: number;
+  totalCart: IMoney;
 }
 
 @QueryHandler(GetCartByCustomerIdDTO)
@@ -20,6 +20,8 @@ export class GetCartByIdHandler
   constructor(
     @Inject('ICartRepository') private readonly cartRepository: ICartRepository,
     @Inject('IProductAdapter') private readonly productAdapter: IProductAdapter,
+    @Inject('ITenantCurrencyAdapter')
+    private readonly tenantCurrencyAdapter: ITenantCurrencyAdapter,
   ) {}
 
   async execute(query: GetCartByCustomerIdDTO): Promise<PaginatedCartDTO> {
@@ -44,6 +46,9 @@ export class GetCartByIdHandler
         : [];
 
     const dto = CartMapper.toDto(cartFound, variantDetails);
+    const currency = await this.tenantCurrencyAdapter.getCurrency(
+      query.tenantId,
+    );
 
     // Get total count efficiently using the dedicated method
     const totalItems = await this.cartRepository.getCartItemsCount(customerId);
@@ -53,7 +58,7 @@ export class GetCartByIdHandler
       cartItems: dto.cartItems,
       total: totalItems,
       hasMore,
-      totalCart: dto.totalCart,
+      totalCart: Money.create(dto.totalCart.toString(), currency).getValue(),
     };
   }
 }

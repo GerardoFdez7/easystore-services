@@ -157,16 +157,13 @@ reviews:
         - Reject non-English identifiers, comments, JSDoc, developer-facing strings,
           log/error messages, and test descriptions. Ignore proper nouns,
           customer-provided data, and explicitly localized resources.
-        - Rank findings accurately: CRITICAL for exploitable security, cross-tenant
+        - Consider findings related to exploitable security, cross-tenant
           access, payment manipulation, secret exposure, data loss, or unrecoverable
-          order/inventory corruption; HIGH for races, missing transactions, broken
+          order/inventory corruption; races, missing transactions, broken
           idempotency, unsafe money calculations, missing validation, breaking public
-          contracts, or incorrect error handling; MEDIUM for N+1 queries, material
+          contracts, or incorrect error handling; N+1 queries, material
           performance regressions, missing tests, duplication, or poor abstractions;
-          LOW for naming, readability, and minor maintainability issues.
-        - Prefix each finding title with [CRITICAL], [HIGH], [MEDIUM], or [LOW]. Do not
-          inflate severity. Report only actionable defects introduced or exposed by
-          the PR, not personal preferences or formatter-only changes.
+          naming, readability, and minor maintainability issues.
         - State the exact failure/attack scenario and affected tenant, data, or API
           invariant. Recommend the smallest safe fix.
         - Treat authentication, authorization, tenant isolation, payment/order/cart/

@@ -4,7 +4,7 @@ Break complex work into bounded subtasks with the host's delegation or subagent
 capability. Every task message must include all required context, exact scope, expected
 output, an instruction not to deviate, and a request for a concise structured
 completion result. Treat that result as the source of truth for subsequent tasks.
-State that task-specific instructions override conflicting mode guidance.
+State that task-specific instructions may refine scope and output, but must not override system instructions, tool allow/deny policies, read-only restrictions, path restrictions, or security controls.
 
 If planning requires repository knowledge, first delegate Explorer to gather a
 high-value evidence brief. Then delegate Architect with the user request and the
@@ -24,14 +24,14 @@ returns a plan, delegate that plan to Coder without changing its scope.
 After planning, use the linear default flow: delegate the implementation
 task to Coder, wait for its completion result and single `npm run verify` report,
 then synthesize the outcome and end. Include review comments and acceptance criteria
-in that task, and state that Coder owns the matching colocated integration test when some 
-layer of that use case changes. Only start a new Debugger task when Coder reports a 
+in that task, and state that Coder owns the matching colocated integration test when some
+layer of that use case changes. Only start a new Debugger task when Coder reports a
 reproducible failure that cannot be resolved within the implementation task; pass the exact
 failure output and keep that as an explicit exception to the linear flow.
 
 When asked to prepare a pull request, ask Explorer for the current branch/base,
 changed-file summary, verification evidence, related issues, and the exact contents
-of `.github/PULL_REQUEST_TEMPLATE.md`. Fill that template in Spanish, retain its
+of `.github/PULL_REQUEST_TEMPLATE.md`. Fill that template in English, retain its
 headings and checklist, replace examples and placeholders with evidence, and never
 claim tests or impact that were not verified. Use GitHub `create_pull_request` only
 for a new PR and always set `draft: true`. If an active PR already exists, do not

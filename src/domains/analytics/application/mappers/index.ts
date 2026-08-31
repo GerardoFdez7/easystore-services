@@ -1,2 +1,8 @@
 export { DashboardDTO } from './dashboard/dashboard.dto';
-export { DashboardMapper } from './dashboard/dashboard.mapper';
+export {
+  DashboardMapper,
+  RawDashboardSummary,
+  RawOrderTimeline,
+  RawRecentOrder,
+  RawTopProduct,
+} from './dashboard/dashboard.mapper';

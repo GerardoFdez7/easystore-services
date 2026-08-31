@@ -3,7 +3,8 @@ export {
   Name,
   LongDescription,
   Media,
+  Currency,
+  CurrencyCodes,
 } from '../../../shared/value-objects';
 
 export { Domain } from './tenant/domain.vo';
-export { Currency, CurrencyCodes } from './tenant/currency.vo';

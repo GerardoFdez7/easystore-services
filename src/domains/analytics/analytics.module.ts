@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { GetDashboardHandler } from './application/queries';
-import { AnalyticsRepository } from './infrastructure/persistence/postgres/analytics.repository';
+import { AnalyticsRepository } from './infrastructure/persistence/postgres/';
 import { AnalyticsResolver } from './presentation/graphql/analytics.resolver';
 
 @Module({

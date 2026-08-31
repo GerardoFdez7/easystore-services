@@ -16,6 +16,35 @@ interface OperationMeasurements {
   fields: number;
 }
 
+/**
+ * Processes a named fragment if it hasn't been seen before in this traversal path.
+ * Prevents infinite recursion and ensures fragments are processed exactly once per operation path.
+ */
+function processFragment<T>(
+  fragmentName: string,
+  fragments: ReadonlyMap<string, FragmentDefinitionNode>,
+  activeFragments: ReadonlySet<string>,
+  callback: (
+    selectionSet: SelectionSetNode,
+    nextActiveFragments: ReadonlySet<string>,
+  ) => T,
+): T | null {
+  if (activeFragments.has(fragmentName)) {
+    return null;
+  }
+
+  const fragment = fragments.get(fragmentName);
+
+  if (!fragment) {
+    return null;
+  }
+
+  const nextActiveFragments = new Set(activeFragments);
+  nextActiveFragments.add(fragmentName);
+
+  return callback(fragment.selectionSet, nextActiveFragments);
+}
+
 function measureSelectionSet(
   selectionSet: SelectionSetNode,
   fragments: ReadonlyMap<string, FragmentDefinitionNode>,
@@ -50,20 +79,24 @@ function measureSelectionSet(
       );
       depth = Math.max(depth, nested.depth);
       fields += nested.fields;
-    } else if (!activeFragments.has(selection.name.value)) {
-      const fragment = fragments.get(selection.name.value);
+    } else {
+      const result = processFragment(
+        selection.name.value,
+        fragments,
+        activeFragments,
+        (selectionSet, nextActiveFragments) => {
+          return measureSelectionSet(
+            selectionSet,
+            fragments,
+            currentDepth,
+            nextActiveFragments,
+          );
+        },
+      );
 
-      if (fragment) {
-        const nextActiveFragments = new Set(activeFragments);
-        nextActiveFragments.add(selection.name.value);
-        const nested = measureSelectionSet(
-          fragment.selectionSet,
-          fragments,
-          currentDepth,
-          nextActiveFragments,
-        );
-        depth = Math.max(depth, nested.depth);
-        fields += nested.fields;
+      if (result) {
+        depth = Math.max(depth, result.depth);
+        fields += result.fields;
       }
     }
   }
@@ -91,22 +124,22 @@ function hasOnlyRootIntrospectionFields(
       ) {
         return false;
       }
-    } else if (!activeFragments.has(selection.name.value)) {
-      const fragment = fragments.get(selection.name.value);
-
-      if (fragment) {
-        const nextActiveFragments = new Set(activeFragments);
-        nextActiveFragments.add(selection.name.value);
-
-        if (
-          !hasOnlyRootIntrospectionFields(
-            fragment.selectionSet,
+    } else {
+      const isValid = processFragment(
+        selection.name.value,
+        fragments,
+        activeFragments,
+        (selectionSet, nextActiveFragments) => {
+          return hasOnlyRootIntrospectionFields(
+            selectionSet,
             fragments,
             nextActiveFragments,
-          )
-        ) {
-          return false;
-        }
+          );
+        },
+      );
+
+      if (isValid === false) {
+        return false;
       }
     }
   }

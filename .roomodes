@@ -93,7 +93,7 @@ customModes:
 
       When asked to prepare a pull request, ask Explorer for the current branch/base,
       changed-file summary, verification evidence, related issues, and the exact
-      contents of .github/PULL_REQUEST_TEMPLATE.md. Fill that template in Spanish,
+      contents of .github/PULL_REQUEST_TEMPLATE.md. Fill that template in English,
       retain its headings and checklist, replace examples and placeholders with
       evidence, and never claim tests or impact that were not verified. Use the
       GitHub create_pull_request operation only for a new PR and always set draft to

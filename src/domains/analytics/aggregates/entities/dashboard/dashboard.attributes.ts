@@ -1,3 +1,5 @@
+import { IMoney } from '@shared/value-objects';
+
 export interface IDashboardBase {
   summary: IDashboardSummary;
   ordersTimeline: IOrderTimeline[];
@@ -11,22 +13,22 @@ export interface IDashboardType extends IDashboardBase {
 
 export interface IDashboardSummary {
   totalOrders: number;
-  totalRevenue: number;
-  averageOrderValue: number;
+  totalRevenue: IMoney;
+  averageOrderValue: IMoney;
   uniqueCustomers: number;
   completedOrders: number;
   cancelledOrders: number;
   processingOrders: number;
   confirmedOrders: number;
   shippedOrders: number;
-  completedRevenue: number;
-  cancelledRevenue: number;
+  completedRevenue: IMoney;
+  cancelledRevenue: IMoney;
 }
 
 export interface IOrderTimeline {
   date: string;
   ordersCount: number;
-  revenue: number;
+  revenue: IMoney;
 }
 
 export interface IRecentOrder {
@@ -34,7 +36,7 @@ export interface IRecentOrder {
   orderNumber: string;
   orderDate: Date;
   customerName: string;
-  orderTotal: number;
+  orderTotal: IMoney;
   orderStatus: string;
   shippingCity?: string;
 }
@@ -44,11 +46,11 @@ export interface ITopProduct {
   variantSku: string;
   productName: string;
   productBrand?: string;
-  variantPrice: number;
+  variantPrice: IMoney;
   variantCover?: string;
   productCover?: string;
   totalQuantitySold: number;
-  totalRevenue: number;
+  totalRevenue: IMoney;
   ordersCount: number;
 }
 

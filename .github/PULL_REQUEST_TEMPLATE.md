@@ -40,10 +40,8 @@ layer-specific test suites when the command integration test covers the behavior
 
 ## Checklist
 
-- [ ] The PR title is specific, concise, and written in English.
-- [ ] The PR description is complete, meaningful, and written in English.
+- [ ] Everything is in English
 - [ ] I reviewed my own changes and removed placeholders and unrelated changes.
-- [ ] New or changed code, comments, JSDoc, logs, errors, and test names are in English.
 - [ ] Existing and relevant command integration tests pass.
 - [ ] Architecture, duplication, lint, and build checks pass.
 - [ ] DDD boundaries and CQRS responsibilities are preserved.
