@@ -1,67 +1,64 @@
-## ✨ Descripción
+## Summary
 
-Por favor, describe clara y concisamente los cambios introducidos en este Pull Request. Explica el "porqué" detrás de los cambios.
+<!-- Explain what this PR changes and why the change is needed. -->
 
-- **Problema Resuelto / Característica Implementada:**
+- **Problem solved or capability introduced:**
+- **Why this approach:**
 
-  - [Ej: Soluciona #123 (Enlace a la incidencia)]
-  - [Ej: Implementa la creación de pedidos con lógica de stock.]
+## Impact
 
-- **Impacto:**
-  - Describe cualquier impacto potencial en la funcionalidad existente, rendimiento, seguridad o integridad de datos.
-  - [Ej: nuevo`mutation { createOrder(items: [...], userId: "...") }` creado. Posible impacto en la base de datos si no se manejan las transacciones correctamente.]
+<!-- Describe effects on existing behavior, security, performance, tenant isolation, data integrity, and operations. Write "None" only when there is no impact. -->
 
-## 🚀 Cambios
+- **Affected bounded contexts:**
+- **Security and tenant-isolation impact:**
+- **Performance and operational impact:**
+- **Data or migration impact:**
 
-Enumera los cambios clave realizados en este PR. Usa viñetas para facilitar la lectura.
+## Changes
 
-- [Ej: Creación del Dominio de `Orders` con su estructura DDD (Domain, Application, Infrastructure, Presentation).]
-- [Ej: Implementación de `CreateOrderCommand` y `CreateOrderCommandHandler` siguiendo CQRS.]
-- [Ej: Desarrollo del `OrderRepository` para la persistencia de datos.]
-- [Ej: Creación del `OrderFactory` para la construcción de la entidad `Order`.]
+<!-- List the important implementation and contract changes. Remove this comment before submission. -->
 
-## 🧪 Pruebas
+-
 
-Describe las pruebas que has realizado para asegurar la calidad y corrección de tus cambios.
+## Testing
 
-- **Pruebas de Integración (Postman/Playground/Automáticas):**
+<!--
+Domain behavior is tested through colocated command-handler integration tests at:
+src/domains/<domain>/application/commands/<operation>/<use-case>/__tests__/<use-case>.handler.spec.ts
 
-  - Proporciona pasos claros para probar la funcionalidad manualmente a través de la API.
-  - [Ej: `mutation { createOrder(items: [...], userId: "...") }`. Verificar respuesta correcta.]
-  - [Ej: Probar escenarios de error: stock insuficiente, usuario no válido.]
+Do not add duplicate aggregate unit, repository contract, adapter, resolver, or
+layer-specific test suites when the command integration test covers the behavior.
+-->
 
-- **Pruebas Automatizadas:**
-  - [ ] Pruebas unitarias (Jest) añadidas/actualizadas para servicios, `CommandHandlers`, `QueryHandlers` y lógica de dominio.
-  - [ ] Pruebas de integración (NestJS testing utilities) añadidas/actualizadas para controladores y flujos de módulos.
-  - [ ] Pruebas E2E (End-to-End) añadidas/actualizadas.
-  - Detalles sobre pruebas específicas ejecutadas:
-    - [Ej: `npm run test:unit src/domain/order/`]
-    - [Ej: `npm run test:integration src/application/commands/create-order.handler.spec.ts`]
+- **Integration tests added or updated:**
+  - Path:
+  - Scenarios covered:
+- **Verification commands executed:**
+  - `npm run test -- <test-path>`
+  - `npm run architecture`
+- **If tests were unchanged, explain which existing integration test covers the change:**
 
-## ✅ Checklist
+## Checklist
 
-Antes de enviar este Pull Request, por favor asegúrate de lo siguiente:
+- [ ] The PR title is specific, concise, and written in English.
+- [ ] The PR description is complete, meaningful, and written in English.
+- [ ] I reviewed my own changes and removed placeholders and unrelated changes.
+- [ ] New or changed code, comments, JSDoc, logs, errors, and test names are in English.
+- [ ] Existing and relevant command integration tests pass.
+- [ ] Architecture, duplication, lint, and build checks pass.
+- [ ] DDD boundaries and CQRS responsibilities are preserved.
+- [ ] Authentication, authorization, and tenant isolation were considered.
+- [ ] Transactions, idempotency, concurrency, and error handling were considered where relevant.
+- [ ] Security and performance implications are documented above.
 
-- [ ] He leído la guía [CONTRIBUTING.md](https://github.com/GerardoFdez7/easystore-services/blob/main/CONTRIBUTING.md).
-- [ ] He realizado una auto-revisión de mi propio código.
-- [ ] He comentado mi código, particularmente en áreas difíciles de entender.
-- [ ] Mis cambios no generan nuevas advertencias.
-- [ ] Todas las pruebas unitarias/de integración existentes y nuevas pasan localmente con mis cambios.
-- [ ] Se ha respetado la **Arquitectura DDD** (Domain, Application, Infrastructure, Presentation) en la implementación.
-- [ ] Los patrones **CQRS, Factory y Repository** han sido aplicados correctamente.
-- [ ] Las transacciones y el manejo de errores han sido considerados y probados.
-- [ ] Se han considerado las implicaciones de seguridad y rendimiento.
+## Related Issues
 
-## 🤝 Incidencias / PRs Relacionados
+<!-- Link issues or PRs, for example: "Closes #123". Write "None" when not applicable. -->
 
-Enlaza cualquier incidencia o Pull Request relevante.
+-
 
-- [Ej: Cierra #456]
-- [Ej: Relacionado con #789]
+## Breaking Changes
 
-## 🚨 Cambios Rompedores (si aplica)
+<!-- Describe GraphQL, database, event, configuration, or application-port incompatibilities and the migration plan. Write "None" when not applicable. -->
 
-Si este PR introduce algún cambio que rompa la compatibilidad (breaking change) con APIs existentes o estructuras de datos, descríbelo aquí.
-
-- [Ej: El `query { userLogin()}` ahora requiere autenticación. Los clientes existentes deberán actualizar su lógica de llamada.]
-- [Ej: Se ha eliminado el campo `old_field` de la entidad `Product`. Los consumidores deben migrar a `new_field`.]
+-
