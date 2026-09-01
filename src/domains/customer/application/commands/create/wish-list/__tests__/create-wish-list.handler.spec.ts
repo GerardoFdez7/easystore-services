@@ -86,6 +86,7 @@ describe('CreateWishListHandler', () => {
       id: 'wishlist-item-123',
       variantId: 'variant-id-123',
       customerId: 'customer-id-123',
+      tenantId: 'tenant-789',
       updatedAt: new Date('2024-01-01T00:00:00.000Z'),
     };
 
@@ -326,6 +327,7 @@ describe('CreateWishListHandler', () => {
           id: 'wishlist-item-new',
           variantId: 'variant-id-123',
           customerId: 'customer-id-123',
+          tenantId: 'tenant-789',
           updatedAt: new Date('2024-02-01T00:00:00.000Z'),
         };
         toDtoMock.mockReturnValue(expectedDto);
@@ -408,6 +410,7 @@ describe('CreateWishListHandler', () => {
           id: 'wishlist-id-complete',
           variantId: 'complete-variant',
           customerId: 'complete-customer',
+          tenantId: 'complete-tenant',
           updatedAt: new Date('2024-03-01T00:00:00.000Z'),
         };
 

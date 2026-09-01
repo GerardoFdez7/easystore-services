@@ -8,6 +8,7 @@ export interface IStockPerWarehouseType extends IStockPerWarehouseSystem {
   serialNumbers: string[];
   variantId: string;
   warehouseId: string;
+  tenantId: string;
 }
 
 // Base stock per warehouse properties shared across all stock-related types
@@ -20,6 +21,7 @@ export interface IStockPerWarehouseBase {
   serialNumbers?: string[];
   variantId: string;
   warehouseId: string;
+  tenantId: string;
 }
 
 // System-generated properties for stock per warehouse

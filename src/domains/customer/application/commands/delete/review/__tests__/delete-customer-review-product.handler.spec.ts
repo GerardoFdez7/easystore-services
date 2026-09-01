@@ -141,6 +141,7 @@ describe('DeleteCustomerReviewProductHandler', () => {
         expect(findByIdMock).toHaveBeenCalledWith(
           expect.anything(),
           expect.anything(),
+          expect.anything(),
         );
       });
 

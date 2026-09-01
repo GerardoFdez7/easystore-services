@@ -36,6 +36,7 @@ export class DeleteWishListHandler
       await this.wishListRepository.removeVariantFromWishList(
         customerId,
         variantId,
+        tenantId,
       );
 
     if (!deletedWishListItem) {

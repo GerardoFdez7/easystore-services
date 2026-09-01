@@ -48,8 +48,9 @@ export default interface IWarehouseRepository {
   updateSingleStock(
     stockId: Id,
     warehouseId: Id,
+    tenantId: Id,
     stockUpdate: Partial<
-      Omit<IStockPerWarehouseBase, 'variantId' | 'warehouseId'>
+      Omit<IStockPerWarehouseBase, 'variantId' | 'warehouseId' | 'tenantId'>
     >,
     stockMovementContext?: {
       reason?: string;

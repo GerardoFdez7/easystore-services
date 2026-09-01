@@ -35,7 +35,8 @@
       "alwaysAllow": [
         "create_pull_request",
         "search_repositories",
-        "get_pull_request_reviews"
+        "get_pull_request_reviews",
+        "get_pull_request_comments"
       ]
     },
     "context7": {

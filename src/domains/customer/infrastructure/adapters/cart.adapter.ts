@@ -7,7 +7,7 @@ import { ICartAdapter } from '../../application/ports';
 export class CartAdapter implements ICartAdapter {
   constructor(private readonly commandBus: CommandBus) {}
 
-  async createCart(customerId: string): Promise<void> {
-    await this.commandBus.execute(new CreateCartDto({ customerId }));
+  async createCart(customerId: string, tenantId: string): Promise<void> {
+    await this.commandBus.execute(new CreateCartDto({ customerId, tenantId }));
   }
 }

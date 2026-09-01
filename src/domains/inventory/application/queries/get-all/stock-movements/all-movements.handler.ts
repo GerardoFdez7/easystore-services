@@ -89,6 +89,7 @@ export class GetAllStockMovementsHandler
     if (variantIds.size > 0) {
       const variantDetails = await this.productAdapter.getVariantsDetails(
         Array.from(variantIds),
+        tenantId,
       );
 
       // Create a map for quick lookup

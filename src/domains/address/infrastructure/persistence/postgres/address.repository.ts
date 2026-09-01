@@ -145,7 +145,7 @@ export default class AddressRepository implements IAddressRepository {
     try {
       // Build where clause
       const whereClause: Prisma.AddressWhereInput = {
-        ...('tenantId' in owner ? { tenantId: owner.tenantId.getValue() } : {}),
+        tenantId: owner.tenantId.getValue(),
         ...('customerId' in owner
           ? { customerId: owner.customerId.getValue() }
           : {}),
@@ -200,11 +200,14 @@ export default class AddressRepository implements IAddressRepository {
     }
   }
 
-  async findDetailsByIds(ids: Id[]): Promise<AddressDetailsDTO[]> {
+  async findDetailsByIds(
+    ids: Id[],
+    tenantId: Id,
+  ): Promise<AddressDetailsDTO[]> {
     try {
       const idValues = ids.map((id) => id.getValue());
       const addresses = await this.prisma.address.findMany({
-        where: { id: { in: idValues } },
+        where: { id: { in: idValues }, tenantId: tenantId.getValue() },
         include: { country: true },
       });
 
@@ -242,9 +245,10 @@ export default class AddressRepository implements IAddressRepository {
   ): Prisma.AddressWhereUniqueInput {
     return {
       id,
-      ...('tenantId' in owner
-        ? { tenantId: owner.tenantId.getValue() }
-        : { customerId: owner.customerId.getValue() }),
+      tenantId: owner.tenantId.getValue(),
+      ...('customerId' in owner && owner.customerId
+        ? { customerId: owner.customerId.getValue() }
+        : {}),
     };
   }
 

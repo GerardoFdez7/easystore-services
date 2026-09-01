@@ -86,6 +86,7 @@ describe('CartCreateHandler', () => {
   describe('execute', () => {
     const baseCartData = {
       customerId: 'customer-456',
+      tenantId: 'tenant-123',
     };
 
     const baseCommand: CreateCartDto = new CreateCartDto(baseCartData);
@@ -111,12 +112,14 @@ describe('CartCreateHandler', () => {
       it('should create cart with valid customer ID', async () => {
         const validCommand = new CreateCartDto({
           customerId: 'valid-customer-123',
+          tenantId: 'tenant-123',
         });
 
         await handler.execute(validCommand);
 
         expect(cartCreateMock).toHaveBeenCalledWith({
           customerId: 'valid-customer-123',
+          tenantId: 'tenant-123',
         });
       });
     });
@@ -226,6 +229,7 @@ describe('CartCreateHandler', () => {
       it('should handle cart creation with valid customer ID', async () => {
         const validCommand = new CreateCartDto({
           customerId: 'valid-customer-789',
+          tenantId: 'tenant-123',
         });
 
         mergeObjectContextMock.mockReturnValue(mockCart as never);
@@ -235,6 +239,7 @@ describe('CartCreateHandler', () => {
 
         expect(cartCreateMock).toHaveBeenCalledWith({
           customerId: 'valid-customer-789',
+          tenantId: 'tenant-123',
         });
         expect(result).toEqual({
           id: 'cart-id-123',
@@ -278,6 +283,7 @@ describe('CartCreateHandler', () => {
       it('should execute complete cart creation flow', async () => {
         const completeCommand = new CreateCartDto({
           customerId: 'complete-customer-123',
+          tenantId: 'tenant-123',
         });
 
         const expectedDto: CartDTO = {
@@ -303,7 +309,10 @@ describe('CartCreateHandler', () => {
       });
 
       it('should maintain data consistency throughout the flow', async () => {
-        const customerData = { customerId: 'consistency-test-456' };
+        const customerData = {
+          customerId: 'consistency-test-456',
+          tenantId: 'tenant-123',
+        };
         const command = new CreateCartDto(customerData);
 
         mergeObjectContextMock.mockReturnValue(mockCart as never);
@@ -322,6 +331,7 @@ describe('CartCreateHandler', () => {
       it('should create empty cart for new customer', async () => {
         const newCustomerCommand = new CreateCartDto({
           customerId: 'new-customer-999',
+          tenantId: 'tenant-123',
         });
 
         mergeObjectContextMock.mockReturnValue(mockCart as never);
@@ -331,13 +341,20 @@ describe('CartCreateHandler', () => {
 
         expect(cartCreateMock).toHaveBeenCalledWith({
           customerId: 'new-customer-999',
+          tenantId: 'tenant-123',
         });
         expect(mockCart.commit).toHaveBeenCalledTimes(1);
       });
 
       it('should handle concurrent cart creation requests', async () => {
-        const command1 = new CreateCartDto({ customerId: 'customer-1' });
-        const command2 = new CreateCartDto({ customerId: 'customer-2' });
+        const command1 = new CreateCartDto({
+          customerId: 'customer-1',
+          tenantId: 'tenant-123',
+        });
+        const command2 = new CreateCartDto({
+          customerId: 'customer-2',
+          tenantId: 'tenant-123',
+        });
 
         mergeObjectContextMock.mockReturnValue(mockCart as never);
         createMock.mockResolvedValue(mockCart);

@@ -128,6 +128,7 @@ export class Product extends Entity<IProductProps> {
       Media.create({
         ...mediaData,
         productId: newProductIdValue.getValue(),
+        tenantId: productTenantId.getValue(),
       }),
     );
 
@@ -135,6 +136,7 @@ export class Product extends Entity<IProductProps> {
       ProductCategories.create({
         ...categoryData,
         productId: newProductIdValue.getValue(),
+        tenantId: productTenantId.getValue(),
       }),
     );
 
@@ -237,6 +239,7 @@ export class Product extends Entity<IProductProps> {
         Media.create({
           ...mediaData,
           productId: product.props.id.getValue(),
+          tenantId: product.props.tenantId.getValue(),
         }),
       );
     }
@@ -246,6 +249,7 @@ export class Product extends Entity<IProductProps> {
         ProductCategories.create({
           ...categoryData,
           productId: product.props.id.getValue(),
+          tenantId: product.props.tenantId.getValue(),
         }),
       );
     }

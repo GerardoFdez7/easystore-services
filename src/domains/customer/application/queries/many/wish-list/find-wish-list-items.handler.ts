@@ -26,8 +26,12 @@ export class FindWishListItemsHandler
 
   async execute(query: FindWishlistItemsDto): Promise<PaginatedWishlistDTO> {
     const customerId = Id.create(query.customerId);
+    const tenantId = Id.create(query.tenantId);
 
-    const wishListItems = await this.wishListRepository.findMany(customerId);
+    const wishListItems = await this.wishListRepository.findMany(
+      customerId,
+      tenantId,
+    );
 
     if (wishListItems.length === 0) {
       return { wishlistItems: [], total: 0, hasMore: false };

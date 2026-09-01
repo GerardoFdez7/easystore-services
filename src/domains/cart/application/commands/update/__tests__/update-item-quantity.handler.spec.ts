@@ -109,6 +109,7 @@ describe('UpdateItemQuantityHandler', () => {
     const baseCommand: UpdateItemQuantityDto = new UpdateItemQuantityDto(
       baseItemData,
       '550e8400-e29b-41d4-a716-446655440001',
+      '019a039e-fe37-7516-ab6d-c16428949f9f',
     );
 
     describe('Cart retrieval and validation', () => {
@@ -120,6 +121,9 @@ describe('UpdateItemQuantityHandler', () => {
         await handler.execute(baseCommand);
 
         expect(findCartByCustomerIdMock).toHaveBeenCalledWith(
+          expect.objectContaining({
+            getValue: expect.any(Function),
+          }),
           expect.objectContaining({
             getValue: expect.any(Function),
           }),
@@ -159,6 +163,7 @@ describe('UpdateItemQuantityHandler', () => {
         const validCommand = new UpdateItemQuantityDto(
           { variantId: 'variant-111', quantity: 5 },
           'valid-customer-999',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
         findCartByCustomerIdMock.mockResolvedValue(mockCart);
         mergeObjectContextMock.mockReturnValue(mockCart as never);
@@ -168,6 +173,9 @@ describe('UpdateItemQuantityHandler', () => {
 
         expect(idCreateMock).toHaveBeenCalledWith('valid-customer-999');
         expect(findCartByCustomerIdMock).toHaveBeenCalledWith(
+          expect.objectContaining({
+            getValue: expect.any(Function),
+          }),
           expect.objectContaining({
             getValue: expect.any(Function),
           }),
@@ -200,6 +208,7 @@ describe('UpdateItemQuantityHandler', () => {
         const differentVariantCommand = new UpdateItemQuantityDto(
           { variantId: 'different-variant-456', quantity: 2 },
           'customer-456',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         await handler.execute(differentVariantCommand);
@@ -212,6 +221,7 @@ describe('UpdateItemQuantityHandler', () => {
         const differentQuantityCommand = new UpdateItemQuantityDto(
           { variantId: '550e8400-e29b-41d4-a716-446655440002', quantity: 10 },
           '550e8400-e29b-41d4-a716-446655440001',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         await handler.execute(differentQuantityCommand);
@@ -223,6 +233,7 @@ describe('UpdateItemQuantityHandler', () => {
         const minQuantityCommand = new UpdateItemQuantityDto(
           { variantId: '550e8400-e29b-41d4-a716-446655440002', quantity: 1 },
           '550e8400-e29b-41d4-a716-446655440001',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         await handler.execute(minQuantityCommand);
@@ -234,6 +245,7 @@ describe('UpdateItemQuantityHandler', () => {
         const largeQuantityCommand = new UpdateItemQuantityDto(
           { variantId: '550e8400-e29b-41d4-a716-446655440002', quantity: 999 },
           '550e8400-e29b-41d4-a716-446655440001',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         await handler.execute(largeQuantityCommand);
@@ -258,6 +270,9 @@ describe('UpdateItemQuantityHandler', () => {
         idCreateMock
           .mockReturnValueOnce({
             getValue: () => '550e8400-e29b-41d4-a716-446655440001',
+          } as Id)
+          .mockReturnValueOnce({
+            getValue: () => '019a039e-fe37-7516-ab6d-c16428949f9f',
           } as Id)
           .mockReturnValueOnce(mockVariantId);
         qtyCreateMock.mockReturnValueOnce(mockQuantity);
@@ -304,6 +319,7 @@ describe('UpdateItemQuantityHandler', () => {
         const updateCommand = new UpdateItemQuantityDto(
           { variantId: 'update-variant-456', quantity: 7 },
           'customer-456',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         const mockVariantId = { getValue: () => 'update-variant-456' } as Id;
@@ -311,6 +327,9 @@ describe('UpdateItemQuantityHandler', () => {
 
         idCreateMock
           .mockReturnValueOnce({ getValue: () => 'customer-456' } as Id)
+          .mockReturnValueOnce({
+            getValue: () => '019a039e-fe37-7516-ab6d-c16428949f9f',
+          } as Id)
           .mockReturnValueOnce(mockVariantId);
         qtyCreateMock.mockReturnValueOnce(mockQuantity);
 
@@ -327,6 +346,7 @@ describe('UpdateItemQuantityHandler', () => {
         const increaseCommand = new UpdateItemQuantityDto(
           { variantId: '550e8400-e29b-41d4-a716-446655440002', quantity: 5 },
           '550e8400-e29b-41d4-a716-446655440001',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         await handler.execute(increaseCommand);
@@ -339,6 +359,7 @@ describe('UpdateItemQuantityHandler', () => {
         const decreaseCommand = new UpdateItemQuantityDto(
           { variantId: '550e8400-e29b-41d4-a716-446655440002', quantity: 1 },
           '550e8400-e29b-41d4-a716-446655440001',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         await handler.execute(decreaseCommand);
@@ -564,6 +585,7 @@ describe('UpdateItemQuantityHandler', () => {
         const nonExistentItemCommand = new UpdateItemQuantityDto(
           { variantId: '550e8400-e29b-41d4-a716-446655440003', quantity: 5 },
           '550e8400-e29b-41d4-a716-446655440001',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         findCartByCustomerIdMock.mockResolvedValue(mockCart);
@@ -581,6 +603,7 @@ describe('UpdateItemQuantityHandler', () => {
         const zeroQuantityCommand = new UpdateItemQuantityDto(
           { variantId: '550e8400-e29b-41d4-a716-446655440002', quantity: 0 },
           '550e8400-e29b-41d4-a716-446655440001',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         // Mock cart found to reach quantity validation
@@ -600,6 +623,7 @@ describe('UpdateItemQuantityHandler', () => {
         const negativeQuantityCommand = new UpdateItemQuantityDto(
           { variantId: '550e8400-e29b-41d4-a716-446655440002', quantity: -1 },
           '550e8400-e29b-41d4-a716-446655440001',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         // Mock cart found to reach quantity validation
@@ -627,6 +651,7 @@ describe('UpdateItemQuantityHandler', () => {
         const specificUpdateCommand = new UpdateItemQuantityDto(
           { variantId: 'specific-variant-789', quantity: 4 },
           'customer-456',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         const mockVariantId = { getValue: () => 'specific-variant-789' } as Id;
@@ -634,6 +659,9 @@ describe('UpdateItemQuantityHandler', () => {
 
         idCreateMock
           .mockReturnValueOnce({ getValue: () => 'customer-456' } as Id)
+          .mockReturnValueOnce({
+            getValue: () => '019a039e-fe37-7516-ab6d-c16428949f9f',
+          } as Id)
           .mockReturnValueOnce(mockVariantId);
         qtyCreateMock.mockReturnValueOnce(mockQuantity);
 
@@ -662,6 +690,7 @@ describe('UpdateItemQuantityHandler', () => {
         const updateCommand = new UpdateItemQuantityDto(
           { variantId: '550e8400-e29b-41d4-a716-446655440004', quantity: 5 },
           '550e8400-e29b-41d4-a716-446655440001',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         await handler.execute(updateCommand);
@@ -674,6 +703,7 @@ describe('UpdateItemQuantityHandler', () => {
         const lowToHighCommand = new UpdateItemQuantityDto(
           { variantId: '550e8400-e29b-41d4-a716-446655440002', quantity: 10 },
           '550e8400-e29b-41d4-a716-446655440001',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         await handler.execute(lowToHighCommand);
@@ -686,6 +716,7 @@ describe('UpdateItemQuantityHandler', () => {
         const highToLowCommand = new UpdateItemQuantityDto(
           { variantId: '550e8400-e29b-41d4-a716-446655440002', quantity: 1 },
           '550e8400-e29b-41d4-a716-446655440001',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         await handler.execute(highToLowCommand);
@@ -698,6 +729,7 @@ describe('UpdateItemQuantityHandler', () => {
         const sameQuantityCommand = new UpdateItemQuantityDto(
           { variantId: '550e8400-e29b-41d4-a716-446655440002', quantity: 2 },
           '550e8400-e29b-41d4-a716-446655440001',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         await handler.execute(sameQuantityCommand);
@@ -711,6 +743,7 @@ describe('UpdateItemQuantityHandler', () => {
         const bulkUpdateCommand = new UpdateItemQuantityDto(
           { variantId: 'bulk-variant', quantity: 100 },
           'customer-bulk',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         await handler.execute(bulkUpdateCommand);
@@ -724,10 +757,12 @@ describe('UpdateItemQuantityHandler', () => {
         const command1 = new UpdateItemQuantityDto(
           { variantId: 'variant-1', quantity: 3 },
           'customer-1',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
         const command2 = new UpdateItemQuantityDto(
           { variantId: 'variant-2', quantity: 5 },
           'customer-1',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         const [result1, result2] = await Promise.all([
@@ -745,6 +780,7 @@ describe('UpdateItemQuantityHandler', () => {
         const integrityCommand = new UpdateItemQuantityDto(
           { variantId: 'integrity-variant', quantity: 7 },
           'integrity-customer',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         const cartWithIntegrity = {
@@ -777,6 +813,7 @@ describe('UpdateItemQuantityHandler', () => {
         const completeCommand = new UpdateItemQuantityDto(
           { variantId: '550e8400-e29b-41d4-a716-446655440005', quantity: 8 },
           '550e8400-e29b-41d4-a716-446655440006',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         const expectedDto: CartDTO = {
@@ -813,7 +850,7 @@ describe('UpdateItemQuantityHandler', () => {
         const result = await handler.execute(completeCommand);
 
         // Verify all steps were called in correct order
-        expect(idCreateMock).toHaveBeenCalledTimes(2);
+        expect(idCreateMock).toHaveBeenCalledTimes(3);
         expect(qtyCreateMock).toHaveBeenCalledTimes(1);
         expect(findCartByCustomerIdMock).toHaveBeenCalledTimes(1);
         expect(cartUpdateItemQuantityMock).toHaveBeenCalledTimes(1);
@@ -831,6 +868,7 @@ describe('UpdateItemQuantityHandler', () => {
         const command = new UpdateItemQuantityDto(
           { variantId, quantity },
           customerId,
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         const mockCustomerId = { getValue: () => customerId } as Id;
@@ -839,6 +877,9 @@ describe('UpdateItemQuantityHandler', () => {
 
         idCreateMock
           .mockReturnValueOnce(mockCustomerId)
+          .mockReturnValueOnce({
+            getValue: () => '019a039e-fe37-7516-ab6d-c16428949f9f',
+          } as Id)
           .mockReturnValueOnce(mockVariantId);
         qtyCreateMock.mockReturnValueOnce(mockQuantity);
 

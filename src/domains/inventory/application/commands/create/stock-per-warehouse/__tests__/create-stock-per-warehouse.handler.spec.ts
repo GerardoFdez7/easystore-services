@@ -85,6 +85,7 @@ describe('CreateStockPerWarehouseHandler', () => {
 
   describe('execute', () => {
     const baseStockData = {
+      tenantId: 'tenant-123',
       warehouseId: 'warehouse-123',
       productId: 'product-456',
       variantId: 'variant-789',
@@ -235,6 +236,7 @@ describe('CreateStockPerWarehouseHandler', () => {
           reason: 'Test stock creation esge case',
           createdById: 'user-1',
           data: {
+            tenantId: 'tenant-1',
             warehouseId: 'warehouse-1',
             variantId: 'variant-1',
             qtyAvailable: 1,
@@ -259,6 +261,7 @@ describe('CreateStockPerWarehouseHandler', () => {
           reason: 'Complete stock addition',
           createdById: 'user-456',
           data: {
+            tenantId: 'tenant-123',
             warehouseId: 'warehouse-123',
             variantId: 'variant-789',
             qtyAvailable: 500,
@@ -303,6 +306,7 @@ describe('CreateStockPerWarehouseHandler', () => {
           reason: 'Integration test stock',
           createdById: 'user-789',
           data: {
+            tenantId: 'tenant-789',
             warehouseId: 'warehouse-789',
             variantId: 'variant-789',
             qtyAvailable: 250,

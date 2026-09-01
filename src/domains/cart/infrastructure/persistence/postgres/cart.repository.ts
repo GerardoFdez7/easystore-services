@@ -25,6 +25,7 @@ export class CartRepository implements ICartRepository {
           data: {
             id: cartDto.id,
             customerId: cartDto.customerId,
+            tenantId: cartDto.tenantId,
           },
         });
 
@@ -36,6 +37,7 @@ export class CartRepository implements ICartRepository {
               qty: item.qty,
               variantId: item.variantId,
               cartId: createdCart.id,
+              tenantId: cartDto.tenantId,
               promotionId: item.promotionId,
               updatedAt: item.updatedAt,
             })),
@@ -59,6 +61,7 @@ export class CartRepository implements ICartRepository {
 
   async findCartByCustomerId(
     id: Id,
+    tenantId: Id,
     page?: number,
     limit?: number,
   ): Promise<Cart> {
@@ -71,7 +74,10 @@ export class CartRepository implements ICartRepository {
       const offset = (actualPage - 1) * actualLimit;
 
       const prismaCart = await this.prisma.cart.findFirst({
-        where: { customerId: id.getValue() },
+        where: {
+          customerId: id.getValue(),
+          tenantId: tenantId.getValue(),
+        },
         include: {
           cartItems: {
             skip: offset,
@@ -89,10 +95,13 @@ export class CartRepository implements ICartRepository {
     }
   }
 
-  async getCartItemsCount(id: Id): Promise<number> {
+  async getCartItemsCount(id: Id, tenantId: Id): Promise<number> {
     try {
       const cart = await this.prisma.cart.findFirst({
-        where: { customerId: id.getValue() },
+        where: {
+          customerId: id.getValue(),
+          tenantId: tenantId.getValue(),
+        },
         include: {
           _count: {
             select: {
@@ -115,7 +124,10 @@ export class CartRepository implements ICartRepository {
       const prismaCart = await this.prisma.$transaction(async (tx) => {
         // Update the cart basic information
         const updatedCart = await tx.cart.update({
-          where: { id: cartDto.id },
+          where: {
+            id: cartDto.id,
+            tenantId: cartDto.tenantId,
+          },
           data: {
             customerId: cartDto.customerId,
           },
@@ -123,7 +135,10 @@ export class CartRepository implements ICartRepository {
 
         // Fetch existing cart items from the database
         const existingItems = await tx.cartItem.findMany({
-          where: { cartId: cartDto.id },
+          where: {
+            cartId: cartDto.id,
+            tenantId: cartDto.tenantId,
+          },
         });
 
         const existingItemsMap = new Map(
@@ -174,6 +189,7 @@ export class CartRepository implements ICartRepository {
               qty: item.qty,
               variantId: item.variantId,
               cartId: updatedCart.id,
+              tenantId: cartDto.tenantId,
               promotionId: item.promotionId,
               updatedAt: item.updatedAt,
             },
@@ -251,6 +267,7 @@ export class CartRepository implements ICartRepository {
     return Cart.reconstitute({
       id: Id.create(prismaCart.id),
       customerId: Id.create(prismaCart.customerId),
+      tenantId: Id.create(prismaCart.tenantId),
       cartItems: cartItems,
     });
   }

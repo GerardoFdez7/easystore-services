@@ -50,6 +50,7 @@ function measureSelectionSet(
   fragments: ReadonlyMap<string, FragmentDefinitionNode>,
   currentDepth: number,
   activeFragments: ReadonlySet<string>,
+  processedFragments: Set<string> = new Set<string>(),
 ): OperationMeasurements {
   let depth = currentDepth;
   let fields = 0;
@@ -66,6 +67,7 @@ function measureSelectionSet(
           fragments,
           fieldDepth,
           activeFragments,
+          processedFragments,
         );
         depth = Math.max(depth, nested.depth);
         fields += nested.fields;
@@ -76,10 +78,16 @@ function measureSelectionSet(
         fragments,
         currentDepth,
         activeFragments,
+        processedFragments,
       );
       depth = Math.max(depth, nested.depth);
       fields += nested.fields;
     } else {
+      if (processedFragments.has(selection.name.value)) {
+        continue;
+      }
+
+      processedFragments.add(selection.name.value);
       const result = processFragment(
         selection.name.value,
         fragments,
@@ -90,6 +98,7 @@ function measureSelectionSet(
             fragments,
             currentDepth,
             nextActiveFragments,
+            processedFragments,
           );
         },
       );

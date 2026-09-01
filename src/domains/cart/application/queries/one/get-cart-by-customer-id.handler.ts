@@ -26,8 +26,10 @@ export class GetCartByIdHandler
 
   async execute(query: GetCartByCustomerIdDTO): Promise<PaginatedCartDTO> {
     const customerId = Id.create(query.id);
+    const tenantId = Id.create(query.tenantId);
     const cartFound = await this.cartRepository.findCartByCustomerId(
       customerId,
+      tenantId,
       query.page,
       query.limit,
     );
@@ -42,7 +44,10 @@ export class GetCartByIdHandler
 
     const variantDetails =
       variantIds.length > 0
-        ? await this.productAdapter.getVariantsDetails(variantIds)
+        ? await this.productAdapter.getVariantsDetails(
+            variantIds,
+            query.tenantId,
+          )
         : [];
 
     const dto = CartMapper.toDto(cartFound, variantDetails);
@@ -51,14 +56,22 @@ export class GetCartByIdHandler
     );
 
     // Get total count efficiently using the dedicated method
-    const totalItems = await this.cartRepository.getCartItemsCount(customerId);
+    const totalItems = await this.cartRepository.getCartItemsCount(
+      customerId,
+      tenantId,
+    );
     const hasMore = query.page * query.limit < totalItems;
 
     return {
       cartItems: dto.cartItems,
       total: totalItems,
       hasMore,
-      totalCart: Money.create(dto.totalCart.toString(), currency).getValue(),
+      totalCart: Money.create(
+        typeof dto.totalCart === 'number'
+          ? dto.totalCart.toString()
+          : dto.totalCart.amount,
+        currency,
+      ).getValue(),
     };
   }
 }

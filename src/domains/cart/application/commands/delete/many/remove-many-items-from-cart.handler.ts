@@ -1,10 +1,15 @@
+import {
+  findTenantCartOrThrow,
+  persistCartMutation,
+} from '../../../shared/cart-command-helpers';
+import { Cart } from '../../../../aggregates/entities/cart/cart.entity';
+import { Id } from '../../../../aggregates/value-objects';
+import { ICartRepository } from '../../../../aggregates/repositories/cart.interface';
+import { CartDTO } from '../../../mappers';
+import { ITenantCurrencyAdapter } from '../../../ports';
+import { Inject, Optional } from '@nestjs/common';
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { RemoveManyItemsFromCartDto } from './remove-many-items-from-cart.dto';
-import { CartDTO, CartMapper } from '../../../mappers';
-import { Inject, NotFoundException } from '@nestjs/common';
-import { ICartRepository } from '../../../../aggregates/repositories/cart.interface';
-import { Id } from '../../../../aggregates/value-objects';
-import { Cart } from '../../../../aggregates/entities/cart/cart.entity';
 
 @CommandHandler(RemoveManyItemsFromCartDto)
 export class RemoveManyItemsFromCartHandler
@@ -14,6 +19,9 @@ export class RemoveManyItemsFromCartHandler
     @Inject('ICartRepository')
     private readonly cartRepository: ICartRepository,
     private readonly eventPublisher: EventPublisher,
+    @Optional()
+    @Inject('ITenantCurrencyAdapter')
+    private readonly tenantCurrencyAdapter?: ITenantCurrencyAdapter,
   ) {}
 
   /**
@@ -24,28 +32,23 @@ export class RemoveManyItemsFromCartHandler
    * @throws NotFoundException - When the cart is not found for the given customer
    */
   async execute(command: RemoveManyItemsFromCartDto): Promise<CartDTO> {
-    // Find the customer's cart using their ID
-    const cartFound = await this.cartRepository.findCartByCustomerId(
-      Id.create(command.customerId),
+    const cartFound = await findTenantCartOrThrow(
+      this.cartRepository,
+      command.customerId,
+      command.tenantId,
     );
-
-    // Validate that the cart exists for the customer
-    if (!cartFound) throw new NotFoundException('Cart not found');
 
     const variantsIdList = command.data.variantIds.map((variantId) => {
       return Id.create(variantId);
     });
 
-    const cartWithEvents = this.eventPublisher.mergeObjectContext(
-      Cart.removeManyItems(cartFound, variantsIdList),
+    return persistCartMutation(
+      cartFound,
+      (cart) => Cart.removeManyItems(cart, variantsIdList),
+      this.eventPublisher,
+      this.cartRepository,
+      command.tenantId,
+      this.tenantCurrencyAdapter,
     );
-
-    // Persist the updated cart to the database
-    const cartUpdated = await this.cartRepository.update(cartWithEvents);
-
-    cartWithEvents.commit();
-
-    // Convert the domain entity to a DTO for the response
-    return CartMapper.toDto(cartUpdated);
   }
 }

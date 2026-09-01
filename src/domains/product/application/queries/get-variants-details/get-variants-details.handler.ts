@@ -15,10 +15,11 @@ export class GetVariantsDetailsHandler
   ) {}
 
   async execute(query: GetVariantsDetailsDTO): Promise<VariantDetailsDTO[]> {
-    const { variantIds, search } = query;
+    const { variantIds, tenantId, search } = query;
 
     const variants = await this.productRepository.findVariantsByIds(
       variantIds?.map((id) => Id.create(id)) || [],
+      tenantId ? Id.create(tenantId) : undefined,
       search,
     );
 

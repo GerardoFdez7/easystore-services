@@ -158,11 +158,13 @@ export class ProductRepository implements IProductRepository {
     tx: Prisma.TransactionClient,
     entityId: string, // productId or variantId
     entityType: 'product' | 'variant',
+    tenantId: string,
     mediaDtos: Omit<MediaDTO, 'productId' | 'variantId'>[] = [],
   ): Promise<void> {
     const deleteWhere: Prisma.MediaWhereInput = {};
     if (entityType === 'product') deleteWhere.productId = entityId;
     else deleteWhere.variantId = entityId;
+    deleteWhere.tenantId = tenantId;
 
     await tx.media.deleteMany({ where: deleteWhere });
 
@@ -174,6 +176,7 @@ export class ProductRepository implements IProductRepository {
           url: mediaDto.url,
           position: mediaDto.position,
           mediaType: mediaDto.mediaType,
+          tenantId,
         };
         if (entityType === 'product') data.productId = entityId;
         else data.variantId = entityId;
@@ -267,6 +270,7 @@ export class ProductRepository implements IProductRepository {
         tx,
         currentVariant.id,
         'variant',
+        tenantId,
         variantDto.variantMedia,
       );
       await this.manageWarranties(tx, currentVariant.id, variantDto.warranties);
@@ -281,15 +285,17 @@ export class ProductRepository implements IProductRepository {
   private async manageCategories(
     tx: Prisma.TransactionClient,
     productId: string,
+    tenantId: string,
     categoryDtos: ProductCategoriesDTO[] = [],
   ): Promise<void> {
-    await tx.productCategories.deleteMany({ where: { productId } });
+    await tx.productCategories.deleteMany({ where: { productId, tenantId } });
     if (categoryDtos.length > 0) {
       await tx.productCategories.createMany({
         data: categoryDtos.map((cat) => ({
           id: cat.id,
           productId,
           categoryId: cat.categoryId,
+          tenantId,
         })),
       });
     }
@@ -343,14 +349,25 @@ export class ProductRepository implements IProductRepository {
         const tenantId = productDto.tenantId;
 
         // Handle related entities
-        await this.manageMedia(tx, newProductId, 'product', productDto.media);
+        await this.manageMedia(
+          tx,
+          newProductId,
+          'product',
+          tenantId,
+          productDto.media,
+        );
         await this.manageVariants(
           tx,
           newProductId,
           tenantId,
           productDto.variants,
         );
-        await this.manageCategories(tx, newProductId, productDto.categories);
+        await this.manageCategories(
+          tx,
+          newProductId,
+          tenantId,
+          productDto.categories,
+        );
         await this.manageSustainabilities(
           tx,
           newProductId,
@@ -413,7 +430,13 @@ export class ProductRepository implements IProductRepository {
         });
 
         // Handle related entities updates
-        await this.manageMedia(tx, idValue, 'product', updatesDto.media);
+        await this.manageMedia(
+          tx,
+          idValue,
+          'product',
+          tenantIdValue,
+          updatesDto.media,
+        );
         await this.manageVariants(
           tx,
           idValue,
@@ -421,7 +444,12 @@ export class ProductRepository implements IProductRepository {
           updatesDto.variants,
           existingProduct.variants,
         );
-        await this.manageCategories(tx, idValue, updatesDto.categories);
+        await this.manageCategories(
+          tx,
+          idValue,
+          tenantIdValue,
+          updatesDto.categories,
+        );
         await this.manageSustainabilities(
           tx,
           idValue,
@@ -749,6 +777,7 @@ export class ProductRepository implements IProductRepository {
 
   async findVariantsByIds(
     ids: Id[],
+    tenantId?: Id,
     search?: string,
   ): Promise<
     Array<{
@@ -763,7 +792,9 @@ export class ProductRepository implements IProductRepository {
     const idValues = ids.map((id) => id.getValue());
 
     try {
-      const whereConditions: Prisma.VariantWhereInput = {};
+      const whereConditions: Prisma.VariantWhereInput = tenantId
+        ? { tenantId: tenantId.getValue() }
+        : {};
 
       // If specific IDs are provided, filter by them
       if (idValues.length > 0) {

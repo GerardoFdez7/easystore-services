@@ -40,7 +40,7 @@ layer-specific test suites when the command integration test covers the behavior
 
 ## Checklist
 
-- [ ] Everything is in English
+- [ ] All developer-facing content is in English; localized resources use their target language.
 - [ ] I reviewed my own changes and removed placeholders and unrelated changes.
 - [ ] Existing and relevant command integration tests pass.
 - [ ] Architecture, duplication, lint, and build checks pass.

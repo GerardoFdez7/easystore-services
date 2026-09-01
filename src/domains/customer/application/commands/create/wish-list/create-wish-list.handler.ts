@@ -37,6 +37,7 @@ export class CreateWishListHandler
       await this.wishListRepository.findWishListItemByVariantId(
         customerId,
         variantId,
+        tenantId,
       );
 
     if (wishListItemFound !== null)

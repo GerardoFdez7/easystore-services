@@ -29,7 +29,7 @@ export interface IAddressProps extends EntityProps {
   addressType: AddressType;
   deliveryNum: PhoneNumber;
   deliveryInstructions?: ShortDescription;
-  tenantId?: Id;
+  tenantId: Id;
   customerId?: Id;
 }
 
@@ -64,7 +64,7 @@ export class Address extends Entity<IAddressProps> {
       deliveryInstructions: props.deliveryInstructions
         ? ShortDescription.create(props.deliveryInstructions)
         : null,
-      tenantId: props.tenantId ? Id.create(props.tenantId) : null,
+      tenantId: Id.create(props.tenantId),
       customerId: props.customerId ? Id.create(props.customerId) : null,
     };
 

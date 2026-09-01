@@ -172,8 +172,11 @@ describe('UpdateCustomerReviewProductHandler', () => {
 
         await handler.execute(baseCommand);
 
-        expect(findByIdMock).toHaveBeenCalledWith(reviewId, customerId);
-        expect(findByIdMock).not.toHaveBeenCalledWith(reviewId, tenantId);
+        expect(findByIdMock).toHaveBeenCalledWith(
+          reviewId,
+          customerId,
+          tenantId,
+        );
       });
 
       it('should handle valid customer and review IDs', async () => {

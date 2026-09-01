@@ -26,6 +26,7 @@ export class CustomerReviewProductMapper {
       comment: review.getCommentValue(),
       customerId: review.getCustomerIdValue(),
       variantId: review.getVariantIdValue(),
+      tenantId: review.getTenantIdValue(),
       updatedAt: review.getUpdatedAt(),
     };
   }
@@ -44,6 +45,7 @@ export class CustomerReviewProductMapper {
       comment: persistence.comment,
       customerId: persistence.customerId,
       variantId: persistence.variantId,
+      tenantId: persistence.tenantId,
       updatedAt: persistence.updatedAt,
     });
   }

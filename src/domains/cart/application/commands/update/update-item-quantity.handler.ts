@@ -1,10 +1,15 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { UpdateItemQuantityDto } from './update-item-quantity.dto';
-import { CartDTO, CartMapper } from '../../mappers';
-import { Inject, NotFoundException } from '@nestjs/common';
+import { CartDTO } from '../../mappers';
+import { Inject, Optional } from '@nestjs/common';
 import { ICartRepository } from '../../../aggregates/repositories/cart.interface';
 import { Id, Qty } from '../../../aggregates/value-objects';
 import { Cart } from '../../../aggregates/entities/cart/cart.entity';
+import { ITenantCurrencyAdapter } from '../../ports';
+import {
+  findTenantCartOrThrow,
+  persistCartMutation,
+} from '../../shared/cart-command-helpers';
 
 @CommandHandler(UpdateItemQuantityDto)
 export class UpdateItemQuantityHandler
@@ -14,29 +19,31 @@ export class UpdateItemQuantityHandler
     @Inject('ICartRepository')
     private readonly cartRepository: ICartRepository,
     private readonly eventPublisher: EventPublisher,
+    @Optional()
+    @Inject('ITenantCurrencyAdapter')
+    private readonly tenantCurrencyAdapter?: ITenantCurrencyAdapter,
   ) {}
 
   async execute(command: UpdateItemQuantityDto): Promise<CartDTO> {
     const { variantId, quantity } = command.data;
-    const cartFound = await this.cartRepository.findCartByCustomerId(
-      Id.create(command.customerId),
-    );
-    if (!cartFound) throw new NotFoundException('Cart not found');
-
-    const cartWithEvents = this.eventPublisher.mergeObjectContext(
-      Cart.updateItemQuantity(
-        cartFound,
-        Id.create(variantId),
-        Qty.create(quantity),
-      ),
+    const cartFound = await findTenantCartOrThrow(
+      this.cartRepository,
+      command.customerId,
+      command.tenantId,
     );
 
-    // Persist the cart to the repository
-    const cartUpdated = await this.cartRepository.update(cartWithEvents);
-
-    // Commit domain events
-    cartWithEvents.commit();
-
-    return CartMapper.toDto(cartUpdated);
+    return persistCartMutation(
+      cartFound,
+      (cart) =>
+        Cart.updateItemQuantity(
+          cart,
+          Id.create(variantId),
+          Qty.create(quantity),
+        ),
+      this.eventPublisher,
+      this.cartRepository,
+      command.tenantId,
+      this.tenantCurrencyAdapter,
+    );
   }
 }

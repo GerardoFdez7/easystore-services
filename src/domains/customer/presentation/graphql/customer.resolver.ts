@@ -170,6 +170,7 @@ export class CustomerResolver {
     return this.queryBus.execute(
       new FindWishlistItemsDto(
         user.customerId,
+        user.tenantId,
         pagination.page,
         pagination.limit,
         sortBy,
@@ -186,7 +187,13 @@ export class CustomerResolver {
     const { page, limit, reviewIds } = pagination;
 
     return this.queryBus.execute(
-      new FindManyCustomerReviewsDto(user.customerId, reviewIds, page, limit),
+      new FindManyCustomerReviewsDto(
+        user.customerId,
+        user.tenantId,
+        reviewIds,
+        page,
+        limit,
+      ),
     );
   }
 }

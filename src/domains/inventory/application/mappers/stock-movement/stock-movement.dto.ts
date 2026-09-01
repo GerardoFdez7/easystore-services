@@ -3,6 +3,7 @@
  */
 export interface StockMovementDTO {
   id: string;
+  tenantId: string;
   deltaQty: number;
   reason: string;
   warehouseId: string;

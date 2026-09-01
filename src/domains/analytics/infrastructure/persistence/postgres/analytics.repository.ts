@@ -16,7 +16,7 @@ import {
 export class AnalyticsRepository implements IAnalyticsRepository {
   constructor(private readonly prisma: PostgreService) {}
 
-  async getDashboard(tenantId: Id): Promise<IDashboard> {
+  async getDashboard(tenantId: Id): Promise<IDashboard | undefined> {
     try {
       const tenantIdValue = tenantId.getValue();
       const tenant = await this.prisma.tenant.findUnique({

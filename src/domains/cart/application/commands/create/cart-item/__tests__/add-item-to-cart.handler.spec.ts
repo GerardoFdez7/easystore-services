@@ -104,6 +104,7 @@ describe('AddItemToCartHandler', () => {
     const baseCommand: AddItemToCartDto = new AddItemToCartDto(
       baseItemData,
       '019a039e-fe37-7516-ab6d-c16428949f9f',
+      '019a039e-fe37-7516-ab6d-c16428949f9f',
     );
 
     describe('Cart retrieval and validation', () => {
@@ -115,6 +116,9 @@ describe('AddItemToCartHandler', () => {
         await handler.execute(baseCommand);
 
         expect(findCartByCustomerIdMock).toHaveBeenCalledWith(
+          expect.objectContaining({
+            getValue: expect.any(Function),
+          }),
           expect.objectContaining({
             getValue: expect.any(Function),
           }),
@@ -142,6 +146,7 @@ describe('AddItemToCartHandler', () => {
         const validCommand = new AddItemToCartDto(
           baseItemData,
           '019a039e-fe37-7516-ab6d-c79f752bad91',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
         findCartByCustomerIdMock.mockResolvedValue(mockCart);
         mergeObjectContextMock.mockReturnValue(mockCart as never);
@@ -150,6 +155,9 @@ describe('AddItemToCartHandler', () => {
         await handler.execute(validCommand);
 
         expect(findCartByCustomerIdMock).toHaveBeenCalledWith(
+          expect.objectContaining({
+            getValue: expect.any(Function),
+          }),
           expect.objectContaining({
             getValue: expect.any(Function),
           }),
@@ -177,6 +185,7 @@ describe('AddItemToCartHandler', () => {
       it('should create cart item with null promotion when not provided', async () => {
         const commandWithoutPromotion = new AddItemToCartDto(
           { variantId: '019a039e-fe37-7516-ab6d-b44cd5c58179' },
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
           '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
@@ -214,6 +223,7 @@ describe('AddItemToCartHandler', () => {
             promotionId: '019a039e-fe37-7516-ab6d-cdd89150cf72',
           },
           '019a039e-fe37-7516-ab6d-d15dfec44424',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         await handler.execute(differentVariantCommand);
@@ -414,6 +424,7 @@ describe('AddItemToCartHandler', () => {
             promotionId: '019a039e-fe38-7759-b843-f284e2d531d3',
           },
           '019a039e-fe38-7759-b843-f4d778645a78',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         await handler.execute(promotionCommand);
@@ -428,6 +439,7 @@ describe('AddItemToCartHandler', () => {
       it('should handle items without promotions correctly', async () => {
         const noPromotionCommand = new AddItemToCartDto(
           { variantId: '019a039e-fe38-7759-b843-f9246dfb0a41' },
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
           '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
@@ -447,10 +459,12 @@ describe('AddItemToCartHandler', () => {
             promotionId: '019a039e-fe38-7759-b844-03a2ddffb4c8',
           },
           '019a039e-fe38-7759-b844-0531f5ee8423',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
         const command2 = new AddItemToCartDto(
           { variantId: '019a039e-fe38-7759-b844-0b0695769397' },
           '019a039e-fe38-7759-b844-0531f5ee8423',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         await handler.execute(command1);
@@ -470,6 +484,7 @@ describe('AddItemToCartHandler', () => {
             promotionId: '019a039e-fe39-7a1c-8d2f-1e4b7c9a5f3d',
           },
           '019a039e-fe39-7a1c-8d2f-2f5c8d0b6e4a',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         const expectedDto: CartDTO = {
@@ -510,7 +525,11 @@ describe('AddItemToCartHandler', () => {
           promotionId: '019a039e-fe39-7a1c-8d2f-5b8f1a3e9a7d',
         };
         const customerId = '019a039e-fe39-7a1c-8d2f-6c9a2b4f0b8e';
-        const command = new AddItemToCartDto(itemData, customerId);
+        const command = new AddItemToCartDto(
+          itemData,
+          customerId,
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
+        );
 
         findCartByCustomerIdMock.mockResolvedValue(mockCart);
         mergeObjectContextMock.mockReturnValue(mockCart as never);

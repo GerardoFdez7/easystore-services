@@ -49,7 +49,10 @@ export interface IVariantType extends IVariantSystem, VariantCoreAttributes {
   installmentPayments: IInstallmentPaymentType[];
 }
 
-export type IMediaInitData = Omit<IMediaBase, 'productId' | 'variantId'>;
+export type IMediaInitData = Omit<
+  IMediaBase,
+  'productId' | 'variantId' | 'tenantId'
+>;
 export type IWarrantyInitData = Omit<IWarrantyBase, 'variantId'>;
 export type IInstallmentPaymentInitData = Omit<
   IInstallmentPaymentBase,

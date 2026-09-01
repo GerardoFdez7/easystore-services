@@ -1,6 +1,7 @@
 export interface IProductCategoriesBase {
   productId: string;
   categoryId: string;
+  tenantId: string;
 }
 
 export interface IProductCategoriesSystem {

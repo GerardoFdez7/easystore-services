@@ -17,6 +17,7 @@ export class WishListMapper {
       id: wishListItem.getIdValue(),
       variantId: wishListItem.getVariantIdValue(),
       customerId: wishListItem.getCustomerIdValue(),
+      tenantId: wishListItem.getTenantIdValue(),
       updatedAt: wishListItem.getUpdatedAt(),
     };
   }
@@ -31,6 +32,7 @@ export class WishListMapper {
       id: persistence.id,
       variantId: persistence.variantId,
       customerId: persistence.customerId,
+      tenantId: persistence.tenantId,
       updatedAt: persistence.updatedAt,
     });
   }
@@ -45,6 +47,7 @@ export class WishListMapper {
       id: wishListItem.getIdValue(),
       variantId: wishListItem.getVariantIdValue(),
       customerId: wishListItem.getCustomerIdValue(),
+      tenantId: wishListItem.getTenantIdValue(),
       updatedAt: wishListItem.getUpdatedAt(),
     };
   }

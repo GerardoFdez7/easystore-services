@@ -109,6 +109,7 @@ export class Customer extends Entity<ICustomerProps> {
     const item = WishListItem.create({
       variantId: wishlistItem.variantId,
       customerId: wishlistItem.customerId,
+      tenantId: customer.getProps().tenantId.getValue(),
     });
 
     customer.apply(new WishlistItemCreatedEvent(item, customer));
@@ -139,6 +140,7 @@ export class Customer extends Entity<ICustomerProps> {
       comment: customerReviewProduct.comment,
       customerId: customer.getProps().id.getValue(),
       variantId: customerReviewProduct.variantId,
+      tenantId: customer.getProps().tenantId.getValue(),
     });
 
     customer.apply(new CustomerReviewProductCreatedEvent(review, customer));

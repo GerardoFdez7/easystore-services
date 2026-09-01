@@ -8,6 +8,7 @@ export interface IMediaBase {
   mediaType: MediaTypeEnum;
   productId?: string;
   variantId?: string;
+  tenantId: string;
 }
 
 export interface IMediaSystem {

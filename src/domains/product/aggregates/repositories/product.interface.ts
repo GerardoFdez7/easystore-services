@@ -94,6 +94,7 @@ export interface IProductRepository {
    */
   findVariantsByIds(
     ids: Id[],
+    tenantId?: Id,
     search?: string,
   ): Promise<
     Array<{

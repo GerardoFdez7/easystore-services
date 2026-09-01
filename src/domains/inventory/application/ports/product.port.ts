@@ -6,6 +6,7 @@ import { VariantDetailsDTO } from '@shared/dtos';
 export interface IProductAdapter {
   getVariantsDetails(
     variantIds: string[],
+    tenantId: string,
     search?: string,
   ): Promise<VariantDetailsDTO[]>;
 }

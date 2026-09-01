@@ -44,6 +44,7 @@ export default class StockMovementRepository
     try {
       // Build where clause
       const whereClause: Prisma.StockMovementWhereInput = {
+        tenantId: tenantId.getValue(),
         warehouse: {
           tenantId: tenantId.getValue(),
           id: options?.warehouseId?.getValue(),

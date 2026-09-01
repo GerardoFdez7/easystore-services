@@ -74,6 +74,7 @@ export class GetAllWarehousesHandler
     // Fetch variant details
     const variantsDetails = await this.productAdapter.getVariantsDetails(
       variantIds,
+      tenantId,
       search,
     );
     const detailsMap = new Map(
@@ -91,7 +92,7 @@ export class GetAllWarehousesHandler
             const addressIds = Array.from(addressIdsSet);
 
             const addressesDetails =
-              await this.addressAdapter.getAddressDetails(addressIds);
+              await this.addressAdapter.getAddressDetails(addressIds, tenantId);
             return addressesDetails.map((detail) => [detail.addressId, detail]);
           })()
         : [],

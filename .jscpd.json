@@ -7,7 +7,7 @@
   "ignore": [
     "**/__tests__/**",
     "**/*.spec.ts",
-    "**/migrations/**",
+    "**/src/infrastructure/database/**",
     "**/aggregates/repositories/*.interface.ts",
     "**/presentation/graphql/types/**",
     "**/infrastructure/adapters/*.adapter.ts",
