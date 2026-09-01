@@ -1,3 +1,4 @@
+import { MoneyType } from '@common/graphql/money.types';
 import { ObjectType, Field, ID, Int, Float, InputType } from '@nestjs/graphql';
 
 @ObjectType('FirstAttribute')
@@ -47,8 +48,8 @@ export class CartType {
   @Field(() => [CartItemType])
   cartItems: CartItemType[];
 
-  @Field(() => Float)
-  totalCart: number;
+  @Field(() => MoneyType)
+  totalCart: MoneyType;
 }
 
 @ObjectType('PaginatedCart')
@@ -62,8 +63,8 @@ export class PaginatedCartType {
   @Field(() => Boolean)
   hasMore: boolean;
 
-  @Field(() => Float)
-  totalCart: number;
+  @Field(() => MoneyType)
+  totalCart: MoneyType;
 }
 
 @InputType()

@@ -153,6 +153,7 @@ describe('DeleteStockPerWarehouseHandler', () => {
         expect(updateSingleStockMock).toHaveBeenCalledWith(
           { value: 'warehouse-id' },
           { value: 'warehouse-id' },
+          { value: 'warehouse-id' },
           { qtyAvailable: 0 },
           {
             reason: 'Stock removal',
@@ -349,7 +350,7 @@ describe('DeleteStockPerWarehouseHandler', () => {
         const result = await handler.execute(completeCommand);
 
         // Verify all steps were called in correct order
-        expect(idCreateMock).toHaveBeenCalledTimes(4); // findById (2 calls) and updateSingleStock (2 calls)
+        expect(idCreateMock).toHaveBeenCalledTimes(5);
         expect(findByIdMock).toHaveBeenCalledTimes(1);
         expect(fromRemoveStockFromWarehouseMock).toHaveBeenCalledTimes(1);
         expect(mergeObjectContextMock).toHaveBeenCalledTimes(1);

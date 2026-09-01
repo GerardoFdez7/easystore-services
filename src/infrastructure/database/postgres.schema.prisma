@@ -21,19 +21,19 @@ datasource postgres {
 
 // Tenant schema models
 model Tenant {
-  id                       String          @id
+  id                       String                  @id
   businessName             String?
   ownerName                String
-  domain                   String?         @unique
+  domain                   String?                 @unique
   logo                     String?
-  description              String?         @postgres.Text
+  description              String?                 @postgres.Text
   currency                 Currency
-  authIdentityId           String          @unique
-  defaultPhoneNumberId     String?         @unique
-  defaultShippingAddressId String?         @unique
-  defaultBillingAddressId  String?         @unique
-  updatedAt                DateTime        @updatedAt
-  createdAt                DateTime        @default(now())
+  authIdentityId           String                  @unique
+  defaultPhoneNumberId     String?                 @unique
+  defaultShippingAddressId String?                 @unique
+  defaultBillingAddressId  String?                 @unique
+  updatedAt                DateTime                @updatedAt
+  createdAt                DateTime                @default(now())
   roles                    EmployeeRole[]
   warehouses               Warehouse[]
   promotions               Promotion[]
@@ -45,15 +45,31 @@ model Tenant {
   products                 Product[]
   variants                 Variant[]
   categories               Category[]
+  employees                Employee[]
+  roleFeatures             RoleFeatures[]
+  stockMovements           StockMovement[]
+  stockPerWarehouses       StockPerWarehouse[]
+  productCategories        ProductCategories[]
+  media                    Media[]
+  couponUsages             CouponUsage[]
+  cartPromotions           CartPromotions[]
+  orderPromotions          OrderPromotions[]
+  carts                    Cart[]
+  cartItems                CartItem[]
+  orderDetails             OrderDetail[]
+  returns                  Return[]
+  payments                 Payment[]
+  wishLists                WishList[]
+  customerReviewProducts   CustomerReviewProduct[]
   taxRates                 TaxRate[]
   shippingRules            ShippingRule[]
   shippmentRates           ShipmentRate[]
   coupons                  Coupon[]
   subscription             Subscription?
-  authIdentity             AuthIdentity    @relation("TenantAuth", fields: [authIdentityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  defaultPhoneNumber       PhoneNumber?    @relation("TenantDefaultPhone", fields: [defaultPhoneNumberId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  defaultShippingAddress   Address?        @relation("TenantDefaultShippingAddress", fields: [defaultShippingAddressId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  defaultBillingAddress    Address?        @relation("TenantDefaultBillingAddress", fields: [defaultBillingAddressId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  authIdentity             AuthIdentity            @relation("TenantAuth", fields: [authIdentityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  defaultPhoneNumber       PhoneNumber?            @relation("TenantDefaultPhone", fields: [defaultPhoneNumberId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  defaultShippingAddress   Address?                @relation("TenantDefaultShippingAddress", fields: [defaultShippingAddressId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  defaultBillingAddress    Address?                @relation("TenantDefaultBillingAddress", fields: [defaultBillingAddressId], references: [id], onDelete: SetNull, onUpdate: Cascade)
 
   @@schema("tenant")
 }
@@ -271,11 +287,14 @@ model Employee {
   name           String          @postgres.Citext
   roleId         String
   authIdentityId String          @unique
+  tenantId       String
   role           EmployeeRole    @relation(fields: [roleId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   authIdentity   AuthIdentity    @relation("EmployeeAuth", fields: [authIdentityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tenant         Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   StockMovement  StockMovement[]
 
   @@index([roleId])
+  @@index([tenantId])
   @@schema("tenant")
 }
 
@@ -295,11 +314,14 @@ model RoleFeatures {
   id           String       @id
   roleId       String
   featureId    String
+  tenantId     String
   employeeRole EmployeeRole @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   feature      Feature      @relation(fields: [featureId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  tenant       Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([roleId])
   @@index([featureId])
+  @@index([tenantId])
   @@schema("tenant")
 }
 
@@ -328,6 +350,7 @@ model Warehouse {
   stockMovements     StockMovement[]
   stockPerWarehouses StockPerWarehouse[]
 
+  @@unique([id, tenantId])
   @@unique([tenantId, name])
   @@unique([tenantId, addressId])
   @@index([addressId])
@@ -341,14 +364,17 @@ model StockMovement {
   createdById         String?
   warehouseId         String
   stockPerWarehouseId String
+  tenantId            String
   occurredAt          DateTime          @default(now())
   warehouse           Warehouse         @relation(fields: [warehouseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   createdBy           Employee?         @relation(fields: [createdById], references: [id], onDelete: SetNull, onUpdate: Cascade)
   StockPerWarehouse   StockPerWarehouse @relation(fields: [stockPerWarehouseId], references: [id])
+  tenant              Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([createdById])
   @@index([warehouseId])
   @@index([stockPerWarehouseId])
+  @@index([tenantId])
   @@schema("inventory")
 }
 
@@ -362,13 +388,16 @@ model StockPerWarehouse {
   serialNumbers              String[]
   variantId                  String
   warehouseId                String
+  tenantId                   String
   deletedAt                  DateTime?
   stockMovements             StockMovement[]
-  variant                    Variant         @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  warehouse                  Warehouse       @relation(fields: [warehouseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  variant                    Variant         @relation(fields: [variantId, tenantId], references: [id, tenantId], onDelete: Cascade, onUpdate: Cascade)
+  warehouse                  Warehouse       @relation(fields: [warehouseId, tenantId], references: [id, tenantId], onDelete: Cascade, onUpdate: Cascade)
+  tenant                     Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  @@unique([warehouseId, variantId])
+  @@unique([warehouseId, variantId, tenantId])
   @@index([variantId])
+  @@index([tenantId])
   @@schema("inventory")
 }
 
@@ -478,11 +507,14 @@ model ProductCategories {
   id         String   @id
   productId  String
   categoryId String
+  tenantId   String
   product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tenant     Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([productId])
   @@index([categoryId])
+  @@index([tenantId])
   @@schema("product")
 }
 
@@ -524,11 +556,14 @@ model Media {
   mediaType MediaType
   productId String?
   variantId String?
+  tenantId  String
   product   Product?  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   Variant   Variant?  @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@unique([productId, position])
   @@unique([variantId, position])
+  @@index([tenantId])
   @@schema("product")
 }
 
@@ -605,6 +640,7 @@ model Variant {
   product                Product                 @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   tenant                 Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+  @@unique([id, tenantId])
   @@unique([tenantId, sku])
   @@unique([tenantId, barcode])
   @@index([productId])
@@ -714,12 +750,15 @@ model CouponUsage {
   id       String   @id
   couponId String
   orderId  String
+  tenantId String
   usedAt   DateTime @default(now())
   coupon   Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
   @@unique([orderId, couponId])
   @@index([couponId])
+  @@index([tenantId])
   @@schema("pricing")
 }
 
@@ -727,11 +766,14 @@ model CartPromotions {
   id          String    @id
   cartId      String
   promotionId String
+  tenantId    String
   cart        Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   promotion   Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([cartId])
   @@index([promotionId])
+  @@index([tenantId])
   @@schema("pricing")
 }
 
@@ -739,11 +781,14 @@ model OrderPromotions {
   id          String    @id
   orderId     String
   promotionId String
+  tenantId    String
   order       Order     @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   promotion   Promotion @relation(fields: [promotionId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  tenant      Tenant    @relation(fields: [tenantId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
   @@index([orderId])
   @@index([promotionId])
+  @@index([tenantId])
   @@schema("pricing")
 }
 
@@ -751,12 +796,15 @@ model OrderPromotions {
 model Cart {
   id             String           @id
   customerId     String
+  tenantId       String
   cartItems      CartItem[]
   orders         Order[]
   customer       Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tenant         Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   CartPromotions CartPromotions[]
 
   @@index([customerId])
+  @@index([tenantId])
   @@schema("sales")
 }
 
@@ -766,14 +814,17 @@ model CartItem {
   variantId   String
   cartId      String
   promotionId String?
+  tenantId    String
   updatedAt   DateTime   @updatedAt
   cart        Cart       @relation(fields: [cartId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   promotion   Promotion? @relation(fields: [promotionId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   variant     Variant    @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tenant      Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([cartId])
   @@index([promotionId])
   @@index([variantId])
+  @@index([tenantId])
   @@schema("sales")
 }
 
@@ -823,13 +874,16 @@ model OrderDetail {
   subtotal    Decimal
   orderId     String
   variantId   String
+  tenantId    String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   order       Order    @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   variant     Variant  @relation(fields: [variantId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
   @@index([orderId])
   @@index([variantId])
+  @@index([tenantId])
   @@schema("sales")
 }
 
@@ -839,13 +893,16 @@ model Return {
   refundAmount Decimal
   variantId    String
   orderId      String
+  tenantId     String
   updatedAt    DateTime @updatedAt
   createdAt    DateTime @default(now())
   order        Order    @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   variant      Variant  @relation(fields: [variantId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
   @@index([orderId])
   @@index([variantId])
+  @@index([tenantId])
   @@schema("sales")
 }
 
@@ -857,15 +914,18 @@ model Payment {
   orderId         String
   paymentMethodId String
   subscriptionId  String
+  tenantId        String
   updatedAt       DateTime      @updatedAt
   createdAt       DateTime      @default(now())
   order           Order         @relation(fields: [orderId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   paymentMethod   PaymentMethod @relation(fields: [paymentMethodId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   Subscription    Subscription  @relation(fields: [subscriptionId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  tenant          Tenant        @relation(fields: [tenantId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
   @@index([orderId])
   @@index([paymentMethodId])
   @@index([subscriptionId])
+  @@index([tenantId])
   @@schema("sales")
 }
 
@@ -882,11 +942,11 @@ enum Status {
 model PaymentMethod {
   id                     String                  @id
   acceptedPaymentMethods AcceptedPaymentMethod[]
-  tenantId               String?
+  tenantId               String
   customerId             String?
   updatedAt              DateTime                @updatedAt
   createdAt              DateTime                @default(now())
-  tenant                 Tenant?                 @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tenant                 Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   customer               Customer?               @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   payments               Payment[]
 
@@ -940,13 +1000,16 @@ model WishList {
   id         String   @id
   variantId  String
   customerId String
+  tenantId   String
   updatedAt  DateTime @updatedAt
   customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   variant    Variant  @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tenant     Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@unique([customerId, variantId])
   @@index([customerId])
   @@index([variantId])
+  @@index([tenantId])
   @@schema("customer")
 }
 
@@ -956,13 +1019,16 @@ model CustomerReviewProduct {
   comment     String   @postgres.Text
   customerId  String
   variantId   String
+  tenantId    String
   updatedAt   DateTime @updatedAt
   createdAt   DateTime @default(now())
   customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   variant     Variant  @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([customerId])
   @@index([variantId])
+  @@index([tenantId])
   @@schema("customer")
 }
 
@@ -971,11 +1037,11 @@ model PhoneNumber {
   id                 String    @id
   number             String
   customerId         String?
-  tenantId           String?
+  tenantId           String
   defaultForTenant   Tenant?   @relation("TenantDefaultPhone")
   defaultForCustomer Customer? @relation("CustomerDefaultPhone")
   customer           Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  tenant             Tenant?   @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tenant             Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([customerId])
   @@index([tenantId])
@@ -994,13 +1060,13 @@ model Address {
   addressType                AddressTypes
   deliveryNum                String
   deliveryInstructions       String?
-  tenantId                   String?
+  tenantId                   String
   customerId                 String?
   warehouses                 Warehouse[]
   orders                     Order[]
   country                    Country      @relation(fields: [countryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   state                      State        @relation(fields: [stateId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  tenant                     Tenant?      @relation(fields: [tenantId], references: [id])
+  tenant                     Tenant       @relation(fields: [tenantId], references: [id])
   customer                   Customer?    @relation(fields: [customerId], references: [id])
   defaultShippingForTenant   Tenant?      @relation("TenantDefaultShippingAddress")
   defaultBillingForTenant    Tenant?      @relation("TenantDefaultBillingAddress")

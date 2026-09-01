@@ -1,5 +1,6 @@
 import { z } from 'zod/v4';
 
+/** ISO 4217 currency codes shared by all bounded contexts. */
 export enum CurrencyCodes {
   AFN = 'AFN',
   ALL = 'ALL',

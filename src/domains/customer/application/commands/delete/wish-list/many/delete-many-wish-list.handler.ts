@@ -39,6 +39,7 @@ export class DeleteManyWishListHandler
       await this.wishListRepository.removeManyFromWishList(
         customerId,
         variantIds,
+        tenantId,
       );
 
     const deletedItemsByVariantId = new Map(

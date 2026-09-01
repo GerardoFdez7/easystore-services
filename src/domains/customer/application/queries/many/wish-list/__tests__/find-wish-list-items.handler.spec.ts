@@ -54,6 +54,7 @@ describe('FindWishListItemsHandler', () => {
     const wishlistItem = WishListItem.fromPersistence({
       id: '33333333-3333-4333-8333-333333333333',
       customerId,
+      tenantId: '11111111-1111-4111-8111-111111111112',
       variantId,
       updatedAt: new Date('2026-01-01T00:00:00.000Z'),
     });
@@ -70,7 +71,12 @@ describe('FindWishListItemsHandler', () => {
     ]);
 
     const result: PaginatedWishlistDTO = await handler.execute(
-      new FindWishlistItemsDto(customerId, 1, 10),
+      new FindWishlistItemsDto(
+        customerId,
+        '11111111-1111-4111-8111-111111111112',
+        1,
+        10,
+      ),
     );
 
     const customerArgument = findManyMock.mock.calls[0]?.[0];
@@ -93,7 +99,12 @@ describe('FindWishListItemsHandler', () => {
     findManyMock.mockResolvedValue([]);
 
     await expect(
-      handler.execute(new FindWishlistItemsDto(customerId)),
+      handler.execute(
+        new FindWishlistItemsDto(
+          customerId,
+          '11111111-1111-4111-8111-111111111112',
+        ),
+      ),
     ).resolves.toEqual({ wishlistItems: [], total: 0, hasMore: false });
 
     expect(getVariantsDetailsMock).not.toHaveBeenCalled();
@@ -109,18 +120,21 @@ describe('FindWishListItemsHandler', () => {
       WishListItem.fromPersistence({
         id: '33333333-3333-4333-8333-333333333331',
         customerId,
+        tenantId: '11111111-1111-4111-8111-111111111112',
         variantId: variantIds[0],
         updatedAt: new Date('2026-01-03T00:00:00.000Z'),
       }),
       WishListItem.fromPersistence({
         id: '33333333-3333-4333-8333-333333333332',
         customerId,
+        tenantId: '11111111-1111-4111-8111-111111111112',
         variantId: variantIds[1],
         updatedAt: new Date('2026-01-01T00:00:00.000Z'),
       }),
       WishListItem.fromPersistence({
         id: '33333333-3333-4333-8333-333333333333',
         customerId,
+        tenantId: '11111111-1111-4111-8111-111111111112',
         variantId: variantIds[2],
         updatedAt: new Date('2026-01-02T00:00:00.000Z'),
       }),
@@ -155,6 +169,7 @@ describe('FindWishListItemsHandler', () => {
     const byName = await handler.execute(
       new FindWishlistItemsDto(
         customerId,
+        '11111111-1111-4111-8111-111111111112',
         1,
         3,
         WishListSortBy.NAME,
@@ -164,6 +179,7 @@ describe('FindWishListItemsHandler', () => {
     const byPrice = await handler.execute(
       new FindWishlistItemsDto(
         customerId,
+        '11111111-1111-4111-8111-111111111112',
         1,
         3,
         WishListSortBy.PRICE,
@@ -173,6 +189,7 @@ describe('FindWishListItemsHandler', () => {
     const byAddedAt = await handler.execute(
       new FindWishlistItemsDto(
         customerId,
+        '11111111-1111-4111-8111-111111111112',
         1,
         1,
         WishListSortBy.ADDED_AT,

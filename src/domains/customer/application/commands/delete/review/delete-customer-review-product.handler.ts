@@ -35,6 +35,7 @@ export class DeleteCustomerReviewProductHandler
     const reviewFound = await this.reviewRepository.findById(
       reviewId,
       customerId,
+      tenantId,
     );
 
     if (!reviewFound) {
@@ -44,7 +45,7 @@ export class DeleteCustomerReviewProductHandler
     }
 
     // Remove the review using repository method before emitting the domain event
-    await this.reviewRepository.removeReview(customerId, reviewId);
+    await this.reviewRepository.removeReview(customerId, reviewId, tenantId);
 
     // Use the domain method to emit the event
     Customer.removeCustomerReviewProduct(reviewFound, customerFound);

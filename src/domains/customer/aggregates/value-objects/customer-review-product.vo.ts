@@ -6,6 +6,7 @@ const customerReviewProductSchema = z.object({
   comment: z.string(),
   customerId: z.uuid({ message: 'Id must be a valid UUID' }),
   variantId: z.uuid({ message: 'Id must be a valid UUID' }),
+  tenantId: z.uuid({ message: 'Id must be a valid UUID' }),
 });
 
 export interface CustomerReviewProductProps {
@@ -13,6 +14,7 @@ export interface CustomerReviewProductProps {
   comment: string;
   customerId: string;
   variantId: string;
+  tenantId: string;
 }
 
 export interface CustomerReviewProductPropsWithId
@@ -27,6 +29,7 @@ export class CustomerReviewProduct {
   private readonly comment: LongDescription;
   private readonly customerId: Id;
   private readonly variantId: Id;
+  private readonly tenantId: Id;
   private readonly updatedAt: Date;
 
   private constructor(
@@ -39,6 +42,7 @@ export class CustomerReviewProduct {
     this.comment = LongDescription.create(props.comment);
     this.customerId = Id.create(props.customerId);
     this.variantId = Id.create(props.variantId);
+    this.tenantId = Id.create(props.tenantId);
     this.updatedAt = existingUpdatedAt || new Date();
   }
 
@@ -55,6 +59,7 @@ export class CustomerReviewProduct {
       comment: props.comment,
       customerId: props.customerId,
       variantId: props.variantId,
+      tenantId: props.tenantId,
     });
     return new CustomerReviewProduct(props, props.id, props.updatedAt);
   }
@@ -70,6 +75,7 @@ export class CustomerReviewProduct {
       comment: updates.comment ?? existingReview.getCommentValue(),
       customerId: existingReview.getCustomerIdValue(),
       variantId: existingReview.getVariantIdValue(),
+      tenantId: existingReview.getTenantIdValue(),
     };
 
     customerReviewProductSchema.parse({
@@ -77,6 +83,7 @@ export class CustomerReviewProduct {
       comment: updatedProps.comment,
       customerId: updatedProps.customerId,
       variantId: updatedProps.variantId,
+      tenantId: updatedProps.tenantId,
     });
     return new CustomerReviewProduct(
       updatedProps,
@@ -106,6 +113,10 @@ export class CustomerReviewProduct {
     return this.variantId;
   }
 
+  public getTenantId(): Id {
+    return this.tenantId;
+  }
+
   public getUpdatedAt(): Date {
     return this.updatedAt;
   }
@@ -125,5 +136,9 @@ export class CustomerReviewProduct {
 
   public getVariantIdValue(): string {
     return this.variantId.getValue();
+  }
+
+  public getTenantIdValue(): string {
+    return this.tenantId.getValue();
   }
 }

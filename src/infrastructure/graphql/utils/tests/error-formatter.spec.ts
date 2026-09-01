@@ -66,7 +66,7 @@ describe('formatGraphqlError', () => {
     });
   });
 
-  it('masks database details and logs only a fixed safe event', () => {
+  it('masks database details without logging the same failure again', () => {
     const databaseError = new DatabaseOperationError(
       'find',
       'SELECT secret FROM customer',
@@ -83,12 +83,10 @@ describe('formatGraphqlError', () => {
       extensions: { code: 'INTERNAL_SERVER_ERROR' },
     });
     expect(JSON.stringify(result)).not.toContain('secret');
-    expect(Logger.prototype.error).toHaveBeenCalledWith(
-      'Unexpected GraphQL domain or infrastructure failure',
-    );
+    expect(Logger.prototype.error).not.toHaveBeenCalled();
   });
 
-  it('masks internal HTTP exception details', () => {
+  it('masks internal HTTP exception details without logging the same failure again', () => {
     const result = formatGraphqlError(
       formattedError,
       wrapResolverError(
@@ -101,9 +99,7 @@ describe('formatGraphqlError', () => {
       extensions: { code: 'INTERNAL_SERVER_ERROR' },
     });
     expect(JSON.stringify(result)).not.toContain('credential');
-    expect(Logger.prototype.error).toHaveBeenCalledWith(
-      'Unexpected GraphQL HTTP failure',
-    );
+    expect(Logger.prototype.error).not.toHaveBeenCalled();
   });
 
   it('preserves safe GraphQL validation failures without extra extensions', () => {

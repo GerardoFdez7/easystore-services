@@ -3,14 +3,14 @@ import { GetCartByCustomerIdDTO } from './get-cart-by-customer-id.dto';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { ICartRepository } from '../../../aggregates/repositories/cart.interface';
 import { CartDTO, CartMapper } from '../../mappers';
-import { Id } from '@shared/value-objects';
-import { IProductAdapter } from '../../ports/product.port';
+import { Id, IMoney, Money } from '@shared/value-objects';
+import { IProductAdapter, ITenantCurrencyAdapter } from '../../ports';
 
 export interface PaginatedCartDTO {
   cartItems: CartDTO['cartItems'];
   total: number;
   hasMore: boolean;
-  totalCart: number;
+  totalCart: IMoney;
 }
 
 @QueryHandler(GetCartByCustomerIdDTO)
@@ -20,12 +20,16 @@ export class GetCartByIdHandler
   constructor(
     @Inject('ICartRepository') private readonly cartRepository: ICartRepository,
     @Inject('IProductAdapter') private readonly productAdapter: IProductAdapter,
+    @Inject('ITenantCurrencyAdapter')
+    private readonly tenantCurrencyAdapter: ITenantCurrencyAdapter,
   ) {}
 
   async execute(query: GetCartByCustomerIdDTO): Promise<PaginatedCartDTO> {
     const customerId = Id.create(query.id);
+    const tenantId = Id.create(query.tenantId);
     const cartFound = await this.cartRepository.findCartByCustomerId(
       customerId,
+      tenantId,
       query.page,
       query.limit,
     );
@@ -40,20 +44,34 @@ export class GetCartByIdHandler
 
     const variantDetails =
       variantIds.length > 0
-        ? await this.productAdapter.getVariantsDetails(variantIds)
+        ? await this.productAdapter.getVariantsDetails(
+            variantIds,
+            query.tenantId,
+          )
         : [];
 
     const dto = CartMapper.toDto(cartFound, variantDetails);
+    const currency = await this.tenantCurrencyAdapter.getCurrency(
+      query.tenantId,
+    );
 
     // Get total count efficiently using the dedicated method
-    const totalItems = await this.cartRepository.getCartItemsCount(customerId);
+    const totalItems = await this.cartRepository.getCartItemsCount(
+      customerId,
+      tenantId,
+    );
     const hasMore = query.page * query.limit < totalItems;
 
     return {
       cartItems: dto.cartItems,
       total: totalItems,
       hasMore,
-      totalCart: dto.totalCart,
+      totalCart: Money.create(
+        typeof dto.totalCart === 'number'
+          ? dto.totalCart.toString()
+          : dto.totalCart.amount,
+        currency,
+      ).getValue(),
     };
   }
 }

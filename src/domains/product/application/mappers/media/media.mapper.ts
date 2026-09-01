@@ -29,6 +29,7 @@ export class MediaMapper {
       variantId: persistenceMedia.variantId
         ? Id.create(persistenceMedia.variantId)
         : null,
+      tenantId: Id.create(persistenceMedia.tenantId),
     });
   }
 
@@ -45,6 +46,7 @@ export class MediaMapper {
       mediaType: entity.get('mediaType')?.getValue(),
       productId: entity.get('productId')?.getValue(),
       variantId: entity.get('variantId')?.getValue(),
+      tenantId: entity.get('tenantId')?.getValue(),
     }));
   }
 }

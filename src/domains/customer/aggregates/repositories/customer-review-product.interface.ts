@@ -24,7 +24,11 @@ export interface ICustomerReviewProductRepository {
    * @returns Promise that resolves to the CustomerReviewProduct if found, null otherwise
    * @throws {Error} When repository operation fails
    */
-  findById(id: Id, customerId: Id): Promise<CustomerReviewProduct | null>;
+  findById(
+    id: Id,
+    customerId: Id,
+    tenantId: Id,
+  ): Promise<CustomerReviewProduct | null>;
 
   /**
    * Finds multiple customer review products by customer ID and optional review IDs.
@@ -33,7 +37,11 @@ export interface ICustomerReviewProductRepository {
    * @returns Promise that resolves to an array of CustomerReviewProduct entities
    * @throws {Error} When repository operation fails
    */
-  findMany(customerId: Id, reviewIds: Id[]): Promise<CustomerReviewProduct[]>;
+  findMany(
+    customerId: Id,
+    reviewIds: Id[],
+    tenantId: Id,
+  ): Promise<CustomerReviewProduct[]>;
 
   /**
    * Removes a customer review product by customer ID and review ID.
@@ -42,5 +50,5 @@ export interface ICustomerReviewProductRepository {
    * @returns Promise that resolves when the review is successfully removed
    * @throws {Error} When repository operation fails or review not found
    */
-  removeReview(customerId: Id, reviewId: Id): Promise<void>;
+  removeReview(customerId: Id, reviewId: Id, tenantId: Id): Promise<void>;
 }

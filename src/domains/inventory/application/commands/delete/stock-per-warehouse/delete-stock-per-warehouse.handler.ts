@@ -30,6 +30,7 @@ export class DeleteStockPerWarehouseHandler
     await this.warehouseRepository.updateSingleStock(
       Id.create(command.stockId),
       Id.create(command.warehouseId),
+      Id.create(command.tenantId),
       {
         qtyAvailable: 0,
       },

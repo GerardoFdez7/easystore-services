@@ -97,6 +97,7 @@ export default class InventoryResolver {
     return this.commandBus.execute(
       new CreateStockPerWarehouseDTO(user.tenantId, reason, user.employeeId, {
         ...input,
+        tenantId: user.tenantId,
         warehouseId,
         variantId,
       }),

@@ -104,5 +104,6 @@ jobs:
                     '- Tests passed ✓\n' +
                     '- Linter Code quality verified ✓\n' +
                     '- Architecture rules verified ✓\n\n' +
-                    'The PR has been validated. Great work! 🎉'
+                    'The PR has been validated. Dispatching the AI review.\n\n' +
+                    '@coderabbitai full review'
             })

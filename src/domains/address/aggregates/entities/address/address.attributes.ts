@@ -13,7 +13,7 @@ export interface IAddressBase {
   addressType: AddressTypeEnum;
   deliveryNum: string;
   deliveryInstructions?: string;
-  tenantId?: string;
+  tenantId: string;
   customerId?: string;
 }
 

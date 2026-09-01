@@ -4,5 +4,6 @@ export class AddItemToCartDto {
   constructor(
     public readonly data: ICartItemBaseType,
     public readonly customerId: string,
+    public readonly tenantId: string,
   ) {}
 }

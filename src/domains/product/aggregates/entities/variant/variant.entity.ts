@@ -88,6 +88,7 @@ export class Variant extends DomainEntity<IVariantProps> {
       Media.create({
         ...mediaData,
         variantId: newVariantIdValue.getValue(),
+        tenantId: transformedProps.tenantId.getValue(),
       }),
     );
 
@@ -180,6 +181,7 @@ export class Variant extends DomainEntity<IVariantProps> {
         Media.create({
           ...mediaData,
           variantId: this.props.id.getValue(),
+          tenantId: this.props.tenantId.getValue(),
         }),
       );
     }

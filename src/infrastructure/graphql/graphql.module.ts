@@ -7,6 +7,7 @@ import { Request, Response } from 'express';
 import { join } from 'path';
 import { formatGraphqlError } from './utils/error-formatter';
 import { createOperationLimitRule } from './utils/validation-rules';
+import { DecimalScalar } from '@common/graphql/decimal.scalar';
 
 const operationLimitRule = createOperationLimitRule({
   maxDepth: 10,
@@ -16,7 +17,7 @@ const operationLimitRule = createOperationLimitRule({
 export function createGraphqlOptions(
   configService: ConfigService,
 ): ApolloDriverConfig {
-  const isProduction = configService.get<string>('NODE_ENV') === 'production';
+  const isDevelopment = configService.get<string>('NODE_ENV') === 'development';
 
   return {
     autoSchemaFile: join(
@@ -25,9 +26,9 @@ export function createGraphqlOptions(
     ),
     sortSchema: true,
     playground: false,
-    plugins: isProduction ? [] : [ApolloServerPluginLandingPageLocalDefault()],
-    introspection: !isProduction,
-    includeStacktraceInErrorResponses: false,
+    plugins: isDevelopment ? [ApolloServerPluginLandingPageLocalDefault()] : [],
+    introspection: isDevelopment,
+    includeStacktraceInErrorResponses: isDevelopment,
     csrfPrevention: true,
     allowBatchedHttpRequests: false,
     validationRules: [operationLimitRule],
@@ -46,6 +47,6 @@ export function createGraphqlOptions(
       useFactory: createGraphqlOptions,
     }),
   ],
-  providers: [],
+  providers: [DecimalScalar],
 })
 export class GraphqlModule {}

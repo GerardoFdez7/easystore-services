@@ -1,0 +1,360 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+inheritance: false
+language: 'en-US'
+tone_instructions: >-
+  Be concise, direct, and evidence-based. Lead with severity and impact. Explain a
+  concrete failure or attack scenario, then the smallest safe fix and the test that
+  proves it. Do not praise, speculate, or report cosmetic churn as a defect.
+
+reviews:
+  profile: 'assertive'
+  request_changes_workflow: true
+  review_status: true
+  review_details: true
+  review_progress: true
+  fail_commit_status: true
+  high_level_summary: true
+  high_level_summary_in_walkthrough: true
+  high_level_summary_instructions: >-
+    Summarize behavioral changes, affected bounded contexts, public GraphQL or
+    database contract changes, security and tenant-isolation risk, performance
+    impact, migrations, and test evidence. Separate verified facts from assumptions.
+  collapse_walkthrough: false
+  sequence_diagrams: false
+  poem: false
+  in_progress_fortune: false
+
+  # Public-repository anti-slop analysis runs with the review and labels PRs that
+  # CodeRabbit classifies as low-quality or suspiciously AI-generated.
+  slop_detection:
+    enabled: true
+    label: 'ai-slop'
+
+  # quality-check.yml requests a review only after its quality steps pass. Keep
+  # automatic reviews disabled so PRs cannot bypass that CI gate.
+  auto_review:
+    enabled: false
+    auto_incremental_review: false
+    drafts: false
+    base_branches:
+      - 'development'
+
+  path_filters:
+    - '!**/node_modules/**'
+    - '!dist/**'
+    - '!coverage/**'
+    - '!**/*.png'
+    - '!**/*.jpg'
+    - '!**/*.jpeg'
+    - '!**/*.gif'
+    - '!**/*.ico'
+
+  pre_merge_checks:
+    override_requested_reviewers_only: true
+    docstrings:
+      mode: 'off'
+    title:
+      mode: 'error'
+      requirements: >-
+        Use concise English and identify the affected behavior or domain. Prefer an
+        imperative title. Reject WIP titles and vague titles such as "fix", "update",
+        or "changes" without a specific object and outcome.
+    description:
+      mode: 'error'
+    issue_assessment:
+      mode: 'warning'
+    custom_checks:
+      - name: 'PR template compliance'
+        mode: 'error'
+        instructions: >-
+          Fail unless the pull request description follows
+          .github/PULL_REQUEST_TEMPLATE.md and contains meaningful English content
+          under Summary, Impact, Changes, Testing, Checklist, Related Issues, and
+          Breaking Changes. Allow "Not applicable" or "None" only where appropriate.
+          Fail on blank required sections, untouched placeholder instructions or
+          examples, misleading checklist selections, or test claims without named
+          commands, paths, scenarios, or an explicit reason tests were unchanged.
+      - name: 'English-only code'
+        mode: 'error'
+        instructions: >-
+          Fail when changed source, test, configuration, schema, migration, or
+          documentation files introduce non-English identifiers, comments, JSDoc,
+          developer-facing messages, log messages, error messages, or test names.
+          Ignore proper nouns, customer-provided data, and explicitly localized
+          user-facing resources. Report the exact file and text that violates the
+          rule. Pass only when every in-scope addition is English.
+      - name: 'Tenant and access safety'
+        mode: 'error'
+        instructions: >-
+          Fail if the changes can bypass authentication or authorization, accept
+          tenant/user/role ownership from untrusted input, omit tenant or owner scope
+          from any lookup, relation, count, mutation, uniqueness check, delete, or
+          cache key, reveal cross-tenant existence, expose a secret, or enable
+          injection. Pass only when trusted server identity and fail-closed tenant
+          isolation are preserved on every path.
+      - name: 'Transactional integrity'
+        mode: 'error'
+        instructions: >-
+          Fail if a PostgreSQL repository write is outside PostgreService.$transaction,
+          a read-check-write sequence crosses transaction boundaries, retries can
+          duplicate a non-idempotent effect, money uses unsafe arithmetic, or order,
+          payment, cart, shipping, or inventory state can become inconsistent under
+          concurrency or partial failure.
+      - name: 'Public contract safety'
+        mode: 'error'
+        instructions: >-
+          Fail on an undocumented or untested breaking GraphQL, database, event,
+          configuration, or application-port contract change. Fail when validation
+          bounds, safe error masking, deterministic pagination, or risk-proportional
+          tests are missing. Pass only when compatibility impact is explicit and the
+          changed behavior is covered, where applicable, by the matching command
+          integration test under src/domains/*/application/commands/**/__tests__/.
+
+  tools:
+    github-checks:
+      enabled: true
+    eslint:
+      enabled: true
+    semgrep:
+      enabled: true
+      config_file: '.semgrep.yml'
+    opengrep:
+      enabled: false
+    gitleaks:
+      enabled: true
+    trufflehog:
+      enabled: true
+    osvScanner:
+      enabled: true
+    presidio:
+      enabled: true
+    actionlint:
+      enabled: true
+    zizmor:
+      enabled: true
+    yamllint:
+      enabled: true
+    hadolint:
+      enabled: true
+    trivy:
+      enabled: true
+    prismaLint:
+      enabled: true
+    squawk:
+      enabled: true
+    dotenvLint:
+      enabled: true
+    languagetool:
+      enabled: true
+      level: 'picky'
+
+  path_instructions:
+    - path: '**/*'
+      instructions: |
+        Apply these rules to every changed file:
+
+        - Reject non-English identifiers, comments, JSDoc, developer-facing strings,
+          log/error messages, and test descriptions. Ignore proper nouns,
+          customer-provided data, and explicitly localized resources.
+        - Consider findings related to exploitable security, cross-tenant
+          access, payment manipulation, secret exposure, data loss, or unrecoverable
+          order/inventory corruption; races, missing transactions, broken
+          idempotency, unsafe money calculations, missing validation, breaking public
+          contracts, or incorrect error handling; N+1 queries, material
+          performance regressions, missing tests, duplication, or poor abstractions;
+          naming, readability, and minor maintainability issues.
+        - State the exact failure/attack scenario and affected tenant, data, or API
+          invariant. Recommend the smallest safe fix.
+        - Treat authentication, authorization, tenant isolation, payment/order/cart/
+          inventory consistency, SQL or command injection, secrets, destructive data
+          changes, and unsafe dependency/workflow changes as mandatory review areas.
+        - Domain testing is intentionally consolidated in colocated command-handler
+          integration tests under src/domains/*/application/commands/**/__tests__/.
+          Request a test change only for changed behavior or an uncovered regression
+          risk, and place it in the matching command test. Never request duplicate
+          aggregate unit, repository contract, adapter, resolver, or layer-specific
+          test suites merely because an implementation file changed.
+
+    - path: 'src/domains/*/aggregates/**'
+      instructions: |
+        Preserve the aggregate consistency boundary and domain independence.
+
+        - Business invariants and state transitions belong in aggregate roots, nested
+          entities, or value objects, not handlers, repositories, or resolvers.
+        - Aggregate code may depend only on its own aggregate layer, @shared modules,
+          @nestjs/cqrs, and Zod. Reject application, infrastructure, presentation, or
+          direct cross-domain imports.
+        - Only the configured aggregate root may extend Entity and publish events;
+          nested entities extend DomainEntity. Factories validate all state, use a
+          private constructor, and keep create distinct from event-free reconstitute.
+        - Apply events only after valid state exists. Verify event payloads cannot
+          leak secrets or mutable internals and reflect completed facts.
+        - Make tenant/owner scope explicit in repository contracts. Use typed IDs,
+          domain values, typed pagination/sorting, and explicit named barrel exports.
+        - For money and quantities, reject binary floating-point, negative or
+          impossible values, untrusted totals, missing currency checks, overflow,
+          rounding ambiguity, and transitions that permit overselling or double use.
+        - Verify changed factories, invariants, transitions, events, immutability, and
+          edge values through the matching application command integration test when
+          they are relevant. Do not request a separate aggregate unit-test suite.
+
+    - path: 'src/domains/*/application/**'
+      instructions: |
+        Keep the application layer limited to secure CQRS use-case orchestration.
+
+        - Every use case must carry trusted tenant/owner identity through all
+          repository and port calls; never accept privileged ownership from client
+          input or let object spreading overwrite trusted values.
+        - Commands load scoped state, invoke aggregate behavior, persist successfully,
+          then commit events. Never commit on persistence failure. Queries must not
+          mutate state or publish events.
+        - Detect retry, duplicate-delivery, and concurrent-command hazards. Require an
+          idempotency strategy for payments, orders, inventory, messaging, and other
+          externally retryable effects.
+        - Cross-domain capabilities use consumer-owned application ports implemented
+          by infrastructure adapters. Reject direct imports from another bounded
+          context and leaking GraphQL, Prisma, or external-service types inward.
+        - Collection queries use bounded typed pagination/sorting, scope before
+          count/order/page, and apply deterministic ordering. Flag fan-out and N+1
+          behavior across repositories or adapters.
+        - Command-handler integration tests must cover result mapping, tenant-scoped
+          collaborator inputs, ordering, commit-after-persist, not-found/invariant/
+          repository/adapter failures, trusted identity, retries, and edge cases.
+          Require only scenarios relevant to changed behavior or regression risk; do
+          not demand coverage-only tests or tests for unchanged branches.
+
+    - path: 'src/domains/*/infrastructure/**'
+      instructions: |
+        Enforce persistence, integration, and concurrency safety at the boundary.
+
+        - Every PostgreSQL create, update, upsert, or delete runs inside
+          PostgreService.$transaction. Keep each read-check-write sequence in the same
+          transaction and analyze lost updates, write skew, duplicate delivery,
+          rollback, lock/constraint behavior, and idempotency.
+        - Scope every tenant-owned read, count, relation, uniqueness check, connect,
+          update, upsert, archive, restore, and delete by tenant/owner before lookup,
+          ordering, or pagination. Fail closed without revealing existence.
+        - Reject interpolated SQL, unsafe raw queries, mass assignment, unbounded
+          reads, over-fetching, N+1 queries, missing deterministic order, and indexes
+          inconsistent with new filters or constraints.
+        - Return domain entities or application DTOs, never raw Prisma/external
+          records. Keep mapping explicit and validate external responses.
+        - Route Prisma failures through the project database-error utilities. Do not
+          leak raw Prisma errors, metadata, credentials, payloads, or internal IDs.
+        - Adapters implement consumer ports and may call only the provider domain's
+          public application contracts. Review timeouts, retries, credentials, and
+          idempotency for external services.
+        - Verify relevant tenant filters, transactions and rollback, concurrency,
+          constraints, mapping, soft-delete visibility, safe error translation, and
+          adapter behavior through the matching application command integration test.
+          Do not request separate repository or adapter contract-test suites.
+
+    - path: 'src/domains/*/presentation/**'
+      instructions: |
+        Treat GraphQL as an untrusted public boundary.
+
+        - Authentication is the default. Permit @Public only on deliberately public
+          methods. Derive identity and tenant scope from @CurrentUser/server context;
+          client inputs must not contain trusted tenant, user, customer, employee,
+          role, or permission fields.
+        - When combining input and trusted data, assign trusted fields last. Reject
+          IDOR, authorization gaps, resource enumeration, cross-tenant relation
+          resolution, and nullable/success-shaped responses that swallow failures.
+        - Resolvers stay thin and delegate through CommandBus/QueryBus. Reject Prisma
+          access, business rules, cross-domain calls, and transport-error construction.
+        - Check schema naming, explicit ID/list/optional nullability, enum handling,
+          backward compatibility, output data minimization, and typed results without
+          unchecked casts. Flag undocumented removals or nullability tightening.
+        - Bound pagination, batches, depth, aliases, repeated fields, and abuse-prone
+          public operations. Identify N+1 resolution and unsafe authenticated caching.
+        - Verify changed CQRS delegation, trusted identity, access posture, tenant-safe
+          failures, and output behavior through the matching application command
+          integration test. Do not request a separate resolver-test suite.
+
+    - path: 'src/infrastructure/graphql/**'
+      instructions: |
+        Enforce the centralized Apollo security boundary.
+
+        - Preserve the global authentication guard, production introspection and
+          landing-page controls, CSRF prevention, disabled HTTP batching, bounded
+          depth/field work, pagination/batch limits, and fail-closed configuration.
+        - Central formatError policy must mask unexpected failures and never serialize
+          causes, stacks, HTTP objects, Prisma metadata, secrets, headers, cookies,
+          variables, queries, internal IDs, or external payloads.
+        - Logging and telemetry may include only bounded operation metadata, duration,
+          safe public outcome codes, and trusted correlation IDs.
+        - Reject authenticated response caching without complete authorization/tenant
+          keys and invalidation, and reject plugins whose failures alter results.
+
+    - path: 'src/domains/**/*.module.ts'
+      instructions: |
+        Treat each NestJS domain module as a composition root only. Verify repository
+        and port tokens match the interfaces consumed by handlers; every required
+        command, query, event handler, adapter, repository, and resolver is registered
+        exactly once and exported from an explicit layer barrel. Reject business
+        logic, duplicate tokens/providers, dependency cycles, aggregate/value-object
+        providers, deep imports where a public barrel exists, and exports of internal
+        capabilities or another domain's internals.
+
+    - path: 'src/app.module.ts'
+      instructions: |
+        Verify every intended bounded context is registered exactly once, imports are
+        minimal, module ordering does not hide cycles, and no domain internals are
+        composed directly in the application root.
+
+    - path: 'src/infrastructure/database/**'
+      instructions: |
+        Review Prisma schema and migrations for tenant-isolation constraints, foreign
+        keys, uniqueness scope, precision-safe monetary types, indexes matching query
+        filters/order, safe defaults, soft-delete behavior, reversibility, backfill
+        safety, table locks, data loss, and backward-compatible rollout. Never approve
+        destructive or lossy changes without explicit migration and recovery evidence.
+
+    - path: 'src/domains/*/application/commands/**/__tests__/*.spec.ts'
+      instructions: |
+        These are the domain's integration tests and intentionally cover the complete
+        command use case across aggregate, application, infrastructure, and
+        presentation-facing behavior. Require behavior-focused Arrange-Act-Assert
+        tests with meaningful English names. For changed behavior, verify applicable
+        success/failure paths, tenant and authorization boundaries, invariant edges,
+        rollback, concurrency/idempotency, safe errors, collaborator inputs, and
+        ordering. Reject redundant cases, implementation-mirroring assertions, broad
+        mocks that bypass behavior, accidental time/order dependencies, and tests
+        added only to increase coverage. Do not recommend moving or duplicating these
+        scenarios into layer-specific suites.
+
+    - path: '.github/workflows/**'
+      instructions: |
+        Review Actions for least-privilege permissions, untrusted pull_request input,
+        script/command injection, secret exposure, unsafe checkout/execution of forked
+        code, artifact poisoning, cache poisoning, excessive token scope, unpinned or
+        compromised actions, missing timeouts, and concurrency mistakes. Preserve the
+        invariant that quality-check.yml requests CodeRabbit only from its successful
+        final step after architecture, duplication, lint, build, and tests pass.
+
+    - path: '{tools/architecture/**,.semgrep.yml}'
+      instructions: |
+        Treat architecture and Semgrep rules as enforcement code. Reject weakened
+        coverage, widened exceptions, path/regex gaps, bypasses through aliases or
+        dynamic imports, stale aggregate-root configuration, silent false negatives,
+        and exceptions without a narrow English rationale. Require fixture-based tests
+        for new or changed rules and preserve parity between structural and Semgrep
+        checks where their concerns overlap.
+
+knowledge_base:
+  linked_repositories:
+    - repository: 'GerardoFdez7/easystore-client'
+      instructions: >-
+        This is EasyStore's frontend client. Use it to detect GraphQL operation,
+        schema type, authentication, tenant-context, validation, enum, nullability,
+        pagination, and error-contract incompatibilities introduced by backend
+        changes. Report concrete client call sites that would break or become unsafe.
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - '.agents/skills/work-in-aggregates/**/*.md'
+      - '.agents/skills/work-in-application/**/*.md'
+      - '.agents/skills/work-in-infrastructure/**/*.md'
+      - '.agents/skills/work-in-presentation/**/*.md'
+      - '.agents/skills/compose-domain/**/*.md'

@@ -1,17 +1,3 @@
----
-id: architect
-title: Architect
-toolIntent:
-  allow:
-    - write
-  deny:
-    - read
-    - delete
-    - exec
-    - network
-    - mcp
----
-
 # Architect
 
 Turn the user request and supplied Explorer brief into the smallest

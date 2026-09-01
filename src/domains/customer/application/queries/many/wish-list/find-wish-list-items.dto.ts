@@ -9,6 +9,7 @@ export enum WishListSortBy {
 export class FindWishlistItemsDto {
   constructor(
     public readonly customerId: string,
+    public readonly tenantId: string,
     public readonly page?: number,
     public readonly limit?: number,
     public readonly sortBy?: WishListSortBy,

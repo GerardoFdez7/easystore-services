@@ -54,9 +54,12 @@ export interface IProductSystem {
 
 // Define InitData types for sub-entities (excluding parent IDs)
 export type IVariantInitData = Omit<IVariantBase, 'productId' | 'tenantId'>;
-export type IMediaInitData = Omit<IMediaBase, 'productId' | 'variantId'>;
+export type IMediaInitData = Omit<
+  IMediaBase,
+  'productId' | 'variantId' | 'tenantId'
+>;
 export type IProductCategoryInitData = Omit<
   IProductCategoriesBase,
-  'productId'
+  'productId' | 'tenantId'
 >;
 export type ISustainabilityInitData = Omit<ISustainabilityBase, 'productId'>;

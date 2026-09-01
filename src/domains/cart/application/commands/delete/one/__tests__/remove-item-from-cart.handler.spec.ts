@@ -8,6 +8,7 @@ import { ICartRepository } from '../../../../../aggregates/repositories/cart.int
 import { CartMapper, CartDTO } from '../../../../mappers';
 import { Cart } from '../../../../../aggregates/entities/cart/cart.entity';
 import { Id } from '../../../../../aggregates/value-objects';
+import { ITenantCurrencyAdapter } from '../../../../ports';
 
 interface MockCart {
   commit: jest.Mock;
@@ -21,6 +22,7 @@ describe('RemoveItemFromCartHandler', () => {
   let handler: RemoveItemFromCartHandler;
   let cartRepository: jest.Mocked<ICartRepository>;
   let eventPublisher: jest.Mocked<EventPublisher>;
+  let tenantCurrencyAdapter: jest.Mocked<ITenantCurrencyAdapter>;
   let mockCart: MockCart;
 
   let findCartByCustomerIdMock: jest.Mock;
@@ -58,6 +60,10 @@ describe('RemoveItemFromCartHandler', () => {
       mergeObjectContext: mergeObjectContextMock,
     } as unknown as jest.Mocked<EventPublisher>;
 
+    tenantCurrencyAdapter = {
+      getCurrency: jest.fn().mockResolvedValue('USD'),
+    } as unknown as jest.Mocked<ITenantCurrencyAdapter>;
+
     cartRemoveItemMock = jest
       .spyOn(Cart, 'removeItem')
       .mockReturnValue(mockCart as unknown as Cart);
@@ -69,7 +75,9 @@ describe('RemoveItemFromCartHandler', () => {
     toDtoMock = jest.spyOn(CartMapper, 'toDto').mockReturnValue({
       id: 'cart-id-123',
       customerId: 'customer-id-456',
+      tenantId: '019a039e-fe37-7516-ab6d-c16428949f9f',
       cartItems: [],
+      totalCart: 0,
     } as CartDTO);
 
     const module: TestingModule = await Test.createTestingModule({
@@ -82,6 +90,10 @@ describe('RemoveItemFromCartHandler', () => {
         {
           provide: EventPublisher,
           useValue: eventPublisher,
+        },
+        {
+          provide: 'ITenantCurrencyAdapter',
+          useValue: tenantCurrencyAdapter,
         },
       ],
     }).compile();
@@ -101,6 +113,7 @@ describe('RemoveItemFromCartHandler', () => {
     const baseCommand: RemoveItemFromCartDto = new RemoveItemFromCartDto(
       baseItemData,
       'customer-789',
+      '019a039e-fe37-7516-ab6d-c16428949f9f',
     );
 
     describe('Cart retrieval and validation', () => {
@@ -112,6 +125,9 @@ describe('RemoveItemFromCartHandler', () => {
         await handler.execute(baseCommand);
 
         expect(findCartByCustomerIdMock).toHaveBeenCalledWith(
+          expect.objectContaining({
+            getValue: expect.any(Function),
+          }),
           expect.objectContaining({
             getValue: expect.any(Function),
           }),
@@ -150,6 +166,7 @@ describe('RemoveItemFromCartHandler', () => {
         const validCommand = new RemoveItemFromCartDto(
           { variantId: 'variant-456' },
           'valid-customer-999',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
         findCartByCustomerIdMock.mockResolvedValue(mockCart);
         mergeObjectContextMock.mockReturnValue(mockCart as never);
@@ -159,6 +176,9 @@ describe('RemoveItemFromCartHandler', () => {
 
         expect(idCreateMock).toHaveBeenCalledWith('valid-customer-999');
         expect(findCartByCustomerIdMock).toHaveBeenCalledWith(
+          expect.objectContaining({
+            getValue: expect.any(Function),
+          }),
           expect.objectContaining({
             getValue: expect.any(Function),
           }),
@@ -195,6 +215,7 @@ describe('RemoveItemFromCartHandler', () => {
         const differentVariantCommand = new RemoveItemFromCartDto(
           { variantId: 'different-variant-789' },
           'customer-456',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         const mockVariantId = { getValue: () => 'different-variant-789' } as Id;
@@ -320,13 +341,13 @@ describe('RemoveItemFromCartHandler', () => {
           id: 'cart-id-123',
           customerId: 'customer-id-456',
           cartItems: [],
-          totalCart: 0,
+          totalCart: { amount: '0', currency: 'USD' },
         } as CartDTO;
         toDtoMock.mockReturnValue(expectedDto);
 
         const result = await handler.execute(baseCommand);
 
-        expect(result).toBe(expectedDto);
+        expect(result).toEqual(expectedDto);
       });
 
       it('should return DTO with correct structure', async () => {
@@ -349,7 +370,7 @@ describe('RemoveItemFromCartHandler', () => {
               qty: 2,
             },
           ],
-          totalCart: 50,
+          totalCart: { amount: '50', currency: 'USD' },
         } as CartDTO;
         toDtoMock.mockReturnValue(cartAfterRemoval);
 
@@ -421,6 +442,7 @@ describe('RemoveItemFromCartHandler', () => {
         const nonExistentVariantCommand = new RemoveItemFromCartDto(
           { variantId: 'non-existent-variant' },
           'customer-789',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         findCartByCustomerIdMock.mockResolvedValue(mockCart);
@@ -446,6 +468,7 @@ describe('RemoveItemFromCartHandler', () => {
         const specificVariantCommand = new RemoveItemFromCartDto(
           { variantId: 'specific-variant-123' },
           'customer-456',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         const mockVariantId = { getValue: () => 'specific-variant-123' } as Id;
@@ -476,6 +499,7 @@ describe('RemoveItemFromCartHandler', () => {
         const removeCommand = new RemoveItemFromCartDto(
           { variantId: 'variant-2' },
           'customer-789',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         await handler.execute(removeCommand);
@@ -501,10 +525,12 @@ describe('RemoveItemFromCartHandler', () => {
         const command1 = new RemoveItemFromCartDto(
           { variantId: 'variant-1' },
           'customer-1',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
         const command2 = new RemoveItemFromCartDto(
           { variantId: 'variant-2' },
           'customer-1',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         const [result1, result2] = await Promise.all([
@@ -524,13 +550,14 @@ describe('RemoveItemFromCartHandler', () => {
         const completeCommand = new RemoveItemFromCartDto(
           { variantId: 'complete-variant-123' },
           'complete-customer-789',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         const expectedDto: CartDTO = {
           id: 'cart-id-123',
           customerId: 'customer-id-456',
           cartItems: [],
-          totalCart: 0,
+          totalCart: { amount: '0', currency: 'USD' },
         } as CartDTO;
 
         const mockVariantId = { getValue: () => 'complete-variant-123' } as Id;
@@ -540,7 +567,10 @@ describe('RemoveItemFromCartHandler', () => {
 
         idCreateMock
           .mockReturnValueOnce(mockVariantId)
-          .mockReturnValueOnce(mockCustomerId);
+          .mockReturnValueOnce(mockCustomerId)
+          .mockReturnValueOnce({
+            getValue: () => '019a039e-fe37-7516-ab6d-c16428949f9f',
+          } as Id);
 
         findCartByCustomerIdMock.mockResolvedValue(mockCart);
         mergeObjectContextMock.mockReturnValue(mockCart as never);
@@ -550,7 +580,7 @@ describe('RemoveItemFromCartHandler', () => {
         const result = await handler.execute(completeCommand);
 
         // Verify all steps were called in correct order
-        expect(idCreateMock).toHaveBeenCalledTimes(2);
+        expect(idCreateMock).toHaveBeenCalledTimes(3);
         expect(findCartByCustomerIdMock).toHaveBeenCalledTimes(1);
         expect(cartRemoveItemMock).toHaveBeenCalledTimes(1);
         expect(mergeObjectContextMock).toHaveBeenCalledTimes(1);
@@ -563,14 +593,21 @@ describe('RemoveItemFromCartHandler', () => {
       it('should maintain data consistency throughout the flow', async () => {
         const variantId = 'consistency-variant';
         const customerId = 'consistency-customer';
-        const command = new RemoveItemFromCartDto({ variantId }, customerId);
+        const command = new RemoveItemFromCartDto(
+          { variantId },
+          customerId,
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
+        );
 
         const mockVariantId = { getValue: () => variantId } as Id;
         const mockCustomerId = { getValue: () => customerId } as Id;
 
         idCreateMock
           .mockReturnValueOnce(mockVariantId)
-          .mockReturnValueOnce(mockCustomerId);
+          .mockReturnValueOnce(mockCustomerId)
+          .mockReturnValueOnce({
+            getValue: () => '019a039e-fe37-7516-ab6d-c16428949f9f',
+          } as Id);
 
         findCartByCustomerIdMock.mockResolvedValue(mockCart);
         mergeObjectContextMock.mockReturnValue(mockCart as never);

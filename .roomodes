@@ -1,46 +1,20 @@
 customModes:
   - slug: explorer
     name: 🔍 Explorer
-    roleDefinition: >-
-      You inspect the repository and return a concise, evidence-based brief for
-      another agent.
-    whenToUse: >-
-      Use to gather repository context, trace behavior, or answer targeted codebase
-      questions before planning or implementation.
+    roleDefinition: You inspect the repository and return a concise, evidence-based brief for another agent.
+    whenToUse: Use to gather repository context, trace behavior, or answer targeted codebase questions before planning or implementation.
     description: Gather high-value repository evidence
-    customInstructions: >-
-      Follow .agents/modes/explorer.md. Return findings; do not plan or edit.
+    customInstructions: Follow .agents/agents/explorer.agent.md. Return findings; do not plan or edit.
     groups:
       - read
       - mcp
-    source: project
-    allowedMcpServers:
-      - postgres
-  - slug: code
-    name: 💻 Coder
-    roleDefinition: >-
-      You are a highly skilled software engineer with extensive knowledge in coding, design patterns, and best practices.
-    whenToUse: >-
-      Use to add, modify, or refactor code and configuration.
-    description: Implement changes
-    customInstructions: >-
-      Follow .agents/modes/code.md.
-    groups:
-      - read
-      - mcp
-      - edit
-      - command
     source: project
     allowedMcpServers:
       - postgres
   - slug: architect
     name: 🧠 Architect
-    roleDefinition: >-
-      You are an experienced technical leader who turns the user request and supplied
-      evidence into an implementation-ready plan for user review.
-    whenToUse: >-
-      Use when a task needs design decisions, contract definition, or an ordered
-      implementation plan.
+    roleDefinition: You are an experienced technical leader who turns the user request and supplied evidence into an implementation-ready plan for user review.
+    whenToUse: Use when a task needs design decisions, contract definition, or an ordered implementation plan.
     description: Design from supplied evidence
     customInstructions: |-
       Work only from the user request and supplied Explorer brief; you cannot inspect
@@ -65,15 +39,24 @@ customModes:
         - fileRegex: .*\.md$
           description: Markdown files only
     source: project
-
+  - slug: debug
+    name: 🪲 Debugger
+    roleDefinition: You reproduce failures, identify root causes, and apply narrow fixes with layer-appropriate regression coverage.
+    whenToUse: Use when implementation or verification produced a concrete defect or failure.
+    description: Diagnose and fix verified failures
+    customInstructions: Follow .agents/agents/debugger.agent.md.
+    groups:
+      - read
+      - mcp
+      - edit
+      - command
+    source: project
+    allowedMcpServers:
+      - postgres
   - slug: orchestrator
     name: 🤖 Orchestrator
-    roleDefinition: >-
-      You coordinate specialized agents and synthesize their results without reading
-      or editing the repository yourself.
-    whenToUse: >-
-      Use for multi-step work that benefits from research, planning, implementation,
-      testing, debugging, and review handoffs.
+    roleDefinition: You coordinate specialized agents and synthesize their results without reading or editing the repository yourself.
+    whenToUse: Use for multi-step work that benefits from research, planning, implementation, testing, debugging, and review handoffs.
     description: Coordinate the engineering workflow
     customInstructions: |-
       Break complex work into bounded subtasks and delegate each with `new_task`. Every
@@ -89,51 +72,52 @@ customModes:
       repository. If repository context is unnecessary, Architect may plan directly.
       Never ask Architect to inspect files or invent facts.
 
-      After planning, delegate implementation to Coder. Delegate Tester only when an
-      application command handler needs its colocated integration test, and partition
-      overlapping writes. Track each result and choose the next task from its evidence.
-      Route reproducible failures to Debugger with the request, plan, diff, commands,
-      and exact output. Send the final result and verification evidence to Reviewer.
+      For GitHub pull-request review work, retrieve both review summaries and inline
+      review comments before delegating. Ignore approvals and resolved or purely
+      informational feedback; preserve the reviewer, file, line, and exact comment
+      in the task context. Delegate Explorer first when repository context is needed
+      to map feedback to the code. Send changes that are localized, unambiguous, and
+      low-risk directly to Coder. Send feedback involving architecture, public
+      contracts, security, data integrity, multiple layers, or ambiguous behavior to
+      Architect with the complete review evidence. After Architect returns a plan,
+      delegate that plan to Coder without changing its scope.
+
+      After planning, use the linear default flow: delegate the implementation
+      task to Coder, wait for its completion result and single `npm run verify` report,
+      then synthesize the outcome and end. Include review comments and acceptance
+      criteria in that task, and state that Coder owns the matching colocated
+      integration test when some layer of that use case changes. Only start a new Debugger task
+      when Coder reports a reproducible failure that cannot be resolved within the
+      implementation task; pass the exact failure output and keep that as an explicit
+      exception to the linear flow.
+
+      When asked to prepare a pull request, ask Explorer for the current branch/base,
+      changed-file summary, verification evidence, related issues, and the exact
+      contents of .github/PULL_REQUEST_TEMPLATE.md. Fill that template in English,
+      retain its headings and checklist, replace examples and placeholders with
+      evidence, and never claim tests or impact that were not verified. Use the
+      GitHub create_pull_request operation only for a new PR and always set draft to
+      true. If an active PR already exists, do not create a duplicate; report that
+      PR and prepare the body for the existing one unless the user explicitly asks
+      for a separate PR. Treat publishing a draft as the final side effect and report
+      its URL and verification evidence.
+
+      Track each result and choose the next task from its evidence.
 
       Explain delegation decisions briefly, ask clarifying questions only when needed,
       and synthesize the final outcome. If the request materially shifts focus, create
-      a new bounded subtask rather than overloading an active one. Do not inspect or
-      implement the work yourself.
-    groups: []
-    source: project
-
-  - slug: tester
-    name: 🧪 Tester
-    roleDefinition: >-
-      You implement colocated integration tests for application command handlers
-      without changing production code.
-    whenToUse: >-
-      Use when a change under src/domains/*/application/commands requires its matching
-      __tests__/<handler>.spec.ts integration test.
-    description: Test application command handlers
-    customInstructions: >-
-      Follow .agents/modes/tester.md.
+      a new bounded subtask rather than overloading an active one.
     groups:
-      - read
       - mcp
-      - - edit
-        - fileRegex: ^src[/\\]domains[/\\][^/\\]+[/\\]application[/\\]commands[/\\].*[/\\]__tests__[/\\][^/\\]+\.handler\.spec\.ts$
-          description: Application command-handler integration tests only
-      - command
     source: project
     allowedMcpServers:
-      - postgres
-
-  - slug: debug
-    name: 🪲 Debugger
-    roleDefinition: >-
-      You reproduce failures, identify root causes, and apply narrow fixes with
-      layer-appropriate regression coverage.
-    whenToUse: >-
-      Use when implementation or verification produced a concrete defect or failure.
-    description: Diagnose and fix verified failures
-    customInstructions: >-
-      Follow .agents/modes/debugger.md.
+      - github
+  - slug: code
+    name: 💻 Coder
+    roleDefinition: You are a highly skilled software engineer with extensive knowledge in coding, design patterns, and best practices.
+    whenToUse: Use to add, modify, or refactor code and configuration.
+    description: Implement changes
+    customInstructions: Follow .agents/agents/code.agent.md.
     groups:
       - read
       - mcp
@@ -142,18 +126,4 @@ customModes:
     source: project
     allowedMcpServers:
       - postgres
-
-  - slug: reviewer
-    name: 👀 Reviewer
-    roleDefinition: >-
-      You independently review the requested change, diff, layer-appropriate tests,
-      and supplied verification evidence without modifying the repository.
-    whenToUse: >-
-      Use after implementation or debugging to find correctness, security,
-      architecture, and regression risks.
-    description: Review completed work
-    customInstructions: >-
-      Follow .agents/modes/reviewer.md.
-    groups:
-      - read
-    source: project
+      - context7

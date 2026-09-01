@@ -4,5 +4,6 @@ export class UpdateItemQuantityDto {
   constructor(
     public readonly data: IUpdateItemQuantityData,
     public readonly customerId: string,
+    public readonly tenantId: string,
   ) {}
 }

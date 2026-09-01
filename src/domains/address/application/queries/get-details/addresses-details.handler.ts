@@ -20,8 +20,10 @@ export class GetAddressesDetailsHandler
     }
     const addressIds = query.addressIds.map((id) => Id.create(id));
 
-    const addressDetails =
-      await this.addressRepository.findDetailsByIds(addressIds);
+    const addressDetails = await this.addressRepository.findDetailsByIds(
+      addressIds,
+      Id.create(query.tenantId),
+    );
 
     if (!addressDetails || addressDetails.length === 0) {
       throw new NotFoundException(`No addresses found`);

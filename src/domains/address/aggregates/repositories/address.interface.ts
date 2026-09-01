@@ -2,7 +2,7 @@ import { Id, AddressType } from '../value-objects';
 import { Address } from '../entities';
 import { AddressDetailsDTO } from '@shared/dtos';
 
-export type Owner = { tenantId: Id } | { customerId: Id };
+export type Owner = { tenantId: Id; customerId?: Id };
 
 /**
  * Persistence contract for addresses scoped to exactly one tenant or customer.
@@ -70,5 +70,5 @@ export interface IAddressRepository {
    * @returns Promise that resolves to an array of AddressDetailsDTO
    * @throws {Error} When repository operation fails
    */
-  findDetailsByIds(ids: Id[]): Promise<AddressDetailsDTO[]>;
+  findDetailsByIds(ids: Id[], tenantId: Id): Promise<AddressDetailsDTO[]>;
 }

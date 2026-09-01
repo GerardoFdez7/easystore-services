@@ -1,10 +1,15 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { RemoveItemFromCartDto } from './remove-item-from-cart.dto';
-import { CartDTO, CartMapper } from '../../../mappers';
-import { Inject, NotFoundException } from '@nestjs/common';
+import { CartDTO } from '../../../mappers';
+import { Inject } from '@nestjs/common';
 import { ICartRepository } from '../../../../aggregates/repositories/cart.interface';
 import { Id } from '../../../../aggregates/value-objects';
 import { Cart } from '../../../../aggregates/entities/cart/cart.entity';
+import { ITenantCurrencyAdapter } from '../../../ports';
+import {
+  findTenantCartOrThrow,
+  persistCartMutation,
+} from '../../../shared/cart-command-helpers';
 
 @CommandHandler(RemoveItemFromCartDto)
 export class RemoveItemFromCartHandler
@@ -13,28 +18,25 @@ export class RemoveItemFromCartHandler
   constructor(
     @Inject('ICartRepository') private readonly cartRepository: ICartRepository,
     private readonly eventPublisher: EventPublisher,
+    @Inject('ITenantCurrencyAdapter')
+    private readonly tenantCurrencyAdapter: ITenantCurrencyAdapter,
   ) {}
 
   async execute(command: RemoveItemFromCartDto): Promise<CartDTO> {
     const variantId = Id.create(command.data.variantId);
-    const customerId = Id.create(command.customerId);
-
-    // Search cart
-    const cartFound =
-      await this.cartRepository.findCartByCustomerId(customerId);
-
-    if (!cartFound) throw new NotFoundException('Cart not found');
-
-    const cartWithEvents = this.eventPublisher.mergeObjectContext(
-      Cart.removeItem(cartFound, variantId),
+    const cartFound = await findTenantCartOrThrow(
+      this.cartRepository,
+      command.customerId,
+      command.tenantId,
     );
 
-    // Persist the cart to the repository
-    const cartUpdated = await this.cartRepository.update(cartWithEvents);
-
-    // Commit domain events
-    cartWithEvents.commit();
-
-    return CartMapper.toDto(cartUpdated);
+    return persistCartMutation(
+      cartFound,
+      (cart) => Cart.removeItem(cart, variantId),
+      this.eventPublisher,
+      this.cartRepository,
+      command.tenantId,
+      this.tenantCurrencyAdapter,
+    );
   }
 }

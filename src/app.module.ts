@@ -2,6 +2,7 @@ import { Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { TerminusModule } from '@nestjs/terminus';
+import { HealthController } from './infrastructure/monitoring/health.controller';
 import { GraphqlModule } from '@graphql/graphql.module';
 import { PostgresModule } from '@database/postgres.module';
 import MediaModule from '@media/media.module';
@@ -14,7 +15,7 @@ import { AddressDomain } from './domains/address/address.module';
 import { InventoryDomain } from './domains/inventory/inventory.module';
 import { CartDomain } from './domains/cart/cart.module';
 import { CustomerDomain } from './domains/customer/customer.module';
-import { HealthController } from './infrastructure/monitoring/health.controller';
+import { AnalyticsDomain } from './domains/analytics/analytics.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { HealthController } from './infrastructure/monitoring/health.controller'
     AddressDomain,
     InventoryDomain,
     CartDomain,
+    AnalyticsDomain,
   ],
   controllers: [HealthController],
   providers: [

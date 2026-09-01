@@ -165,6 +165,7 @@ describe('UpdateStockPerWarehouseHandler', () => {
         expect(updateSingleStockMock).toHaveBeenCalledWith(
           { value: 'stock-123' },
           { value: 'warehouse-123' },
+          { value: 'tenant-123' },
           baseStockData,
           {
             reason: 'Stock adjustment',
@@ -356,7 +357,7 @@ describe('UpdateStockPerWarehouseHandler', () => {
         const result = await handler.execute(completeCommand);
 
         // Verify all steps were called in correct order
-        expect(idCreateMock).toHaveBeenCalledTimes(4); // findById (2 calls) and updateSingleStock (2 calls)
+        expect(idCreateMock).toHaveBeenCalledTimes(5);
         expect(findByIdMock).toHaveBeenCalledTimes(1);
         expect(fromUpdateStockInWarehouseMock).toHaveBeenCalledTimes(1);
         expect(mergeObjectContextMock).toHaveBeenCalledTimes(1);

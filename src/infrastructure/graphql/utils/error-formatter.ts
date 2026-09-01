@@ -97,23 +97,11 @@ export function formatGraphqlError(
 
   if (originalError instanceof HttpException) {
     const classification = classifyHttpException(originalError);
-
-    if (classification.code === 'INTERNAL_SERVER_ERROR') {
-      graphqlLogger.error('Unexpected GraphQL HTTP failure');
-    }
-
     return toFormattedError(formattedError, classification);
   }
 
   if (originalError instanceof DomainError) {
     const classification = classifyDomainError(originalError);
-
-    if (classification.code === 'INTERNAL_SERVER_ERROR') {
-      graphqlLogger.error(
-        'Unexpected GraphQL domain or infrastructure failure',
-      );
-    }
-
     return toFormattedError(formattedError, classification);
   }
 

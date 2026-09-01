@@ -8,6 +8,7 @@ import { ICartRepository } from '../../../../../aggregates/repositories/cart.int
 import { CartMapper, CartDTO } from '../../../../mappers';
 import { Cart } from '../../../../../aggregates/entities/cart/cart.entity';
 import { CartItem } from '../../../../../aggregates/value-objects/cart-item.vo';
+import { IProductAdapter, ITenantCurrencyAdapter } from '../../../../ports';
 
 interface MockCart {
   commit: jest.Mock;
@@ -21,6 +22,8 @@ describe('AddItemToCartHandler', () => {
   let handler: AddItemToCartHandler;
   let cartRepository: jest.Mocked<ICartRepository>;
   let eventPublisher: jest.Mocked<EventPublisher>;
+  let productAdapter: jest.Mocked<IProductAdapter>;
+  let tenantCurrencyAdapter: jest.Mocked<ITenantCurrencyAdapter>;
   let mockCart: MockCart;
 
   let findCartByCustomerIdMock: jest.Mock;
@@ -41,6 +44,19 @@ describe('AddItemToCartHandler', () => {
       update: updateMock,
       getCartItemsCount: jest.fn(),
     } as unknown as jest.Mocked<ICartRepository>;
+
+    productAdapter = {
+      getVariantsDetails: jest.fn().mockResolvedValue([
+        {
+          variantId: '019a039e-fe37-7516-ab6d-b44cd5c58179',
+          price: 100,
+        },
+      ]),
+    } as unknown as jest.Mocked<IProductAdapter>;
+
+    tenantCurrencyAdapter = {
+      getCurrency: jest.fn().mockResolvedValue('USD'),
+    } as unknown as jest.Mocked<ITenantCurrencyAdapter>;
 
     mockCart = {
       commit: jest.fn(),
@@ -72,6 +88,7 @@ describe('AddItemToCartHandler', () => {
       id: '019a039e-fe32-747d-aba6-6f3d25bb2864',
       customerId: '019a039e-fe36-765d-96f1-fe92af9ab188',
       cartItems: [],
+      totalCart: { amount: '0', currency: 'USD' },
     } as CartDTO);
 
     const module: TestingModule = await Test.createTestingModule({
@@ -80,6 +97,14 @@ describe('AddItemToCartHandler', () => {
         {
           provide: 'ICartRepository',
           useValue: cartRepository,
+        },
+        {
+          provide: 'IProductAdapter',
+          useValue: productAdapter,
+        },
+        {
+          provide: 'ITenantCurrencyAdapter',
+          useValue: tenantCurrencyAdapter,
         },
         {
           provide: EventPublisher,
@@ -104,6 +129,7 @@ describe('AddItemToCartHandler', () => {
     const baseCommand: AddItemToCartDto = new AddItemToCartDto(
       baseItemData,
       '019a039e-fe37-7516-ab6d-c16428949f9f',
+      '019a039e-fe37-7516-ab6d-c16428949f9f',
     );
 
     describe('Cart retrieval and validation', () => {
@@ -115,6 +141,9 @@ describe('AddItemToCartHandler', () => {
         await handler.execute(baseCommand);
 
         expect(findCartByCustomerIdMock).toHaveBeenCalledWith(
+          expect.objectContaining({
+            getValue: expect.any(Function),
+          }),
           expect.objectContaining({
             getValue: expect.any(Function),
           }),
@@ -142,6 +171,7 @@ describe('AddItemToCartHandler', () => {
         const validCommand = new AddItemToCartDto(
           baseItemData,
           '019a039e-fe37-7516-ab6d-c79f752bad91',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
         findCartByCustomerIdMock.mockResolvedValue(mockCart);
         mergeObjectContextMock.mockReturnValue(mockCart as never);
@@ -153,7 +183,84 @@ describe('AddItemToCartHandler', () => {
           expect.objectContaining({
             getValue: expect.any(Function),
           }),
+          expect.objectContaining({
+            getValue: expect.any(Function),
+          }),
         );
+      });
+    });
+
+    describe('Variant validation', () => {
+      beforeEach(() => {
+        findCartByCustomerIdMock.mockResolvedValue(mockCart);
+        mergeObjectContextMock.mockReturnValue(mockCart as never);
+        updateMock.mockResolvedValue(mockCart);
+      });
+
+      it('should call productAdapter to validate variant details', async () => {
+        await handler.execute(baseCommand);
+
+        expect(productAdapter.getVariantsDetails).toHaveBeenCalledWith(
+          ['019a039e-fe37-7516-ab6d-b44cd5c58179'],
+          baseCommand.tenantId ?? '',
+        );
+      });
+
+      it('should throw NotFoundException when variant is not found', async () => {
+        productAdapter.getVariantsDetails.mockResolvedValue([]);
+
+        await expect(handler.execute(baseCommand)).rejects.toThrow(
+          NotFoundException,
+        );
+        await expect(handler.execute(baseCommand)).rejects.toThrow(
+          'Variant not found',
+        );
+      });
+
+      it('should throw NotFoundException when multiple variants returned', async () => {
+        productAdapter.getVariantsDetails.mockResolvedValue([
+          {
+            variantId: 'variant-1',
+            sku: 'sku-1',
+            firstAttribute: { key: 'size', value: 'M' },
+            productName: 'Product 1',
+            isArchived: false,
+            price: 100,
+          },
+          {
+            variantId: 'variant-2',
+            sku: 'sku-2',
+            firstAttribute: { key: 'size', value: 'L' },
+            productName: 'Product 2',
+            isArchived: false,
+            price: 200,
+          },
+        ]);
+
+        await expect(handler.execute(baseCommand)).rejects.toThrow(
+          NotFoundException,
+        );
+        await expect(handler.execute(baseCommand)).rejects.toThrow(
+          'Variant not found',
+        );
+      });
+
+      it('should proceed when exactly one variant is found', async () => {
+        productAdapter.getVariantsDetails.mockResolvedValue([
+          {
+            variantId: '019a039e-fe37-7516-ab6d-b44cd5c58179',
+            sku: 'sku-1',
+            firstAttribute: { key: 'size', value: 'M' },
+            productName: 'Product 1',
+            isArchived: false,
+            price: 100,
+          },
+        ]);
+
+        await handler.execute(baseCommand);
+
+        expect(cartItemCreateMock).toHaveBeenCalledTimes(1);
+        expect(updateMock).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -177,6 +284,7 @@ describe('AddItemToCartHandler', () => {
       it('should create cart item with null promotion when not provided', async () => {
         const commandWithoutPromotion = new AddItemToCartDto(
           { variantId: '019a039e-fe37-7516-ab6d-b44cd5c58179' },
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
           '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
@@ -214,6 +322,7 @@ describe('AddItemToCartHandler', () => {
             promotionId: '019a039e-fe37-7516-ab6d-cdd89150cf72',
           },
           '019a039e-fe37-7516-ab6d-d15dfec44424',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         await handler.execute(differentVariantCommand);
@@ -259,7 +368,14 @@ describe('AddItemToCartHandler', () => {
         await handler.execute(baseCommand);
 
         expect(updateMock).toHaveBeenCalledTimes(1);
-        expect(toDtoMock).toHaveBeenCalledWith(updatedCart);
+        expect(toDtoMock).toHaveBeenCalledWith(
+          updatedCart,
+          expect.arrayContaining([
+            expect.objectContaining({
+              variantId: '019a039e-fe37-7516-ab6d-b44cd5c58179',
+            }),
+          ]),
+        );
       });
 
       it('should propagate repository update errors', async () => {
@@ -311,7 +427,14 @@ describe('AddItemToCartHandler', () => {
       it('should convert cart to DTO', async () => {
         await handler.execute(baseCommand);
 
-        expect(toDtoMock).toHaveBeenCalledWith(mockCart);
+        expect(toDtoMock).toHaveBeenCalledWith(
+          mockCart,
+          expect.arrayContaining([
+            expect.objectContaining({
+              variantId: '019a039e-fe37-7516-ab6d-b44cd5c58179',
+            }),
+          ]),
+        );
       });
 
       it('should return the mapped DTO', async () => {
@@ -326,13 +449,13 @@ describe('AddItemToCartHandler', () => {
               promotionId: '019a039e-fe37-7516-ab6d-b9950da58d38',
             },
           ],
-          totalCart: 100,
+          totalCart: { amount: '100', currency: 'USD' },
         } as CartDTO;
         toDtoMock.mockReturnValue(expectedDto);
 
         const result = await handler.execute(baseCommand);
 
-        expect(result).toBe(expectedDto);
+        expect(result).toEqual(expectedDto);
       });
 
       it('should return DTO with correct structure', async () => {
@@ -414,6 +537,7 @@ describe('AddItemToCartHandler', () => {
             promotionId: '019a039e-fe38-7759-b843-f284e2d531d3',
           },
           '019a039e-fe38-7759-b843-f4d778645a78',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         await handler.execute(promotionCommand);
@@ -428,6 +552,7 @@ describe('AddItemToCartHandler', () => {
       it('should handle items without promotions correctly', async () => {
         const noPromotionCommand = new AddItemToCartDto(
           { variantId: '019a039e-fe38-7759-b843-f9246dfb0a41' },
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
           '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
@@ -447,10 +572,12 @@ describe('AddItemToCartHandler', () => {
             promotionId: '019a039e-fe38-7759-b844-03a2ddffb4c8',
           },
           '019a039e-fe38-7759-b844-0531f5ee8423',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
         const command2 = new AddItemToCartDto(
           { variantId: '019a039e-fe38-7759-b844-0b0695769397' },
           '019a039e-fe38-7759-b844-0531f5ee8423',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         await handler.execute(command1);
@@ -470,6 +597,7 @@ describe('AddItemToCartHandler', () => {
             promotionId: '019a039e-fe39-7a1c-8d2f-1e4b7c9a5f3d',
           },
           '019a039e-fe39-7a1c-8d2f-2f5c8d0b6e4a',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
         );
 
         const expectedDto: CartDTO = {
@@ -483,7 +611,7 @@ describe('AddItemToCartHandler', () => {
               promotionId: '019a039e-fe39-7a1c-8d2f-1e4b7c9a5f3d',
             },
           ],
-          totalCart: 150,
+          totalCart: { amount: '150', currency: 'USD' },
         } as CartDTO;
 
         findCartByCustomerIdMock.mockResolvedValue(mockCart);
@@ -510,7 +638,11 @@ describe('AddItemToCartHandler', () => {
           promotionId: '019a039e-fe39-7a1c-8d2f-5b8f1a3e9a7d',
         };
         const customerId = '019a039e-fe39-7a1c-8d2f-6c9a2b4f0b8e';
-        const command = new AddItemToCartDto(itemData, customerId);
+        const command = new AddItemToCartDto(
+          itemData,
+          customerId,
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
+        );
 
         findCartByCustomerIdMock.mockResolvedValue(mockCart);
         mergeObjectContextMock.mockReturnValue(mockCart as never);
@@ -525,7 +657,14 @@ describe('AddItemToCartHandler', () => {
           promotionId: itemData.promotionId,
         });
         expect(updateMock).toHaveBeenCalledWith(mockCart);
-        expect(toDtoMock).toHaveBeenCalledWith(mockCart);
+        expect(toDtoMock).toHaveBeenCalledWith(
+          mockCart,
+          expect.arrayContaining([
+            expect.objectContaining({
+              variantId: '019a039e-fe37-7516-ab6d-b44cd5c58179',
+            }),
+          ]),
+        );
       });
     });
   });

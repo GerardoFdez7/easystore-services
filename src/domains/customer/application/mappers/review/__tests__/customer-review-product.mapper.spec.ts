@@ -25,6 +25,7 @@ function createReview(id: string): CustomerReviewProduct {
     ratingCount: 5,
     comment: 'This is a great product.',
     customerId: '00000000-0000-4000-8000-000000000001',
+    tenantId: '00000000-0000-4000-8000-000000000003',
     variantId: '00000000-0000-4000-8000-000000000002',
     updatedAt: new Date('2026-01-01T00:00:00.000Z'),
   });

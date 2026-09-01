@@ -54,7 +54,9 @@ type AddressType {
   stateId: String!
 }
 
-"""Types of addresses"""
+"""
+Types of addresses
+"""
 enum AddressTypeEnum {
   BILLING
   SHIPPING
@@ -87,9 +89,8 @@ input AuthenticationInput {
 
 type Cart {
   cartItems: [CartItem!]!
-  customerId: ID!
   id: ID!
-  totalCart: Float!
+  totalCart: Money!
 }
 
 type CartItem {
@@ -154,13 +155,19 @@ input CreateCategoryInput {
 }
 
 input CreateCustomerReviewProductInput {
-  """Review comment"""
+  """
+  Review comment
+  """
   comment: String!
 
-  """Rating from 1.0 to 5.0"""
+  """
+  Rating from 1.0 to 5.0
+  """
   ratingCount: Float!
 
-  """Variant ID being reviewed"""
+  """
+  Variant ID being reviewed
+  """
   variantId: ID!
 }
 
@@ -392,7 +399,6 @@ type Customer {
   defaultShippingAddressId: ID
   id: ID!
   name: String!
-  tenantId: ID!
   updatedAt: DateTime
 }
 
@@ -403,7 +409,6 @@ type CustomerFirstAttribute {
 
 type CustomerReviewProduct {
   comment: String!
-  customerId: ID!
   id: ID!
   ratingCount: Float!
   updatedAt: DateTime!
@@ -412,7 +417,6 @@ type CustomerReviewProduct {
 
 type CustomerReviewProductWithVariant {
   comment: String!
-  customerId: ID!
   firstAttribute: CustomerFirstAttribute
   id: ID!
   isArchived: Boolean
@@ -424,13 +428,41 @@ type CustomerReviewProductWithVariant {
   variantId: ID!
 }
 
+type Dashboard {
+  ordersTimeline: [OrderTimeline!]!
+  recentOrders: [RecentOrder!]!
+  summary: DashboardSummary!
+  topProducts: [TopProduct!]!
+}
+
+type DashboardSummary {
+  averageOrderValue: Money!
+  cancelledOrders: Int!
+  cancelledRevenue: Money!
+  completedOrders: Int!
+  completedRevenue: Money!
+  confirmedOrders: Int!
+  processingOrders: Int!
+  shippedOrders: Int!
+  totalOrders: Int!
+  totalRevenue: Money!
+  uniqueCustomers: Int!
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
 
+"""
+An exact canonical decimal string without exponent notation, such as \"123.45\".
+"""
+scalar Decimal
+
 input DeleteCustomerReviewProductInput {
-  """Review ID to delete"""
+  """
+  Review ID to delete
+  """
   id: ID!
 }
 
@@ -481,6 +513,11 @@ type MediaAuthResponse {
   token: String!
 }
 
+type Money {
+  amount: Decimal!
+  currency: String!
+}
+
 enum MediaTypeEnum {
   IMAGE
   VIDEO
@@ -488,8 +525,15 @@ enum MediaTypeEnum {
 
 type Mutation {
   addItemToCart(input: AddItemToCartInput!): Cart!
-  addReviewProduct(input: CreateCustomerReviewProductInput!): CustomerReviewProduct!
-  addStockToWarehouse(input: AddStockToWarehouseInput!, reason: String, variantId: ID!, warehouseId: ID!): Warehouse!
+  addReviewProduct(
+    input: CreateCustomerReviewProductInput!
+  ): CustomerReviewProduct!
+  addStockToWarehouse(
+    input: AddStockToWarehouseInput!
+    reason: String
+    variantId: ID!
+    warehouseId: ID!
+  ): Warehouse!
   addVariantToWishList(input: WishListItemCreateInput!): Wishlist!
   archiveVariant(id: String!, productId: String!): Product!
   createAddress(input: CreateAddressInput!): AddressType!
@@ -508,8 +552,14 @@ type Mutation {
   register(input: AuthenticationInput!): AuthIdentity!
   removeItemFromCart(input: RemoveItemFromCartInput!): Cart!
   removeManyItemsFromCart(input: RemoveManyItemFromCartInput!): Cart!
-  removeManyVariantsFromWishList(input: WishListManyItemsInput!): WishListMultiStatus!
-  removeStockFromWarehouse(reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
+  removeManyVariantsFromWishList(
+    input: WishListManyItemsInput!
+  ): WishListMultiStatus!
+  removeStockFromWarehouse(
+    reason: String
+    stockId: ID!
+    warehouseId: ID!
+  ): Warehouse!
   removeVariant(id: String!, productId: String!): Product!
   removeVariantFromWishList(input: WishListItemDeleteInput!): Boolean!
   restoreProduct(id: String!): Product!
@@ -521,10 +571,23 @@ type Mutation {
   updateItemQty(input: UpdateItemQtyInput!): Cart!
   updatePassword(input: UpdatePasswordInput!): Response!
   updateProduct(id: String!, input: UpdateProductInput!): Product!
-  updateReviewProduct(input: UpdateCustomerReviewProductInput!): CustomerReviewProduct!
-  updateStockInWarehouse(input: UpdateStockInWarehouseInput!, reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
+  updateReviewProduct(
+    input: UpdateCustomerReviewProductInput!
+  ): CustomerReviewProduct!
+  updateStockInWarehouse(
+    input: UpdateStockInWarehouseInput!
+    reason: String
+    stockId: ID!
+    warehouseId: ID!
+  ): Warehouse!
   updateTenant(input: UpdateTenantInput!): Tenant!
   updateWarehouse(id: ID!, input: UpdateWarehouseInput!): Warehouse!
+}
+
+type OrderTimeline {
+  date: String!
+  ordersCount: Int!
+  revenue: Money!
 }
 
 type PaginatedAddressesType {
@@ -537,7 +600,7 @@ type PaginatedCart {
   cartItems: [CartItem!]!
   hasMore: Boolean!
   total: Int!
-  totalCart: Float!
+  totalCart: Money!
 }
 
 type PaginatedCategoriesType {
@@ -619,23 +682,89 @@ enum ProductSortBy {
 
 type Query {
   getAddressById(id: ID!): AddressType!
-  getAllAddresses(addressType: AddressTypeEnum, limit: Int, name: String, page: Int): PaginatedAddressesType!
-  getAllCategories(includeSubcategories: Boolean = true, limit: Int = 10, name: String, page: Int = 1, parentId: ID, sortBy: SortBy, sortOrder: SortOrder): PaginatedCategoriesType!
+  getAllAddresses(
+    addressType: AddressTypeEnum
+    limit: Int
+    name: String
+    page: Int
+  ): PaginatedAddressesType!
+  getAllCategories(
+    includeSubcategories: Boolean = true
+    limit: Int = 10
+    name: String
+    page: Int = 1
+    parentId: ID
+    sortBy: SortBy
+    sortOrder: SortOrder
+  ): PaginatedCategoriesType!
   getAllCountries: [CountryType!]!
-  getAllProducts(categoriesIds: [ID!], filterMode: ProductFilterMode = ALL, limit: Int = 25, name: String, page: Int = 1, sortBy: ProductSortBy, sortOrder: SortOrder, type: TypeEnum): PaginatedProductsType!
-  getAllStockMovements(createdById: ID, dateFrom: DateTime, dateTo: DateTime, includeDeleted: Boolean = false, limit: Int = 10, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID, warehouseId: ID!): PaginatedStockMovementsType!
-  getAllWarehouses(addressId: ID, includeAddresses: Boolean = false, limit: Int = 10, name: String, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, stockFilters: StockPerWarehouseFilterInput): PaginatedWarehousesType!
+  getAllProducts(
+    categoriesIds: [ID!]
+    filterMode: ProductFilterMode = ALL
+    limit: Int = 25
+    name: String
+    page: Int = 1
+    sortBy: ProductSortBy
+    sortOrder: SortOrder
+    type: TypeEnum
+  ): PaginatedProductsType!
+  getAllStockMovements(
+    createdById: ID
+    dateFrom: DateTime
+    dateTo: DateTime
+    includeDeleted: Boolean = false
+    limit: Int = 10
+    page: Int = 1
+    sortBy: SortBy
+    sortOrder: SortOrder
+    variantId: ID
+    warehouseId: ID!
+  ): PaginatedStockMovementsType!
+  getAllWarehouses(
+    addressId: ID
+    includeAddresses: Boolean = false
+    limit: Int = 10
+    name: String
+    page: Int = 1
+    sortBy: SortBy
+    sortOrder: SortOrder
+    stockFilters: StockPerWarehouseFilterInput
+  ): PaginatedWarehousesType!
   getCart(limit: Int = 10, page: Int = 1): PaginatedCart!
   getCategoryById(id: ID!): Category!
   getCustomerById: Customer!
-  getCustomerReviews(limit: Int = 25, page: Int = 1, reviewIds: [ID!] = []): PaginatedCustomerReviewProductWithVariant!
+  getCustomerReviews(
+    limit: Int = 25
+    page: Int = 1
+    reviewIds: [ID!] = []
+  ): PaginatedCustomerReviewProductWithVariant!
+
+  """
+  Get all dashboard  in a single query: summary, timeline, recent orders, and top products
+  """
+  getDashboard: Dashboard!
   getMediaUploadToken: MediaAuthResponse!
   getProductById(id: String!): Product!
   getStatesByCountryId(countryId: ID!): [StateType!]!
   getTenantById: Tenant!
   getWarehouseById(id: ID!, isArchived: Boolean): Warehouse!
-  getWishListItems(limit: Int = 10, name: String, page: Int = 1, sortBy: WishListSortBy, sortOrder: SortOrder): PaginatedWishlist!
+  getWishListItems(
+    limit: Int = 10
+    page: Int = 1
+    sortBy: WishListSortBy
+    sortOrder: SortOrder
+  ): PaginatedWishlist!
   validateToken: Response!
+}
+
+type RecentOrder {
+  customerName: String!
+  orderDate: DateTime!
+  orderId: ID!
+  orderNumber: String!
+  orderStatus: String!
+  orderTotal: Money!
+  shippingCity: String
 }
 
 input RemoveItemFromCartInput {
@@ -730,6 +859,19 @@ type Tenant {
   updatedAt: DateTime!
 }
 
+type TopProduct {
+  ordersCount: Int!
+  productBrand: String
+  productCover: String
+  productName: String!
+  totalQuantitySold: Int!
+  totalRevenue: Money!
+  variantCover: String
+  variantId: ID!
+  variantPrice: Money!
+  variantSku: String!
+}
+
 enum TypeEnum {
   DIGITAL
   PHYSICAL
@@ -764,13 +906,19 @@ input UpdateCustomerInput {
 }
 
 input UpdateCustomerReviewProductInput {
-  """Updated review comment"""
+  """
+  Updated review comment
+  """
   comment: String
 
-  """Review ID to update"""
+  """
+  Review ID to update
+  """
   id: ID!
 
-  """Updated rating from 1.0 to 5.0"""
+  """
+  Updated rating from 1.0 to 5.0
+  """
   ratingCount: Float
 }
 
@@ -921,7 +1069,6 @@ enum WishListSortBy {
 }
 
 type WishListWithVariant {
-  customerId: ID!
   firstAttribute: CustomerFirstAttribute
   id: ID!
   isArchived: Boolean
@@ -933,7 +1080,6 @@ type WishListWithVariant {
 }
 
 type Wishlist {
-  customerId: ID!
   id: ID!
   updatedAt: DateTime!
   variantId: ID!

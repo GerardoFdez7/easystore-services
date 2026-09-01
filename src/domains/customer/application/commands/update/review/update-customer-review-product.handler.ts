@@ -43,6 +43,7 @@ export class UpdateCustomerReviewProductHandler
     const existingReview = await this.reviewRepository.findById(
       reviewId,
       customerId,
+      tenantId,
     );
 
     if (!existingReview) {

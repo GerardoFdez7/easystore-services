@@ -6,6 +6,7 @@ import {
 
 interface PersistenceStockMovement {
   id: string;
+  tenantId: string;
   deltaQty: number;
   reason: string;
   createdById: string;
@@ -35,6 +36,7 @@ export class StockMovementMapper {
       persistenceStockMovement.reason,
       persistenceStockMovement.createdById,
       persistenceStockMovement.occurredAt,
+      persistenceStockMovement.tenantId,
     );
 
     // Store variantId in the domain object if provided
@@ -69,6 +71,7 @@ export class StockMovementMapper {
 
     return {
       id: stockMovement.getId().getValue(),
+      tenantId: stockMovement.getTenantId().getValue(),
       deltaQty: stockMovement.getDeltaQty(),
       reason: stockMovement.getReason().getValue(),
       warehouseId: warehouseId || '',

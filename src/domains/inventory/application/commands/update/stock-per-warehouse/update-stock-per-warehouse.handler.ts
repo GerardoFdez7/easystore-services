@@ -34,6 +34,7 @@ export class UpdateStockPerWarehouseHandler
     await this.warehouseRepository.updateSingleStock(
       Id.create(command.stockId),
       Id.create(command.warehouseId),
+      Id.create(command.tenantId),
       command.data,
       {
         reason: command.reason || 'Stock updated in this variant',

@@ -8,7 +8,12 @@ import { GetAddressesDetailsDTO } from '@address/application/queries';
 export class AddressAdapter implements IAddressAdapter {
   constructor(private queryBus: QueryBus) {}
 
-  async getAddressDetails(addressIds: string[]): Promise<AddressDetailsDTO[]> {
-    return this.queryBus.execute(new GetAddressesDetailsDTO(addressIds));
+  async getAddressDetails(
+    addressIds: string[],
+    tenantId: string,
+  ): Promise<AddressDetailsDTO[]> {
+    return this.queryBus.execute(
+      new GetAddressesDetailsDTO(addressIds, tenantId),
+    );
   }
 }

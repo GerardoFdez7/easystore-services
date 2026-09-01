@@ -9,6 +9,7 @@ export interface IMediaProps extends DomainEntityProps {
   mediaType: MediaType;
   productId?: Id;
   variantId?: Id;
+  tenantId: Id;
 }
 
 export class Media extends DomainEntity<IMediaProps> {
@@ -27,6 +28,7 @@ export class Media extends DomainEntity<IMediaProps> {
       mediaType: MediaType.create(props.mediaType),
       productId: props.productId ? Id.create(props.productId) : null,
       variantId: props.variantId ? Id.create(props.variantId) : null,
+      tenantId: Id.create(props.tenantId),
     };
 
     const media = new Media({
@@ -38,7 +40,7 @@ export class Media extends DomainEntity<IMediaProps> {
   }
 
   public update(
-    data: Partial<Omit<IMediaBase, 'productId' | 'variantId'>>,
+    data: Partial<Omit<IMediaBase, 'productId' | 'variantId' | 'tenantId'>>,
   ): void {
     if (data.url !== undefined) {
       this.props.url = MediaVO.create(data.url);

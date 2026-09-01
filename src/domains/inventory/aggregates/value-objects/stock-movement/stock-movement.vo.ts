@@ -2,6 +2,7 @@ import { Id, LongDescription } from '..';
 
 export type StockMovementProps = {
   id: Id;
+  tenantId: Id;
   deltaQty: number;
   reason: LongDescription;
   occurredAt: Date;
@@ -21,9 +22,11 @@ export class StockMovement {
     reason: string,
     createdById: string,
     occurredAt: Date,
+    tenantId: string,
   ): StockMovement {
     return new StockMovement({
       id: Id.generate(),
+      tenantId: Id.create(tenantId),
       deltaQty,
       reason: LongDescription.create(reason),
       occurredAt: occurredAt || new Date(),
@@ -47,6 +50,10 @@ export class StockMovement {
     return this.props.id;
   }
 
+  public getTenantId(): Id {
+    return this.props.tenantId;
+  }
+
   public getCreatedById(): string {
     return this.props.createdById;
   }
@@ -61,6 +68,7 @@ export class StockMovement {
 
   public getMovement(): {
     id: string;
+    tenantId: string;
     deltaQty: number;
     reason: string;
     occurredAt: Date;
@@ -68,6 +76,7 @@ export class StockMovement {
   } {
     return {
       id: this.props.id.getValue(),
+      tenantId: this.props.tenantId.getValue(),
       deltaQty: this.props.deltaQty,
       reason: this.props.reason.getValue(),
       occurredAt: this.props.occurredAt,
@@ -77,6 +86,7 @@ export class StockMovement {
 
   public equals(movement: StockMovement): boolean {
     return (
+      this.props.tenantId.equals(movement.props.tenantId) &&
       this.props.deltaQty === movement.props.deltaQty &&
       this.props.reason.equals(movement.props.reason) &&
       this.props.occurredAt.getTime() === movement.props.occurredAt.getTime() &&

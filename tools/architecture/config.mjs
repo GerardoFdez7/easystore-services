@@ -10,6 +10,7 @@ export const aggregateRoots = {
   payment: 'payment/payment.entity.ts',
   order: 'order/order.entity.ts',
   shipping: 'shipping/shipping.entity.ts',
+  analytics: 'dashboard/dashboard.entity.ts',
 };
 
 export const allowedAggregateDependencies = ['@nestjs/cqrs', 'zod', 'zod/v4'];

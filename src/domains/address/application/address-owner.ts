@@ -14,9 +14,10 @@ export function resolveAddressOwner(
     throw new Error('You must provide either tenantId or customerId');
   }
 
-  return tenantId
-    ? { tenantId: Id.create(tenantId) }
-    : { customerId: Id.create(customerId) };
+  return {
+    tenantId: Id.create(tenantId),
+    ...(customerId ? { customerId: Id.create(customerId) } : {}),
+  };
 }
 
 export async function findAddressOrThrow(

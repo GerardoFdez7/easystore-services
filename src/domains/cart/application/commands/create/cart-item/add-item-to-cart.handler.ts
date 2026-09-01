@@ -4,7 +4,12 @@ import { Inject, NotFoundException } from '@nestjs/common';
 import { ICartRepository } from '../../../../aggregates/repositories/cart.interface';
 import { CartDTO, CartMapper } from '../../../mappers';
 import { Cart } from '../../../../aggregates/entities/cart/cart.entity';
-import { CartItem, Id } from '../../../../aggregates/value-objects';
+import { CartItem } from '../../../../aggregates/value-objects';
+import { IProductAdapter, ITenantCurrencyAdapter } from '../../../ports';
+import {
+  findTenantCartOrThrow,
+  withTenantCurrency,
+} from '../../../shared/cart-command-helpers';
 
 @CommandHandler(AddItemToCartDto)
 export class AddItemToCartHandler implements ICommandHandler<AddItemToCartDto> {
@@ -12,16 +17,29 @@ export class AddItemToCartHandler implements ICommandHandler<AddItemToCartDto> {
     @Inject('ICartRepository')
     private readonly cartRepository: ICartRepository,
     private readonly eventPublisher: EventPublisher,
+    @Inject('IProductAdapter')
+    private readonly productAdapter: IProductAdapter,
+    @Inject('ITenantCurrencyAdapter')
+    private readonly tenantCurrencyAdapter: ITenantCurrencyAdapter,
   ) {}
 
   async execute(command: AddItemToCartDto): Promise<CartDTO> {
     const { variantId, promotionId } = command.data;
 
-    const cartFound = await this.cartRepository.findCartByCustomerId(
-      Id.create(command.customerId),
+    const cartFound = await findTenantCartOrThrow(
+      this.cartRepository,
+      command.customerId,
+      command.tenantId,
     );
 
-    if (!cartFound) throw new NotFoundException('Cart not found');
+    const variants = await this.productAdapter.getVariantsDetails(
+      [variantId],
+      command.tenantId,
+    );
+
+    if (variants.length !== 1) {
+      throw new NotFoundException('Variant not found');
+    }
 
     // Cart Item object
     const cartItem = CartItem.create({
@@ -40,6 +58,11 @@ export class AddItemToCartHandler implements ICommandHandler<AddItemToCartDto> {
     // Commit domain events
     cartWithEvents.commit();
 
-    return CartMapper.toDto(cartUpdated);
+    const dto = CartMapper.toDto(cartUpdated, variants);
+    return withTenantCurrency(
+      dto,
+      command.tenantId,
+      this.tenantCurrencyAdapter,
+    );
   }
 }
