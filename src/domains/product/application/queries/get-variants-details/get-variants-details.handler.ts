@@ -19,7 +19,7 @@ export class GetVariantsDetailsHandler
 
     const variants = await this.productRepository.findVariantsByIds(
       variantIds?.map((id) => Id.create(id)) || [],
-      tenantId ? Id.create(tenantId) : undefined,
+      Id.create(tenantId),
       search,
     );
 

@@ -1,6 +1,6 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { AddItemToCartDto } from './add-item-to-cart.dto';
-import { Inject, NotFoundException, Optional } from '@nestjs/common';
+import { Inject, NotFoundException } from '@nestjs/common';
 import { ICartRepository } from '../../../../aggregates/repositories/cart.interface';
 import { CartDTO, CartMapper } from '../../../mappers';
 import { Cart } from '../../../../aggregates/entities/cart/cart.entity';
@@ -17,12 +17,10 @@ export class AddItemToCartHandler implements ICommandHandler<AddItemToCartDto> {
     @Inject('ICartRepository')
     private readonly cartRepository: ICartRepository,
     private readonly eventPublisher: EventPublisher,
-    @Optional()
     @Inject('IProductAdapter')
-    private readonly productAdapter?: IProductAdapter,
-    @Optional()
+    private readonly productAdapter: IProductAdapter,
     @Inject('ITenantCurrencyAdapter')
-    private readonly tenantCurrencyAdapter?: ITenantCurrencyAdapter,
+    private readonly tenantCurrencyAdapter: ITenantCurrencyAdapter,
   ) {}
 
   async execute(command: AddItemToCartDto): Promise<CartDTO> {
@@ -31,17 +29,15 @@ export class AddItemToCartHandler implements ICommandHandler<AddItemToCartDto> {
     const cartFound = await findTenantCartOrThrow(
       this.cartRepository,
       command.customerId,
-      command.tenantId ?? '',
+      command.tenantId,
     );
 
-    const variants = this.productAdapter
-      ? await this.productAdapter.getVariantsDetails(
-          [variantId],
-          command.tenantId ?? '',
-        )
-      : undefined;
+    const variants = await this.productAdapter.getVariantsDetails(
+      [variantId],
+      command.tenantId,
+    );
 
-    if (variants && variants.length !== 1) {
+    if (variants.length !== 1) {
       throw new NotFoundException('Variant not found');
     }
 
@@ -62,9 +58,7 @@ export class AddItemToCartHandler implements ICommandHandler<AddItemToCartDto> {
     // Commit domain events
     cartWithEvents.commit();
 
-    const dto = variants
-      ? CartMapper.toDto(cartUpdated, variants)
-      : CartMapper.toDto(cartUpdated);
+    const dto = CartMapper.toDto(cartUpdated, variants);
     return withTenantCurrency(
       dto,
       command.tenantId,

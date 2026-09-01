@@ -8,6 +8,7 @@ import { ICartRepository } from '../../../../aggregates/repositories/cart.interf
 import { CartMapper, CartDTO } from '../../../mappers';
 import { Cart } from '../../../../aggregates/entities/cart/cart.entity';
 import { Id, Qty } from '../../../../aggregates/value-objects';
+import { ITenantCurrencyAdapter } from '../../../ports';
 
 interface MockCart {
   commit: jest.Mock;
@@ -21,6 +22,7 @@ describe('UpdateItemQuantityHandler', () => {
   let handler: UpdateItemQuantityHandler;
   let cartRepository: jest.Mocked<ICartRepository>;
   let eventPublisher: jest.Mocked<EventPublisher>;
+  let tenantCurrencyAdapter: jest.Mocked<ITenantCurrencyAdapter>;
   let mockCart: MockCart;
 
   let findCartByCustomerIdMock: jest.Mock;
@@ -61,6 +63,10 @@ describe('UpdateItemQuantityHandler', () => {
       mergeObjectContext: mergeObjectContextMock,
     } as unknown as jest.Mocked<EventPublisher>;
 
+    tenantCurrencyAdapter = {
+      getCurrency: jest.fn().mockResolvedValue('USD'),
+    } as unknown as jest.Mocked<ITenantCurrencyAdapter>;
+
     cartUpdateItemQuantityMock = jest
       .spyOn(Cart, 'updateItemQuantity')
       .mockReturnValue(mockCart as unknown as Cart);
@@ -76,7 +82,9 @@ describe('UpdateItemQuantityHandler', () => {
     toDtoMock = jest.spyOn(CartMapper, 'toDto').mockReturnValue({
       id: '550e8400-e29b-41d4-a716-446655440000',
       customerId: '550e8400-e29b-41d4-a716-446655440001',
+      tenantId: '550e8400-e29b-41d4-a716-446655440003',
       cartItems: [],
+      totalCart: 0,
     } as CartDTO);
 
     const module: TestingModule = await Test.createTestingModule({
@@ -89,6 +97,10 @@ describe('UpdateItemQuantityHandler', () => {
         {
           provide: EventPublisher,
           useValue: eventPublisher,
+        },
+        {
+          provide: 'ITenantCurrencyAdapter',
+          useValue: tenantCurrencyAdapter,
         },
       ],
     }).compile();
@@ -463,13 +475,13 @@ describe('UpdateItemQuantityHandler', () => {
           id: '550e8400-e29b-41d4-a716-446655440000',
           customerId: '550e8400-e29b-41d4-a716-446655440001',
           cartItems: [],
-          totalCart: 0,
+          totalCart: { amount: '0', currency: 'USD' },
         } as CartDTO;
         toDtoMock.mockReturnValue(expectedDto);
 
         const result = await handler.execute(baseCommand);
 
-        expect(result).toBe(expectedDto);
+        expect(result).toEqual(expectedDto);
       });
 
       it('should return DTO with correct structure', async () => {
@@ -492,7 +504,7 @@ describe('UpdateItemQuantityHandler', () => {
               qty: 3,
             },
           ],
-          totalCart: 75,
+          totalCart: { amount: '75', currency: 'USD' },
         } as CartDTO;
         toDtoMock.mockReturnValue(cartAfterUpdate);
 
@@ -826,7 +838,7 @@ describe('UpdateItemQuantityHandler', () => {
               qty: 8,
             },
           ],
-          totalCart: 200,
+          totalCart: { amount: '200', currency: 'USD' },
         } as CartDTO;
 
         const mockCustomerId = {

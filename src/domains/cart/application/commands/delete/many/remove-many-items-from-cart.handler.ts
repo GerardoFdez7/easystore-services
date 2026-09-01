@@ -7,7 +7,7 @@ import { Id } from '../../../../aggregates/value-objects';
 import { ICartRepository } from '../../../../aggregates/repositories/cart.interface';
 import { CartDTO } from '../../../mappers';
 import { ITenantCurrencyAdapter } from '../../../ports';
-import { Inject, Optional } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { RemoveManyItemsFromCartDto } from './remove-many-items-from-cart.dto';
 
@@ -19,9 +19,8 @@ export class RemoveManyItemsFromCartHandler
     @Inject('ICartRepository')
     private readonly cartRepository: ICartRepository,
     private readonly eventPublisher: EventPublisher,
-    @Optional()
     @Inject('ITenantCurrencyAdapter')
-    private readonly tenantCurrencyAdapter?: ITenantCurrencyAdapter,
+    private readonly tenantCurrencyAdapter: ITenantCurrencyAdapter,
   ) {}
 
   /**

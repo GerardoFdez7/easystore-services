@@ -350,6 +350,7 @@ model Warehouse {
   stockMovements     StockMovement[]
   stockPerWarehouses StockPerWarehouse[]
 
+  @@unique([id, tenantId])
   @@unique([tenantId, name])
   @@unique([tenantId, addressId])
   @@index([addressId])
@@ -390,11 +391,11 @@ model StockPerWarehouse {
   tenantId                   String
   deletedAt                  DateTime?
   stockMovements             StockMovement[]
-  variant                    Variant         @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  warehouse                  Warehouse       @relation(fields: [warehouseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  variant                    Variant         @relation(fields: [variantId, tenantId], references: [id, tenantId], onDelete: Cascade, onUpdate: Cascade)
+  warehouse                  Warehouse       @relation(fields: [warehouseId, tenantId], references: [id, tenantId], onDelete: Cascade, onUpdate: Cascade)
   tenant                     Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  @@unique([warehouseId, variantId])
+  @@unique([warehouseId, variantId, tenantId])
   @@index([variantId])
   @@index([tenantId])
   @@schema("inventory")
@@ -639,6 +640,7 @@ model Variant {
   product                Product                 @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   tenant                 Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+  @@unique([id, tenantId])
   @@unique([tenantId, sku])
   @@unique([tenantId, barcode])
   @@index([productId])

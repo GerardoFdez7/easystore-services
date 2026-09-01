@@ -23,10 +23,9 @@ export async function findTenantCartOrThrow(
 
 export async function withTenantCurrency(
   dto: CartDTO,
-  tenantId: string | undefined,
-  tenantCurrencyAdapter: ITenantCurrencyAdapter | undefined,
+  tenantId: string,
+  tenantCurrencyAdapter: ITenantCurrencyAdapter,
 ): Promise<CartDTO> {
-  if (!tenantCurrencyAdapter || !tenantId) return dto;
   const currency = await tenantCurrencyAdapter.getCurrency(tenantId);
   return {
     ...dto,
@@ -41,8 +40,8 @@ export async function withTenantCurrency(
 
 export function mapCartWithTenantCurrency(
   cart: Cart,
-  tenantId: string | undefined,
-  tenantCurrencyAdapter: ITenantCurrencyAdapter | undefined,
+  tenantId: string,
+  tenantCurrencyAdapter: ITenantCurrencyAdapter,
 ): Promise<CartDTO> {
   return withTenantCurrency(
     CartMapper.toDto(cart),
@@ -56,8 +55,8 @@ export async function persistCartMutation(
   mutate: (cart: Cart) => Cart,
   eventPublisher: EventPublisher,
   cartRepository: { update(cart: Cart): Promise<Cart> },
-  tenantId: string | undefined,
-  tenantCurrencyAdapter: ITenantCurrencyAdapter | undefined,
+  tenantId: string,
+  tenantCurrencyAdapter: ITenantCurrencyAdapter,
 ): Promise<CartDTO> {
   const cartWithEvents = eventPublisher.mergeObjectContext(mutate(cart));
   const cartUpdated = await cartRepository.update(cartWithEvents);

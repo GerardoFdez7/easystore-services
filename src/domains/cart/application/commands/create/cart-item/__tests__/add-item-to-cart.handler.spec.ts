@@ -8,6 +8,7 @@ import { ICartRepository } from '../../../../../aggregates/repositories/cart.int
 import { CartMapper, CartDTO } from '../../../../mappers';
 import { Cart } from '../../../../../aggregates/entities/cart/cart.entity';
 import { CartItem } from '../../../../../aggregates/value-objects/cart-item.vo';
+import { IProductAdapter, ITenantCurrencyAdapter } from '../../../../ports';
 
 interface MockCart {
   commit: jest.Mock;
@@ -21,6 +22,8 @@ describe('AddItemToCartHandler', () => {
   let handler: AddItemToCartHandler;
   let cartRepository: jest.Mocked<ICartRepository>;
   let eventPublisher: jest.Mocked<EventPublisher>;
+  let productAdapter: jest.Mocked<IProductAdapter>;
+  let tenantCurrencyAdapter: jest.Mocked<ITenantCurrencyAdapter>;
   let mockCart: MockCart;
 
   let findCartByCustomerIdMock: jest.Mock;
@@ -41,6 +44,19 @@ describe('AddItemToCartHandler', () => {
       update: updateMock,
       getCartItemsCount: jest.fn(),
     } as unknown as jest.Mocked<ICartRepository>;
+
+    productAdapter = {
+      getVariantsDetails: jest.fn().mockResolvedValue([
+        {
+          variantId: '019a039e-fe37-7516-ab6d-b44cd5c58179',
+          price: 100,
+        },
+      ]),
+    } as unknown as jest.Mocked<IProductAdapter>;
+
+    tenantCurrencyAdapter = {
+      getCurrency: jest.fn().mockResolvedValue('USD'),
+    } as unknown as jest.Mocked<ITenantCurrencyAdapter>;
 
     mockCart = {
       commit: jest.fn(),
@@ -72,6 +88,7 @@ describe('AddItemToCartHandler', () => {
       id: '019a039e-fe32-747d-aba6-6f3d25bb2864',
       customerId: '019a039e-fe36-765d-96f1-fe92af9ab188',
       cartItems: [],
+      totalCart: { amount: '0', currency: 'USD' },
     } as CartDTO);
 
     const module: TestingModule = await Test.createTestingModule({
@@ -80,6 +97,14 @@ describe('AddItemToCartHandler', () => {
         {
           provide: 'ICartRepository',
           useValue: cartRepository,
+        },
+        {
+          provide: 'IProductAdapter',
+          useValue: productAdapter,
+        },
+        {
+          provide: 'ITenantCurrencyAdapter',
+          useValue: tenantCurrencyAdapter,
         },
         {
           provide: EventPublisher,
@@ -162,6 +187,80 @@ describe('AddItemToCartHandler', () => {
             getValue: expect.any(Function),
           }),
         );
+      });
+    });
+
+    describe('Variant validation', () => {
+      beforeEach(() => {
+        findCartByCustomerIdMock.mockResolvedValue(mockCart);
+        mergeObjectContextMock.mockReturnValue(mockCart as never);
+        updateMock.mockResolvedValue(mockCart);
+      });
+
+      it('should call productAdapter to validate variant details', async () => {
+        await handler.execute(baseCommand);
+
+        expect(productAdapter.getVariantsDetails).toHaveBeenCalledWith(
+          ['019a039e-fe37-7516-ab6d-b44cd5c58179'],
+          baseCommand.tenantId ?? '',
+        );
+      });
+
+      it('should throw NotFoundException when variant is not found', async () => {
+        productAdapter.getVariantsDetails.mockResolvedValue([]);
+
+        await expect(handler.execute(baseCommand)).rejects.toThrow(
+          NotFoundException,
+        );
+        await expect(handler.execute(baseCommand)).rejects.toThrow(
+          'Variant not found',
+        );
+      });
+
+      it('should throw NotFoundException when multiple variants returned', async () => {
+        productAdapter.getVariantsDetails.mockResolvedValue([
+          {
+            variantId: 'variant-1',
+            sku: 'sku-1',
+            firstAttribute: { key: 'size', value: 'M' },
+            productName: 'Product 1',
+            isArchived: false,
+            price: 100,
+          },
+          {
+            variantId: 'variant-2',
+            sku: 'sku-2',
+            firstAttribute: { key: 'size', value: 'L' },
+            productName: 'Product 2',
+            isArchived: false,
+            price: 200,
+          },
+        ]);
+
+        await expect(handler.execute(baseCommand)).rejects.toThrow(
+          NotFoundException,
+        );
+        await expect(handler.execute(baseCommand)).rejects.toThrow(
+          'Variant not found',
+        );
+      });
+
+      it('should proceed when exactly one variant is found', async () => {
+        productAdapter.getVariantsDetails.mockResolvedValue([
+          {
+            variantId: '019a039e-fe37-7516-ab6d-b44cd5c58179',
+            sku: 'sku-1',
+            firstAttribute: { key: 'size', value: 'M' },
+            productName: 'Product 1',
+            isArchived: false,
+            price: 100,
+          },
+        ]);
+
+        await handler.execute(baseCommand);
+
+        expect(cartItemCreateMock).toHaveBeenCalledTimes(1);
+        expect(updateMock).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -269,7 +368,14 @@ describe('AddItemToCartHandler', () => {
         await handler.execute(baseCommand);
 
         expect(updateMock).toHaveBeenCalledTimes(1);
-        expect(toDtoMock).toHaveBeenCalledWith(updatedCart);
+        expect(toDtoMock).toHaveBeenCalledWith(
+          updatedCart,
+          expect.arrayContaining([
+            expect.objectContaining({
+              variantId: '019a039e-fe37-7516-ab6d-b44cd5c58179',
+            }),
+          ]),
+        );
       });
 
       it('should propagate repository update errors', async () => {
@@ -321,7 +427,14 @@ describe('AddItemToCartHandler', () => {
       it('should convert cart to DTO', async () => {
         await handler.execute(baseCommand);
 
-        expect(toDtoMock).toHaveBeenCalledWith(mockCart);
+        expect(toDtoMock).toHaveBeenCalledWith(
+          mockCart,
+          expect.arrayContaining([
+            expect.objectContaining({
+              variantId: '019a039e-fe37-7516-ab6d-b44cd5c58179',
+            }),
+          ]),
+        );
       });
 
       it('should return the mapped DTO', async () => {
@@ -336,13 +449,13 @@ describe('AddItemToCartHandler', () => {
               promotionId: '019a039e-fe37-7516-ab6d-b9950da58d38',
             },
           ],
-          totalCart: 100,
+          totalCart: { amount: '100', currency: 'USD' },
         } as CartDTO;
         toDtoMock.mockReturnValue(expectedDto);
 
         const result = await handler.execute(baseCommand);
 
-        expect(result).toBe(expectedDto);
+        expect(result).toEqual(expectedDto);
       });
 
       it('should return DTO with correct structure', async () => {
@@ -498,7 +611,7 @@ describe('AddItemToCartHandler', () => {
               promotionId: '019a039e-fe39-7a1c-8d2f-1e4b7c9a5f3d',
             },
           ],
-          totalCart: 150,
+          totalCart: { amount: '150', currency: 'USD' },
         } as CartDTO;
 
         findCartByCustomerIdMock.mockResolvedValue(mockCart);
@@ -544,7 +657,14 @@ describe('AddItemToCartHandler', () => {
           promotionId: itemData.promotionId,
         });
         expect(updateMock).toHaveBeenCalledWith(mockCart);
-        expect(toDtoMock).toHaveBeenCalledWith(mockCart);
+        expect(toDtoMock).toHaveBeenCalledWith(
+          mockCart,
+          expect.arrayContaining([
+            expect.objectContaining({
+              variantId: '019a039e-fe37-7516-ab6d-b44cd5c58179',
+            }),
+          ]),
+        );
       });
     });
   });

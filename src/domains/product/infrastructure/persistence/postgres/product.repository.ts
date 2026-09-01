@@ -777,7 +777,7 @@ export class ProductRepository implements IProductRepository {
 
   async findVariantsByIds(
     ids: Id[],
-    tenantId?: Id,
+    tenantId: Id,
     search?: string,
   ): Promise<
     Array<{
@@ -792,9 +792,9 @@ export class ProductRepository implements IProductRepository {
     const idValues = ids.map((id) => id.getValue());
 
     try {
-      const whereConditions: Prisma.VariantWhereInput = tenantId
-        ? { tenantId: tenantId.getValue() }
-        : {};
+      const whereConditions: Prisma.VariantWhereInput = {
+        tenantId: tenantId.getValue(),
+      };
 
       // If specific IDs are provided, filter by them
       if (idValues.length > 0) {

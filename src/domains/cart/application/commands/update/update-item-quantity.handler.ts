@@ -1,7 +1,7 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { UpdateItemQuantityDto } from './update-item-quantity.dto';
 import { CartDTO } from '../../mappers';
-import { Inject, Optional } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { ICartRepository } from '../../../aggregates/repositories/cart.interface';
 import { Id, Qty } from '../../../aggregates/value-objects';
 import { Cart } from '../../../aggregates/entities/cart/cart.entity';
@@ -19,9 +19,8 @@ export class UpdateItemQuantityHandler
     @Inject('ICartRepository')
     private readonly cartRepository: ICartRepository,
     private readonly eventPublisher: EventPublisher,
-    @Optional()
     @Inject('ITenantCurrencyAdapter')
-    private readonly tenantCurrencyAdapter?: ITenantCurrencyAdapter,
+    private readonly tenantCurrencyAdapter: ITenantCurrencyAdapter,
   ) {}
 
   async execute(command: UpdateItemQuantityDto): Promise<CartDTO> {
