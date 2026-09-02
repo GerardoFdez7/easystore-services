@@ -17,7 +17,7 @@ import {
   TenantCreatedHandler,
   TenantUpdatedHandler,
 } from './application/events';
-import TenantRepository from './infrastructure/persistence/postgres/tenant.repository';
+import TenantRepository from './infrastructure/postgres/tenant.repository';
 import TenantResolver from './presentation/graphql/tenant.resolver';
 
 // Command handlers

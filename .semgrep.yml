@@ -89,7 +89,7 @@ rules:
       - pattern: import { $...BEFORE, Entity, $...AFTER } from "$SOURCE"
       - metavariable-regex:
           metavariable: $SOURCE
-          regex: ^(?!@shared/entity\.base$).+
+          regex: ^(?!@shared/aggregates/entities/entity\.base$).+
 
   - id: ddd.entity-must-extend-entity
     message: Aggregate roots must extend Entity<TProps>.

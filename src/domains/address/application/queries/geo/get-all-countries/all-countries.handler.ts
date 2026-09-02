@@ -1,5 +1,5 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import CountryRepository from '../../../../infrastructure/persistence/postgres/country.repository';
+import CountryRepository from '../../../../infrastructure/postgres/country.repository';
 import { GetAllCountriesDTO } from './all-countries.dto';
 import { Country } from '.prisma/postgres';
 

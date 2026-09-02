@@ -2,15 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { PostgreService } from '@database/postgres.service';
 import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
 import { Id } from '@shared/aggregates/value-objects';
-import { IDashboard } from '../../../aggregates/entities';
-import { IAnalyticsRepository } from '../../../aggregates/repositories';
+import { IDashboard } from '../../aggregates/entities';
+import { IAnalyticsRepository } from '../../aggregates/repositories';
 import {
   DashboardMapper,
   RawDashboardSummary,
   RawOrderTimeline,
   RawRecentOrder,
   RawTopProduct,
-} from '../../../application/mappers';
+} from '../../application/mappers';
 
 @Injectable()
 export class AnalyticsRepository implements IAnalyticsRepository {

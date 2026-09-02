@@ -46,9 +46,8 @@ src/domains/<domain>/
 │   └── queries/index.ts
 ├── infrastructure/
 │   ├── adapters/index.ts              # optional, paired with ports
-│   └── persistence/
-│       ├── postgres/
-│       └── mappers/index.ts           # optional when persistence mappers exist
+│   ├── postgres/
+│   └── mappers/index.ts               # optional when persistence mappers exist
 ├── presentation/graphql/
 │   ├── <domain>.resolver.ts
 │   └── types/index.ts
@@ -151,7 +150,7 @@ Inspect these rather than copying snippets blindly:
 - mapper and port: `inventory/application/mappers/warehouse` and
   `inventory/application/ports/address.port.ts`;
 - adapter and repository: `inventory/infrastructure/adapters/address.adapter.ts` and
-  `inventory/infrastructure/persistence/postgres/warehouse.repository.ts`;
+  `inventory/infrastructure/postgres/warehouse.repository.ts`;
 - GraphQL and composition: `inventory/presentation/graphql` and
   `inventory/inventory.module.ts`.
 

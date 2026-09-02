@@ -3,13 +3,13 @@ import { PostgreService } from '@database/postgres.service';
 import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
 import { Prisma, Address as prismaAddress } from '.prisma/postgres';
 import { ResourceNotFoundError } from '@shared/infrastructure/postgres/errors';
-import { Address, IAddressType } from '../../../aggregates/entities';
+import { Address, IAddressType } from '../../aggregates/entities';
 import {
   IAddressRepository,
   Owner,
-} from '../../../aggregates/repositories/address.interface';
-import { AddressMapper } from '../../../application/mappers';
-import { Id, AddressType } from '../../../aggregates/value-objects';
+} from '../../aggregates/repositories/address.interface';
+import { AddressMapper } from '../../application/mappers';
+import { Id, AddressType } from '../../aggregates/value-objects';
 import { AddressDetailsDTO } from '@shared/application/dtos';
 
 @Injectable()

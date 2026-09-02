@@ -7,10 +7,10 @@ import {
   UniqueConstraintViolationError,
 } from '@shared/infrastructure/postgres/errors';
 import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
-import { AuthenticationMapper } from '../../../application/mappers';
-import { AuthIdentity, IAuthIdentityType } from '../../../aggregates/entities';
-import { IAuthRepository } from '../../../aggregates/repositories/authentication.interface';
-import { Id, Email, AccountType } from '../../../aggregates/value-objects';
+import { AuthenticationMapper } from '../../application/mappers';
+import { AuthIdentity, IAuthIdentityType } from '../../aggregates/entities';
+import { IAuthRepository } from '../../aggregates/repositories/authentication.interface';
+import { Id, Email, AccountType } from '../../aggregates/value-objects';
 
 @Injectable()
 export class AuthenticationRepository implements IAuthRepository {

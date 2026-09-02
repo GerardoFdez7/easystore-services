@@ -9,10 +9,10 @@ import {
   DatabaseOperationError,
   ResourceNotFoundError,
 } from '@shared/infrastructure/postgres/errors';
-import { Category, ICategoryType } from '../../../aggregates/entities';
-import { CategoryMapper } from '../../../application/mappers';
-import { Id, SortBy, SortOrder } from '../../../aggregates/value-objects';
-import ICategoryRepository from '../../../aggregates/repositories/category.interface';
+import { Category, ICategoryType } from '../../aggregates/entities';
+import { CategoryMapper } from '../../application/mappers';
+import { Id, SortBy, SortOrder } from '../../aggregates/value-objects';
+import ICategoryRepository from '../../aggregates/repositories/category.interface';
 
 const categoryRelations = Prisma.validator<Prisma.CategoryInclude>()({
   subCategories: {

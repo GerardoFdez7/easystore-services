@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PostgreService } from '@database/postgres.service';
-import { IEmployeeRepository } from '../../../aggregates/repositories/employee.interface';
-import { Id } from '../../../aggregates/value-objects';
+import { IEmployeeRepository } from '../../aggregates/repositories/employee.interface';
+import { Id } from '../../aggregates/value-objects';
 
 @Injectable()
 export class EmployeeRepository implements IEmployeeRepository {

@@ -29,7 +29,7 @@ import {
   VariantArchivedHandler,
   VariantRestoredHandler,
 } from './application/events';
-import { ProductRepository } from './infrastructure/persistence/postgres/product.repository';
+import { ProductRepository } from './infrastructure/postgres/product.repository';
 import { ProductResolver } from './presentation/graphql/product.resolver';
 import CategoryAdapter from './infrastructure/adapters/category.adapter';
 

@@ -24,8 +24,8 @@ export const specializedMutationDtos = {
 };
 
 export const persistenceRepositoryContractExceptions = {
-  'address/infrastructure/persistence/postgres/country.repository.ts':
+  'address/infrastructure/postgres/country.repository.ts':
     'Read-only geographic reference-data repository; it is not an aggregate repository.',
-  'address/infrastructure/persistence/postgres/state.repository.ts':
+  'address/infrastructure/postgres/state.repository.ts':
     'Read-only geographic reference-data repository; it is not an aggregate repository.',
 };

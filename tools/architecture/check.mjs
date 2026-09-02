@@ -26,7 +26,7 @@ const requiredDomainDirectories = [
   'application/events',
   'application/mappers',
   'application/queries',
-  'infrastructure/persistence/postgres',
+  'infrastructure/postgres',
   'presentation/graphql',
   'presentation/graphql/types',
 ];
@@ -494,7 +494,7 @@ function validateInfrastructureLayer(domainRoot) {
     }
   }
 
-  const postgresRoot = join(infrastructureRoot, 'persistence', 'postgres');
+  const postgresRoot = join(infrastructureRoot, 'postgres');
   if (existsSync(postgresRoot)) {
     for (const repositoryFile of walk(postgresRoot).filter((file) =>
       file.endsWith('.repository.ts'),

@@ -31,7 +31,7 @@ import {
   CustomerRepository,
   CustomerReviewProductRepository,
   WishListRepository,
-} from './infrastructure/persistence/postgres';
+} from './infrastructure/postgres';
 import { CustomerResolver } from './presentation/graphql/customer.resolver';
 
 const CommandHandlers = [

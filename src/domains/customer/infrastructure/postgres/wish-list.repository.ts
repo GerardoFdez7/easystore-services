@@ -3,9 +3,9 @@ import { PostgreService } from '@database/postgres.service';
 import { ResourceNotFoundError } from '@shared/infrastructure/postgres/errors';
 import { Id } from '@shared/aggregates/value-objects';
 import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
-import { IWishListRepository } from '../../../aggregates/repositories/wish-list.interface';
-import { WishListItem } from '../../../aggregates/value-objects';
-import { WishListMapper } from '../../../application/mappers';
+import { IWishListRepository } from '../../aggregates/repositories/wish-list.interface';
+import { WishListItem } from '../../aggregates/value-objects';
+import { WishListMapper } from '../../application/mappers';
 
 @Injectable()
 export class WishListRepository implements IWishListRepository {

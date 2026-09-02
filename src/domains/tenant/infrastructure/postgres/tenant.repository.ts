@@ -2,12 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { PostgreService } from '@database/postgres.service';
 import { ResourceNotFoundError } from '@shared/infrastructure/postgres/errors';
 import { Id } from '@shared/aggregates/value-objects';
-import { TenantMapper } from '../../../application/mappers';
-import { Tenant, ITenantType } from '../../../aggregates/entities';
+import { TenantMapper } from '../../application/mappers';
+import { Tenant, ITenantType } from '../../aggregates/entities';
 import { Tenant as PrismaTenant } from '.prisma/postgres';
-import { ITenantRepository } from '../../../aggregates/repositories/tenant.interface';
+import { ITenantRepository } from '../../aggregates/repositories/tenant.interface';
 import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
-import { Domain } from '../../../aggregates/value-objects/index';
+import { Domain } from '../../aggregates/value-objects/index';
 
 @Injectable()
 export default class TenantRepository implements ITenantRepository {

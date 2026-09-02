@@ -19,7 +19,7 @@ import {
   CategoryDeletedHandler,
   CategoryUpdatedHandler,
 } from './application/events';
-import CategoryRepository from './infrastructure/persistence/postgres/category.repository';
+import CategoryRepository from './infrastructure/postgres/category.repository';
 import CategoryResolver from './presentation/graphql/category.resolver';
 
 const CommandHandlers = [

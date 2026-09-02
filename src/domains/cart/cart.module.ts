@@ -16,7 +16,7 @@ import {
   ItemQuantityUpdatedHandler,
 } from './application/events';
 import { CartResolver } from './presentation/graphql/cart.resolver';
-import { CartRepository } from './infrastructure/persistence/postgres/cart.repository';
+import { CartRepository } from './infrastructure/postgres/cart.repository';
 import {
   ProductAdapter,
   TenantCurrencyAdapter,

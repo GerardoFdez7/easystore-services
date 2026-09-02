@@ -28,7 +28,7 @@ import {
 import {
   WarehouseRepository,
   StockMovementRepository,
-} from './infrastructure/persistence/postgres';
+} from './infrastructure/postgres';
 import InventoryResolver from './presentation/graphql/inventory.resolver';
 import { ProductAdapter, AddressAdapter } from './infrastructure/adapters';
 

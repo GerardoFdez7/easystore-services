@@ -2,14 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { Prisma, StockMovement as PrismaStockMovement } from '.prisma/postgres';
 import { PostgreService } from '@database/postgres.service';
 import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
-import { IStockMovementRepository } from '../../../aggregates/repositories';
+import { IStockMovementRepository } from '../../aggregates/repositories';
 import {
   Id,
   SortBy,
   SortOrder,
   StockMovement,
-} from '../../../aggregates/value-objects';
-import { StockMovementMapper } from '../../../application/mappers';
+} from '../../aggregates/value-objects';
+import { StockMovementMapper } from '../../application/mappers';
 
 @Injectable()
 export default class StockMovementRepository

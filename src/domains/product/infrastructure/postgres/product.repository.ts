@@ -16,8 +16,8 @@ import {
   ForeignKeyConstraintViolationError,
   DatabaseOperationError,
 } from '@shared/infrastructure/postgres/errors';
-import { Product, IProductType } from '../../../aggregates/entities';
-import { IProductRepository } from '../../../aggregates/repositories/product.interface';
+import { Product, IProductType } from '../../aggregates/entities';
+import { IProductRepository } from '../../aggregates/repositories/product.interface';
 import {
   ProductMapper,
   ProductDTO,
@@ -27,7 +27,7 @@ import {
   SustainabilityDTO,
   WarrantyDTO,
   InstallmentPaymentDTO,
-} from '../../../application/mappers';
+} from '../../application/mappers';
 import {
   Id,
   Type,
@@ -35,7 +35,7 @@ import {
   SortOrder,
   ProductFilterMode,
   ProductFilterModeEnum,
-} from '../../../aggregates/value-objects';
+} from '../../aggregates/value-objects';
 
 const productRelations = Prisma.validator<Prisma.ProductInclude>()({
   media: true,

@@ -6,10 +6,10 @@ import {
 } from '.prisma/postgres';
 import { ResourceNotFoundError } from '@shared/infrastructure/postgres/errors';
 import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
-import { Cart } from '../../../aggregates/entities/cart/cart.entity';
-import { CartItem, Id } from '../../../aggregates/value-objects';
-import { ICartRepository } from '../../../aggregates/repositories/cart.interface';
-import { CartMapper } from '../../../application/mappers/cart/cart.mapper';
+import { Cart } from '../../aggregates/entities/cart/cart.entity';
+import { CartItem, Id } from '../../aggregates/value-objects';
+import { ICartRepository } from '../../aggregates/repositories/cart.interface';
+import { CartMapper } from '../../application/mappers/cart/cart.mapper';
 
 @Injectable()
 export class CartRepository implements ICartRepository {

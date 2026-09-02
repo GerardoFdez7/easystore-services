@@ -29,7 +29,7 @@ import {
 import {
   AuthenticationRepository,
   EmployeeRepository,
-} from './infrastructure/persistence/postgres';
+} from './infrastructure/postgres';
 import { CustomerAdapter, TenantAdapter } from './infrastructure/adapters';
 import AuthGuard from './infrastructure/guard/auth.guard';
 import { JwtStrategy } from './infrastructure/strategies/jwt/jwt.strategy';

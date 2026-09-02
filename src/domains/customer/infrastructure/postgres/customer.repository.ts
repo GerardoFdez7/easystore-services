@@ -3,9 +3,9 @@ import { PostgreService } from '@database/postgres.service';
 import { UniqueConstraintViolationError } from '@shared/infrastructure/postgres/errors';
 import { Id } from '@shared/aggregates/value-objects';
 import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
-import { ICustomerRepository } from '../../../aggregates/repositories';
-import { Customer } from '../../../aggregates/entities/';
-import { CustomerMapper } from '../../../application/mappers/';
+import { ICustomerRepository } from '../../aggregates/repositories';
+import { Customer } from '../../aggregates/entities/';
+import { CustomerMapper } from '../../application/mappers/';
 
 @Injectable()
 export class CustomerRepository implements ICustomerRepository {

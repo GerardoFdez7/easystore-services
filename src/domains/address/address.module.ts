@@ -23,9 +23,9 @@ import {
   AddressDeletedHandler,
   AddressUpdatedHandler,
 } from './application/events';
-import AddressRepository from './infrastructure/persistence/postgres/address.repository';
-import CountryRepository from './infrastructure/persistence/postgres/country.repository';
-import StateRepository from './infrastructure/persistence/postgres/state.repository';
+import AddressRepository from './infrastructure/postgres/address.repository';
+import CountryRepository from './infrastructure/postgres/country.repository';
+import StateRepository from './infrastructure/postgres/state.repository';
 import AddressResolver from './presentation/graphql/address.resolver';
 
 const CommandHanldlers = [
