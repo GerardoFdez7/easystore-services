@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PostgreService } from '@database/postgres.service';
-import { handlePrismaDatabaseError } from '@utils/prisma-error-utils';
-import { Id } from '@shared/value-objects';
+import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
+import { Id } from '@shared/aggregates/value-objects';
 import { IDashboard } from '../../../aggregates/entities';
 import { IAnalyticsRepository } from '../../../aggregates/repositories';
 import {

@@ -1,4 +1,7 @@
-import { DomainEntity, DomainEntityProps } from '@shared/domain-entity.base';
+import {
+  DomainEntity,
+  DomainEntityProps,
+} from '@shared/aggregates/entities/domain-entity.base';
 import { IProductCategoriesBase } from '../';
 import { Id } from '../../value-objects';
 

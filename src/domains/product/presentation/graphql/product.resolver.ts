@@ -6,8 +6,8 @@ import {
   Query,
   registerEnumType,
 } from '@nestjs/graphql';
-import { optionalArg, pageArg } from '@common/graphql/argument-options';
-import { CurrentUser, JwtPayload } from '@common/decorators';
+import { optionalArg, pageArg } from '@shared/presentation/graphql/';
+import { CurrentUser, JwtPayload } from '@shared/presentation/decorators';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   ProductType,

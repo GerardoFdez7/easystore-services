@@ -1,7 +1,7 @@
 import { HttpException, Logger } from '@nestjs/common';
 import { unwrapResolverError } from '@apollo/server/errors';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
-import { DomainError } from '@shared/errors';
+import { DomainError } from '@shared/infrastructure/postgres/errors';
 
 interface PublicErrorClassification {
   code: string;

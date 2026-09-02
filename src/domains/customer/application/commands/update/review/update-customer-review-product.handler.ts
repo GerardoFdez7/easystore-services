@@ -4,7 +4,7 @@ import { CustomerReviewProductDTO } from '../../../mappers/review/customer-revie
 import { Inject, NotFoundException } from '@nestjs/common';
 import { ICustomerRepository } from '../../../../aggregates/repositories/customer.interface';
 import { ICustomerReviewProductRepository } from '../../../../aggregates/repositories/customer-review-product.interface';
-import { Id } from '@shared/value-objects';
+import { Id } from '@shared/aggregates/value-objects';
 import { Customer } from '../../../../aggregates/entities';
 import { CustomerReviewProductMapper } from '../../../mappers/review/customer-review-product.mapper';
 

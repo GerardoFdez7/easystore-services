@@ -14,7 +14,10 @@ import {
   extractTokenFromCookies,
   isTokenBlacklisted,
 } from '../strategies/jwt/jwt.handler';
-import { IsPublicKey, IsAuthenticatedKey } from '../../../../common/decorators';
+import {
+  IsPublicKey,
+  IsAuthenticatedKey,
+} from '../../../shared/presentation/decorators';
 
 interface RequestWithUser extends Request {
   user?: JwtPayload;

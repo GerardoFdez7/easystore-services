@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PostgreService } from '@database/postgres.service';
-import { handlePrismaDatabaseError } from '@utils/prisma-error-utils';
+import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
 import { Prisma, Address as prismaAddress } from '.prisma/postgres';
-import { ResourceNotFoundError } from '@shared/errors';
+import { ResourceNotFoundError } from '@shared/infrastructure/postgres/errors';
 import { Address, IAddressType } from '../../../aggregates/entities';
 import {
   IAddressRepository,
@@ -10,7 +10,7 @@ import {
 } from '../../../aggregates/repositories/address.interface';
 import { AddressMapper } from '../../../application/mappers';
 import { Id, AddressType } from '../../../aggregates/value-objects';
-import { AddressDetailsDTO } from '@shared/dtos';
+import { AddressDetailsDTO } from '@shared/application/dtos';
 
 @Injectable()
 export default class AddressRepository implements IAddressRepository {

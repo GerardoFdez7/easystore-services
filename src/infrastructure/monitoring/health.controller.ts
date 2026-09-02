@@ -4,7 +4,7 @@ import {
   HealthCheckResult,
   HealthCheckService,
 } from '@nestjs/terminus';
-import { Public } from '@common/decorators';
+import { Public } from '@shared/presentation/decorators';
 
 @Controller('health')
 export class HealthController {

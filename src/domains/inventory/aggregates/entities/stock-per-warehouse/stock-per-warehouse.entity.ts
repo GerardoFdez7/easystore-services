@@ -1,4 +1,7 @@
-import { DomainEntity, DomainEntityProps } from '@shared/domain-entity.base';
+import {
+  DomainEntity,
+  DomainEntityProps,
+} from '@shared/aggregates/entities/domain-entity.base';
 import { IStockPerWarehouseBase } from '../';
 import {
   QtyAvailable,

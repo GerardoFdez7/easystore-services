@@ -1,4 +1,4 @@
-import { Mapper } from './mapper';
+import { Mapper } from '../../application/mappers/mapper';
 
 export interface DomainEntityProps {
   [key: string]: unknown;

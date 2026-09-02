@@ -3,9 +3,12 @@ import { PostgreService } from '@database/postgres.service';
 import {
   executeDatabaseOperation,
   handlePrismaDatabaseError,
-} from '@utils/prisma-error-utils';
+} from '@shared/infrastructure/postgres/prisma-error-utils';
 import { Prisma, Category as PrismaCategory } from '.prisma/postgres';
-import { DatabaseOperationError, ResourceNotFoundError } from '@shared/errors';
+import {
+  DatabaseOperationError,
+  ResourceNotFoundError,
+} from '@shared/infrastructure/postgres/errors';
 import { Category, ICategoryType } from '../../../aggregates/entities';
 import { CategoryMapper } from '../../../application/mappers';
 import { Id, SortBy, SortOrder } from '../../../aggregates/value-objects';

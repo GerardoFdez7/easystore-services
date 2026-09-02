@@ -14,7 +14,10 @@ import {
   ISBN,
 } from '../../value-objects';
 import { IVariantBase, Media, InstallmentPayment, Warranty } from '../';
-import { DomainEntity, DomainEntityProps } from '@shared/domain-entity.base';
+import {
+  DomainEntity,
+  DomainEntityProps,
+} from '@shared/aggregates/entities/domain-entity.base';
 
 // Props for the Variant entity, using Value Objects
 export interface IVariantProps extends DomainEntityProps {

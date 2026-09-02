@@ -1,6 +1,6 @@
 import { Id, AddressType } from '../value-objects';
 import { Address } from '../entities';
-import { AddressDetailsDTO } from '@shared/dtos';
+import { AddressDetailsDTO } from '@shared/application/dtos';
 
 export type Owner = { tenantId: Id; customerId?: Id };
 

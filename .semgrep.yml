@@ -73,7 +73,7 @@ rules:
           regex: ^(?!(?:\.|@shared/|@nestjs/cqrs$|zod(?:/v4)?$)).+
 
   - id: ddd.entity-base-import-must-be-direct
-    message: Aggregate roots must import Entity and EntityProps directly from @shared/entity.base.
+    message: Aggregate roots must import Entity and EntityProps directly from @shared/aggregates/entities/entity.base.
     severity: ERROR
     languages: [typescript]
     paths:

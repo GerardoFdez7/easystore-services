@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { Id } from '@shared/value-objects';
+import { Id } from '@shared/aggregates/value-objects';
 import { FindWishlistItemsDto } from './find-wish-list-items.dto';
 import { IWishListRepository } from '../../../../aggregates/repositories/wish-list.interface';
 import { IProductAdapter } from '../../../ports';
@@ -10,7 +10,7 @@ import {
 } from '../../../mappers/wish-list/wish-list.dto';
 import { WishListMapper } from '../../../mappers/wish-list/wish-list.mapper';
 import { enrichWithVariantDetails } from '../../../shared/enrich-with-variant-details';
-import { SortOrder } from '@shared/value-objects';
+import { SortOrder } from '@shared/aggregates/value-objects';
 import { WishListSortBy } from './find-wish-list-items.dto';
 
 @QueryHandler(FindWishlistItemsDto)

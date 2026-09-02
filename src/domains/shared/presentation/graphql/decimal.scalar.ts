@@ -1,6 +1,6 @@
 import { CustomScalar, Scalar } from '@nestjs/graphql';
 import { GraphQLError, Kind, ValueNode } from 'graphql';
-import { Money } from '@shared/value-objects';
+import { Money } from '@shared/aggregates/value-objects';
 
 /** Exact decimal scalar serialized as a canonical JSON string. */
 @Scalar('Decimal', () => String)

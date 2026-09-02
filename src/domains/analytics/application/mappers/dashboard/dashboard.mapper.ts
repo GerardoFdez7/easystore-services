@@ -5,7 +5,7 @@ import {
   IRecentOrder,
   ITopProduct,
 } from '../../../aggregates/entities';
-import { IMoney, Money } from '@shared/value-objects';
+import { IMoney, Money } from '@shared/aggregates/value-objects';
 import { DashboardDTO } from './dashboard.dto';
 
 interface DecimalLike {

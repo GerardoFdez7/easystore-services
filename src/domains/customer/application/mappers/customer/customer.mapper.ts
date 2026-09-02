@@ -4,7 +4,7 @@ import {
   Customer,
   ICustomerProps,
 } from '../../../aggregates/entities';
-import { Id, Name } from '@shared/value-objects';
+import { Id, Name } from '@shared/aggregates/value-objects';
 import { CustomerDTO, PaginatedCustomersDTO } from './customer.dto';
 
 /**

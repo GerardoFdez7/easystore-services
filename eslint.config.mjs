@@ -143,12 +143,22 @@ const eslintConfig = [
   },
   {
     files: [
-      'src/domains/shared/domain-entity.base.ts',
-      'src/domains/shared/entity.base.ts',
+      'src/domains/shared/aggregates/entities/domain-entity.base.ts',
+      'src/domains/shared/aggregates/entities/entity.base.ts',
     ],
     rules: {
       // These generic, type-constrained accessors only read aggregate-owned props.
       'security/detect-object-injection': 'off',
+    },
+  },
+  {
+    files: [
+      'src/infrastructure/database/seeders/development.seed.ts',
+      'src/infrastructure/database/seeders/production.seed.ts',
+    ],
+    rules: {
+      // Seeder paths are resolved from the repository's controlled seed directories.
+      'security/detect-non-literal-fs-filename': 'off',
     },
   },
   {

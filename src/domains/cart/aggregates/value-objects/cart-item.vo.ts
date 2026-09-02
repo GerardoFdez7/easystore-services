@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Id } from '@shared/value-objects';
+import { Id } from '@shared/aggregates/value-objects';
 import { Qty } from './qty.vo';
 
 const cartItemSchema = z.object({

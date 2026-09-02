@@ -1,6 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { Id } from '@shared/value-objects';
+import { Id } from '@shared/aggregates/value-objects';
 import { ICustomerRepository } from '../../../../../aggregates/repositories';
 import {
   CustomerIdentityDTO,

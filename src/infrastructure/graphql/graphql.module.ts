@@ -7,7 +7,7 @@ import { Request, Response } from 'express';
 import { join } from 'path';
 import { formatGraphqlError } from './utils/error-formatter';
 import { createOperationLimitRule } from './utils/validation-rules';
-import { DecimalScalar } from '@common/graphql/decimal.scalar';
+import { DecimalScalar } from '@shared/presentation/graphql/';
 
 const operationLimitRule = createOperationLimitRule({
   maxDepth: 10,

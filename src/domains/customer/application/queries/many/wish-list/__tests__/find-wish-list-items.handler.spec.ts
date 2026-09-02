@@ -5,7 +5,7 @@ import { IWishListRepository } from '../../../../../aggregates/repositories/wish
 import { IProductAdapter } from '../../../../ports';
 import { WishListItem } from '../../../../../aggregates/value-objects';
 import { PaginatedWishlistDTO } from '../../../../mappers/wish-list/wish-list.dto';
-import { SortOrder } from '@shared/value-objects';
+import { SortOrder } from '@shared/aggregates/value-objects';
 import { WishListSortBy } from '../find-wish-list-items.dto';
 
 describe('FindWishListItemsHandler', () => {

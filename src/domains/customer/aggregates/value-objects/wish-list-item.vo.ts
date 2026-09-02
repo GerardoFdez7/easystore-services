@@ -1,4 +1,4 @@
-import { Id } from '@shared/value-objects';
+import { Id } from '@shared/aggregates/value-objects';
 import { z } from 'zod/v4';
 
 const wishListItemSchema = z.object({

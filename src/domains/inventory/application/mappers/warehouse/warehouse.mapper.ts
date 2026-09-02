@@ -8,7 +8,7 @@ import {
 import { Name } from '../../../aggregates/value-objects';
 import { WarehouseDTO, PaginatedWarehousesDTO } from './warehouse.dto';
 import { StockPerWarehouseMapper } from '../stock-per-warehouse/stock-per-warehouse.mapper';
-import { Id } from '@shared/value-objects';
+import { Id } from '@shared/aggregates/value-objects';
 
 /**
  * Centralized mapper for Warehouse domain entity to DTO conversion for queries and vice versa for commands.

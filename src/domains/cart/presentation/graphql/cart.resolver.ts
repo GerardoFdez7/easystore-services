@@ -1,7 +1,7 @@
 import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CurrentUser, JwtPayload } from '@common/decorators';
-import { PaginationArgs } from '@common/graphql/pagination.args';
+import { CurrentUser, JwtPayload } from '@shared/presentation/decorators';
+import { PaginationArgs } from '@shared/presentation/graphql/';
 import {
   CartType,
   PaginatedCartType,

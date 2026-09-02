@@ -1,5 +1,8 @@
 import { Id, Media as MediaVO, Position, MediaType } from '../../value-objects';
-import { DomainEntity, DomainEntityProps } from '@shared/domain-entity.base';
+import {
+  DomainEntity,
+  DomainEntityProps,
+} from '@shared/aggregates/entities/domain-entity.base';
 import { IMediaBase } from '../';
 
 export interface IMediaProps extends DomainEntityProps {

@@ -1,4 +1,4 @@
-import { AddressDetailsDTO } from '@shared/dtos/address-details.dto';
+import { AddressDetailsDTO } from '@shared/application/dtos/address-details.dto';
 
 /**
  * Address-query capability required by the Inventory application layer.

@@ -1,4 +1,4 @@
-import { VariantDetailsDTO } from '@shared/dtos';
+import { VariantDetailsDTO } from '@shared/application/dtos';
 
 /**
  * Product-query capability required by the Inventory application layer.

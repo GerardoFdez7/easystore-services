@@ -3,7 +3,7 @@ import { GetCategoriesByIdsDTO } from './categories-by-ids.dto';
 import { Inject } from '@nestjs/common';
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
 import { Id } from '../../../../aggregates/value-objects';
-import { CategoryDTO } from '@shared/dtos';
+import { CategoryDTO } from '@shared/application/dtos';
 
 @QueryHandler(GetCategoriesByIdsDTO)
 export class GetCategoriesByIdsHandler

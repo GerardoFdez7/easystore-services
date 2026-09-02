@@ -1,5 +1,5 @@
 import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
-import { MoneyType } from '@common/graphql/money.types';
+import { MoneyType } from '@shared/presentation/graphql/';
 import { DashboardDTO } from '../../../application/mappers/dashboard/dashboard.dto';
 
 @ObjectType('DashboardSummary')

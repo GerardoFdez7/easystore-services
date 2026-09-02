@@ -1,4 +1,4 @@
-import { SortOrder } from '@shared/value-objects';
+import { SortOrder } from '@shared/aggregates/value-objects';
 
 export enum WishListSortBy {
   ADDED_AT = 'addedAt',

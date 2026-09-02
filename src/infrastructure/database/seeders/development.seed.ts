@@ -28,9 +28,9 @@ import {
   Name,
   PhoneNumber,
   ShortDescription,
-} from '../../../domains/shared/value-objects';
-import { LongDescription } from '../../../domains/shared/value-objects/long-description.vo';
-import { Media } from '../../../domains/shared/value-objects/media.vo';
+} from '../../../domains/shared/aggregates/value-objects';
+import { LongDescription } from '../../../domains/shared/aggregates/value-objects/long-description.vo';
+import { Media } from '../../../domains/shared/aggregates/value-objects/media.vo';
 import {
   Currency,
   Domain,

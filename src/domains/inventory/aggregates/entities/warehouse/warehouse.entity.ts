@@ -1,6 +1,6 @@
 import { IWarehouseBase, StockPerWarehouse, IStockPerWarehouseBase } from '../';
-import { Entity, EntityProps } from '@shared/entity.base';
-import { ResourceNotFoundError } from '@shared/errors';
+import { Entity, EntityProps } from '@shared/aggregates/entities/entity.base';
+import { ResourceNotFoundError } from '@shared/infrastructure/postgres/errors';
 import { Id, Name } from '../../value-objects';
 import {
   WarehouseCreatedEvent,

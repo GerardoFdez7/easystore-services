@@ -3,7 +3,7 @@ import { GetCartByCustomerIdDTO } from './get-cart-by-customer-id.dto';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { ICartRepository } from '../../../aggregates/repositories/cart.interface';
 import { CartDTO, CartMapper } from '../../mappers';
-import { Id, IMoney, Money } from '@shared/value-objects';
+import { Id, IMoney, Money } from '@shared/aggregates/value-objects';
 import { IProductAdapter, ITenantCurrencyAdapter } from '../../ports';
 
 export interface PaginatedCartDTO {

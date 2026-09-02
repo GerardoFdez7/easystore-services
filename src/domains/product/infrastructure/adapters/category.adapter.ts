@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import { ICategoryAdapter } from '../../application/ports';
-import { CategoryDTO } from '@shared/dtos';
+import { CategoryDTO } from '@shared/application/dtos';
 import { GetCategoriesByIdsDTO } from '@category/application/queries';
 import { Id } from '../../aggregates/value-objects';
 

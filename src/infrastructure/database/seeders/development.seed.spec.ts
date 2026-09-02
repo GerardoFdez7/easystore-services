@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { Id } from '../../../domains/shared/value-objects';
+import { Id } from '../../../domains/shared/aggregates/value-objects';
 import {
   createDevelopmentFixtureIds,
   developmentSeedAccounts,

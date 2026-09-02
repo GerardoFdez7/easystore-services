@@ -1,4 +1,4 @@
-import { CategoryDTO } from '@shared/dtos';
+import { CategoryDTO } from '@shared/application/dtos';
 import { Id } from '../../aggregates/value-objects';
 
 /**

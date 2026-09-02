@@ -1,6 +1,6 @@
 import { ObjectType, Field, ID, Int, InputType } from '@nestjs/graphql';
 import { StockPerWarehouseType } from './';
-import { SortOrder } from '@shared/value-objects';
+import { SortOrder } from '@shared/aggregates/value-objects';
 
 @ObjectType('Warehouse')
 export class WarehouseType {

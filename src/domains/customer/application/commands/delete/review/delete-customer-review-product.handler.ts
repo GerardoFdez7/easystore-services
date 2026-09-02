@@ -3,7 +3,7 @@ import { DeleteCustomerReviewProductDto } from './delete-customer-review-product
 import { ICustomerReviewProductRepository } from '../../../../aggregates/repositories/customer-review-product.interface';
 import { ICustomerRepository } from '../../../../aggregates/repositories/customer.interface';
 import { Inject, NotFoundException } from '@nestjs/common';
-import { Id } from '@shared/value-objects';
+import { Id } from '@shared/aggregates/value-objects';
 import { Customer } from '../../../../aggregates/entities';
 import { findCustomerOrThrow } from '../../../shared/find-customer-or-throw';
 

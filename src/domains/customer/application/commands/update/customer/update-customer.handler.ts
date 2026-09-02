@@ -3,7 +3,7 @@ import { UpdateCustomerDto } from './update-customer.dto';
 import { CustomerMapper } from '../../../mappers';
 import { CustomerDTO } from '../../../mappers';
 import { ICustomerRepository } from '../../../../aggregates/repositories/customer.interface';
-import { Id } from '@shared/value-objects';
+import { Id } from '@shared/aggregates/value-objects';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { Customer } from '../../../../aggregates/entities';
 

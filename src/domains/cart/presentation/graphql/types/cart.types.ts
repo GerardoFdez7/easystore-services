@@ -1,4 +1,4 @@
-import { MoneyType } from '@common/graphql/money.types';
+import { MoneyType } from '@shared/presentation/graphql/';
 import { ObjectType, Field, ID, Int, Float, InputType } from '@nestjs/graphql';
 
 @ObjectType('FirstAttribute')

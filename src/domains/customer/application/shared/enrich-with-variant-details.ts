@@ -1,4 +1,4 @@
-import { VariantDetailsDTO } from '@shared/dtos';
+import { VariantDetailsDTO } from '@shared/application/dtos';
 
 type VariantEnriched<T> = T & Omit<VariantDetailsDTO, 'variantId'>;
 

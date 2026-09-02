@@ -1,5 +1,8 @@
 import { Id, Months, MediumDescription } from '../../value-objects';
-import { DomainEntity, DomainEntityProps } from '@shared/domain-entity.base';
+import {
+  DomainEntity,
+  DomainEntityProps,
+} from '@shared/aggregates/entities/domain-entity.base';
 import { IWarrantyBase } from '../';
 
 export interface IWarrantyProps extends DomainEntityProps {

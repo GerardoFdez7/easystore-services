@@ -1,7 +1,7 @@
 import { Resolver, Mutation, Query, Args, Context } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Request, Response } from 'express';
-import { Public } from '@common/decorators';
+import { Public } from '@shared/presentation/decorators';
 import {
   setTokenCookies,
   clearTokenCookies,

@@ -7,7 +7,7 @@ export interface CartDTO {
   customerId: string;
   tenantId: string;
   cartItems: CartItemDTO[];
-  totalCart: number | import('@shared/value-objects').IMoney;
+  totalCart: number | import('@shared/aggregates/value-objects').IMoney;
 }
 
 /**

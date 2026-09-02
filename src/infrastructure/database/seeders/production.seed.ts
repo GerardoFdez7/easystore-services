@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { ConfigService } from '@nestjs/config';
 import { CustomLoggerService } from '../../../config/logger';
-import { Id } from '../../../domains/shared/value-objects';
+import { Id } from '../../../domains/shared/aggregates/value-objects';
 import { PostgreService } from '../postgres.service';
 
 const logger = new CustomLoggerService();

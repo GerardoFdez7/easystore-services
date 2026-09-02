@@ -1,5 +1,5 @@
-import { Entity, EntityProps } from '@shared/entity.base';
-import { Id } from '@shared/value-objects';
+import { Entity, EntityProps } from '@shared/aggregates/entities/entity.base';
+import { Id } from '@shared/aggregates/value-objects';
 import { IDashboardBase } from './dashboard.attributes';
 
 export interface IDashboardProps extends EntityProps, IDashboardBase {

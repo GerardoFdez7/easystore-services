@@ -102,7 +102,8 @@ function targetsPresentationLayer(file, specifier) {
     const target = resolve(dirname(file), specifier);
     return (
       [...target.split(sep)].includes('presentation') &&
-      isInside(target, domainsRoot)
+      isInside(target, domainsRoot) &&
+      !isInside(target, join(domainsRoot, 'shared'))
     );
   }
 
@@ -783,7 +784,7 @@ function validateEntity(entityFile, entitiesRoot, isAggregateRoot) {
   const barrelFile = join(entitiesRoot, 'index.ts');
   const hasEntityBaseImport = [
     ...source.matchAll(
-      /import\s*{([^}]*)}\s*from\s*['"]@shared\/entity\.base['"]/g,
+      /import\s*{([^}]*)}\s*from\s*['"]@shared\/aggregates\/entities\/entity\.base['"]/g,
     ),
   ].some((match) => {
     const imports = match[1].split(',').map((name) => name.trim());
@@ -791,7 +792,7 @@ function validateEntity(entityFile, entitiesRoot, isAggregateRoot) {
   });
   const hasDomainEntityBaseImport = [
     ...source.matchAll(
-      /import\s*{([^}]*)}\s*from\s*['"]@shared\/domain-entity\.base['"]/g,
+      /import\s*{([^}]*)}\s*from\s*['"]@shared\/aggregates\/entities\/domain-entity\.base['"]/g,
     ),
   ].some((match) => {
     const imports = match[1].split(',').map((name) => name.trim());
@@ -804,7 +805,7 @@ function validateEntity(entityFile, entitiesRoot, isAggregateRoot) {
     if (!hasEntityBaseImport) {
       report(
         entityFile,
-        'aggregate root must import Entity and EntityProps directly from @shared/entity.base',
+        'aggregate root must import Entity and EntityProps directly from @shared/aggregates/entities/entity.base',
       );
     }
 
@@ -815,7 +816,7 @@ function validateEntity(entityFile, entitiesRoot, isAggregateRoot) {
     if (!hasDomainEntityBaseImport) {
       report(
         entityFile,
-        'nested entity must import DomainEntity and DomainEntityProps directly from @shared/domain-entity.base',
+        'nested entity must import DomainEntity and DomainEntityProps directly from @shared/aggregates/entities/domain-entity.base',
       );
     }
 

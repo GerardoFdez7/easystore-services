@@ -85,9 +85,9 @@ as `.entity.ts`, `.attributes.ts`, `.event.ts`, `.interface.ts`, `.vo.ts`, `.dto
   adding a domain; do not rely on the structural checker as a reason to leave Semgrep
   coverage stale.
 - An aggregate root directly imports `Entity` and `EntityProps` from
-  `@shared/entity.base` and extends `Entity<Props>`.
+  `@shared/aggregates/entities/entity.base` and extends `Entity<Props>`.
 - A nested entity directly imports `DomainEntity` and `DomainEntityProps` from
-  `@shared/domain-entity.base` and extends `DomainEntity<Props>`.
+  `@shared/aggregates/entities/domain-entity.base` and extends `DomainEntity<Props>`.
 - Every entity has a private constructor, `static create`, `static reconstitute`, a
   sibling attributes interface, and explicit barrel exports.
 - Attributes expose a reusable name containing `Base` and a complete name ending in

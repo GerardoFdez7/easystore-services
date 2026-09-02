@@ -1,7 +1,7 @@
 import { Query, Resolver } from '@nestjs/graphql';
 import MediaService from '../media.service';
 import { MediaAuthResponse } from './types/media.dto';
-import { CurrentUser, JwtPayload } from '@common/decorators';
+import { CurrentUser, JwtPayload } from '@shared/presentation/decorators';
 
 @Resolver()
 export default class MediaResolver {

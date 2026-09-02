@@ -13,7 +13,7 @@ import {
   SerialNumbers,
 } from '../../../aggregates/value-objects';
 import { StockPerWarehouseDTO } from './stock-per-warehouse.dto';
-import { Id } from '@shared/value-objects';
+import { Id } from '@shared/aggregates/value-objects';
 
 /**
  * Centralized mapper for StockPerWarehouse domain entity to DTO conversion for queries and vice versa for commands.

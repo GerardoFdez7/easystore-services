@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { IAddressAdapter } from '../../application/ports';
-import { AddressDetailsDTO } from '@shared/dtos';
+import { AddressDetailsDTO } from '@shared/application/dtos';
 import { QueryBus } from '@nestjs/cqrs';
 import { GetAddressesDetailsDTO } from '@address/application/queries';
 

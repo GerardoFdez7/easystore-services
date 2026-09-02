@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import ImageKit from 'imagekit';
-import { JwtPayload } from '@common/decorators';
+import { JwtPayload } from '@shared/presentation/decorators';
 
 @Injectable()
 export default class MediaService {

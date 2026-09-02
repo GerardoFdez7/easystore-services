@@ -1,5 +1,5 @@
 import { Warehouse, IStockPerWarehouseBase } from '../entities';
-import { Id, SortBy, SortOrder } from '@shared/value-objects';
+import { Id, SortBy, SortOrder } from '@shared/aggregates/value-objects';
 
 /**
  * Repository interface for Warehouse aggregate operations.

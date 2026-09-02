@@ -1,4 +1,4 @@
-import { Id } from '@shared/value-objects';
+import { Id } from '@shared/aggregates/value-objects';
 import { IDashboard } from '../entities';
 
 /** Read-only analytics retrieval. */

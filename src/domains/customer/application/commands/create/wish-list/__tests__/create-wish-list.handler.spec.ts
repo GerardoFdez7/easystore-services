@@ -6,7 +6,7 @@ import { IWishListRepository } from '../../../../../aggregates/repositories/wish
 import { ICustomerRepository } from '../../../../../aggregates/repositories/customer.interface';
 import { Customer } from '../../../../../aggregates/entities';
 import { WishListDTO, WishListMapper } from '../../../../mappers';
-import { Id } from '@shared/value-objects';
+import { Id } from '@shared/aggregates/value-objects';
 import { BadRequestException } from '@nestjs/common';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

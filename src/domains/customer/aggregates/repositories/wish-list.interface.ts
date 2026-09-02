@@ -1,4 +1,4 @@
-import { Id } from '@shared/value-objects';
+import { Id } from '@shared/aggregates/value-objects';
 import { WishListItem } from '../value-objects';
 
 /** Durable operations required for customer-owned wish-list items. */

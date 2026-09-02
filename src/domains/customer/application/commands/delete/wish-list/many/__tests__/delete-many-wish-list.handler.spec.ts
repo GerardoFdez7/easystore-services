@@ -5,7 +5,7 @@ import { DeleteManyWishListDto } from '../delete-many-wish-list.dto';
 import { IWishListRepository } from '../../../../../../aggregates/repositories/wish-list.interface';
 import { ICustomerRepository } from '../../../../../../aggregates/repositories/customer.interface';
 import { Customer } from '../../../../../../aggregates/entities';
-import { Id } from '@shared/value-objects';
+import { Id } from '@shared/aggregates/value-objects';
 import { NotFoundException } from '@nestjs/common';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */

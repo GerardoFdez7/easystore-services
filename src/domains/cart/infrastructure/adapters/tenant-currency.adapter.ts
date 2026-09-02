@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
-import { Currency, CurrencyCodes } from '@shared/value-objects';
+import { Currency, CurrencyCodes } from '@shared/aggregates/value-objects';
 import { GetTenantByIdDTO } from '../../../tenant/application/queries';
 import { ITenantCurrencyAdapter } from '../../application/ports';
 

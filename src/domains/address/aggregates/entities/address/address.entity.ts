@@ -1,4 +1,4 @@
-import { Entity, EntityProps } from '@shared/entity.base';
+import { Entity, EntityProps } from '@shared/aggregates/entities/entity.base';
 import { IAddressBase } from '../';
 import {
   AddressCreatedEvent,

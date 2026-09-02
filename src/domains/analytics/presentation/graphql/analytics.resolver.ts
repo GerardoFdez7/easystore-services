@@ -1,7 +1,7 @@
 import { Query, Resolver } from '@nestjs/graphql';
 import { ForbiddenException } from '@nestjs/common';
-import { CurrentUser, JwtPayload } from '@common/decorators';
-import { Id } from '@shared/value-objects';
+import { CurrentUser, JwtPayload } from '@shared/presentation/decorators';
+import { Id } from '@shared/aggregates/value-objects';
 import {
   GetDashboardDTO,
   GetDashboardHandler,

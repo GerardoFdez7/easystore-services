@@ -1,5 +1,8 @@
 import { Id, Months, InterestRate } from '../../value-objects';
-import { DomainEntity, DomainEntityProps } from '@shared/domain-entity.base';
+import {
+  DomainEntity,
+  DomainEntityProps,
+} from '@shared/aggregates/entities/domain-entity.base';
 import { IInstallmentPaymentBase } from '../';
 
 export interface IInstallmentPaymentProps extends DomainEntityProps {

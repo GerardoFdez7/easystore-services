@@ -1,4 +1,4 @@
-import { Id, LongDescription } from '@shared/value-objects';
+import { Id, LongDescription } from '@shared/aggregates/value-objects';
 import { z } from 'zod/v4';
 
 const customerReviewProductSchema = z.object({

@@ -1,5 +1,5 @@
 import { AggregateRoot } from '@nestjs/cqrs';
-import { Mapper } from './mapper';
+import { Mapper } from '../../application/mappers/mapper';
 
 // Type for entity constructor
 export type EntityConstructor<

@@ -1,5 +1,5 @@
 import { Resolver, Mutation, Args, ID, Query, Int } from '@nestjs/graphql';
-import { CurrentUser, JwtPayload } from '@common/decorators';
+import { CurrentUser, JwtPayload } from '@shared/presentation/decorators';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   AddressType,

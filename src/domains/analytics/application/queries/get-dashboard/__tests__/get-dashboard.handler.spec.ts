@@ -3,8 +3,8 @@ import { Decimal } from '@prisma/client/runtime/library';
 import { IDashboard } from '../../../../aggregates/entities';
 import { IAnalyticsRepository } from '../../../../aggregates/repositories';
 import { DashboardMapper } from '../../../../application/mappers';
-import { DecimalScalar } from '@common/graphql/decimal.scalar';
-import { CurrencyCodes, Id } from '@shared/value-objects';
+import { DecimalScalar } from '@shared/presentation/graphql/';
+import { CurrencyCodes, Id } from '@shared/aggregates/value-objects';
 import { GetDashboardDTO } from '../get-dashboard.dto';
 import { GetDashboardHandler } from '../get-dashboard.handler';
 

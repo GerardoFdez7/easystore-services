@@ -1,6 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
 import { EventPublisher } from '@nestjs/cqrs';
-import { Money } from '@shared/value-objects';
+import { Money } from '@shared/aggregates/value-objects';
 import { Cart } from '../../aggregates/entities/cart/cart.entity';
 import { Id } from '../../aggregates/value-objects';
 import { CartDTO, CartMapper } from '../mappers';

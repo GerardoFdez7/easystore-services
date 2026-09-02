@@ -5,4 +5,4 @@ export {
   ShortDescription,
   SortBy,
   SortOrder,
-} from '@shared/value-objects';
+} from '@shared/aggregates/value-objects';

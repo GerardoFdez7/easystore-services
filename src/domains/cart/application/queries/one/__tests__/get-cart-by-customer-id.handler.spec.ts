@@ -1,5 +1,5 @@
-import { ResourceNotFoundError } from '@shared/errors';
-import { CurrencyCodes, Id } from '@shared/value-objects';
+import { ResourceNotFoundError } from '@shared/infrastructure/postgres/errors';
+import { CurrencyCodes, Id } from '@shared/aggregates/value-objects';
 import { Cart } from '../../../../aggregates/entities/cart/cart.entity';
 import { ICartRepository } from '../../../../aggregates/repositories/cart.interface';
 import { IProductAdapter, ITenantCurrencyAdapter } from '../../../ports';

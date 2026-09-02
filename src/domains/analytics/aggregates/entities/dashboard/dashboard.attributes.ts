@@ -1,4 +1,4 @@
-import { IMoney } from '@shared/value-objects';
+import { IMoney } from '@shared/aggregates/value-objects';
 
 export interface IDashboardBase {
   summary: IDashboardSummary;

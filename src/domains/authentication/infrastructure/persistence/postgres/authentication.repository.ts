@@ -5,8 +5,8 @@ import { AuthIdentity as PrismaAuthIdentity } from '.prisma/postgres';
 import {
   ResourceNotFoundError,
   UniqueConstraintViolationError,
-} from '@shared/errors';
-import { handlePrismaDatabaseError } from '@utils/prisma-error-utils';
+} from '@shared/infrastructure/postgres/errors';
+import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
 import { AuthenticationMapper } from '../../../application/mappers';
 import { AuthIdentity, IAuthIdentityType } from '../../../aggregates/entities';
 import { IAuthRepository } from '../../../aggregates/repositories/authentication.interface';

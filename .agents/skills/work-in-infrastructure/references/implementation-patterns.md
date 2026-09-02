@@ -34,7 +34,7 @@ single-record creates, updates, and deletes. Keep every read-check-write sequenc
 the same transaction so the check cannot race the mutation. Preserve rollback
 behavior and translate known Prisma constraints without leaking database details.
 
-Use `common/utils/prisma-error-utils.ts` for repository error translation. Route
+Use `@shared/infrastructure/postgres/prisma-error-utils.ts` for repository error translation. Route
 Prisma failures through `handlePrismaDatabaseError` (and use
 `executeDatabaseOperation` when it makes the operation clearer); do not add or use a separate helper.
 

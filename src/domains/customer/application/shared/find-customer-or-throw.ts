@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { Customer } from '../../aggregates/entities';
 import { ICustomerRepository } from '../../aggregates/repositories';
-import { Id } from '@shared/value-objects';
+import { Id } from '@shared/aggregates/value-objects';
 
 /** Loads a customer inside its tenant boundary or raises the standard not-found error. */
 export async function findCustomerOrThrow(

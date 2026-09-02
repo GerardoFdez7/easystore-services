@@ -1,7 +1,7 @@
 import { Cart } from '../../../aggregates/entities/cart/cart.entity';
 import { CartItem } from '../../../aggregates/value-objects/cart-item.vo';
 import { CartDTO, CartItemDTO } from './cart.dto';
-import { VariantDetailsDTO } from '@shared/dtos';
+import { VariantDetailsDTO } from '@shared/application/dtos';
 
 /**
  * Maps Cart aggregates to application DTOs enriched with product variant data.

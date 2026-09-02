@@ -6,9 +6,9 @@ import {
   Query,
   registerEnumType,
 } from '@nestjs/graphql';
-import { optionalArg } from '@common/graphql/argument-options';
-import { CurrentUser, JwtPayload } from '@common/decorators';
-import { NamedPaginationArgs } from '@common/graphql/pagination.args';
+import { optionalArg } from '@shared/presentation/graphql/';
+import { CurrentUser, JwtPayload } from '@shared/presentation/decorators';
+import { NamedPaginationArgs } from '@shared/presentation/graphql/';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   CategoryType,

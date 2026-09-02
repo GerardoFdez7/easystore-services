@@ -13,8 +13,8 @@
     "**/aggregates/repositories/*.interface.ts",
     "**/presentation/graphql/types/**",
     "**/infrastructure/adapters/*.adapter.ts",
-    "domains/shared/domain-entity.base.ts",
-    "domains/shared/entity.base.ts"
+    "domains/shared/aggregates/entities/domain-entity.base.ts",
+    "domains/shared/aggregates/entities/entity.base.ts"
   ],
   "gitignore": true
 }

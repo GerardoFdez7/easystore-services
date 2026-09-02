@@ -9,7 +9,7 @@ export {
   MediumDescription,
   LongDescription,
   SortOrder,
-} from '../../../shared/value-objects';
+} from '../../../shared/aggregates/value-objects';
 
 export enum SortBy {
   CREATED_AT = 'createdAt',

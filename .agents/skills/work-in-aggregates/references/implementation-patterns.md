@@ -28,8 +28,8 @@ bounded context.
 ## Aggregate roots and nested entities
 
 Only the configured root imports `Entity` and `EntityProps` directly from
-`@shared/entity.base` and extends `Entity<TProps>`. A nested entity imports
-`DomainEntity` and `DomainEntityProps` from `@shared/domain-entity.base` and extends
+`@shared/aggregates/entities/entity.base` and extends `Entity<TProps>`. A nested entity imports
+`DomainEntity` and `DomainEntityProps` from `@shared/aggregates/entities/domain-entity.base` and extends
 `DomainEntity<TProps>` so it cannot publish aggregate events independently.
 
 Both use a private constructor plus distinct factories:

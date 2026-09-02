@@ -5,7 +5,7 @@ import { DeleteCustomerReviewProductDto } from '../delete-customer-review-produc
 import { ICustomerRepository } from '../../../../../aggregates/repositories/customer.interface';
 import { ICustomerReviewProductRepository } from '../../../../../aggregates/repositories/customer-review-product.interface';
 import { Customer } from '../../../../../aggregates/entities/customer/customer.entity';
-import { Id } from '@shared/value-objects';
+import { Id } from '@shared/aggregates/value-objects';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 

@@ -1,4 +1,4 @@
-import { Entity, EntityProps } from '@shared/entity.base';
+import { Entity, EntityProps } from '@shared/aggregates/entities/entity.base';
 import { ICategoryBase } from '../';
 import { Id, Name, Media, ShortDescription } from '../../value-objects';
 import {

@@ -25,7 +25,7 @@ import {
   SustainabilityMapper,
 } from '../';
 import { UpdateProductDTO, UpdateVariantDTO } from '../../commands';
-import { CategoryDTO } from '@shared/dtos';
+import { CategoryDTO } from '@shared/application/dtos';
 
 /**
  * Centralized mapper for Product domain entity to DTO conversion for queries and vice versa for commands.

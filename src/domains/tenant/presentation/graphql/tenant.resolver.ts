@@ -3,7 +3,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { TenantType, UpdateTenantInput } from './types/tenant.types';
 import { UpdateTenantDTO } from '../../application/commands';
 import { GetTenantByIdDTO } from '../../application/queries';
-import { CurrentUser, JwtPayload } from '@common/decorators';
+import { CurrentUser, JwtPayload } from '@shared/presentation/decorators';
 import { TenantDTO } from '../../application/mappers';
 
 @Resolver(() => TenantType)

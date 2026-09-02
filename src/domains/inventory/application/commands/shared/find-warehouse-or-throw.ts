@@ -1,7 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { Warehouse } from '../../../aggregates/entities';
 import { IWarehouseRepository } from '../../../aggregates/repositories';
-import { Id } from '@shared/value-objects';
+import { Id } from '@shared/aggregates/value-objects';
 
 export async function findWarehouseOrThrow(
   repository: IWarehouseRepository,

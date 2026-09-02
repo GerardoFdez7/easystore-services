@@ -6,9 +6,9 @@ import {
   registerEnumType,
 } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CurrentUser, JwtPayload } from '@common/decorators';
-import { PaginationArgs } from '@common/graphql/pagination.args';
-import { SortOrder } from '@shared/value-objects';
+import { CurrentUser, JwtPayload } from '@shared/presentation/decorators';
+import { PaginationArgs } from '@shared/presentation/graphql/';
+import { SortOrder } from '@shared/aggregates/value-objects';
 import {
   CreateCustomerReviewProductDto,
   CreateWishListDto,

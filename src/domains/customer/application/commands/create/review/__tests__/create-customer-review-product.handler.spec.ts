@@ -7,7 +7,7 @@ import { ICustomerReviewProductRepository } from '../../../../../aggregates/repo
 import { Customer } from '../../../../../aggregates/entities/customer/customer.entity';
 import { CustomerReviewProductDTO } from '../../../../mappers/review/customer-review-product.dto';
 import { CustomerReviewProductMapper } from '../../../../mappers/review/customer-review-product.mapper';
-import { Id } from '@shared/value-objects';
+import { Id } from '@shared/aggregates/value-objects';
 
 interface MockCustomer {
   commit: jest.Mock;

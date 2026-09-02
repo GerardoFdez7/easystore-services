@@ -1,4 +1,4 @@
-import { CurrencyCodes } from '@shared/value-objects';
+import { CurrencyCodes } from '@shared/aggregates/value-objects';
 
 /** Tenant-currency lookup capability required for cart monetary responses. */
 export interface ITenantCurrencyAdapter {

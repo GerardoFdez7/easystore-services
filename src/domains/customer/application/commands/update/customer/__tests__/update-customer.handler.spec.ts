@@ -6,7 +6,7 @@ import { UpdateCustomerDto } from '../update-customer.dto';
 import { ICustomerRepository } from '../../../../../aggregates/repositories/customer.interface';
 import { Customer } from '../../../../../aggregates/entities/customer/customer.entity';
 import { CustomerDTO, CustomerMapper } from '../../../../mappers';
-import { Id } from '@shared/value-objects';
+import { Id } from '@shared/aggregates/value-objects';
 
 interface MockCustomer {
   commit: jest.Mock;

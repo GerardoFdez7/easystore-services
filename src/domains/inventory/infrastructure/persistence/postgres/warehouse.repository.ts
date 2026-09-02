@@ -3,18 +3,18 @@ import { PostgreService } from '@database/postgres.service';
 import {
   executeDatabaseOperation,
   handlePrismaDatabaseError,
-} from '@utils/prisma-error-utils';
+} from '@shared/infrastructure/postgres/prisma-error-utils';
 import { Prisma, Warehouse as PrismaWarehouse } from '.prisma/postgres';
 import {
   ResourceNotFoundError,
   UniqueConstraintViolationError,
-} from '@shared/errors';
+} from '@shared/infrastructure/postgres/errors';
 import {
   Warehouse,
   IStockPerWarehouseBase,
 } from '../../../aggregates/entities';
 import { WarehouseMapper } from '../../../application/mappers';
-import { Id, SortBy, SortOrder } from '@shared/value-objects';
+import { Id, SortBy, SortOrder } from '@shared/aggregates/value-objects';
 import { StockMovement } from '../../../aggregates/value-objects/stock-movement/stock-movement.vo';
 import IWarehouseRepository from '../../../aggregates/repositories/warehouse.interface';
 

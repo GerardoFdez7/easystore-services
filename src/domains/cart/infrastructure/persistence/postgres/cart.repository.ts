@@ -4,8 +4,8 @@ import {
   Cart as PrismaCart,
   CartItem as PrismaCartItem,
 } from '.prisma/postgres';
-import { ResourceNotFoundError } from '@shared/errors';
-import { handlePrismaDatabaseError } from '@utils/prisma-error-utils';
+import { ResourceNotFoundError } from '@shared/infrastructure/postgres/errors';
+import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
 import { Cart } from '../../../aggregates/entities/cart/cart.entity';
 import { CartItem, Id } from '../../../aggregates/value-objects';
 import { ICartRepository } from '../../../aggregates/repositories/cart.interface';

@@ -3,7 +3,7 @@ import { CreateWishListDto } from './create-wish-list.dto';
 import { IWishListRepository } from '../../../../aggregates/repositories/wish-list.interface';
 import { BadRequestException, Inject } from '@nestjs/common';
 import { ICustomerRepository } from '../../../../aggregates/repositories/customer.interface';
-import { Id } from '@shared/value-objects';
+import { Id } from '@shared/aggregates/value-objects';
 import { Customer } from '../../../../aggregates/entities';
 import { WishListDTO, WishListMapper } from '../../../mappers';
 import { findCustomerOrThrow } from '../../../shared/find-customer-or-throw';

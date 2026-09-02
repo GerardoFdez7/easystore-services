@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
-import { Id } from '@shared/value-objects';
+import { Id } from '@shared/aggregates/value-objects';
 import { FindManyCustomerReviewsDto } from './find-many-customer-reviews.dto';
 import { ICustomerReviewProductRepository } from '../../../../aggregates/repositories/customer-review-product.interface';
 import { IProductAdapter } from '../../../ports';

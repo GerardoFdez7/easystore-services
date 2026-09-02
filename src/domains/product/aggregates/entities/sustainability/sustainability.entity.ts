@@ -1,5 +1,8 @@
 import { Id, Certification, RecycledPercentage } from '../../value-objects';
-import { DomainEntity, DomainEntityProps } from '@shared/domain-entity.base';
+import {
+  DomainEntity,
+  DomainEntityProps,
+} from '@shared/aggregates/entities/domain-entity.base';
 import { ISustainabilityBase } from '..';
 
 export interface ISustainabilityProps extends DomainEntityProps {

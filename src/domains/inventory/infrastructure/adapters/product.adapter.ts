@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { IProductAdapter } from '../../application/ports';
-import { VariantDetailsDTO } from '@shared/dtos';
+import { VariantDetailsDTO } from '@shared/application/dtos';
 import { QueryBus } from '@nestjs/cqrs';
 import { GetVariantsDetailsDTO } from '@product/application/queries';
 

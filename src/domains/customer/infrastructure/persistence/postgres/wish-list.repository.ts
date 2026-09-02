@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PostgreService } from '@database/postgres.service';
-import { ResourceNotFoundError } from '@shared/errors';
-import { Id } from '@shared/value-objects';
-import { handlePrismaDatabaseError } from '@utils/prisma-error-utils';
+import { ResourceNotFoundError } from '@shared/infrastructure/postgres/errors';
+import { Id } from '@shared/aggregates/value-objects';
+import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
 import { IWishListRepository } from '../../../aggregates/repositories/wish-list.interface';
 import { WishListItem } from '../../../aggregates/value-objects';
 import { WishListMapper } from '../../../application/mappers';
