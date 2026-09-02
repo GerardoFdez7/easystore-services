@@ -45,7 +45,9 @@ export function initializeGlobalLogger(): void {
       target: 'pino-pretty',
       options: {
         colorize: true,
-        translateTime: 'SYS:h:MM:ss TT',
+        translateTime: isDevelopment
+          ? 'SYS:h:MM:ss TT'
+          : 'SYS:dd-mm-yy h:MM:ss TT',
         ignore: 'pid,hostname,context,req,res',
         messageFormat: '\x1b[37m{msg}\x1b[0m',
         levelFirst: false,

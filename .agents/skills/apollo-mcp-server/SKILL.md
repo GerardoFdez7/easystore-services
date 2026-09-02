@@ -59,7 +59,13 @@ introspection:
 Start the server:
 
 ```bash
-apollo-mcp-server ./config.yaml
+apollo-mcp-server ./apollo-mcp.yaml
+```
+
+On windows
+
+```bash
+.\apollo-mcp-server.exe .\apollo-mcp.yaml
 ```
 
 The MCP endpoint is available at `http://127.0.0.1:8000/mcp` (streamable_http defaults: address `127.0.0.1`, port `8000`). The GraphQL endpoint defaults to `http://localhost:4000/` — override with the `endpoint` key if your API runs elsewhere.

@@ -45,6 +45,10 @@
       "env": {
         "DEFAULT_MINIMUM_TOKENS": "6000"
       }
+    },
+    "graphql-local": {
+      "command": ".\\apollo-mcp-server.exe",
+      "args": [".\\apollo-mcp.yaml"]
     }
   }
 }

@@ -55,3 +55,4 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 .trae/
 test/load/results/
+apollo-mcp-server.exe

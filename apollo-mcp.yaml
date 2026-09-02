@@ -1,0 +1,24 @@
+# Apollo MCP configuration for the local EasyStore GraphQL API.
+transport:
+  type: stdio
+endpoint: http://localhost:3000/gql
+schema:
+  source: local
+  path: ./src/infrastructure/graphql/schema.gql
+operations:
+  source: infer
+headers:
+  Cookie: 'accessToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im93bmVyQGVhc3lzdG9yZS5sYXQiLCJhdXRoSWRlbnRpdHlJZCI6IjRmNDgyZjNjLTZlZjgtNTMzMS05M2Q2LTY0ZjNjNDU1MGM3MSIsInRlbmFudElkIjoiMWM3MjYwZGEtYWZhNi01OTJkLTlmNjEtNTAwZjE5NWUyMjBmIiwiaWF0IjoxNzg4MzI3MDk3LCJleHAiOjE3ODg0MTM0OTd9.ojaILVJiYlJelCUm_SFOAnH9ewYmGokX0YQBGp502r4'
+introspection:
+  introspect:
+    enabled: true
+    minify: true
+  search:
+    enabled: true
+    minify: true
+  validate:
+    enabled: true
+  execute:
+    enabled: true
+overrides:
+  mutation_mode: explicit
