@@ -1,5 +1,5 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { Inject, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Inject, BadRequestException } from '@nestjs/common';
 import ICategoryRepository from '../../../../aggregates/repositories/category.interface';
 import { Id } from '../../../../aggregates/value-objects';
 import { CategoryMapper, PaginatedCategoriesDTO } from '../../../mappers';
@@ -48,10 +48,6 @@ export class GetAllCategoriesHandler
       sortBy,
       sortOrder,
     });
-
-    if (!result || result.total === 0) {
-      throw new NotFoundException(`No categories found`);
-    }
 
     return CategoryMapper.toPaginatedDto(result);
   }

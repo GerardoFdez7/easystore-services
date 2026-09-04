@@ -1,5 +1,5 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
-import { Inject, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Inject, BadRequestException } from '@nestjs/common';
 import { IStockMovementRepository } from '../../../../aggregates/repositories';
 import { GetAllStockMovementsDTO } from './all-movements.dto';
 import {
@@ -63,10 +63,6 @@ export class GetAllStockMovementsHandler
         includeDeleted,
       },
     );
-
-    if (!stockMovements || stockMovements.total === 0) {
-      throw new NotFoundException(`No stock movements found`);
-    }
 
     // Collect unique variant IDs from stock movements
     const variantIds = new Set<string>();

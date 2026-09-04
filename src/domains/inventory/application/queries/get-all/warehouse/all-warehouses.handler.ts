@@ -1,5 +1,5 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
-import { Inject, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Inject, BadRequestException } from '@nestjs/common';
 import { IWarehouseRepository } from '../../../../aggregates/repositories';
 import { GetAllWarehousesDTO } from './all-warehouses.dto';
 import { WarehouseMapper, PaginatedWarehousesDTO } from '../../../mappers';
@@ -57,10 +57,6 @@ export class GetAllWarehousesHandler
       sortBy,
       sortOrder,
     });
-
-    if (!result || result.total === 0) {
-      throw new NotFoundException(`No warehouses found`);
-    }
 
     // Collect unique variantIds
     const variantIdsSet = new Set<string>();

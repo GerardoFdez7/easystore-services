@@ -1,5 +1,5 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { Inject, NotFoundException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { IAddressRepository } from '../../../aggregates/repositories/address.interface';
 import { AddressType } from '../../../aggregates/value-objects';
 import { AddressMapper, AllAddressDTO } from '../../mappers';
@@ -28,10 +28,6 @@ export class GetAllAddressesHandler
       name,
       addressType: addressType ? AddressType.create(addressType) : undefined,
     });
-
-    if (!result || result.addresses.length === 0) {
-      throw new NotFoundException(`No address found`);
-    }
 
     // Transform domain entities to DTOs
     return AddressMapper.fromAllAddress(result);
