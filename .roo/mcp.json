@@ -1,54 +1,52 @@
 {
-  "mcpServers": {
-    "postgres": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-postgres",
-        "${env:DATABASE_URL_POSTGRES}"
-      ],
-      "env": {
-        "DATABASE_URL_POSTGRES": "${env:DATABASE_URL_POSTGRES}"
-      }
-    },
-    "github": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "${env:GITHUB_PERSONAL_ACCESS_TOKEN}"
-      },
-      "disabledTools": [
-        "create_repository",
-        "push_files",
-        "create_issue",
-        "fork_repository",
-        "list_issues",
-        "update_issue",
-        "add_issue_comment",
-        "search_code",
-        "search_issues",
-        "search_users",
-        "get_issue",
-        "merge_pull_request",
-        "update_pull_request_branch"
-      ],
-      "alwaysAllow": [
-        "create_pull_request",
-        "search_repositories",
-        "get_pull_request_reviews",
-        "get_pull_request_comments"
-      ]
-    },
-    "context7": {
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp"],
-      "env": {
-        "DEFAULT_MINIMUM_TOKENS": "6000"
-      }
-    },
-    "graphql-local": {
-      "command": ".\\apollo-mcp-server.exe",
-      "args": [".\\apollo-mcp.yaml"]
-    }
-  }
+	"mcpServers": {
+		"postgres": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"@modelcontextprotocol/server-postgres",
+				"${env:DATABASE_URL_POSTGRES}"
+			],
+			"env": {
+				"DATABASE_URL_POSTGRES": "${env:DATABASE_URL_POSTGRES}"
+			}
+		},
+		"github": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"@modelcontextprotocol/server-github"
+			],
+			"env": {
+				"GITHUB_PERSONAL_ACCESS_TOKEN": "${env:GITHUB_PERSONAL_ACCESS_TOKEN}"
+			},
+			"disabledTools": [
+				"create_repository",
+				"push_files",
+				"create_issue",
+				"fork_repository",
+				"list_issues",
+				"update_issue",
+				"add_issue_comment",
+				"search_code",
+				"search_issues",
+				"search_users",
+				"get_issue",
+				"merge_pull_request",
+				"update_pull_request_branch"
+			],
+			"alwaysAllow": [
+				"create_pull_request",
+				"search_repositories",
+				"get_pull_request_reviews",
+				"get_pull_request_comments"
+			]
+		},
+		"graphql-local": {
+			"command": ".\\apollo-mcp-server.exe",
+			"args": [
+				".\\apollo-mcp.yaml"
+			]
+		}
+	}
 }

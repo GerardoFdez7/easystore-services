@@ -59,7 +59,7 @@ introspection:
 Start the server:
 
 ```bash
-apollo-mcp-server ./apollo-mcp.yaml
+./apollo-mcp-server ./apollo-mcp.yaml
 ```
 
 On windows
