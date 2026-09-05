@@ -23,7 +23,9 @@ changing domain types or resolvers. Read
 [schema-contracts.md](references/schema-contracts.md) for public naming, nullability,
 pagination, schema evolution, typed results, or disclosure decisions. Read
 [apollo-infrastructure.md](references/apollo-infrastructure.md) for GraphQLModule,
-validation limits, error formatting, plugins, observability, or caching.
+validation limits, error formatting, plugins, observability, or caching. Read
+[docs/AUTHORIZATION.md](../../../docs/AUTHORIZATION.md) before adding or changing any
+operation's permissions.
 
 ## Workflow
 
@@ -40,9 +42,14 @@ validation limits, error formatting, plugins, observability, or caching.
    errors in the resolver.
 6. Keep public access method-scoped. The global guard's default is authenticated;
    use `@Public()` only for explicitly public operations.
-7. Keep server-wide authentication, query limits, error masking, and operational
+7. Give every non-public operation an explicit authorization annotation:
+   `@RequirePermission(FeatureEnum.X, PermissionActionEnum.Y)` for staff,
+   `@AllowAccountTypes(...)` for customer-reachable or owner-only operations. Both
+   take enums, never string literals. `PermissionsGuard` denies unannotated
+   operations, so never resolve a denial by weakening the guard's default.
+8. Keep server-wide authentication, query limits, error masking, and operational
    behavior centralized in `src/infrastructure/graphql`.
-8. Update explicit type barrels.
+9. Update explicit type barrels.
 
 Presentation may depend inward on its own domain but may not import another bounded
 context directly. Central Apollo error formatting owns transport error codes and
@@ -52,6 +59,11 @@ masking; resolvers normally let application/domain errors propagate.
 
 - Scope tenant-owned work before lookup, relation resolution, count, ordering, or
   pagination; fail closed without revealing cross-tenant existence.
+- Treat authentication, authorization, and tenant scoping as three independent
+  checks. Passing one never satisfies another: an authorized employee still needs
+  tenant scoping, and a permitted customer still needs an ownership check.
+- Return `403` for authorization failures and `401` for authentication failures.
+  Never mask a denial as `null`, `[]`, or a success-shaped response.
 - Never expose or log secrets, tokens, cookies, headers, operation source, variables,
   raw errors, Prisma metadata, internal IDs, or complete request/response bodies.
 - Keep introspection and landing pages disabled in production; bound depth, repeated

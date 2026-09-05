@@ -146,9 +146,7 @@ export default class AddressRepository implements IAddressRepository {
       // Build where clause
       const whereClause: Prisma.AddressWhereInput = {
         tenantId: owner.tenantId.getValue(),
-        ...('customerId' in owner && owner.customerId
-          ? { customerId: owner.customerId.getValue() }
-          : {}),
+        customerId: owner.customerId ? owner.customerId.getValue() : null,
       };
 
       if (options?.addressType) {
@@ -246,9 +244,7 @@ export default class AddressRepository implements IAddressRepository {
     return {
       id,
       tenantId: owner.tenantId.getValue(),
-      ...('customerId' in owner && owner.customerId
-        ? { customerId: owner.customerId.getValue() }
-        : {}),
+      customerId: owner.customerId ? owner.customerId.getValue() : null,
     };
   }
 

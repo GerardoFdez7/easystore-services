@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { EventPublisher } from '@nestjs/cqrs';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { AuthenticationMapper } from '../../../mappers';
 import { AccountTypeEnum } from '../../../../aggregates/value-objects';
 import { AuthenticationRegisterDTO } from '../sign-up.dto';
@@ -9,6 +10,7 @@ describe('AuthenticationRegisterHandler', () => {
   const auth = { commit: jest.fn() };
   const dto = { id: 'auth-1', email: 'owner@example.com' };
   const repository = { create: jest.fn() };
+  const tenantAdapter = { getTenantIdByDomain: jest.fn() };
   const publisher = { mergeObjectContext: jest.fn() };
   const command = new AuthenticationRegisterDTO({
     email: 'owner@example.com',
@@ -21,6 +23,7 @@ describe('AuthenticationRegisterHandler', () => {
     jest.clearAllMocks();
     handler = new AuthenticationRegisterHandler(
       repository as never,
+      tenantAdapter as never,
       publisher as unknown as EventPublisher,
     );
     jest
@@ -63,5 +66,67 @@ describe('AuthenticationRegisterHandler', () => {
     await expect(handler.execute(command)).rejects.toBe(error);
     expect(auth.commit).not.toHaveBeenCalled();
     expect(AuthenticationMapper.toDto).not.toHaveBeenCalled();
+  });
+
+  it.each([[AccountTypeEnum.CUSTOMER], [AccountTypeEnum.EMPLOYEE]])(
+    'throws BadRequestException for %s sign-up without a domain',
+    async (accountType) => {
+      const commandWithoutDomain = new AuthenticationRegisterDTO({
+        email: 'owner@example.com',
+        password: 'StrongPassword123!',
+        accountType,
+      } as never);
+
+      await expect(
+        handler.execute(commandWithoutDomain),
+      ).rejects.toBeInstanceOf(BadRequestException);
+      expect(tenantAdapter.getTenantIdByDomain).not.toHaveBeenCalled();
+      expect(repository.create).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([[AccountTypeEnum.CUSTOMER], [AccountTypeEnum.EMPLOYEE]])(
+    'throws NotFoundException for %s sign-up when the domain does not resolve to a tenant',
+    async (accountType) => {
+      tenantAdapter.getTenantIdByDomain.mockResolvedValueOnce(null);
+      const commandWithDomain = new AuthenticationRegisterDTO({
+        email: 'owner@example.com',
+        password: 'StrongPassword123!',
+        accountType,
+        domain: 'unknown-tenant.example.com',
+      } as never);
+
+      await expect(handler.execute(commandWithDomain)).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
+      expect(tenantAdapter.getTenantIdByDomain).toHaveBeenCalledWith(
+        'unknown-tenant.example.com',
+      );
+      expect(repository.create).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([[AccountTypeEnum.CUSTOMER], [AccountTypeEnum.EMPLOYEE]])(
+    'creates the identity for %s sign-up when the domain resolves to a tenant',
+    async (accountType) => {
+      tenantAdapter.getTenantIdByDomain.mockResolvedValueOnce('tenant-1');
+      const commandWithDomain = new AuthenticationRegisterDTO({
+        email: 'owner@example.com',
+        password: 'StrongPassword123!',
+        accountType,
+        domain: 'tenant.example.com',
+      } as never);
+
+      await expect(handler.execute(commandWithDomain)).resolves.toBe(dto);
+      expect(tenantAdapter.getTenantIdByDomain).toHaveBeenCalledWith(
+        'tenant.example.com',
+      );
+      expect(repository.create).toHaveBeenCalledWith(auth);
+    },
+  );
+
+  it('does not require a domain for TENANT sign-up', async () => {
+    await expect(handler.execute(command)).resolves.toBe(dto);
+    expect(tenantAdapter.getTenantIdByDomain).not.toHaveBeenCalled();
   });
 });

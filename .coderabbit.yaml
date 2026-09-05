@@ -18,8 +18,10 @@ reviews:
   high_level_summary_in_walkthrough: true
   high_level_summary_instructions: >-
     Summarize behavioral changes, affected bounded contexts, public GraphQL or
-    database contract changes, security and tenant-isolation risk, performance
-    impact, migrations, and test evidence. Separate verified facts from assumptions.
+    database contract changes, security and tenant-isolation risk, authorization
+    posture changes (operations whose permissions were added, widened, or removed),
+    performance impact, migrations, and test evidence. Separate verified facts from
+    assumptions.
   collapse_walkthrough: false
   sequence_diagrams: false
   poem: false
@@ -93,6 +95,23 @@ reviews:
           cache key, reveal cross-tenant existence, expose a secret, or enable
           injection. Pass only when trusted server identity and fail-closed tenant
           isolation are preserved on every path.
+      - name: 'Authorization coverage'
+        mode: 'error'
+        instructions: >-
+          Enforce docs/AUTHORIZATION.md. Fail when a non-public GraphQL operation is
+          added or changed without an explicit @RequirePermission or
+          @AllowAccountTypes annotation, when either decorator receives a string
+          literal instead of FeatureEnum, PermissionActionEnum, or AccountTypeEnum,
+          when PermissionsGuard's deny-by-default is weakened or bypassed, when an
+          operation reachable by customers lacks a handler-level ownership filter on
+          the trusted customerId, when ownership is derived from client input rather
+          than @CurrentUser, when an authorization denial is returned as 401, null,
+          an empty collection, or a success-shaped response, or when a permission
+          check is treated as a substitute for tenant scoping. Fail when
+          FeatureEnum drifts from seeded Feature.code values or PermissionActionEnum
+          drifts from the Prisma PermissionAction enum. Pass only when every changed
+          operation states its authorization posture explicitly and customer-reachable
+          use cases prove ownership scoping.
       - name: 'Transactional integrity'
         mode: 'error'
         instructions: >-
@@ -169,6 +188,9 @@ reviews:
         - Treat authentication, authorization, tenant isolation, payment/order/cart/
           inventory consistency, SQL or command injection, secrets, destructive data
           changes, and unsafe dependency/workflow changes as mandatory review areas.
+          Authorization follows docs/AUTHORIZATION.md: deny-by-default at the guard,
+          enum-typed permission decorators, and handler-enforced record ownership for
+          customer-reachable use cases.
         - Domain testing is intentionally consolidated in colocated command-handler
           integration tests under src/domains/*/application/commands/**/__tests__/.
           Request a test change only for changed behavior or an uncovered regression
@@ -206,6 +228,12 @@ reviews:
         - Every use case must carry trusted tenant/owner identity through all
           repository and port calls; never accept privileged ownership from client
           input or let object spreading overwrite trusted values.
+        - Customer-reachable use cases must enforce record ownership here; no guard
+          can verify it, and a missing filter exposes every customer's data while
+          tests still pass. Require ownership scoping inside the repository query
+          alongside tenant scope rather than a post-hoc comparison after loading,
+          and require the standard not-found error on an ownership mismatch so a
+          probing client cannot confirm the record exists.
         - Commands load scoped state, invoke aggregate behavior, persist successfully,
           then commit events. Never commit on persistence failure. Queries must not
           mutate state or publish events.
@@ -258,6 +286,18 @@ reviews:
           methods. Derive identity and tenant scope from @CurrentUser/server context;
           client inputs must not contain trusted tenant, user, customer, employee,
           role, or permission fields.
+        - Authorization is a separate, explicit decision per docs/AUTHORIZATION.md.
+          Every non-public operation carries @RequirePermission(FeatureEnum.X,
+          PermissionActionEnum.Y) for staff, @AllowAccountTypes(CUSTOMER) for
+          customer-reachable operations, or @AllowAccountTypes(TENANT) for owner-only
+          operations. Reject string-literal decorator arguments, missing annotations,
+          an action that misstates intent (routine adjustments are EDIT; DELETE is
+          structural removal), and any change that loosens PermissionsGuard's
+          deny-by-default to resolve a denial.
+        - Treat authentication, authorization, and tenant scoping as independent.
+          An authorization annotation never removes the obligation to scope by
+          tenant, and a customer gate never removes the need for handler ownership
+          checks.
         - When combining input and trusted data, assign trusted fields last. Reject
           IDOR, authorization gaps, resource enumeration, cross-tenant relation
           resolution, and nullable/success-shaped responses that swallow failures.
@@ -311,6 +351,15 @@ reviews:
         safety, table locks, data loss, and backward-compatible rollout. Never approve
         destructive or lossy changes without explicit migration and recovery evidence.
 
+        For authorization tables per docs/AUTHORIZATION.md: preserve the RoleFeatures
+        unique constraint on (roleId, featureId, action), since duplicate grants are
+        invisible in the UI but inflate every permission query. Verify seeded
+        Feature.code values stay aligned with FeatureEnum and the Prisma
+        PermissionAction enum with PermissionActionEnum; drift silently denies
+        operations. Flag any migration or seed change that grants broader permissions
+        than the previous state, and treat a permission backfill as a security change
+        requiring explicit justification.
+
     - path: 'src/domains/*/application/commands/**/__tests__/*.spec.ts'
       instructions: |
         These are the domain's integration tests and intentionally cover the complete
@@ -319,7 +368,10 @@ reviews:
         tests with meaningful English names. For changed behavior, verify applicable
         success/failure paths, tenant and authorization boundaries, invariant edges,
         rollback, concurrency/idempotency, safe errors, collaborator inputs, and
-        ordering. Reject redundant cases, implementation-mirroring assertions, broad
+        ordering. When a use case is customer-reachable, require a case proving
+        another customer's record is neither returned nor mutated and that the denial
+        is indistinguishable from not-found; this is the authorization failure no
+        guard can catch. Reject redundant cases, implementation-mirroring assertions, broad
         mocks that bypass behavior, accidental time/order dependencies, and tests
         added only to increase coverage. Do not recommend moving or duplicating these
         scenarios into layer-specific suites.

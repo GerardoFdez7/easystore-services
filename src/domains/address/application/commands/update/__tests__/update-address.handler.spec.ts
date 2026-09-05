@@ -64,13 +64,31 @@ describe('UpdateAddressHandler', () => {
     expect(AddressMapper.toDto).toHaveBeenCalledWith(updatedAddress);
   });
 
-  it('does not map or persist when lookup rejects an invalid owner combination', async () => {
-    const error = new Error('You must provide either tenantId or customerId');
+  it('scopes customer-owned addresses by both tenant and customer', async () => {
+    const command = new UpdateAddressDTO(
+      'address-1',
+      'tenant-1',
+      'customer-1',
+      {},
+    );
+
+    await expect(handler.execute(command)).resolves.toBe(dto);
+
+    expect(findAddressOrThrow).toHaveBeenCalledWith(
+      repository,
+      'address-1',
+      'tenant-1',
+      'customer-1',
+    );
+  });
+
+  it('does not map or persist when lookup rejects a missing tenant scope', async () => {
+    const error = new Error('A tenantId is required for an address');
     (findAddressOrThrow as jest.Mock).mockRejectedValueOnce(error);
 
     await expect(
       handler.execute(
-        new UpdateAddressDTO('address-1', 'tenant-1', 'customer-1', {}),
+        new UpdateAddressDTO('address-1', undefined as never, 'customer-1', {}),
       ),
     ).rejects.toBe(error);
     expect(AddressMapper.fromUpdateDto).not.toHaveBeenCalled();

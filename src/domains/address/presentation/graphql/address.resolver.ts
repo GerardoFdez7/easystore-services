@@ -1,5 +1,9 @@
 import { Resolver, Mutation, Args, ID, Query, Int } from '@nestjs/graphql';
-import { CurrentUser, JwtPayload } from '@shared/presentation/decorators';
+import {
+  CurrentUser,
+  JwtPayload,
+  Public,
+} from '@shared/presentation/decorators';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   AddressType,
@@ -39,8 +43,13 @@ export default class AddressResolver {
     input: CreateAddressInput,
     @CurrentUser() user: JwtPayload,
   ): Promise<AddressType> {
-    const inputWithTenantId = { ...input, tenantId: user.tenantId };
-    return this.commandBus.execute(new CreateAddressDTO(inputWithTenantId));
+    return this.commandBus.execute(
+      new CreateAddressDTO({
+        ...input,
+        tenantId: user.tenantId,
+        customerId: user.customerId,
+      }),
+    );
   }
 
   @Mutation(() => AddressType)
@@ -102,11 +111,13 @@ export default class AddressResolver {
     );
   }
 
+  @Public()
   @Query(() => [CountryType])
   async getAllCountries(): Promise<CountryType[]> {
     return this.queryBus.execute(new GetAllCountriesDTO());
   }
 
+  @Public()
   @Query(() => [StateType])
   async getStatesByCountryId(
     @Args('countryId', { type: () => ID }) countryId: string,

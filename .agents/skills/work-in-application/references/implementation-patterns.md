@@ -60,6 +60,39 @@ not-found error, invoke a domain transition, persist, then commit. Queries do no
 mutate or commit events. Event handlers implement `IEventHandler<T>` and avoid loops
 that re-emit the same event.
 
+## Record ownership
+
+See [docs/AUTHORIZATION.md](../../../../docs/AUTHORIZATION.md). For customer-reachable
+use cases, the resolver's `@AllowAccountTypes` gate decides only that a customer may
+call the operation. Which records they may reach is decided here, and a guard cannot
+check it — a missing ownership filter exposes every customer's data to every other
+customer while all tests still pass.
+
+Scope by ownership in the same place tenant scope is applied, so a single query
+enforces both:
+
+```ts
+async execute(query: GetOrderDTO): Promise<OrderDTO> {
+  const order = await this.repository.findById(
+    Id.create(query.id),
+    Id.create(query.tenantId),
+    query.customerId ? Id.create(query.customerId) : undefined,
+  );
+
+  if (!order) throw new NotFoundException('Order not found');
+
+  return OrderMapper.toDto(order);
+}
+```
+
+Filter in the repository query rather than loading a record and comparing afterwards;
+post-hoc comparison is easy to omit on one branch. When the record genuinely must be
+loaded first, throw the standard not-found error on an ownership mismatch rather than
+a distinct forbidden error, so a probing client cannot learn that the record exists.
+
+The owning identifier always arrives from the resolver's `@CurrentUser()`. A
+`customerId` accepted from client input is not an ownership check.
+
 ## Mappers
 
 Mapper classes have immediately preceding contract JSDoc and a sibling `.dto.ts`.

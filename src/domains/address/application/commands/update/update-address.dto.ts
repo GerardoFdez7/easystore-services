@@ -8,7 +8,7 @@ export class UpdateAddressDTO {
   constructor(
     public readonly id: string,
     public readonly tenantId: string,
-    public readonly customerId: string,
+    public readonly customerId: string | undefined,
     public readonly data: UpdatableAddressFields,
   ) {}
 }

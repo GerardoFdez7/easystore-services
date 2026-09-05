@@ -13,11 +13,6 @@ export class CreateAddressHandler implements ICommandHandler<CreateAddressDTO> {
   ) {}
 
   async execute(command: CreateAddressDTO): Promise<AddressDTO> {
-    const { tenantId, customerId } = command.data;
-
-    if ((!tenantId && !customerId) || (tenantId && customerId)) {
-      throw new Error('You must provide either tenantId or customerId');
-    }
 
     // Mapper to create the domain entity
     const address = this.eventPublisher.mergeObjectContext(

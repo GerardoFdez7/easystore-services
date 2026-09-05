@@ -16,7 +16,7 @@ To mark a resolver method or entire class as public (no authentication required)
 **Method-level:**
 
 ```typescript
-import { Public } from '@common/decorators';
+import { Public } from '@shared/presentation/decorators';
 
 @Public()
 @Mutation(() => AuthIdentityType)
@@ -28,7 +28,7 @@ async register(@Args('input') input: RegisterAuthInput): Promise<AuthIdentityTyp
 **Class-level (all methods become public):**
 
 ```typescript
-import { Public } from '@common/decorators';
+import { Public } from '@shared/presentation/decorators';
 
 @Public()
 @Resolver(() => AuthIdentityType)
@@ -48,7 +48,7 @@ export class AuthenticationResolver {
 For cases where you have a mostly public resolver but need specific methods to require authentication, use the `@Authenticated()` decorator:
 
 ```typescript
-import { Public, Authenticated } from '@common/decorators';
+import { Public, Authenticated } from '@shared/presentation/decorators';
 
 @Public() // Make the entire resolver public by default
 @Resolver(() => SomeType)
@@ -71,7 +71,7 @@ export class SomeResolver {
 To access the authenticated user information in a resolver, use the `@CurrentUser()` decorator:
 
 ```typescript
-import { CurrentUser, JwtPayload } from '@common/decorators';
+import { CurrentUser, JwtPayload } from '@shared/presentation/decorators';
 
 @Mutation(() => SomeType)
 async protectedOperation(
@@ -115,6 +115,8 @@ All operations that don't have the `@Public()` decorator are protected by defaul
 - Update email
 - Forgot password
 - Validate token
+- Get Countries
+- Get States by CountryId
 
 ## Error Handling
 

@@ -1,6 +1,7 @@
 import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
 import {
   Inject,
+  BadRequestException,
   NotFoundException,
   UnauthorizedException,
   ForbiddenException,
@@ -44,6 +45,17 @@ export class AuthenticationLoginHandler
 
     const emailVO = Email.create(data.email);
     const accountTypeVO = AccountType.create(data.accountType);
+
+    // Domain is required for CUSTOMER/EMPLOYEE sign-in so the tenant can be resolved.
+    const requiresDomain =
+      accountTypeVO.getValue() === AccountTypeEnum.CUSTOMER ||
+      accountTypeVO.getValue() === AccountTypeEnum.EMPLOYEE;
+
+    if (requiresDomain && !data.domain) {
+      throw new BadRequestException(
+        'Domain is required for customer and employee sign-in',
+      );
+    }
 
     // Get user with account type
     const authEntity = await this.authRepository.findByEmailAndAccountType(
@@ -106,26 +118,42 @@ export class AuthenticationLoginHandler
       }
       tenantId = resolvedTenantId;
     } else if (accountTypeVO.getValue() === AccountTypeEnum.CUSTOMER) {
-      // For customers, find customer and tenant
+      // Resolve the tenant from the provided domain up front
+      const domainTenantId = await this.tenantAdapter.getTenantIdByDomain(
+        data.domain,
+      );
+      if (!domainTenantId) {
+        throw new NotFoundException('Tenant not found for this domain');
+      }
+
+      // For customers, find customer and cross-check it belongs to the resolved tenant
       const customer =
         await this.customerAdapter.findByAuthIdentityId(authIdentityIdValue);
-      if (!customer) {
+      if (!customer || customer.tenantId !== domainTenantId) {
         throw new NotFoundException(
           'Customer not found for this auth identity',
         );
       }
-      tenantId = customer.tenantId;
+      tenantId = domainTenantId;
       customerId = customer.id;
     } else if (accountTypeVO.getValue() === AccountTypeEnum.EMPLOYEE) {
-      // For employees, find employee and tenant
+      // Resolve the tenant from the provided domain up front
+      const domainTenantId = await this.tenantAdapter.getTenantIdByDomain(
+        data.domain,
+      );
+      if (!domainTenantId) {
+        throw new NotFoundException('Tenant not found for this domain');
+      }
+
+      // For employees, find employee and cross-check it belongs to the resolved tenant
       const employee =
         await this.employeeRepository.findByAuthIdentityId(authIdentityId);
-      if (!employee) {
+      if (!employee || employee.tenantId !== domainTenantId) {
         throw new NotFoundException(
           'Employee not found for this auth identity',
         );
       }
-      tenantId = employee.tenantId;
+      tenantId = domainTenantId;
       employeeId = employee.id;
     } else {
       throw new UnauthorizedException('Invalid account type');

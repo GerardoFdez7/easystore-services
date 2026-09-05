@@ -18,18 +18,24 @@ Keep application code focused on use-case orchestration and inward-facing contra
 Read [implementation-patterns.md](references/implementation-patterns.md) before
 changing handlers, DTOs, mappers, or ports. Read
 [testing-and-quality.md](references/testing-and-quality.md) whenever an application
-command handler or its integration test changes.
+command handler or its integration test changes. Read
+[docs/AUTHORIZATION.md](../../../docs/AUTHORIZATION.md) when a handler serves a
+customer-reachable use case, since record ownership is enforced here and nowhere else.
 
 ## Workflow
 
-1. Define the use case's input, output, tenant scope, collaborators, failure behavior,
-   and domain transition.
+1. Define the use case's input, output, tenant scope, record ownership, collaborators,
+   failure behavior, and domain transition.
 2. Inspect the aggregate/repository contracts and an analogous handler before editing.
 3. Keep business invariants in the aggregate. Let the handler load, coordinate,
    persist, commit successful events, and map results.
 4. Introduce an application port for a capability owned by another domain; pair it
    with an infrastructure adapter rather than importing that domain directly.
-5. Update explicit barrels. When a command handler changes, update its matching
+5. Enforce record ownership for any use case a customer can reach. `PermissionsGuard`
+   decides whether a customer may call an operation; only the handler can decide
+   which records they get. Filter or assert on the `customerId` the resolver passed
+   from `@CurrentUser()`, never on one taken from client input.
+6. Update explicit barrels. When a command handler changes, update its matching
    colocated integration test.
 
 Application code must not import presentation or another bounded context directly.

@@ -24,17 +24,12 @@ describe('CreateAddressHandler', () => {
     publisher.mergeObjectContext.mockReturnValue(address);
   });
 
-  it.each([
-    ['neither owner', { street: 'Main Street' }],
-    [
-      'both owners',
-      { street: 'Main Street', tenantId: 'tenant-1', customerId: 'customer-1' },
-    ],
-  ])('rejects an address with %s', async (_case, data) => {
+  it('rejects an address without a tenant scope', async () => {
+    const data = { street: 'Main Street' };
     const command = new CreateAddressDTO(data as never);
 
     await expect(handler.execute(command)).rejects.toThrow(
-      'You must provide either tenantId or customerId',
+      'A tenantId is required for an address',
     );
     expect(AddressMapper.fromCreateDto).not.toHaveBeenCalled();
     expect(repository.create).not.toHaveBeenCalled();
@@ -42,9 +37,12 @@ describe('CreateAddressHandler', () => {
 
   it.each([
     ['tenant', { street: 'Main Street', tenantId: 'tenant-1' }],
-    ['customer', { street: 'Main Street', customerId: 'customer-1' }],
+    [
+      'customer',
+      { street: 'Main Street', tenantId: 'tenant-1', customerId: 'customer-1' },
+    ],
   ])(
-    'creates, commits, and maps an address owned by a %s',
+    'creates, commits, and maps an address owned by a %s within its tenant',
     async (_case, data) => {
       const command = new CreateAddressDTO(data as never);
 

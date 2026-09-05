@@ -57,6 +57,53 @@ operation whose contract is public; do not mark an entire resolver public when i
 also contains authenticated operations. Use `@Authenticated()` only for a deliberate
 method override on an otherwise public class during migration.
 
+## Authorization
+
+See [docs/AUTHORIZATION.md](../../../../docs/AUTHORIZATION.md) for the model and the
+decorator reference. Authentication establishes identity; authorization runs after it
+and is a separate decision every non-public operation must make explicitly.
+
+`PermissionsGuard` denies by default: an operation with neither `@RequirePermission`
+nor `@AllowAccountTypes` is rejected. A new resolver method without one of these
+fails closed, so never "fix" that denial by loosening the guard.
+
+Both decorator arguments are enums — never string literals. A typo in a string
+compiles and surfaces as an unexplained 403 rather than a build error:
+
+```ts
+@RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.CREATE)
+@Mutation(() => WidgetType)
+createWidget(
+  @Args('input') input: CreateWidgetInput,
+  @CurrentUser() user: JwtPayload,
+): Promise<WidgetType> {
+  return this.commandBus.execute(new CreateWidgetDTO(input, user.tenantId));
+}
+```
+
+Choose the annotation by audience:
+
+- Staff-facing operation → `@RequirePermission(feature, action)`. Map the action to
+  intent, not to the mutation verb: routine adjustments are `EDIT`; `DELETE` is for
+  structural removal.
+- Customer-reachable operation → `@AllowAccountTypes(AccountTypeEnum.CUSTOMER)`. The
+  gate only decides who may call it; the handler must still scope to
+  `user.customerId`. A gate without an ownership check exposes every customer's
+  records to every other customer.
+- Owner-only operation → `@AllowAccountTypes(AccountTypeEnum.TENANT)`. Use for
+  store identity, domain, currency, and billing, which no employee grant should reach.
+- Operation serving several actors → `@AllowAccountTypes` is variadic; list each type.
+  An operation open to staff and customers alike carries both decorators, and the
+  ownership check applies to the customer path only.
+
+Tenants short-circuit to allowed within their own tenant, so `TENANT` never needs a
+feature grant. Tenant scoping is independent of authorization: passing the permission
+check never removes the obligation to scope queries by `user.tenantId`.
+
+Authorization failures are `403`, distinct from authentication's `401`. Do not
+convert one into the other, and do not return `null` or an empty collection to hide a
+denial.
+
 Do not catch and rewrite failures unless transport semantics require a tested safe
 mapping. Do not return `null`, `[]`, `false`, or a success-shaped response for
 authorization, tenant, repository, or unexpected failures. Never expose stack traces,
@@ -66,6 +113,9 @@ cross-tenant existence.
 ## Tests and completion
 
 Test CQRS delegation, authenticated identity injection, client-input separation,
-public/protected metadata, output exposure, and intentional nullability. Do not
-duplicate application/domain behavior in resolver tests. Regenerate and lint the SDL
-after output or input type changes.
+public/protected metadata, authorization metadata, output exposure, and intentional
+nullability. Assert that each operation carries the `@RequirePermission` or
+`@AllowAccountTypes` its contract requires — a missing decorator is a security
+defect, and metadata assertions are the only resolver-level test that catches it.
+Do not duplicate application/domain behavior in resolver tests. Regenerate and lint
+the SDL after output or input type changes.
