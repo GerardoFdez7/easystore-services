@@ -1,7 +1,15 @@
 import { Query, Resolver } from '@nestjs/graphql';
 import { ForbiddenException } from '@nestjs/common';
-import { CurrentUser, JwtPayload } from '@shared/presentation/decorators';
-import { Id } from '@shared/aggregates/value-objects';
+import {
+  CurrentUser,
+  JwtPayload,
+  RequirePermission,
+} from '@shared/presentation/decorators';
+import {
+  Id,
+  FeatureEnum,
+  PermissionActionEnum,
+} from '@shared/aggregates/value-objects';
 import {
   GetDashboardDTO,
   GetDashboardHandler,
@@ -16,6 +24,7 @@ export class AnalyticsResolver {
   //  Queries  //
   ///////////////
 
+  @RequirePermission(FeatureEnum.ANALYTICS, PermissionActionEnum.VIEW)
   @Query(() => DashboardType, {
     description:
       'Get all dashboard  in a single query: summary, timeline, recent orders, and top products.',

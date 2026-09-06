@@ -167,6 +167,25 @@ describe('AddItemToCartHandler', () => {
         );
       });
 
+      it('does not return or mutate another customer cart when the resolved scope does not match', async () => {
+        // findCartByCustomerId is scoped by (customerId, tenantId) taken from
+        // @CurrentUser(), so a request scoped to another customer's cart
+        // resolves to no record — indistinguishable from a missing cart,
+        // never a distinct forbidden error.
+        const otherCustomersCommand = new AddItemToCartDto(
+          baseItemData,
+          '019a039e-fe39-7a1c-8d2f-9a1b2c3d4e5f',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
+        );
+        findCartByCustomerIdMock.mockResolvedValue(null);
+
+        await expect(
+          handler.execute(otherCustomersCommand),
+        ).rejects.toBeInstanceOf(NotFoundException);
+        expect(updateMock).not.toHaveBeenCalled();
+        expect(mockCart.commit).not.toHaveBeenCalled();
+      });
+
       it('should handle valid customer ID correctly', async () => {
         const validCommand = new AddItemToCartDto(
           baseItemData,

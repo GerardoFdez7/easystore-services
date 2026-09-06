@@ -63,7 +63,7 @@ See [docs/AUTHORIZATION.md](../../../../docs/AUTHORIZATION.md) for the model and
 decorator reference. Authentication establishes identity; authorization runs after it
 and is a separate decision every non-public operation must make explicitly.
 
-`PermissionsGuard` denies by default: an operation with neither `@RequirePermission`
+`AuthorizationGuard` denies by default: an operation with neither `@RequirePermission`
 nor `@AllowAccountTypes` is rejected. A new resolver method without one of these
 fails closed, so never "fix" that denial by loosening the guard.
 

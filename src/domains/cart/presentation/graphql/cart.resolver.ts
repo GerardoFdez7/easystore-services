@@ -1,7 +1,12 @@
 import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CurrentUser, JwtPayload } from '@shared/presentation/decorators';
+import {
+  CurrentUser,
+  JwtPayload,
+  AllowAccountTypes,
+} from '@shared/presentation/decorators';
 import { PaginationArgs } from '@shared/presentation/graphql/';
+import { AccountTypeEnum } from '@shared/aggregates/value-objects';
 import {
   CartType,
   PaginatedCartType,
@@ -29,6 +34,7 @@ export class CartResolver {
   // Mutations //
   ///////////////
 
+  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
   @Mutation(() => CartType)
   async addItemToCart(
     @Args('input', { type: () => AddItemToCartInput })
@@ -40,6 +46,7 @@ export class CartResolver {
     );
   }
 
+  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
   @Mutation(() => CartType)
   async updateItemQty(
     @Args('input', { type: () => UpdateItemQtyInput })
@@ -51,6 +58,7 @@ export class CartResolver {
     );
   }
 
+  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
   @Mutation(() => CartType)
   async removeItemFromCart(
     @Args('input', { type: () => RemoveItemFromCartInput })
@@ -62,6 +70,7 @@ export class CartResolver {
     );
   }
 
+  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
   @Mutation(() => CartType)
   async removeManyItemsFromCart(
     @Args('input', { type: () => RemoveManyItemFromCartInput })
@@ -77,6 +86,7 @@ export class CartResolver {
   // Queries   //
   ///////////////
 
+  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
   @Query(() => PaginatedCartType)
   async getCart(
     @CurrentUser() user: JwtPayload,

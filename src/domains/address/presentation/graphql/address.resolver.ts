@@ -3,7 +3,14 @@ import {
   CurrentUser,
   JwtPayload,
   Public,
+  RequirePermission,
+  AllowAccountTypes,
 } from '@shared/presentation/decorators';
+import {
+  FeatureEnum,
+  PermissionActionEnum,
+  AccountTypeEnum,
+} from '@shared/aggregates/value-objects';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   AddressType,
@@ -37,6 +44,8 @@ export default class AddressResolver {
   // Mutations //
   ///////////////
 
+  @RequirePermission(FeatureEnum.SETTINGS, PermissionActionEnum.CREATE)
+  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
   @Mutation(() => AddressType)
   async createAddress(
     @Args('input', { type: () => CreateAddressInput })
@@ -52,6 +61,8 @@ export default class AddressResolver {
     );
   }
 
+  @RequirePermission(FeatureEnum.SETTINGS, PermissionActionEnum.EDIT)
+  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
   @Mutation(() => AddressType)
   async updateAddress(
     @Args('id', { type: () => ID }) id: string,
@@ -64,6 +75,8 @@ export default class AddressResolver {
     );
   }
 
+  @RequirePermission(FeatureEnum.SETTINGS, PermissionActionEnum.DELETE)
+  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
   @Mutation(() => AddressType)
   async deleteAddress(
     @Args('id', { type: () => ID }) id: string,
@@ -78,6 +91,8 @@ export default class AddressResolver {
   // Queries //
   ///////////////
 
+  @RequirePermission(FeatureEnum.SETTINGS, PermissionActionEnum.VIEW)
+  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
   @Query(() => AddressType)
   async getAddressById(
     @Args('id', { type: () => ID }) id: string,
@@ -88,6 +103,8 @@ export default class AddressResolver {
     );
   }
 
+  @RequirePermission(FeatureEnum.SETTINGS, PermissionActionEnum.VIEW)
+  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
   @Query(() => PaginatedAddressesType)
   async getAllAddresses(
     @CurrentUser()

@@ -14,7 +14,7 @@ Three actor types, three mechanisms, because their questions differ in kind:
 | **Employee** | Does the owner allow this person this action? | Feature × action permissions  |
 | **Customer** | Is this record theirs?                        | Account-type gate + ownership |
 
-`PermissionsGuard` runs globally after `AuthGuard` and **denies by default**: an
+`AuthorizationGuard` runs globally after `AuthenticationGuard` and **denies by default**: an
 operation with neither `@RequirePermission` nor `@AllowAccountTypes` is rejected.
 
 ## Rules
@@ -52,7 +52,7 @@ Employees hold a role the tenant defines. A role is a set of `(feature, action)`
 pairs, stored in `RoleFeatures`.
 
 - A **feature** is a functional area named as a shop owner would name it, deliberately
-  coarser than a resolver: `CATALOG`, `INVENTORY`, `ORDERS`, `CUSTOMERS`, `REPORTS`,
+  coarser than a resolver: `CATALOG`, `INVENTORY`, `ORDERS`, `CUSTOMERS`, `ANALYTICS`,
   `SETTINGS`.
 - An **action** is `VIEW`, `CREATE`, `EDIT`, or `DELETE`. These four are exhaustive.
   There is no aggregate action such as `FULL`: a role holding every action holds four
@@ -62,12 +62,12 @@ pairs, stored in `RoleFeatures`.
 Every tenant is seeded with four preset roles, flagged `isSystem`, covering the
 common cases:
 
-| Preset          | Catalog | Inventory | Orders | Customers | Reports | Settings |
-| --------------- | ------- | --------- | ------ | --------- | ------- | -------- |
-| **Manager**     | full    | full      | full   | full      | view    | —        |
-| **Cashier**     | view    | view      | full   | view      | —       | —        |
-| **Storekeeper** | edit    | full      | view   | —         | —       | —        |
-| **Support**     | view    | view      | edit   | edit      | —       | —        |
+| Preset          | Catalog | Inventory | Orders | Customers | Analytics | Settings |
+| --------------- | ------- | --------- | ------ | --------- | --------- | -------- |
+| **Manager**     | full    | full      | full   | full      | view      | —        |
+| **Cashier**     | view    | view      | full   | view      | —         | —        |
+| **Storekeeper** | edit    | full      | view   | —         | —         | —        |
+| **Support**     | view    | view      | edit   | edit      | —         | —        |
 
 Shorthand for readability only, never stored values: "full" = all four action rows,
 "edit" = `VIEW` + `EDIT` rows, "—" = no rows.
@@ -197,6 +197,7 @@ model RoleFeatures {
   featureId String
   action    PermissionAction
   tenantId  String
+  Feature   Feature          @relation(fields: [featureId], references: [id])
 
   @@unique([roleId, featureId, action])
   @@schema("tenant")

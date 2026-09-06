@@ -24,17 +24,6 @@ describe('CreateAddressHandler', () => {
     publisher.mergeObjectContext.mockReturnValue(address);
   });
 
-  it('rejects an address without a tenant scope', async () => {
-    const data = { street: 'Main Street' };
-    const command = new CreateAddressDTO(data as never);
-
-    await expect(handler.execute(command)).rejects.toThrow(
-      'A tenantId is required for an address',
-    );
-    expect(AddressMapper.fromCreateDto).not.toHaveBeenCalled();
-    expect(repository.create).not.toHaveBeenCalled();
-  });
-
   it.each([
     ['tenant', { street: 'Main Street', tenantId: 'tenant-1' }],
     [

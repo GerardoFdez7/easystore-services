@@ -165,6 +165,7 @@ export class AuthenticationLoginHandler
     // Generate tokens with enhanced payload
     const payload: JwtPayload = {
       email: emailVO.getValue(),
+      accountType: accountTypeVO.getValue(),
       authIdentityId: authIdentityIdValue,
       tenantId,
       customerId,

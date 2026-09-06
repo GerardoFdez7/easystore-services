@@ -102,7 +102,7 @@ reviews:
           added or changed without an explicit @RequirePermission or
           @AllowAccountTypes annotation, when either decorator receives a string
           literal instead of FeatureEnum, PermissionActionEnum, or AccountTypeEnum,
-          when PermissionsGuard's deny-by-default is weakened or bypassed, when an
+          when AuthorizationGuard's deny-by-default is weakened or bypassed, when an
           operation reachable by customers lacks a handler-level ownership filter on
           the trusted customerId, when ownership is derived from client input rather
           than @CurrentUser, when an authorization denial is returned as 401, null,
@@ -292,7 +292,7 @@ reviews:
           customer-reachable operations, or @AllowAccountTypes(TENANT) for owner-only
           operations. Reject string-literal decorator arguments, missing annotations,
           an action that misstates intent (routine adjustments are EDIT; DELETE is
-          structural removal), and any change that loosens PermissionsGuard's
+          structural removal), and any change that loosens AuthorizationGuard's
           deny-by-default to resolve a denial.
         - Treat authentication, authorization, and tenant scoping as independent.
           An authorization annotation never removes the obligation to scope by

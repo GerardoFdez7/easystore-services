@@ -7,7 +7,17 @@ import {
   registerEnumType,
 } from '@nestjs/graphql';
 import { optionalArg } from '@shared/presentation/graphql/';
-import { CurrentUser, JwtPayload } from '@shared/presentation/decorators';
+import {
+  CurrentUser,
+  JwtPayload,
+  RequirePermission,
+  AllowAccountTypes,
+} from '@shared/presentation/decorators';
+import {
+  FeatureEnum,
+  PermissionActionEnum,
+  AccountTypeEnum,
+} from '@shared/aggregates/value-objects';
 import { NamedPaginationArgs } from '@shared/presentation/graphql/';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
@@ -47,6 +57,7 @@ export default class CategoryResolver {
   // Mutations //
   ///////////////
 
+  @RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.CREATE)
   @Mutation(() => CategoryType)
   async createCategory(
     @Args('input', { type: () => CreateCategoryInput })
@@ -57,6 +68,7 @@ export default class CategoryResolver {
     return this.commandBus.execute(new CreateCategoryDTO(inputWithTenantId));
   }
 
+  @RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.EDIT)
   @Mutation(() => CategoryType)
   async updateCategory(
     @Args('id', { type: () => ID }) id: string,
@@ -69,6 +81,7 @@ export default class CategoryResolver {
     );
   }
 
+  @RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.DELETE)
   @Mutation(() => CategoryType)
   async deleteCategory(
     @Args('id', { type: () => ID }) id: string,
@@ -81,6 +94,8 @@ export default class CategoryResolver {
   //  Queries  //
   ///////////////
 
+  @RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.VIEW)
+  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
   @Query(() => CategoryType)
   async getCategoryById(
     @Args('id', { type: () => ID }) id: string,
@@ -89,6 +104,8 @@ export default class CategoryResolver {
     return this.queryBus.execute(new GetCategoryByIdDTO(id, user.tenantId));
   }
 
+  @RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.VIEW)
+  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
   @Query(() => PaginatedCategoriesType)
   async getAllCategories(
     @CurrentUser() user: JwtPayload,

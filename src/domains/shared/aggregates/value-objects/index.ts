@@ -7,6 +7,16 @@ export { LongDescription } from './long-description.vo';
 export { PhoneNumber } from './phone-number.vo';
 export { Currency, CurrencyCodes, currencySchema } from './currency.vo';
 export { IMoney, Money } from './money.vo';
+export { Feature, FeatureEnum } from './authorization/feature.vo';
+export {
+  PermissionAction,
+  PermissionActionEnum,
+} from './authorization/permission-action.vo';
+export {
+  AccountType,
+  AccountTypeEnum,
+  AccountTypeSchema,
+} from './authorization/account-type.vo';
 export enum SortBy {
   CREATED_AT = 'createdAt',
   UPDATED_AT = 'updatedAt',

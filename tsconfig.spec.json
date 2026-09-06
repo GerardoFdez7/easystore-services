@@ -3,5 +3,10 @@
   "compilerOptions": {
     "types": ["jest", "node"]
   },
-  "include": ["src/**/*.spec.ts", "src/**/*.test.ts", "src/**/*.d.ts"]
+  "include": [
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "src/**/*.d.ts",
+    "src/config/logger/global-logger.ts"
+  ]
 }

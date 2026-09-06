@@ -24,7 +24,7 @@ interface RequestWithUser extends Request {
 }
 
 @Injectable()
-export default class AuthGuard
+export default class AuthenticationGuard
   extends PassportAuthGuard('jwt')
   implements CanActivate
 {

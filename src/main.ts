@@ -7,6 +7,8 @@ import {
   initializeGlobalLogger,
   getPinoLogger,
 } from '@config/logger';
+import { PostgreService } from '@database/postgres.service';
+import { assertFeatureCatalogSeeded } from '@database/seeders/production.seed';
 
 async function bootstrap(): Promise<void> {
   // Initialize global logger first
@@ -19,6 +21,9 @@ async function bootstrap(): Promise<void> {
   const configService = app.get(ConfigService);
   const isDevelopment = configService.get<string>('NODE_ENV') === 'development';
   const corsOrigins = [configService.getOrThrow<string>('FRONTEND_URL')];
+
+  // Refuse to start if the seeded Feature catalog is missing a FeatureEnum
+  await assertFeatureCatalogSeeded(app.get(PostgreService));
 
   if (isDevelopment) {
     corsOrigins.push('https://studio.apollographql.com');

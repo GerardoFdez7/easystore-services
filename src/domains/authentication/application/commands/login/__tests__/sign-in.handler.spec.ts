@@ -210,11 +210,13 @@ describe('AuthenticationLoginHandler', () => {
       );
       expect(generateToken).toHaveBeenCalledWith({
         email: 'user@example.com',
+        accountType,
         authIdentityId,
         ...scope,
       });
       expect(generateRefreshToken).toHaveBeenCalledWith({
         email: 'user@example.com',
+        accountType,
         authIdentityId,
         ...scope,
       });

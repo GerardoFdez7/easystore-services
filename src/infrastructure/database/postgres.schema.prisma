@@ -301,33 +301,46 @@ model Employee {
 model EmployeeRole {
   id           String         @id
   role         String
+  isSystem     Boolean        @default(false)
   tenantId     String
   tenant       Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   employees    Employee[]
   roleFeatures RoleFeatures[]
 
+  @@unique([tenantId, role])
   @@index([tenantId])
   @@schema("tenant")
 }
 
 model RoleFeatures {
-  id           String       @id
+  id           String           @id
   roleId       String
   featureId    String
+  action       PermissionAction
   tenantId     String
-  employeeRole EmployeeRole @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  feature      Feature      @relation(fields: [featureId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  tenant       Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  employeeRole EmployeeRole     @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  feature      Feature          @relation(fields: [featureId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  tenant       Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
+  @@unique([roleId, featureId, action])
   @@index([roleId])
   @@index([featureId])
   @@index([tenantId])
   @@schema("tenant")
 }
 
+enum PermissionAction {
+  VIEW
+  CREATE
+  EDIT
+  DELETE
+
+  @@schema("tenant")
+}
+
 model Feature {
   id           String         @id
-  code         String         @unique // "REPORTS", "ORDERS" 
+  code         String         @unique
   name         String         @postgres.Citext
   description  String?
   createdAt    DateTime       @default(now())

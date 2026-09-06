@@ -7,7 +7,15 @@ import {
   registerEnumType,
 } from '@nestjs/graphql';
 import { optionalArg, pageArg } from '@shared/presentation/graphql/';
-import { CurrentUser, JwtPayload } from '@shared/presentation/decorators';
+import {
+  CurrentUser,
+  JwtPayload,
+  RequirePermission,
+} from '@shared/presentation/decorators';
+import {
+  FeatureEnum,
+  PermissionActionEnum,
+} from '@shared/aggregates/value-objects';
 import { NamedPaginationArgs } from '@shared/presentation/graphql/';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
@@ -55,6 +63,7 @@ export default class InventoryResolver {
   // Mutations //
   ///////////////
 
+  @RequirePermission(FeatureEnum.INVENTORY, PermissionActionEnum.CREATE)
   @Mutation(() => WarehouseType)
   async createWarehouse(
     @Args('input', { type: () => CreateWarehouseInput })
@@ -65,6 +74,7 @@ export default class InventoryResolver {
     return this.commandBus.execute(new CreateWarehouseDTO(inputWithTenantId));
   }
 
+  @RequirePermission(FeatureEnum.INVENTORY, PermissionActionEnum.EDIT)
   @Mutation(() => WarehouseType)
   async updateWarehouse(
     @Args('id', { type: () => ID }) id: string,
@@ -77,6 +87,7 @@ export default class InventoryResolver {
     );
   }
 
+  @RequirePermission(FeatureEnum.INVENTORY, PermissionActionEnum.DELETE)
   @Mutation(() => WarehouseType)
   async deleteWarehouse(
     @Args('id', { type: () => ID }) id: string,
@@ -85,6 +96,7 @@ export default class InventoryResolver {
     return this.commandBus.execute(new DeleteWarehouseDTO(id, user.tenantId));
   }
 
+  @RequirePermission(FeatureEnum.INVENTORY, PermissionActionEnum.EDIT)
   @Mutation(() => WarehouseType)
   async addStockToWarehouse(
     @CurrentUser() user: JwtPayload,
@@ -104,6 +116,7 @@ export default class InventoryResolver {
     );
   }
 
+  @RequirePermission(FeatureEnum.INVENTORY, PermissionActionEnum.EDIT)
   @Mutation(() => WarehouseType)
   async updateStockInWarehouse(
     @Args('stockId', { type: () => ID }) stockId: string,
@@ -125,6 +138,7 @@ export default class InventoryResolver {
     );
   }
 
+  @RequirePermission(FeatureEnum.INVENTORY, PermissionActionEnum.EDIT)
   @Mutation(() => WarehouseType)
   async removeStockFromWarehouse(
     @Args('warehouseId', { type: () => ID }) warehouseId: string,
@@ -147,6 +161,7 @@ export default class InventoryResolver {
   //  Queries  //
   ///////////////
 
+  @RequirePermission(FeatureEnum.INVENTORY, PermissionActionEnum.VIEW)
   @Query(() => WarehouseType)
   async getWarehouseById(
     @Args('id', { type: () => ID }) id: string,
@@ -159,6 +174,7 @@ export default class InventoryResolver {
     );
   }
 
+  @RequirePermission(FeatureEnum.INVENTORY, PermissionActionEnum.VIEW)
   @Query(() => PaginatedWarehousesType)
   async getAllWarehouses(
     @CurrentUser() user: JwtPayload,
@@ -204,6 +220,7 @@ export default class InventoryResolver {
     );
   }
 
+  @RequirePermission(FeatureEnum.INVENTORY, PermissionActionEnum.VIEW)
   @Query(() => PaginatedStockMovementsType)
   async getAllStockMovements(
     @CurrentUser() user: JwtPayload,

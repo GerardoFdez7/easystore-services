@@ -143,6 +143,25 @@ describe('UpdateCustomerHandler', () => {
         );
       });
 
+      it('does not return or mutate another customer record when the resolved scope does not match', async () => {
+        // The repository is scoped by (customerId, tenantId) taken from
+        // @CurrentUser(), so a request for a customerId that belongs to
+        // another customer resolves to no record here — indistinguishable
+        // from a genuinely missing customer, never a distinct forbidden error.
+        const otherCustomersCommand = new UpdateCustomerDto(
+          { name: 'Attempted cross-customer update' },
+          'someone-elses-customer-id',
+          'tenant-456',
+        );
+        findCustomerByIdMock.mockResolvedValue(null);
+
+        await expect(
+          handler.execute(otherCustomersCommand),
+        ).rejects.toBeInstanceOf(NotFoundException);
+        expect(updateMock).not.toHaveBeenCalled();
+        expect(mockCustomer.commit).not.toHaveBeenCalled();
+      });
+
       it('should handle valid customer ID correctly', async () => {
         const validCommand = new UpdateCustomerDto(
           { name: 'Valid Name' },

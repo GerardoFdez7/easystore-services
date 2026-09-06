@@ -13,7 +13,6 @@ export class CreateAddressHandler implements ICommandHandler<CreateAddressDTO> {
   ) {}
 
   async execute(command: CreateAddressDTO): Promise<AddressDTO> {
-
     // Mapper to create the domain entity
     const address = this.eventPublisher.mergeObjectContext(
       AddressMapper.fromCreateDto(command.data),

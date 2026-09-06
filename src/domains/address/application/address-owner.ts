@@ -10,7 +10,6 @@ export function resolveAddressOwner(
   tenantId: string,
   customerId?: string,
 ): Owner {
-
   return {
     tenantId: Id.create(tenantId),
     ...(customerId ? { customerId: Id.create(customerId) } : {}),

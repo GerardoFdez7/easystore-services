@@ -6,9 +6,13 @@ import {
   registerEnumType,
 } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CurrentUser, JwtPayload } from '@shared/presentation/decorators';
+import {
+  CurrentUser,
+  JwtPayload,
+  AllowAccountTypes,
+} from '@shared/presentation/decorators';
 import { PaginationArgs } from '@shared/presentation/graphql/';
-import { SortOrder } from '@shared/aggregates/value-objects';
+import { SortOrder, AccountTypeEnum } from '@shared/aggregates/value-objects';
 import {
   CreateCustomerReviewProductDto,
   CreateWishListDto,
@@ -55,6 +59,7 @@ export class CustomerResolver {
   // Mutations //
   ///////////////
 
+  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
   @Mutation(() => WishListType)
   async addVariantToWishList(
     @Args('input', { type: () => WishListItemCreateInput })
@@ -69,6 +74,7 @@ export class CustomerResolver {
     );
   }
 
+  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
   @Mutation(() => CustomerReviewProductType)
   async addReviewProduct(
     @Args('input', { type: () => CreateCustomerReviewProductInput })
@@ -80,6 +86,7 @@ export class CustomerResolver {
     );
   }
 
+  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
   @Mutation(() => CustomerType)
   async updateCustomer(
     @Args('input', { type: () => UpdateCustomerInput })
@@ -91,6 +98,7 @@ export class CustomerResolver {
     );
   }
 
+  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
   @Mutation(() => CustomerReviewProductType)
   async updateReviewProduct(
     @Args('input', { type: () => UpdateCustomerReviewProductInput })
@@ -102,6 +110,7 @@ export class CustomerResolver {
     );
   }
 
+  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
   @Mutation(() => Boolean)
   async deleteReviewProduct(
     @Args('input', { type: () => DeleteCustomerReviewProductInput })
@@ -118,6 +127,7 @@ export class CustomerResolver {
     return true;
   }
 
+  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
   @Mutation(() => Boolean)
   async removeVariantFromWishList(
     @Args('input', { type: () => WishListItemDeleteInput })
@@ -130,6 +140,7 @@ export class CustomerResolver {
     return true;
   }
 
+  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
   @Mutation(() => WishListMultiStatusType)
   async removeManyVariantsFromWishList(
     @Args('input', { type: () => WishListManyItemsInput })
@@ -149,6 +160,7 @@ export class CustomerResolver {
   // Queries   //
   ///////////////
 
+  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
   @Query(() => CustomerType)
   async getCustomerById(
     @CurrentUser() user: JwtPayload,
@@ -158,6 +170,7 @@ export class CustomerResolver {
     );
   }
 
+  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
   @Query(() => PaginatedWishlistType)
   async getWishListItems(
     @CurrentUser() user: JwtPayload,
@@ -179,6 +192,7 @@ export class CustomerResolver {
     );
   }
 
+  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
   @Query(() => PaginatedCustomerReviewProductWithVariantType)
   async getCustomerReviews(
     @CurrentUser() user: JwtPayload,
