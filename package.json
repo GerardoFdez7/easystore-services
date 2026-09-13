@@ -20,6 +20,7 @@
     "dbpush": "set PRISMA_HIDE_UPDATE_MESSAGE=1 && npx prisma db push --schema src/infrastructure/database/postgres.schema.prisma",
     "seed": "npx ts-node src/infrastructure/database/seeders/seed.ts",
     "database": "set PRISMA_HIDE_UPDATE_MESSAGE=1 && npx prisma migrate dev --schema src/infrastructure/database/postgres.schema.prisma && npm run seed",
+    "database:reset": "set PRISMA_HIDE_UPDATE_MESSAGE=1 && npx prisma migrate reset --schema src/infrastructure/database/postgres.schema.prisma && npm run seed",
     "architecture": "npm run architecture:structure && npm run architecture:semgrep",
     "architecture:structure": "node tools/architecture/check.mjs",
     "architecture:semgrep": "semgrep scan --config .semgrep.yml --error src/domains",

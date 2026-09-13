@@ -17,6 +17,7 @@ async function bootstrap(): Promise<void> {
 
   const app = await NestFactory.create(AppModule, {
     logger: new CustomLoggerService(),
+    abortOnError: false,
   });
   const configService = app.get(ConfigService);
   const isDevelopment = configService.get<string>('NODE_ENV') === 'development';
@@ -46,6 +47,7 @@ async function bootstrap(): Promise<void> {
 }
 
 bootstrap().catch((error) => {
-  logger.fatal(`NestJS failed to start. ${error}`);
-  process.exit(1);
+  console.error('NestJS failed to start:', error);
+  getPinoLogger().fatal('NestJS failed to start');
+  process.exitCode = 1;
 });

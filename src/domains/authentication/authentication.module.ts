@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
@@ -116,6 +117,14 @@ const CronServices = [CleanupService];
     ...EmailBuilders,
     ...RateLimiters,
     ...CronServices,
+    {
+      provide: APP_GUARD,
+      useExisting: AuthenticationGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useExisting: AuthorizationGuard,
+    },
   ],
   exports: [AuthenticationGuard, AuthorizationGuard, JwtModule],
 })
