@@ -51,7 +51,7 @@ export async function bootstrap(): Promise<void> {
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('NestJS failed to start:', error);
-    logger.fatal('NestJS failed to start');
+    logger.fatal('NestJS failed to start', error);
 
     try {
       await app?.close();
