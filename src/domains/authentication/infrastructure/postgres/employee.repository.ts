@@ -1,6 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PostgreService } from '@database/postgres.service';
-import { IEmployeeRepository } from '../../aggregates/repositories/employee.interface';
+import {
+  FeatureEnum,
+  PermissionActionEnum,
+} from '@shared/aggregates/value-objects';
+import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
+import {
+  EmployeePermission,
+  IEmployeeRepository,
+} from '../../aggregates/repositories/employee.interface';
 import { Id } from '../../aggregates/value-objects';
 
 @Injectable()
@@ -38,9 +46,62 @@ export class EmployeeRepository implements IEmployeeRepository {
         id: employee.id,
         tenantId: employee.role.tenantId,
       };
-    } catch (_error) {
-      // Log error and return null for now
-      return null;
+    } catch (error) {
+      return this.handleDatabaseError(error, 'find employee by auth identity');
     }
+  }
+
+  /**
+   * Resolves the full set of (feature, action) grants held by an employee's role,
+   * scoped to the employee's tenant.
+   */
+  async findPermissionsByEmployeeId(
+    employeeId: Id,
+    tenantId: Id,
+  ): Promise<EmployeePermission[]> {
+    const employeeIdValue = employeeId.getValue();
+    const tenantIdValue = tenantId.getValue();
+
+    try {
+      const employee = await this.prisma.employee.findFirst({
+        where: {
+          id: employeeIdValue,
+          tenantId: tenantIdValue,
+        },
+        select: {
+          role: {
+            select: {
+              roleFeatures: {
+                where: { tenantId: tenantIdValue },
+                select: {
+                  action: true,
+                  feature: { select: { code: true } },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!employee) {
+        return [];
+      }
+
+      return employee.role.roleFeatures.map((roleFeature) => ({
+        feature: roleFeature.feature.code as FeatureEnum,
+        action: roleFeature.action as PermissionActionEnum,
+      }));
+    } catch (error) {
+      return this.handleDatabaseError(error, 'resolve employee permissions');
+    }
+  }
+
+  /**
+   * Centralized error handling for database operations.
+   */
+  private handleDatabaseError(error: unknown, operation: string): never {
+    return handlePrismaDatabaseError(error, operation, {
+      resource: 'Employee',
+    });
   }
 }

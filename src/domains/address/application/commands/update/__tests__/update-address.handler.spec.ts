@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { EventPublisher } from '@nestjs/cqrs';
+import { NotFoundException } from '@nestjs/common';
 import { findAddressOrThrow } from '../../../address-owner';
 import { AddressMapper } from '../../../mappers';
 import { UpdateAddressDTO } from '../update-address.dto';
@@ -64,13 +65,55 @@ describe('UpdateAddressHandler', () => {
     expect(AddressMapper.toDto).toHaveBeenCalledWith(updatedAddress);
   });
 
-  it('does not map or persist when lookup rejects an invalid owner combination', async () => {
-    const error = new Error('You must provide either tenantId or customerId');
+  it('scopes customer-owned addresses by both tenant and customer', async () => {
+    const command = new UpdateAddressDTO(
+      'address-1',
+      'tenant-1',
+      'customer-1',
+      {},
+    );
+
+    await expect(handler.execute(command)).resolves.toBe(dto);
+
+    expect(findAddressOrThrow).toHaveBeenCalledWith(
+      repository,
+      'address-1',
+      'tenant-1',
+      'customer-1',
+    );
+  });
+
+  it('denies a customer update when the address is not returned for that customer', async () => {
+    const command = new UpdateAddressDTO(
+      'address-1',
+      'tenant-1',
+      'customer-b',
+      { city: 'Guatemala City' },
+    );
+    (findAddressOrThrow as jest.Mock).mockRejectedValueOnce(
+      new NotFoundException('Address with ID address-1 not found'),
+    );
+
+    await expect(handler.execute(command)).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+    expect(findAddressOrThrow).toHaveBeenCalledWith(
+      repository,
+      'address-1',
+      'tenant-1',
+      'customer-b',
+    );
+    expect(repository.update).not.toHaveBeenCalled();
+    expect(updatedAddress.commit).not.toHaveBeenCalled();
+  });
+
+  it('does not map or persist when lookup rejects a missing tenant scope', async () => {
+    const error = new Error('A tenantId is required for an address');
     (findAddressOrThrow as jest.Mock).mockRejectedValueOnce(error);
 
     await expect(
       handler.execute(
-        new UpdateAddressDTO('address-1', 'tenant-1', 'customer-1', {}),
+        new UpdateAddressDTO('address-1', undefined as never, 'customer-1', {}),
       ),
     ).rejects.toBe(error);
     expect(AddressMapper.fromUpdateDto).not.toHaveBeenCalled();

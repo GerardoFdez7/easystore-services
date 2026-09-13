@@ -57,7 +57,9 @@ describe('DeleteAddressHandler', () => {
     (findAddressOrThrow as jest.Mock).mockRejectedValueOnce(error);
 
     await expect(
-      handler.execute(new AddressDeleteDTO('missing', undefined, 'customer-1')),
+      handler.execute(
+        new AddressDeleteDTO('missing', 'tenant-1', 'customer-1'),
+      ),
     ).rejects.toBe(error);
     expect(repository.delete).not.toHaveBeenCalled();
     expect(deletedAddress.commit).not.toHaveBeenCalled();

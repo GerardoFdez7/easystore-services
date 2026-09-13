@@ -1,5 +1,6 @@
 import { EventPublisher } from '@nestjs/cqrs';
 import {
+  BadRequestException,
   ForbiddenException,
   NotFoundException,
   UnauthorizedException,
@@ -28,7 +29,10 @@ describe('AuthenticationLoginHandler', () => {
     findByEmailAndAccountType: jest.fn(),
     update: jest.fn(),
   };
-  const tenantAdapter = { getTenantIdByAuthIdentityId: jest.fn() };
+  const tenantAdapter = {
+    getTenantIdByAuthIdentityId: jest.fn(),
+    getTenantIdByDomain: jest.fn(),
+  };
   const customerRepository = { findByAuthIdentityId: jest.fn() };
   const employeeRepository = { findByAuthIdentityId: jest.fn() };
   const publisher = { mergeObjectContext: jest.fn() };
@@ -51,11 +55,15 @@ describe('AuthenticationLoginHandler', () => {
   };
   let handler: AuthenticationLoginHandler;
 
-  const command = (accountType: AccountTypeEnum): AuthenticationLoginDTO =>
+  const command = (
+    accountType: AccountTypeEnum,
+    domain?: string,
+  ): AuthenticationLoginDTO =>
     new AuthenticationLoginDTO({
       email: 'user@example.com',
       password: 'secret',
       accountType,
+      domain,
     } as never);
 
   beforeEach(() => {
@@ -77,13 +85,24 @@ describe('AuthenticationLoginHandler', () => {
     (bcrypt.compare as jest.Mock).mockResolvedValue(true);
     (generateToken as jest.Mock).mockReturnValue('access-token');
     (generateRefreshToken as jest.Mock).mockReturnValue('refresh-token');
+    tenantAdapter.getTenantIdByDomain.mockResolvedValue('tenant-1');
   });
+
+  it.each([[AccountTypeEnum.CUSTOMER], [AccountTypeEnum.EMPLOYEE]])(
+    'throws BadRequestException for %s sign-in without a domain',
+    async (accountType) => {
+      await expect(
+        handler.execute(command(accountType)),
+      ).rejects.toBeInstanceOf(BadRequestException);
+      expect(authRepository.findByEmailAndAccountType).not.toHaveBeenCalled();
+    },
+  );
 
   it('uses a dummy password comparison and returns a generic error for an unknown identity', async () => {
     authRepository.findByEmailAndAccountType.mockResolvedValueOnce(null);
 
     await expect(
-      handler.execute(command(AccountTypeEnum.CUSTOMER)),
+      handler.execute(command(AccountTypeEnum.CUSTOMER, 'tenant.example.com')),
     ).rejects.toThrow(new NotFoundException('Invalid credentials'));
     expect(bcrypt.compare).toHaveBeenCalledWith(
       'dummy',
@@ -112,7 +131,7 @@ describe('AuthenticationLoginHandler', () => {
     (bcrypt.compare as jest.Mock).mockResolvedValueOnce(false);
 
     await expect(
-      handler.execute(command(AccountTypeEnum.CUSTOMER)),
+      handler.execute(command(AccountTypeEnum.CUSTOMER, 'tenant.example.com')),
     ).rejects.toThrow(new UnauthorizedException('Invalid credentials'));
     expect(bcrypt.compare).toHaveBeenCalledWith('secret', 'stored-hash');
     expect(auth.loginFailed).toHaveBeenCalledTimes(1);
@@ -124,9 +143,23 @@ describe('AuthenticationLoginHandler', () => {
     expect(generateToken).not.toHaveBeenCalled();
   });
 
+  it.each([[AccountTypeEnum.CUSTOMER], [AccountTypeEnum.EMPLOYEE]])(
+    'throws NotFoundException for %s sign-in when the domain does not resolve to a tenant',
+    async (accountType) => {
+      tenantAdapter.getTenantIdByDomain.mockResolvedValueOnce(null);
+
+      await expect(
+        handler.execute(command(accountType, 'unknown-tenant.example.com')),
+      ).rejects.toThrow('Tenant not found for this domain');
+      expect(generateToken).not.toHaveBeenCalled();
+      expect(auth.loginSucceeded).not.toHaveBeenCalled();
+    },
+  );
+
   it.each([
     [
       AccountTypeEnum.TENANT,
+      undefined,
       tenantAdapter,
       'getTenantIdByAuthIdentityId',
       'tenant-1',
@@ -134,6 +167,7 @@ describe('AuthenticationLoginHandler', () => {
     ],
     [
       AccountTypeEnum.CUSTOMER,
+      'tenant.example.com',
       customerRepository,
       'findByAuthIdentityId',
       { id: 'customer-1', tenantId: 'tenant-1' },
@@ -141,6 +175,7 @@ describe('AuthenticationLoginHandler', () => {
     ],
     [
       AccountTypeEnum.EMPLOYEE,
+      'tenant.example.com',
       employeeRepository,
       'findByAuthIdentityId',
       { id: 'employee-1', tenantId: 'tenant-1' },
@@ -150,6 +185,7 @@ describe('AuthenticationLoginHandler', () => {
     'issues correctly scoped tokens for a %s identity',
     async (
       accountType,
+      domain,
       relatedProvider,
       profileMethod,
       relatedIdentity,
@@ -158,7 +194,9 @@ describe('AuthenticationLoginHandler', () => {
       const provider = relatedProvider as Record<string, jest.Mock>;
       provider[profileMethod].mockResolvedValueOnce(relatedIdentity);
 
-      await expect(handler.execute(command(accountType))).resolves.toEqual({
+      await expect(
+        handler.execute(command(accountType, domain)),
+      ).resolves.toEqual({
         success: true,
         message: 'Login successful',
         accessToken: 'access-token',
@@ -172,11 +210,13 @@ describe('AuthenticationLoginHandler', () => {
       );
       expect(generateToken).toHaveBeenCalledWith({
         email: 'user@example.com',
+        accountType,
         authIdentityId,
         ...scope,
       });
       expect(generateRefreshToken).toHaveBeenCalledWith({
         email: 'user@example.com',
+        accountType,
         authIdentityId,
         ...scope,
       });
@@ -187,36 +227,59 @@ describe('AuthenticationLoginHandler', () => {
   it.each([
     [
       AccountTypeEnum.TENANT,
+      undefined,
       tenantAdapter,
       'getTenantIdByAuthIdentityId',
       'Tenant',
     ],
     [
       AccountTypeEnum.CUSTOMER,
+      'tenant.example.com',
       customerRepository,
       'findByAuthIdentityId',
       'Customer',
     ],
     [
       AccountTypeEnum.EMPLOYEE,
+      'tenant.example.com',
       employeeRepository,
       'findByAuthIdentityId',
       'Employee',
     ],
   ])(
     'does not issue tokens when the %s profile is missing',
-    async (accountType, relatedProvider, profileMethod, label) => {
+    async (accountType, domain, relatedProvider, profileMethod, label) => {
       const provider = relatedProvider as Record<string, jest.Mock>;
       provider[profileMethod].mockResolvedValueOnce(null);
 
-      await expect(handler.execute(command(accountType))).rejects.toThrow(
-        `${label} not found for this auth identity`,
-      );
+      await expect(
+        handler.execute(command(accountType, domain)),
+      ).rejects.toThrow(`${label} not found for this auth identity`);
       expect(generateToken).not.toHaveBeenCalled();
       expect(generateRefreshToken).not.toHaveBeenCalled();
       expect(auth.loginSucceeded).not.toHaveBeenCalled();
       expect(authRepository.update).not.toHaveBeenCalled();
       expect(auth.commit).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each([
+    [AccountTypeEnum.CUSTOMER, customerRepository],
+    [AccountTypeEnum.EMPLOYEE, employeeRepository],
+  ])(
+    'rejects a %s identity whose tenant does not match the resolved domain tenant',
+    async (accountType, relatedProvider) => {
+      const provider = relatedProvider as Record<string, jest.Mock>;
+      provider.findByAuthIdentityId.mockResolvedValueOnce({
+        id: 'related-1',
+        tenantId: 'other-tenant',
+      });
+
+      await expect(
+        handler.execute(command(accountType, 'tenant.example.com')),
+      ).rejects.toThrow('not found for this auth identity');
+      expect(generateToken).not.toHaveBeenCalled();
+      expect(auth.loginSucceeded).not.toHaveBeenCalled();
     },
   );
 });

@@ -56,7 +56,7 @@ describe('UpdateCustomerHandler', () => {
 
     idCreateMock = jest
       .spyOn(Id, 'create')
-      .mockReturnValue({ getValue: () => 'mocked-id' } as Id);
+      .mockImplementation((value: string) => ({ getValue: () => value }) as Id);
 
     defaultDto = {
       id: 'customer-id-123',
@@ -117,14 +117,9 @@ describe('UpdateCustomerHandler', () => {
       it('should find customer by ID and tenant ID', async () => {
         await handler.execute(baseCommand);
 
-        expect(findCustomerByIdMock).toHaveBeenCalledWith(
-          expect.objectContaining({
-            getValue: expect.any(Function) as unknown,
-          }),
-          expect.objectContaining({
-            getValue: expect.any(Function) as unknown,
-          }),
-        );
+        const [customerId, tenantId] = findCustomerByIdMock.mock.calls[0];
+        expect(customerId.getValue()).toBe(baseCommand.customerId);
+        expect(tenantId.getValue()).toBe(baseCommand.tenantId);
       });
 
       it('should throw NotFoundException when customer is not found', async () => {
@@ -141,6 +136,25 @@ describe('UpdateCustomerHandler', () => {
         await expect(handler.execute(baseCommand)).rejects.toThrow(
           'Customer not found.',
         );
+      });
+
+      it('does not return or mutate another customer record when the resolved scope does not match', async () => {
+        // The repository is scoped by (customerId, tenantId) taken from
+        // @CurrentUser(), so a request for a customerId that belongs to
+        // another customer resolves to no record here — indistinguishable
+        // from a genuinely missing customer, never a distinct forbidden error.
+        const otherCustomersCommand = new UpdateCustomerDto(
+          { name: 'Attempted cross-customer update' },
+          'someone-elses-customer-id',
+          'tenant-456',
+        );
+        findCustomerByIdMock.mockResolvedValue(null);
+
+        await expect(
+          handler.execute(otherCustomersCommand),
+        ).rejects.toBeInstanceOf(NotFoundException);
+        expect(updateMock).not.toHaveBeenCalled();
+        expect(mockCustomer.commit).not.toHaveBeenCalled();
       });
 
       it('should handle valid customer ID correctly', async () => {

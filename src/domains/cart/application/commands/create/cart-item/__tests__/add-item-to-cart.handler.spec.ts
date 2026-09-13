@@ -140,14 +140,9 @@ describe('AddItemToCartHandler', () => {
 
         await handler.execute(baseCommand);
 
-        expect(findCartByCustomerIdMock).toHaveBeenCalledWith(
-          expect.objectContaining({
-            getValue: expect.any(Function),
-          }),
-          expect.objectContaining({
-            getValue: expect.any(Function),
-          }),
-        );
+        const [customerId, tenantId] = findCartByCustomerIdMock.mock.calls[0];
+        expect(customerId.getValue()).toBe(baseCommand.customerId);
+        expect(tenantId.getValue()).toBe(baseCommand.tenantId);
       });
 
       it('should throw NotFoundException when cart is not found', async () => {
@@ -165,6 +160,25 @@ describe('AddItemToCartHandler', () => {
         await expect(handler.execute(baseCommand)).rejects.toThrow(
           'Cart not found',
         );
+      });
+
+      it('does not return or mutate another customer cart when the resolved scope does not match', async () => {
+        // findCartByCustomerId is scoped by (customerId, tenantId) taken from
+        // @CurrentUser(), so a request scoped to another customer's cart
+        // resolves to no record — indistinguishable from a missing cart,
+        // never a distinct forbidden error.
+        const otherCustomersCommand = new AddItemToCartDto(
+          baseItemData,
+          '019a039e-fe39-7a1c-8d2f-9a1b2c3d4e5f',
+          '019a039e-fe37-7516-ab6d-c16428949f9f',
+        );
+        findCartByCustomerIdMock.mockResolvedValue(null);
+
+        await expect(
+          handler.execute(otherCustomersCommand),
+        ).rejects.toBeInstanceOf(NotFoundException);
+        expect(updateMock).not.toHaveBeenCalled();
+        expect(mockCart.commit).not.toHaveBeenCalled();
       });
 
       it('should handle valid customer ID correctly', async () => {

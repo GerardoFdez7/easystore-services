@@ -7,13 +7,9 @@ import {
 import { Id } from '../aggregates/value-objects';
 
 export function resolveAddressOwner(
-  tenantId?: string,
+  tenantId: string,
   customerId?: string,
 ): Owner {
-  if ((!tenantId && !customerId) || (tenantId && customerId)) {
-    throw new Error('You must provide either tenantId or customerId');
-  }
-
   return {
     tenantId: Id.create(tenantId),
     ...(customerId ? { customerId: Id.create(customerId) } : {}),
@@ -23,7 +19,7 @@ export function resolveAddressOwner(
 export async function findAddressOrThrow(
   repository: IAddressRepository,
   id: string,
-  tenantId?: string,
+  tenantId: string,
   customerId?: string,
 ): Promise<{ address: Address; addressId: Id; owner: Owner }> {
   const addressId = Id.create(id);

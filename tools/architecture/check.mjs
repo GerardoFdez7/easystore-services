@@ -522,6 +522,56 @@ function validateInfrastructureLayer(domainRoot) {
   }
 }
 
+const operationDecoratorPattern = /@(Query|Mutation)\s*\(/;
+const classDeclarationPattern = /^\s*(?:export\s+)?(?:default\s+)?class\s+\w+/m;
+
+/**
+ * Every GraphQL operation must state its authorization posture explicitly, per
+ * docs/AUTHORIZATION.md. An operation is exempt only when it (or its resolver
+ * class) carries @Public(); otherwise it must carry @RequirePermission and/or
+ * @AllowAccountTypes. This mirrors PermissionsGuard's own deny-by-default so a
+ * missing decorator fails at review time rather than as a runtime 403.
+ */
+function validateOperationAuthorization(resolverFile, source) {
+  const classMatch = classDeclarationPattern.exec(source);
+  if (!classMatch) return;
+
+  const classDecorators = source.slice(0, classMatch.index);
+  const classIsPublic = /@Public\s*\(\s*\)/.test(classDecorators);
+
+  const body = source.slice(classMatch.index);
+  const methodBoundaries = [
+    ...body.matchAll(/^\s*(?:async\s+)?\w+\s*\([^]*?\)\s*(?::[^{]+)?\{/gm),
+  ];
+
+  let cursor = 0;
+  for (const boundary of methodBoundaries) {
+    const methodStart = boundary.index;
+    const decoratorBlock = body.slice(cursor, methodStart);
+    cursor = methodStart + boundary[0].length;
+
+    if (!operationDecoratorPattern.test(decoratorBlock)) continue;
+
+    const methodNameMatch = /(\w+)\s*\([^]*$/.exec(boundary[0]);
+    const methodName = methodNameMatch ? methodNameMatch[1] : '<unknown>';
+
+    const isPublic = classIsPublic
+      ? !/@Authenticated\s*\(\s*\)/.test(decoratorBlock)
+      : /@Public\s*\(\s*\)/.test(decoratorBlock);
+    if (isPublic) continue;
+
+    const hasPermission = /@RequirePermission\s*\(/.test(decoratorBlock);
+    const hasAccountTypes = /@AllowAccountTypes\s*\(/.test(decoratorBlock);
+
+    if (!hasPermission && !hasAccountTypes) {
+      report(
+        resolverFile,
+        `${methodName} must carry @RequirePermission, @AllowAccountTypes, or @Public — PermissionsGuard denies unannotated operations`,
+      );
+    }
+  }
+}
+
 function validatePresentationLayer(domainRoot) {
   const graphqlRoot = join(domainRoot, 'presentation', 'graphql');
   if (!existsSync(graphqlRoot)) return;
@@ -536,6 +586,7 @@ function validatePresentationLayer(domainRoot) {
     if (!/class\s+\w+Resolver\b/.test(source)) {
       report(resolverFile, 'GraphQL resolver class must end in Resolver');
     }
+    validateOperationAuthorization(resolverFile, source);
   }
 
   const typesRoot = join(graphqlRoot, 'types');

@@ -1,4 +1,15 @@
 import {
+  CurrentUser,
+  JwtPayload,
+  RequirePermission,
+  AllowAccountTypes,
+} from '@shared/presentation/decorators';
+import {
+  FeatureEnum,
+  PermissionActionEnum,
+  AccountTypeEnum,
+} from '@shared/aggregates/value-objects';
+import {
   ID,
   Resolver,
   Mutation,
@@ -7,7 +18,6 @@ import {
   registerEnumType,
 } from '@nestjs/graphql';
 import { optionalArg, pageArg } from '@shared/presentation/graphql/';
-import { CurrentUser, JwtPayload } from '@shared/presentation/decorators';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import {
   ProductType,
@@ -64,6 +74,7 @@ export class ProductResolver {
   // Mutations //
   ///////////////
 
+  @RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.CREATE)
   @Mutation(() => ProductType)
   async createProduct(
     @Args('input') input: CreateProductInput,
@@ -73,6 +84,7 @@ export class ProductResolver {
     return this.commandBus.execute(new CreateProductDTO(inputWithTenantId));
   }
 
+  @RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.EDIT)
   @Mutation(() => ProductType)
   async updateProduct(
     @Args('id') id: string,
@@ -84,6 +96,7 @@ export class ProductResolver {
     );
   }
 
+  @RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.DELETE)
   @Mutation(() => ProductType)
   async softDeleteProduct(
     @Args('id') id: string,
@@ -92,6 +105,7 @@ export class ProductResolver {
     return this.commandBus.execute(new SoftDeleteProductDTO(id, user.tenantId));
   }
 
+  @RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.DELETE)
   @Mutation(() => ProductType)
   async hardDeleteProduct(
     @Args('id') id: string,
@@ -100,6 +114,7 @@ export class ProductResolver {
     return this.commandBus.execute(new HardDeleteProductDTO(id, user.tenantId));
   }
 
+  @RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.EDIT)
   @Mutation(() => ProductType)
   async restoreProduct(
     @Args('id') id: string,
@@ -109,6 +124,7 @@ export class ProductResolver {
   }
 
   // Variants mutations
+  @RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.EDIT)
   @Mutation(() => ProductType)
   async archiveVariant(
     @Args('id') id: string,
@@ -120,6 +136,7 @@ export class ProductResolver {
     );
   }
 
+  @RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.EDIT)
   @Mutation(() => ProductType)
   async restoreVariant(
     @Args('id') id: string,
@@ -131,6 +148,7 @@ export class ProductResolver {
     );
   }
 
+  @RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.DELETE)
   @Mutation(() => ProductType)
   async removeVariant(
     @Args('id') id: string,
@@ -146,6 +164,12 @@ export class ProductResolver {
   //  Queries  //
   ///////////////
 
+  @RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.VIEW)
+  @AllowAccountTypes(
+    AccountTypeEnum.TENANT,
+    AccountTypeEnum.CUSTOMER,
+    AccountTypeEnum.EMPLOYEE,
+  )
   @Query(() => ProductType)
   async getProductById(
     @Args('id') id: string,
@@ -154,6 +178,12 @@ export class ProductResolver {
     return this.queryBus.execute(new GetProductByIdDTO(id, user.tenantId));
   }
 
+  @RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.VIEW)
+  @AllowAccountTypes(
+    AccountTypeEnum.TENANT,
+    AccountTypeEnum.CUSTOMER,
+    AccountTypeEnum.EMPLOYEE,
+  )
   @Query(() => PaginatedProductsType)
   async getAllProducts(
     @CurrentUser() user: JwtPayload,

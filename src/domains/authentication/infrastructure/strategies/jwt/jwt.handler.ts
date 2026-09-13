@@ -1,5 +1,6 @@
 import { Response, Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
+import { AccountTypeEnum } from '../../../aggregates/value-objects';
 
 const jwtSecret = process.env.JWT_SECRET;
 const jwtExpiration = '1d';
@@ -17,6 +18,7 @@ export const isTokenBlacklisted = (token: string): boolean =>
 
 export interface JwtPayload {
   email: string;
+  accountType: AccountTypeEnum;
   authIdentityId: string;
   tenantId: string;
   customerId?: string;

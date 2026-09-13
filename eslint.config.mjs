@@ -20,7 +20,7 @@ const ignorePatterns = [
   'dist',
   'node_modules',
   'test/',
-  'src/infrastructure/database/seeds/**',
+  'src/infrastructure/database/seeders/**',
   '**/*.spec.ts',
   '.roo/*',
 ];

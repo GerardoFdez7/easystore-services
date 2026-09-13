@@ -1,3 +1,5 @@
 import { ITenantType } from '../../../aggregates/entities/tenant/tenant.attributes';
 
-export type TenantDTO = ITenantType;
+export type TenantDTO = ITenantType & {
+  email: string;
+};

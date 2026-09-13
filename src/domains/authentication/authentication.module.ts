@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CqrsModule } from '@nestjs/cqrs';
@@ -31,7 +32,9 @@ import {
   EmployeeRepository,
 } from './infrastructure/postgres';
 import { CustomerAdapter, TenantAdapter } from './infrastructure/adapters';
-import AuthGuard from './infrastructure/guard/auth.guard';
+import AuthenticationGuard from './infrastructure/guard/authentication.guard';
+import AuthorizationGuard from './infrastructure/guard/authorization.guard';
+import { PermissionService } from './infrastructure/guard/authorization/permission.service';
 import { JwtStrategy } from './infrastructure/strategies/jwt/jwt.strategy';
 import {
   AuthEmailService,
@@ -104,7 +107,9 @@ const CronServices = [CleanupService];
       useClass: AuthEmailService,
     },
     AuthenticationResolver,
-    AuthGuard,
+    AuthenticationGuard,
+    AuthorizationGuard,
+    PermissionService,
     JwtStrategy,
     ...CommandHandlers,
     ...QueryHandlers,
@@ -112,7 +117,15 @@ const CronServices = [CleanupService];
     ...EmailBuilders,
     ...RateLimiters,
     ...CronServices,
+    {
+      provide: APP_GUARD,
+      useExisting: AuthenticationGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useExisting: AuthorizationGuard,
+    },
   ],
-  exports: [AuthGuard, JwtModule],
+  exports: [AuthenticationGuard, AuthorizationGuard, JwtModule],
 })
 export class AuthenticationDomain {}

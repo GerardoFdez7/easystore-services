@@ -1,7 +1,8 @@
 import { Resolver, Mutation, Query, Args, Context } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Request, Response } from 'express';
-import { Public } from '@shared/presentation/decorators';
+import { Public, AllowAccountTypes } from '@shared/presentation/decorators';
+import { AccountTypeEnum } from '../../aggregates/value-objects';
 import {
   setTokenCookies,
   clearTokenCookies,
@@ -67,6 +68,11 @@ export default class AuthenticationResolver {
     };
   }
 
+  @AllowAccountTypes(
+    AccountTypeEnum.TENANT,
+    AccountTypeEnum.CUSTOMER,
+    AccountTypeEnum.EMPLOYEE,
+  )
   @Mutation(() => ResponseType)
   async logout(
     @Context() context: { req: Request; res: Response },
@@ -152,6 +158,11 @@ export default class AuthenticationResolver {
   //  Queries  //
   ///////////////
 
+  @AllowAccountTypes(
+    AccountTypeEnum.TENANT,
+    AccountTypeEnum.CUSTOMER,
+    AccountTypeEnum.EMPLOYEE,
+  )
   @Query(() => ResponseType)
   async validateToken(
     @Context() context: { req: Request },

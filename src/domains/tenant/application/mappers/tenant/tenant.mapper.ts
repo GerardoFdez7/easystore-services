@@ -60,7 +60,7 @@ export class TenantMapper {
       id: entity.get('id')?.getValue() || undefined,
       ownerName: entity.get('ownerName').getValue(),
       businessName: entity.get('businessName')?.getValue(),
-      email: '', // Email will be provided by the resolver from JWT payload
+      email: '',
       domain: entity.get('domain')?.getValue(),
       logo: entity.get('logo')?.getValue(),
       description: entity.get('description')?.getValue(),

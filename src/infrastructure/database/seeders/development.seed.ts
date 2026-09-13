@@ -28,6 +28,8 @@ import {
   Name,
   PhoneNumber,
   ShortDescription,
+  FeatureEnum,
+  PermissionActionEnum,
 } from '../../../domains/shared/aggregates/value-objects';
 import { LongDescription } from '../../../domains/shared/aggregates/value-objects/long-description.vo';
 import { Media } from '../../../domains/shared/aggregates/value-objects/media.vo';
@@ -36,10 +38,78 @@ import {
   Domain,
 } from '../../../domains/tenant/aggregates/value-objects';
 import { PostgreService } from '../postgres.service';
+import { assertFeatureCatalogSeeded } from './production.seed';
 
 const logger = new CustomLoggerService();
 const dataDir = path.join(__dirname, '..', 'countries');
 const developmentSeedUuidNamespace = '2f8f2b5e-4f1e-5a92-9a9c-4bc1c0a6a5d1';
+
+/** Shorthand for preset expansion only, never a stored value: no aggregate `FULL`. */
+type PresetGrant = 'full' | 'edit' | 'view' | 'none';
+
+interface RolePreset {
+  role: string;
+  grants: Record<FeatureEnum, PresetGrant>;
+}
+
+const presetActionsByGrant: Record<PresetGrant, PermissionActionEnum[]> = {
+  full: [
+    PermissionActionEnum.VIEW,
+    PermissionActionEnum.CREATE,
+    PermissionActionEnum.EDIT,
+    PermissionActionEnum.DELETE,
+  ],
+  edit: [PermissionActionEnum.VIEW, PermissionActionEnum.EDIT],
+  view: [PermissionActionEnum.VIEW],
+  none: [],
+};
+
+const developmentRolePresets: RolePreset[] = [
+  {
+    role: 'Manager',
+    grants: {
+      [FeatureEnum.CATALOG]: 'full',
+      [FeatureEnum.INVENTORY]: 'full',
+      [FeatureEnum.ORDERS]: 'full',
+      [FeatureEnum.CUSTOMERS]: 'full',
+      [FeatureEnum.ANALYTICS]: 'view',
+      [FeatureEnum.SETTINGS]: 'none',
+    },
+  },
+  {
+    role: 'Cashier',
+    grants: {
+      [FeatureEnum.CATALOG]: 'view',
+      [FeatureEnum.INVENTORY]: 'view',
+      [FeatureEnum.ORDERS]: 'full',
+      [FeatureEnum.CUSTOMERS]: 'view',
+      [FeatureEnum.ANALYTICS]: 'none',
+      [FeatureEnum.SETTINGS]: 'none',
+    },
+  },
+  {
+    role: 'Storekeeper',
+    grants: {
+      [FeatureEnum.CATALOG]: 'edit',
+      [FeatureEnum.INVENTORY]: 'full',
+      [FeatureEnum.ORDERS]: 'view',
+      [FeatureEnum.CUSTOMERS]: 'none',
+      [FeatureEnum.ANALYTICS]: 'none',
+      [FeatureEnum.SETTINGS]: 'none',
+    },
+  },
+  {
+    role: 'Support',
+    grants: {
+      [FeatureEnum.CATALOG]: 'view',
+      [FeatureEnum.INVENTORY]: 'view',
+      [FeatureEnum.ORDERS]: 'edit',
+      [FeatureEnum.CUSTOMERS]: 'edit',
+      [FeatureEnum.ANALYTICS]: 'none',
+      [FeatureEnum.SETTINGS]: 'none',
+    },
+  },
+];
 
 export const developmentSeedPassword = 'EasyStoreDev123!';
 
@@ -63,7 +133,6 @@ export function createDevelopmentFixtureIds(): Record<
   | 'tenant'
   | 'customerAuth'
   | 'customer'
-  | 'employeeRole'
   | 'employee'
   | 'plan'
   | 'subscription'
@@ -101,9 +170,7 @@ export function createDevelopmentFixtureIds(): Record<
   | 'customerPaymentMethod'
   | 'payment'
   | 'wishList'
-  | 'review'
-  | 'feature'
-  | 'roleFeature',
+  | 'review',
   string
 > {
   return {
@@ -111,7 +178,6 @@ export function createDevelopmentFixtureIds(): Record<
     tenant: createDevelopmentFixtureId('tenant'),
     customerAuth: createDevelopmentFixtureId('customerAuth'),
     customer: createDevelopmentFixtureId('customer'),
-    employeeRole: createDevelopmentFixtureId('employeeRole'),
     employee: createDevelopmentFixtureId('employee'),
     plan: createDevelopmentFixtureId('plan'),
     subscription: createDevelopmentFixtureId('subscription'),
@@ -150,9 +216,26 @@ export function createDevelopmentFixtureIds(): Record<
     payment: createDevelopmentFixtureId('payment'),
     wishList: createDevelopmentFixtureId('wishList'),
     review: createDevelopmentFixtureId('review'),
-    feature: createDevelopmentFixtureId('feature'),
-    roleFeature: createDevelopmentFixtureId('roleFeature'),
   };
+}
+
+/** Stable per-feature-code id for the seeded global `Feature` catalog. */
+export function createDevelopmentFeatureId(code: FeatureEnum): string {
+  return createDevelopmentFixtureId(`feature:${code}`);
+}
+
+/** Stable per-role id for a development preset role, keyed by role name. */
+export function createDevelopmentRoleId(role: string): string {
+  return createDevelopmentFixtureId(`employeeRole:${role}`);
+}
+
+/** Stable per-(role, feature, action) id for a `RoleFeatures` grant row. */
+export function createDevelopmentRoleFeatureId(
+  role: string,
+  feature: FeatureEnum,
+  action: PermissionActionEnum,
+): string {
+  return createDevelopmentFixtureId(`roleFeature:${role}:${feature}:${action}`);
 }
 
 export function validateDevelopmentFixtures(): void {
@@ -261,6 +344,93 @@ async function seedGeography(prisma: PostgreService): Promise<GeographyIds> {
   }
 
   return guatemala;
+}
+
+/**
+ * Seeds the six `FeatureEnum` rows as development reference data and returns
+ * their ids keyed by feature code.
+ */
+async function seedDevelopmentFeatureCatalog(
+  prisma: PostgreService,
+): Promise<Record<FeatureEnum, string>> {
+  const featureNames: Record<FeatureEnum, string> = {
+    [FeatureEnum.CATALOG]: 'Catalog',
+    [FeatureEnum.INVENTORY]: 'Inventory',
+    [FeatureEnum.ORDERS]: 'Orders',
+    [FeatureEnum.CUSTOMERS]: 'Customers',
+    [FeatureEnum.ANALYTICS]: 'Analytics',
+    [FeatureEnum.SETTINGS]: 'Settings',
+  };
+
+  const featureIds = {} as Record<FeatureEnum, string>;
+
+  for (const code of Object.values(FeatureEnum)) {
+    const id = createDevelopmentFeatureId(code);
+    featureIds[code] = id;
+
+    await prisma.feature.upsert({
+      where: { id },
+      update: { code, name: featureNames[code] },
+      create: { id, code, name: featureNames[code] },
+    });
+  }
+
+  return featureIds;
+}
+
+/**
+ * Seeds the four system preset roles (Manager, Cashier, Storekeeper, Support)
+ * for the development tenant, expanding each preset's shorthand grants into
+ * their `RoleFeatures` action rows. Returns the Manager preset's role id.
+ */
+async function seedDevelopmentRolePresets(
+  prisma: PostgreService,
+  tenantId: string,
+  featureIds: Record<FeatureEnum, string>,
+): Promise<string> {
+  let managerRoleId: string | undefined;
+
+  for (const preset of developmentRolePresets) {
+    const roleId = createDevelopmentRoleId(preset.role);
+
+    if (preset.role === 'Manager') {
+      managerRoleId = roleId;
+    }
+
+    await prisma.employeeRole.upsert({
+      where: { id: roleId },
+      update: { role: preset.role, isSystem: true, tenantId },
+      create: { id: roleId, role: preset.role, isSystem: true, tenantId },
+    });
+
+    for (const feature of Object.values(FeatureEnum)) {
+      const grant = preset.grants[feature];
+      const actions = presetActionsByGrant[grant];
+      const featureId = featureIds[feature];
+
+      for (const action of actions) {
+        const roleFeatureId = createDevelopmentRoleFeatureId(
+          preset.role,
+          feature,
+          action,
+        );
+
+        await prisma.roleFeatures.upsert({
+          where: { id: roleFeatureId },
+          update: { roleId, featureId, action, tenantId },
+          create: { id: roleFeatureId, roleId, featureId, action, tenantId },
+        });
+      }
+    }
+  }
+
+  if (!managerRoleId) {
+    throw new Error(
+      'The Manager preset role is required for development data.',
+    );
+  }
+
+  return managerRoleId;
 }
 
 async function seedDevelopmentDataForDatabase(
@@ -458,39 +628,12 @@ async function seedDevelopmentDataForDatabase(
       defaultBillingAddressId: ids.customerAddress,
     },
   });
-  await prisma.feature.upsert({
-    where: { id: ids.feature },
-    update: {
-      code: 'CATALOG',
-      name: 'Catalog',
-      description: 'Manage products and inventory',
-    },
-    create: {
-      id: ids.feature,
-      code: 'CATALOG',
-      name: 'Catalog',
-      description: 'Manage products and inventory',
-    },
-  });
-  await prisma.employeeRole.upsert({
-    where: { id: ids.employeeRole },
-    update: { role: 'MANAGER', tenantId: ids.tenant },
-    create: { id: ids.employeeRole, role: 'MANAGER', tenantId: ids.tenant },
-  });
-  await prisma.roleFeatures.upsert({
-    where: { id: ids.roleFeature },
-    update: {
-      roleId: ids.employeeRole,
-      featureId: ids.feature,
-      tenantId: ids.tenant,
-    },
-    create: {
-      id: ids.roleFeature,
-      roleId: ids.employeeRole,
-      featureId: ids.feature,
-      tenantId: ids.tenant,
-    },
-  });
+  const featureIds = await seedDevelopmentFeatureCatalog(prisma);
+  const managerRoleId = await seedDevelopmentRolePresets(
+    prisma,
+    ids.tenant,
+    featureIds,
+  );
   await prisma.authIdentity.upsert({
     where: { id: ids.employee },
     update: {
@@ -511,14 +654,14 @@ async function seedDevelopmentDataForDatabase(
     where: { id: ids.employee },
     update: {
       name: 'Demo Manager',
-      roleId: ids.employeeRole,
+      roleId: managerRoleId,
       authIdentityId: ids.employee,
       tenantId: ids.tenant,
     },
     create: {
       id: ids.employee,
       name: 'Demo Manager',
-      roleId: ids.employeeRole,
+      roleId: managerRoleId,
       authIdentityId: ids.employee,
       tenantId: ids.tenant,
     },
@@ -1067,6 +1210,7 @@ export async function seedDevelopmentData(): Promise<void> {
     const geography = await seedGeography(prisma);
 
     await seedDevelopmentDataForDatabase(prisma, geography);
+    await assertFeatureCatalogSeeded(prisma);
     logger.log('Development database seed completed.');
   } finally {
     await prisma.onModuleDestroy();

@@ -25,6 +25,8 @@ Cover the relevant cases for each handler:
 - not-found, invariant, repository, and adapter failures;
 - optional fields and empty collections;
 - authentication-derived values overriding or excluding client input;
+- record ownership for customer-reachable use cases: another customer's record is
+  not returned or mutated, and the denial is indistinguishable from not-found;
 - relevant edge cases.
 
 ## Test design
