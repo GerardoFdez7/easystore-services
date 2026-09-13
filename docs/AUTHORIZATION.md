@@ -100,7 +100,6 @@ Both enums live in `src/domains/shared/aggregates/value-objects/authorization/`.
 
 // Which account types may reach this operation at all. Variadic — an operation
 // serving more than one actor lists each of them.
-@AllowAccountTypes(AccountTypeEnum.CUSTOMER)
 @AllowAccountTypes(AccountTypeEnum.TENANT, AccountTypeEnum.CUSTOMER)
 ```
 
@@ -131,12 +130,19 @@ missing row silently denies every operation referencing it.
 
 1. `@Public()` → allow.
 2. Neither authorization decorator present → **deny** and log.
-3. `@AllowAccountTypes` present and caller's type absent from it → deny.
-4. `accountType === TENANT` → allow.
-5. `accountType === CUSTOMER` → allow if it passed step 3; ownership is the handler's
-   responsibility.
-6. `accountType === EMPLOYEE` → check the `(feature, action)` pair against the
-   employee's resolved permission set.
+3. Resolve whether the caller matches `@AllowAccountTypes`.
+4. A matching account type authorizes the operation when no
+   `@RequirePermission` is present.
+5. `accountType === TENANT` → allow without a permission lookup. Tenant access is
+   still limited to the tenant identified by the authenticated request.
+6. `accountType === CUSTOMER` → allow only when it matches `@AllowAccountTypes`;
+   ownership remains the handler's responsibility.
+7. `accountType === EMPLOYEE` → when `@RequirePermission` is present, check the
+   `(feature, action)` pair against the employee's resolved permission set. This
+   permission path is also used when the employee does not match
+   `@AllowAccountTypes`.
+8. If neither the account-type path nor the permission path authorizes the caller,
+   deny with `403`.
 
 The employee permission set loads once per request and is memoised on the request
 object, so a query touching a dozen protected fields costs one lookup.

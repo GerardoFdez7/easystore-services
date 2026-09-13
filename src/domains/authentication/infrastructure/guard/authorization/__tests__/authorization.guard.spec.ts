@@ -168,6 +168,31 @@ describe('AuthorizationGuard', () => {
     );
   });
 
+  it('uses the employee permission path when account-type metadata does not match', async () => {
+    mockMetadata({
+      requirePermission: {
+        feature: FeatureEnum.CATALOG,
+        action: PermissionActionEnum.VIEW,
+      },
+      allowAccountTypes: [AccountTypeEnum.CUSTOMER],
+    });
+    const context = buildContext({
+      accountType: AccountTypeEnum.EMPLOYEE,
+      employeeId: 'employee-1',
+      tenantId: 'tenant-1',
+    } as JwtPayload);
+    permissionService.loadFor.mockResolvedValue([
+      { feature: FeatureEnum.CATALOG, action: PermissionActionEnum.VIEW },
+    ]);
+    permissionService.has.mockReturnValue(true);
+
+    await expect(guard.canActivate(context)).resolves.toBe(true);
+    expect(permissionService.loadFor).toHaveBeenCalledWith(
+      'employee-1',
+      'tenant-1',
+    );
+  });
+
   it('denies an EMPLOYEE missing the required (feature, action) grant', async () => {
     mockMetadata({
       requirePermission: {

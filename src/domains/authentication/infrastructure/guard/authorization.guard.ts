@@ -71,12 +71,12 @@ export default class AuthorizationGuard implements CanActivate {
       throw new ForbiddenException('This operation is not authorized');
     }
 
-    // 3. @AllowAccountTypes present and caller's type absent from it -> deny.
-    if (
-      allowedAccountTypes &&
-      !allowedAccountTypes.includes(user.accountType)
-    ) {
-      throw new ForbiddenException('This operation is not authorized');
+    // 3. Account-type metadata and permissions are alternate paths. An
+    // account-type match can authorize operations without a permission; when a
+    // permission is also required, continue to the actor-specific checks below.
+    const accountTypeAllowed = allowedAccountTypes?.includes(user.accountType);
+    if (accountTypeAllowed && !requiredPermission) {
+      return true;
     }
 
     // 4. TENANT -> allow, no role/permission lookup.
@@ -86,7 +86,7 @@ export default class AuthorizationGuard implements CanActivate {
 
     // 5. CUSTOMER -> allow if it passed step 3; ownership is the handler's job.
     if (user.accountType === AccountTypeEnum.CUSTOMER) {
-      if (allowedAccountTypes) {
+      if (accountTypeAllowed) {
         return true;
       }
       // No @AllowAccountTypes for a customer means only @RequirePermission was

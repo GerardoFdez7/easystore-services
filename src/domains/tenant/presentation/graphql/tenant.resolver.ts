@@ -7,13 +7,8 @@ import {
   CurrentUser,
   JwtPayload,
   AllowAccountTypes,
-  RequirePermission,
 } from '@shared/presentation/decorators';
-import {
-  FeatureEnum,
-  PermissionActionEnum,
-  AccountTypeEnum,
-} from '@shared/aggregates/value-objects';
+import { AccountTypeEnum } from '@shared/aggregates/value-objects';
 import { TenantDTO } from '../../application/mappers';
 
 @Resolver(() => TenantType)
@@ -38,15 +33,12 @@ export default class TenantResolver {
   //  Queries  //
   ///////////////
 
-  @RequirePermission(FeatureEnum.SETTINGS, PermissionActionEnum.VIEW)
+  @AllowAccountTypes(AccountTypeEnum.TENANT)
   @Query(() => TenantType)
   async getTenantById(@CurrentUser() user: JwtPayload): Promise<TenantType> {
     const tenant: TenantDTO = await this.queryBus.execute(
       new GetTenantByIdDTO(user.tenantId),
     );
-    return {
-      ...tenant,
-      email: user.email,
-    } as TenantType;
+    return tenant;
   }
 }
