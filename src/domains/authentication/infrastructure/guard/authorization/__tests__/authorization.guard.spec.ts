@@ -29,14 +29,15 @@ describe('AuthorizationGuard', () => {
     const handler = jest.fn();
     const getHandlerMock = jest.fn().mockReturnValue(handler);
     const getClassMock = jest.fn().mockReturnValue(class TestResolver {});
+    const request = { user, ...req };
 
     return {
       getHandler: getHandlerMock,
       getClass: getClassMock,
       getType: () => 'graphql',
-      getArgs: () => [{}, {}, { req: { user, ...req } }, {}],
+      getArgs: () => [{}, {}, { req: request }, {}],
       switchToHttp: () => ({
-        getRequest: () => ({ user, ...req }),
+        getRequest: () => request,
       }),
     } as unknown as ExecutionContext;
   };
@@ -189,18 +190,14 @@ describe('AuthorizationGuard', () => {
     );
   });
 
-  it('memoises the resolved permission set on the request for a single request', async () => {
+  it('loads permissions once and caches them on the request across context accessors', async () => {
     mockMetadata({
       requirePermission: {
         feature: FeatureEnum.CATALOG,
         action: PermissionActionEnum.VIEW,
       },
     });
-    const req: Record<string, unknown> = {
-      __permissions: [
-        { feature: FeatureEnum.CATALOG, action: PermissionActionEnum.VIEW },
-      ],
-    };
+    const req: Record<string, unknown> = {};
     const context = buildContext(
       {
         accountType: AccountTypeEnum.EMPLOYEE,
@@ -209,9 +206,19 @@ describe('AuthorizationGuard', () => {
       } as JwtPayload,
       req,
     );
+    permissionService.loadFor.mockResolvedValue([
+      { feature: FeatureEnum.CATALOG, action: PermissionActionEnum.VIEW },
+    ]);
     permissionService.has.mockReturnValue(true);
 
     await expect(guard.canActivate(context)).resolves.toBe(true);
-    expect(permissionService.loadFor).not.toHaveBeenCalled();
+    await expect(guard.canActivate(context)).resolves.toBe(true);
+    expect(permissionService.loadFor).toHaveBeenCalledTimes(1);
+    expect(
+      (context.getArgs()[2] as { req: Record<string, unknown> }).req
+        .__permissions,
+    ).toEqual([
+      { feature: FeatureEnum.CATALOG, action: PermissionActionEnum.VIEW },
+    ]);
   });
 });

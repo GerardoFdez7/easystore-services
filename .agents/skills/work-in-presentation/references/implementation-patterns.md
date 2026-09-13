@@ -92,9 +92,11 @@ Choose the annotation by audience:
   records to every other customer.
 - Owner-only operation → `@AllowAccountTypes(AccountTypeEnum.TENANT)`. Use for
   store identity, domain, currency, and billing, which no employee grant should reach.
-- Operation serving several actors → `@AllowAccountTypes` is variadic; list each type.
-  An operation open to staff and customers alike carries both decorators, and the
-  ownership check applies to the customer path only.
+- Operation serving several actors → one variadic `@AllowAccountTypes` decorator
+  lists each type, e.g. `@AllowAccountTypes(AccountTypeEnum.TENANT,
+AccountTypeEnum.CUSTOMER)`. An operation open to staff and customers alike
+  carries both decorators, and the ownership check applies to the customer path
+  only.
 
 Tenants short-circuit to allowed within their own tenant, so `TENANT` never needs a
 feature grant. Tenant scoping is independent of authorization: passing the permission

@@ -56,7 +56,7 @@ describe('UpdateCustomerHandler', () => {
 
     idCreateMock = jest
       .spyOn(Id, 'create')
-      .mockReturnValue({ getValue: () => 'mocked-id' } as Id);
+      .mockImplementation((value: string) => ({ getValue: () => value }) as Id);
 
     defaultDto = {
       id: 'customer-id-123',
@@ -117,14 +117,9 @@ describe('UpdateCustomerHandler', () => {
       it('should find customer by ID and tenant ID', async () => {
         await handler.execute(baseCommand);
 
-        expect(findCustomerByIdMock).toHaveBeenCalledWith(
-          expect.objectContaining({
-            getValue: expect.any(Function) as unknown,
-          }),
-          expect.objectContaining({
-            getValue: expect.any(Function) as unknown,
-          }),
-        );
+        const [customerId, tenantId] = findCustomerByIdMock.mock.calls[0];
+        expect(customerId.getValue()).toBe(baseCommand.customerId);
+        expect(tenantId.getValue()).toBe(baseCommand.tenantId);
       });
 
       it('should throw NotFoundException when customer is not found', async () => {

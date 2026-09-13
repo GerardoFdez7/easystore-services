@@ -140,14 +140,9 @@ describe('AddItemToCartHandler', () => {
 
         await handler.execute(baseCommand);
 
-        expect(findCartByCustomerIdMock).toHaveBeenCalledWith(
-          expect.objectContaining({
-            getValue: expect.any(Function),
-          }),
-          expect.objectContaining({
-            getValue: expect.any(Function),
-          }),
-        );
+        const [customerId, tenantId] = findCartByCustomerIdMock.mock.calls[0];
+        expect(customerId.getValue()).toBe(baseCommand.customerId);
+        expect(tenantId.getValue()).toBe(baseCommand.tenantId);
       });
 
       it('should throw NotFoundException when cart is not found', async () => {

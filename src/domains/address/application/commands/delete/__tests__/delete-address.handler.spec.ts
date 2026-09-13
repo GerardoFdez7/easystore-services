@@ -58,7 +58,7 @@ describe('DeleteAddressHandler', () => {
 
     await expect(
       handler.execute(
-        new AddressDeleteDTO('missing', undefined as never, 'customer-1'),
+        new AddressDeleteDTO('missing', 'tenant-1', 'customer-1'),
       ),
     ).rejects.toBe(error);
     expect(repository.delete).not.toHaveBeenCalled();

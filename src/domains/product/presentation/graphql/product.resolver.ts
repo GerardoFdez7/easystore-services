@@ -165,7 +165,11 @@ export class ProductResolver {
   ///////////////
 
   @RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.VIEW)
-  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
+  @AllowAccountTypes(
+    AccountTypeEnum.TENANT,
+    AccountTypeEnum.CUSTOMER,
+    AccountTypeEnum.EMPLOYEE,
+  )
   @Query(() => ProductType)
   async getProductById(
     @Args('id') id: string,
@@ -175,7 +179,11 @@ export class ProductResolver {
   }
 
   @RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.VIEW)
-  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
+  @AllowAccountTypes(
+    AccountTypeEnum.TENANT,
+    AccountTypeEnum.CUSTOMER,
+    AccountTypeEnum.EMPLOYEE,
+  )
   @Query(() => PaginatedProductsType)
   async getAllProducts(
     @CurrentUser() user: JwtPayload,

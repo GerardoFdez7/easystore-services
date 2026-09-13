@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { EventPublisher } from '@nestjs/cqrs';
+import { NotFoundException } from '@nestjs/common';
 import { findAddressOrThrow } from '../../../address-owner';
 import { AddressMapper } from '../../../mappers';
 import { UpdateAddressDTO } from '../update-address.dto';
@@ -80,6 +81,30 @@ describe('UpdateAddressHandler', () => {
       'tenant-1',
       'customer-1',
     );
+  });
+
+  it('denies a customer update when the address is not returned for that customer', async () => {
+    const command = new UpdateAddressDTO(
+      'address-1',
+      'tenant-1',
+      'customer-b',
+      { city: 'Guatemala City' },
+    );
+    (findAddressOrThrow as jest.Mock).mockRejectedValueOnce(
+      new NotFoundException('Address with ID address-1 not found'),
+    );
+
+    await expect(handler.execute(command)).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+    expect(findAddressOrThrow).toHaveBeenCalledWith(
+      repository,
+      'address-1',
+      'tenant-1',
+      'customer-b',
+    );
+    expect(repository.update).not.toHaveBeenCalled();
+    expect(updatedAddress.commit).not.toHaveBeenCalled();
   });
 
   it('does not map or persist when lookup rejects a missing tenant scope', async () => {

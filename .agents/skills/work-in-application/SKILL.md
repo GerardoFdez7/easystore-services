@@ -33,8 +33,10 @@ customer-reachable use case, since record ownership is enforced here and nowhere
    with an infrastructure adapter rather than importing that domain directly.
 5. Enforce record ownership for any use case a customer can reach. `PermissionsGuard`
    decides whether a customer may call an operation; only the handler can decide
-   which records they get. Filter or assert on the `customerId` the resolver passed
-   from `@CurrentUser()`, never on one taken from client input.
+   which records they get. Include the resolver-provided `customerId` from
+   `@CurrentUser()` in the repository query alongside tenant scoping before loading
+   or mutating records; never use one taken from client input or rely on a
+   post-load assertion.
 6. Update explicit barrels. When a command handler changes, update its matching
    colocated integration test.
 

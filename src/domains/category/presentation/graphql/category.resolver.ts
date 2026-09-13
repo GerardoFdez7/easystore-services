@@ -95,7 +95,11 @@ export default class CategoryResolver {
   ///////////////
 
   @RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.VIEW)
-  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
+  @AllowAccountTypes(
+    AccountTypeEnum.TENANT,
+    AccountTypeEnum.CUSTOMER,
+    AccountTypeEnum.EMPLOYEE,
+  )
   @Query(() => CategoryType)
   async getCategoryById(
     @Args('id', { type: () => ID }) id: string,
@@ -105,7 +109,11 @@ export default class CategoryResolver {
   }
 
   @RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.VIEW)
-  @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
+  @AllowAccountTypes(
+    AccountTypeEnum.TENANT,
+    AccountTypeEnum.CUSTOMER,
+    AccountTypeEnum.EMPLOYEE,
+  )
   @Query(() => PaginatedCategoriesType)
   async getAllCategories(
     @CurrentUser() user: JwtPayload,
