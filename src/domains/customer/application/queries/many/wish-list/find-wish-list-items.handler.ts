@@ -83,6 +83,9 @@ export class FindWishListItemsHandler
 
       if (resolvedSortBy === WishListSortBy.PRICE) {
         if (firstItem.price === null || secondItem.price === null) {
+          if (firstItem.price === secondItem.price) {
+            return 0;
+          }
           return (firstItem.price === null ? 1 : -1) * direction;
         }
         return (
