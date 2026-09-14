@@ -17,12 +17,12 @@ import {
 import {
   Brand,
   Manufacturer,
-  Price,
   SKU,
   Tags,
   Type,
   Weight,
 } from '../../../domains/product/aggregates/value-objects';
+import { Money } from '../../../domains/shared/aggregates/value-objects';
 import {
   Id,
   Name,
@@ -275,7 +275,7 @@ export function validateDevelopmentFixtures(): void {
   Manufacturer.create('Demo Furnishings');
   Tags.create(['office', 'chair', 'ergonomic']);
   Type.create('PHYSICAL');
-  Price.create(1899.99);
+  Money.create('1899.99', 'GTQ');
   SKU.create('DEMO-CHAIR-BLK');
   Weight.create(14.5);
 }
@@ -726,6 +726,7 @@ async function seedDevelopmentDataForDatabase(
     where: { id: ids.variant },
     update: {
       price: 1899.99,
+      currency: 'GTQ',
       personalizationOptions: ['Assembly'],
       weight: 14.5,
       condition: 'NEW',
@@ -737,6 +738,7 @@ async function seedDevelopmentDataForDatabase(
     create: {
       id: ids.variant,
       price: 1899.99,
+      currency: 'GTQ',
       personalizationOptions: ['Assembly'],
       weight: 14.5,
       condition: 'NEW',

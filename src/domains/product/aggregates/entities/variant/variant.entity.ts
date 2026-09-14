@@ -1,7 +1,7 @@
 import {
   Id,
   Attribute,
-  Price,
+  Money,
   Media as MediaVO,
   PersonalizationOptions,
   Weight,
@@ -23,7 +23,7 @@ import {
 export interface IVariantProps extends DomainEntityProps {
   id: Id;
   attributes: Attribute[];
-  price: Price;
+  price: Money;
   variantCover?: MediaVO;
   personalizationOptions: PersonalizationOptions[];
   weight?: Weight;
@@ -58,11 +58,13 @@ export class Variant extends DomainEntity<IVariantProps> {
       throw new Error('A variant must have at least one attribute.');
     }
 
+    this.assertNonNegativePrice(props.price);
+
     const transformedProps = {
       attributes: props.attributes.map((attr) =>
         Attribute.create(attr.key, attr.value),
       ),
-      price: Price.create(props.price),
+      price: Money.create(props.price, props.currency),
       variantCover: props.variantCover
         ? MediaVO.create(props.variantCover)
         : null,
@@ -140,8 +142,13 @@ export class Variant extends DomainEntity<IVariantProps> {
         Attribute.create(attr.key, attr.value),
       );
     }
-    if (data.price !== undefined) {
-      newProps.price = Price.create(data.price);
+    if (data.price !== undefined || data.currency !== undefined) {
+      const amount = data.price ?? this.props.price.getValue().amount;
+      Variant.assertNonNegativePrice(amount);
+      newProps.price = Money.create(
+        amount,
+        data.currency ?? this.props.price.getValue().currency,
+      );
     }
     if (data.variantCover !== undefined) {
       newProps.variantCover = MediaVO.create(data.variantCover);
@@ -211,6 +218,12 @@ export class Variant extends DomainEntity<IVariantProps> {
     newProps.updatedAt = new Date();
 
     return new Variant(newProps);
+  }
+
+  private static assertNonNegativePrice(price: string): void {
+    if (Money.compareAmounts(price, '0') < 0) {
+      throw new Error('Price must be non-negative.');
+    }
   }
 
   public archive(): Variant {

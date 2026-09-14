@@ -29,6 +29,11 @@ import {
   WishListSortBy,
 } from '../../application/queries';
 import {
+  PaginatedWishlistDTO,
+  PaginatedCustomerReviewProductWithVariantDTO,
+} from '../../application/mappers';
+import { nestVariantPrice } from '../../application/shared/variant-price.mapper';
+import {
   CreateCustomerReviewProductInput,
   CustomerReviewPaginationArgs,
   CustomerReviewProductType,
@@ -180,7 +185,7 @@ export class CustomerResolver {
     @Args('sortOrder', { type: () => SortOrder, nullable: true })
     sortOrder?: SortOrder,
   ): Promise<PaginatedWishlistType> {
-    return this.queryBus.execute(
+    const result: PaginatedWishlistDTO = await this.queryBus.execute(
       new FindWishlistItemsDto(
         user.customerId,
         user.tenantId,
@@ -190,6 +195,11 @@ export class CustomerResolver {
         sortOrder,
       ),
     );
+
+    return {
+      ...result,
+      wishlistItems: result.wishlistItems.map(nestVariantPrice),
+    };
   }
 
   @AllowAccountTypes(AccountTypeEnum.CUSTOMER)
@@ -200,14 +210,20 @@ export class CustomerResolver {
   ): Promise<PaginatedCustomerReviewProductWithVariantType> {
     const { page, limit, reviewIds } = pagination;
 
-    return this.queryBus.execute(
-      new FindManyCustomerReviewsDto(
-        user.customerId,
-        user.tenantId,
-        reviewIds,
-        page,
-        limit,
-      ),
-    );
+    const result: PaginatedCustomerReviewProductWithVariantDTO =
+      await this.queryBus.execute(
+        new FindManyCustomerReviewsDto(
+          user.customerId,
+          user.tenantId,
+          reviewIds,
+          page,
+          limit,
+        ),
+      );
+
+    return {
+      ...result,
+      reviews: result.reviews.map(nestVariantPrice),
+    };
   }
 }

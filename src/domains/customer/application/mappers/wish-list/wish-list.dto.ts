@@ -28,7 +28,8 @@ export interface WishlistItemWithVariantDTO extends WishListDTO {
   sku: string;
   productName: string;
   firstAttribute: { key: string; value: string };
-  price: number;
+  price: string | null;
+  currency: string | null;
   isArchived: boolean;
 }
 

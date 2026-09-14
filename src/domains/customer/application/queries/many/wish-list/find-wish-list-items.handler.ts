@@ -10,7 +10,7 @@ import {
 } from '../../../mappers/wish-list/wish-list.dto';
 import { WishListMapper } from '../../../mappers/wish-list/wish-list.mapper';
 import { enrichWithVariantDetails } from '../../../shared/enrich-with-variant-details';
-import { SortOrder } from '@shared/aggregates/value-objects';
+import { Money, SortOrder } from '@shared/aggregates/value-objects';
 import { WishListSortBy } from './find-wish-list-items.dto';
 
 @QueryHandler(FindWishlistItemsDto)
@@ -82,7 +82,15 @@ export class FindWishListItemsHandler
       }
 
       if (resolvedSortBy === WishListSortBy.PRICE) {
-        return (firstItem.price - secondItem.price) * direction;
+        if (firstItem.price === null || secondItem.price === null) {
+          if (firstItem.price === secondItem.price) {
+            return 0;
+          }
+          return (firstItem.price === null ? 1 : -1) * direction;
+        }
+        return (
+          Money.compareAmounts(firstItem.price, secondItem.price) * direction
+        );
       }
 
       return (

@@ -6,6 +6,7 @@ import { CreateProductDTO } from '../create-product.dto';
 import { IProductRepository } from '../../../../../aggregates/repositories/product.interface';
 import { ProductMapper, ProductDTO } from '../../../../mappers';
 import { TypeEnum } from '../../../../../aggregates/value-objects';
+import { Product } from '../../../../../aggregates/entities';
 
 interface MockProduct {
   commit: jest.Mock;
@@ -69,7 +70,8 @@ describe('CreateProductHandler', () => {
       variants: [
         {
           sku: 'TEST-001',
-          price: 29.99,
+          price: '29.99',
+          currency: 'USD',
           stock: 100,
           weight: 1.5,
           dimension: {
@@ -85,6 +87,37 @@ describe('CreateProductHandler', () => {
       data: baseProductData,
     } as unknown as CreateProductDTO;
 
+    it('rejects a negative variant price through product creation', async () => {
+      fromCreateDtoMock.mockImplementationOnce((data) =>
+        Product.create(data as never),
+      );
+      const command = {
+        data: {
+          name: 'Test Product',
+          shortDescription: 'Test description',
+          cover: 'https://example.com/cover.jpg',
+          tenantId: '0198b746-8c72-7a2f-9c31-6d4f9866f322',
+          productType: TypeEnum.PHYSICAL,
+          variants: [
+            {
+              attributes: [{ key: 'Size', value: 'M' }],
+              price: '-0.01',
+              currency: 'USD',
+              condition: 'NEW',
+              sku: 'TEST-001',
+              weight: 1,
+              dimension: { height: 1, width: 1, length: 1 },
+            },
+          ],
+        },
+      } as unknown as CreateProductDTO;
+
+      await expect(handler.execute(command)).rejects.toThrow(
+        'Price must be non-negative.',
+      );
+      expect(createMock).not.toHaveBeenCalled();
+    });
+
     describe('Product type validation for variants', () => {
       describe('Digital products', () => {
         it('should throw BadRequestException when digital product variant has weight', async () => {
@@ -95,7 +128,8 @@ describe('CreateProductHandler', () => {
               variants: [
                 {
                   sku: 'DIGITAL-001',
-                  price: 19.99,
+                  price: '19.99',
+                  currency: 'USD',
                   stock: 50,
                   weight: 1.5,
                   dimension: undefined,
@@ -121,7 +155,8 @@ describe('CreateProductHandler', () => {
               variants: [
                 {
                   sku: 'DIGITAL-002',
-                  price: 19.99,
+                  price: '19.99',
+                  currency: 'USD',
                   stock: 50,
                   weight: undefined,
                   dimension: {
@@ -151,7 +186,8 @@ describe('CreateProductHandler', () => {
               variants: [
                 {
                   sku: 'DIGITAL-003',
-                  price: 19.99,
+                  price: '19.99',
+                  currency: 'USD',
                   stock: 50,
                   weight: 1.0,
                   dimension: {
@@ -179,7 +215,8 @@ describe('CreateProductHandler', () => {
               variants: [
                 {
                   sku: 'DIGITAL-004',
-                  price: 19.99,
+                  price: '19.99',
+                  currency: 'USD',
                   stock: 50,
                 },
               ],
@@ -212,7 +249,8 @@ describe('CreateProductHandler', () => {
               variants: [
                 {
                   sku: 'PHYSICAL-001',
-                  price: 29.99,
+                  price: '29.99',
+                  currency: 'USD',
                   stock: 100,
                   weight: null,
                   dimension: {
@@ -242,7 +280,8 @@ describe('CreateProductHandler', () => {
               variants: [
                 {
                   sku: 'PHYSICAL-002',
-                  price: 29.99,
+                  price: '29.99',
+                  currency: 'USD',
                   stock: 100,
                   weight: undefined,
                   dimension: {
@@ -272,7 +311,8 @@ describe('CreateProductHandler', () => {
               variants: [
                 {
                   sku: 'PHYSICAL-003',
-                  price: 29.99,
+                  price: '29.99',
+                  currency: 'USD',
                   stock: 100,
                   weight: 1.5,
                   dimension: null,
@@ -298,7 +338,8 @@ describe('CreateProductHandler', () => {
               variants: [
                 {
                   sku: 'PHYSICAL-004',
-                  price: 29.99,
+                  price: '29.99',
+                  currency: 'USD',
                   stock: 100,
                   weight: 1.5,
                   dimension: undefined,
@@ -324,7 +365,8 @@ describe('CreateProductHandler', () => {
               variants: [
                 {
                   sku: 'PHYSICAL-005',
-                  price: 29.99,
+                  price: '29.99',
+                  currency: 'USD',
                   stock: 100,
                   weight: 0,
                   dimension: {
@@ -354,7 +396,8 @@ describe('CreateProductHandler', () => {
               variants: [
                 {
                   sku: 'PHYSICAL-006',
-                  price: 29.99,
+                  price: '29.99',
+                  currency: 'USD',
                   stock: 100,
                   weight: -1.5,
                   dimension: {
@@ -384,7 +427,8 @@ describe('CreateProductHandler', () => {
               variants: [
                 {
                   sku: 'PHYSICAL-007',
-                  price: 29.99,
+                  price: '29.99',
+                  currency: 'USD',
                   stock: 100,
                   weight: 1.5,
                   dimension: {
@@ -414,7 +458,8 @@ describe('CreateProductHandler', () => {
               variants: [
                 {
                   sku: 'PHYSICAL-008',
-                  price: 29.99,
+                  price: '29.99',
+                  currency: 'USD',
                   stock: 100,
                   weight: 1.5,
                   dimension: {
@@ -444,7 +489,8 @@ describe('CreateProductHandler', () => {
               variants: [
                 {
                   sku: 'PHYSICAL-009',
-                  price: 29.99,
+                  price: '29.99',
+                  currency: 'USD',
                   stock: 100,
                   weight: 1.5,
                   dimension: {
@@ -474,7 +520,8 @@ describe('CreateProductHandler', () => {
               variants: [
                 {
                   sku: 'PHYSICAL-010',
-                  price: 29.99,
+                  price: '29.99',
+                  currency: 'USD',
                   stock: 100,
                   weight: 1.5,
                   dimension: {
@@ -504,7 +551,8 @@ describe('CreateProductHandler', () => {
               variants: [
                 {
                   sku: 'PHYSICAL-011',
-                  price: 29.99,
+                  price: '29.99',
+                  currency: 'USD',
                   stock: 100,
                   weight: 1.5,
                   dimension: {
@@ -534,7 +582,8 @@ describe('CreateProductHandler', () => {
               variants: [
                 {
                   sku: 'PHYSICAL-012',
-                  price: 29.99,
+                  price: '29.99',
+                  currency: 'USD',
                   stock: 100,
                   weight: 1.5,
                   dimension: {
@@ -718,12 +767,14 @@ describe('CreateProductHandler', () => {
             variants: [
               {
                 sku: 'DIGITAL-001',
-                price: 19.99,
+                price: '19.99',
+                currency: 'USD',
                 stock: 50,
               },
               {
                 sku: 'DIGITAL-002',
-                price: 29.99,
+                price: '29.99',
+                currency: 'USD',
                 stock: 30,
                 weight: 1.0, // This should cause validation error
               },
@@ -748,7 +799,8 @@ describe('CreateProductHandler', () => {
             variants: [
               {
                 sku: 'PHYSICAL-001',
-                price: 29.99,
+                price: '29.99',
+                currency: 'USD',
                 stock: 100,
                 weight: 1.5,
                 dimension: {
@@ -759,7 +811,8 @@ describe('CreateProductHandler', () => {
               },
               {
                 sku: 'PHYSICAL-002',
-                price: 39.99,
+                price: '39.99',
+                currency: 'USD',
                 stock: 50,
                 weight: 2.0,
                 dimension: {

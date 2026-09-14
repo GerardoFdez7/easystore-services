@@ -2,7 +2,7 @@ import { Variant, IVariantType } from '../../../aggregates/entities';
 import {
   Id,
   Attribute,
-  Price,
+  Money,
   Media,
   PersonalizationOptions,
   Weight,
@@ -37,7 +37,10 @@ export class VariantMapper {
       attributes: (persistenceVariant.attributes || []).map((attr) =>
         Attribute.create(attr.key, attr.value),
       ),
-      price: Price.create(Number(persistenceVariant.price)),
+      price: Money.create(
+        String(persistenceVariant.price),
+        persistenceVariant.currency,
+      ),
       variantCover: persistenceVariant.variantCover
         ? Media.create(persistenceVariant.variantCover)
         : null,
@@ -89,7 +92,8 @@ export class VariantMapper {
       id: entity.get('id')?.getValue(),
       attributes:
         entity.get('attributes')?.map((attr) => attr.getAttribute()) || [],
-      price: entity.get('price')?.getValue(),
+      price: entity.get('price')?.getValue().amount,
+      currency: entity.get('price')?.getValue().currency,
       variantCover: entity.get('variantCover')?.getValue(),
       personalizationOptions:
         entity

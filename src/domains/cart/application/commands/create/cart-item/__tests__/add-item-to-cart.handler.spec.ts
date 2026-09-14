@@ -8,7 +8,7 @@ import { ICartRepository } from '../../../../../aggregates/repositories/cart.int
 import { CartMapper, CartDTO } from '../../../../mappers';
 import { Cart } from '../../../../../aggregates/entities/cart/cart.entity';
 import { CartItem } from '../../../../../aggregates/value-objects/cart-item.vo';
-import { IProductAdapter, ITenantCurrencyAdapter } from '../../../../ports';
+import { IProductAdapter } from '../../../../ports';
 
 interface MockCart {
   commit: jest.Mock;
@@ -23,7 +23,6 @@ describe('AddItemToCartHandler', () => {
   let cartRepository: jest.Mocked<ICartRepository>;
   let eventPublisher: jest.Mocked<EventPublisher>;
   let productAdapter: jest.Mocked<IProductAdapter>;
-  let tenantCurrencyAdapter: jest.Mocked<ITenantCurrencyAdapter>;
   let mockCart: MockCart;
 
   let findCartByCustomerIdMock: jest.Mock;
@@ -49,14 +48,11 @@ describe('AddItemToCartHandler', () => {
       getVariantsDetails: jest.fn().mockResolvedValue([
         {
           variantId: '019a039e-fe37-7516-ab6d-b44cd5c58179',
-          price: 100,
+          price: '100',
+          currency: 'USD',
         },
       ]),
     } as unknown as jest.Mocked<IProductAdapter>;
-
-    tenantCurrencyAdapter = {
-      getCurrency: jest.fn().mockResolvedValue('USD'),
-    } as unknown as jest.Mocked<ITenantCurrencyAdapter>;
 
     mockCart = {
       commit: jest.fn(),
@@ -87,8 +83,9 @@ describe('AddItemToCartHandler', () => {
     toDtoMock = jest.spyOn(CartMapper, 'toDto').mockReturnValue({
       id: '019a039e-fe32-747d-aba6-6f3d25bb2864',
       customerId: '019a039e-fe36-765d-96f1-fe92af9ab188',
+      tenantId: '019a039e-fe37-7516-ab6d-c16428949f9f',
       cartItems: [],
-      totalCart: { amount: '0', currency: 'USD' },
+      totalCart: [{ amount: '0', currency: 'USD' }],
     } as CartDTO);
 
     const module: TestingModule = await Test.createTestingModule({
@@ -101,10 +98,6 @@ describe('AddItemToCartHandler', () => {
         {
           provide: 'IProductAdapter',
           useValue: productAdapter,
-        },
-        {
-          provide: 'ITenantCurrencyAdapter',
-          useValue: tenantCurrencyAdapter,
         },
         {
           provide: EventPublisher,
@@ -239,7 +232,8 @@ describe('AddItemToCartHandler', () => {
             firstAttribute: { key: 'size', value: 'M' },
             productName: 'Product 1',
             isArchived: false,
-            price: 100,
+            price: '100',
+            currency: 'USD',
           },
           {
             variantId: 'variant-2',
@@ -247,7 +241,8 @@ describe('AddItemToCartHandler', () => {
             firstAttribute: { key: 'size', value: 'L' },
             productName: 'Product 2',
             isArchived: false,
-            price: 200,
+            price: '200',
+            currency: 'USD',
           },
         ]);
 
@@ -267,7 +262,8 @@ describe('AddItemToCartHandler', () => {
             firstAttribute: { key: 'size', value: 'M' },
             productName: 'Product 1',
             isArchived: false,
-            price: 100,
+            price: '100',
+            currency: 'USD',
           },
         ]);
 
@@ -455,6 +451,7 @@ describe('AddItemToCartHandler', () => {
         const expectedDto: CartDTO = {
           id: '019a039e-fe32-747d-aba6-6f3d25bb2864',
           customerId: '019a039e-fe36-765d-96f1-fe92af9ab188',
+          tenantId: '019a039e-fe37-7516-ab6d-c16428949f9f',
           cartItems: [
             {
               id: 'item-1',
@@ -463,7 +460,7 @@ describe('AddItemToCartHandler', () => {
               promotionId: '019a039e-fe37-7516-ab6d-b9950da58d38',
             },
           ],
-          totalCart: { amount: '100', currency: 'USD' },
+          totalCart: [{ amount: '100', currency: 'USD' }],
         } as CartDTO;
         toDtoMock.mockReturnValue(expectedDto);
 
@@ -617,6 +614,7 @@ describe('AddItemToCartHandler', () => {
         const expectedDto: CartDTO = {
           id: '019a039e-fe39-7a1c-8d2f-3a6d9e1c7f5b',
           customerId: '019a039e-fe39-7a1c-8d2f-2f5c8d0b6e4a',
+          tenantId: '019a039e-fe37-7516-ab6d-c16428949f9f',
           cartItems: [
             {
               id: 'item-1',
@@ -625,7 +623,7 @@ describe('AddItemToCartHandler', () => {
               promotionId: '019a039e-fe39-7a1c-8d2f-1e4b7c9a5f3d',
             },
           ],
-          totalCart: { amount: '150', currency: 'USD' },
+          totalCart: [{ amount: '150', currency: 'USD' }],
         } as CartDTO;
 
         findCartByCustomerIdMock.mockResolvedValue(mockCart);

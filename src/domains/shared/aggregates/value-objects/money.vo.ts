@@ -56,6 +56,36 @@ export class Money {
       : `${isNegative ? '-' : ''}${normalizedAmount}`;
   }
 
+  static compareAmounts(first: string, second: string): number {
+    const left = this.toScaledInteger(first);
+    const right = this.toScaledInteger(second);
+    const scale = Math.max(left.scale, right.scale);
+    const leftValue = left.value * 10n ** BigInt(scale - left.scale);
+    const rightValue = right.value * 10n ** BigInt(scale - right.scale);
+    return leftValue < rightValue ? -1 : leftValue > rightValue ? 1 : 0;
+  }
+
+  static addAmounts(first: string, second: string): string {
+    const left = this.toScaledInteger(first);
+    const right = this.toScaledInteger(second);
+    const scale = Math.max(left.scale, right.scale);
+    const value =
+      left.value * 10n ** BigInt(scale - left.scale) +
+      right.value * 10n ** BigInt(scale - right.scale);
+    return this.fromScaledInteger(value, scale);
+  }
+
+  static multiplyAmount(amount: string, multiplier: number): string {
+    if (!Number.isSafeInteger(multiplier) || multiplier < 0) {
+      throw new Error('Money multiplier must be a non-negative safe integer');
+    }
+    const parsed = this.toScaledInteger(amount);
+    return this.fromScaledInteger(
+      parsed.value * BigInt(multiplier),
+      parsed.scale,
+    );
+  }
+
   getValue(): IMoney {
     return { ...this.value };
   }
@@ -65,5 +95,27 @@ export class Money {
       this.value.amount === other.value.amount &&
       this.value.currency === other.value.currency
     );
+  }
+
+  private static toScaledInteger(amount: string): {
+    value: bigint;
+    scale: number;
+  } {
+    const normalized = this.normalizeAmount(amount);
+    const isNegative = normalized.startsWith('-');
+    const unsigned = isNegative ? normalized.slice(1) : normalized;
+    const [integer, fraction = ''] = unsigned.split('.');
+    const value = BigInt(`${integer}${fraction || '0'}`);
+    return { value: isNegative ? -value : value, scale: fraction.length };
+  }
+
+  private static fromScaledInteger(value: bigint, scale: number): string {
+    const negative = value < 0n;
+    const digits = (negative ? -value : value)
+      .toString()
+      .padStart(scale + 1, '0');
+    const integer = scale === 0 ? digits : digits.slice(0, -scale);
+    const fraction = scale === 0 ? '' : `.${digits.slice(-scale)}`;
+    return this.normalizeAmount(`${negative ? '-' : ''}${integer}${fraction}`);
   }
 }

@@ -65,7 +65,8 @@ describe('FindWishListItemsHandler', () => {
         sku: 'SKU-1',
         productName: 'Product 1',
         firstAttribute: { key: 'Color', value: 'Blue' },
-        price: 12.5,
+        price: '12.5',
+        currency: 'USD',
         isArchived: false,
       },
     ]);
@@ -145,7 +146,8 @@ describe('FindWishListItemsHandler', () => {
         sku: 'SKU-Z',
         productName: 'Zebra',
         firstAttribute: { key: 'Color', value: 'Blue' },
-        price: 20,
+        price: '20',
+        currency: 'GTQ',
         isArchived: false,
       },
       {
@@ -153,7 +155,8 @@ describe('FindWishListItemsHandler', () => {
         sku: 'SKU-A',
         productName: 'Apple',
         firstAttribute: { key: 'Color', value: 'Red' },
-        price: 30,
+        price: '30',
+        currency: 'GTQ',
         isArchived: false,
       },
       {
@@ -161,7 +164,8 @@ describe('FindWishListItemsHandler', () => {
         sku: 'SKU-B',
         productName: 'Banana',
         firstAttribute: { key: 'Color', value: 'Yellow' },
-        price: 10,
+        price: '10',
+        currency: 'GTQ',
         isArchived: false,
       },
     ]);
@@ -203,9 +207,56 @@ describe('FindWishListItemsHandler', () => {
       'Zebra',
     ]);
     expect(byPrice.wishlistItems.map((item) => item.price)).toEqual([
-      30, 20, 10,
+      '30',
+      '20',
+      '10',
     ]);
     expect(byAddedAt.wishlistItems[0]?.variantId).toBe(variantIds[1]);
     expect(byAddedAt.hasMore).toBe(true);
+  });
+
+  it('sorts decimal-string prices that Number would consider equal', async () => {
+    const ids = [
+      '22222222-2222-4222-8222-222222222224',
+      '22222222-2222-4222-8222-222222222225',
+    ];
+    findManyMock.mockResolvedValue(
+      ids.map((id, index) =>
+        WishListItem.fromPersistence({
+          id: `33333333-3333-4333-8333-33333333333${index + 4}`,
+          customerId,
+          tenantId: '11111111-1111-4111-8111-111111111112',
+          variantId: id,
+          updatedAt: new Date(`2026-01-0${index + 1}T00:00:00.000Z`),
+        }),
+      ),
+    );
+    getVariantsDetailsMock.mockResolvedValue(
+      ids.map((variantId, index) => ({
+        variantId,
+        sku: `SKU-${index}`,
+        productName: `Product ${index}`,
+        firstAttribute: { key: 'Color', value: 'Blue' },
+        price: index === 0 ? '9007199254740992' : '9007199254740993',
+        currency: 'USD',
+        isArchived: false,
+      })),
+    );
+
+    const result = await handler.execute(
+      new FindWishlistItemsDto(
+        customerId,
+        '11111111-1111-4111-8111-111111111112',
+        1,
+        2,
+        WishListSortBy.PRICE,
+        SortOrder.ASC,
+      ),
+    );
+
+    expect(result.wishlistItems.map((item) => item.price)).toEqual([
+      '9007199254740992',
+      '9007199254740993',
+    ]);
   });
 });

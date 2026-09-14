@@ -5,11 +5,8 @@ import { ICartRepository } from '../../../../aggregates/repositories/cart.interf
 import { CartDTO, CartMapper } from '../../../mappers';
 import { Cart } from '../../../../aggregates/entities/cart/cart.entity';
 import { CartItem } from '../../../../aggregates/value-objects';
-import { IProductAdapter, ITenantCurrencyAdapter } from '../../../ports';
-import {
-  findTenantCartOrThrow,
-  withTenantCurrency,
-} from '../../../shared/cart-command-helpers';
+import { IProductAdapter } from '../../../ports';
+import { findTenantCartOrThrow } from '../../../shared/cart-command-helpers';
 
 @CommandHandler(AddItemToCartDto)
 export class AddItemToCartHandler implements ICommandHandler<AddItemToCartDto> {
@@ -19,8 +16,6 @@ export class AddItemToCartHandler implements ICommandHandler<AddItemToCartDto> {
     private readonly eventPublisher: EventPublisher,
     @Inject('IProductAdapter')
     private readonly productAdapter: IProductAdapter,
-    @Inject('ITenantCurrencyAdapter')
-    private readonly tenantCurrencyAdapter: ITenantCurrencyAdapter,
   ) {}
 
   async execute(command: AddItemToCartDto): Promise<CartDTO> {
@@ -58,11 +53,6 @@ export class AddItemToCartHandler implements ICommandHandler<AddItemToCartDto> {
     // Commit domain events
     cartWithEvents.commit();
 
-    const dto = CartMapper.toDto(cartUpdated, variants);
-    return withTenantCurrency(
-      dto,
-      command.tenantId,
-      this.tenantCurrencyAdapter,
-    );
+    return CartMapper.toDto(cartUpdated, variants);
   }
 }

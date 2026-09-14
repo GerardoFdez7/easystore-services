@@ -19,7 +19,8 @@ export function enrichWithVariantDetails<T extends { variantId: string }>(
       sku: variant?.sku ?? '',
       productName: variant?.productName ?? '',
       firstAttribute: variant?.firstAttribute ?? { key: '', value: '' },
-      price: variant?.price ?? 0,
+      price: variant?.price ?? null,
+      currency: variant?.currency ?? null,
       isArchived: variant?.isArchived ?? true,
     };
   });

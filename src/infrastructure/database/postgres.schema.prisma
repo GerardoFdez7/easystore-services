@@ -625,6 +625,7 @@ model Warranty {
 model Variant {
   id                     String                  @id
   price                  Decimal                 @default(0)
+  currency               String                  @default("GTQ")
   variantCover           String?
   personalizationOptions String[]
   weight                 Float?

@@ -18,6 +18,7 @@ import {
   UpdateInstallmentInput,
 } from './';
 import { ConditionEnum } from '../../../aggregates/value-objects';
+import { MoneyType, MoneyInput } from '@shared/presentation/graphql';
 
 // Query types for variants
 registerEnumType(ConditionEnum, {
@@ -53,8 +54,8 @@ export class VariantType {
   @Field(() => [AttributeType])
   attributes: AttributeType[];
 
-  @Field(() => Float)
-  price: number;
+  @Field(() => MoneyType)
+  price: MoneyType;
 
   @Field(() => String, { nullable: true })
   variantCover?: string;
@@ -126,8 +127,8 @@ export class AddVariantToProductInput {
   @Field(() => [CreateAttributeInput])
   attributes: CreateAttributeInput[];
 
-  @Field(() => Float)
-  price: number;
+  @Field(() => MoneyInput)
+  price: MoneyInput;
 
   @Field(() => String, { nullable: true })
   variantCover?: string;
@@ -174,8 +175,8 @@ export class CreateVariantInput {
   @Field(() => [CreateAttributeInput])
   attributes: CreateAttributeInput[];
 
-  @Field(() => Float)
-  price: number;
+  @Field(() => MoneyInput)
+  price: MoneyInput;
 
   @Field(() => String, { nullable: true })
   variantCover?: string;
@@ -247,8 +248,8 @@ export class UpdateVariantInput {
   @Field(() => [UpdateAttributeInput], { nullable: true })
   attributes?: UpdateAttributeInput[];
 
-  @Field(() => Float, { nullable: true })
-  price?: number;
+  @Field(() => MoneyInput, { nullable: true })
+  price?: MoneyInput;
 
   @Field(() => String, { nullable: true })
   variantCover?: string;

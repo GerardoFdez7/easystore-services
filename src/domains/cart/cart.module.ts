@@ -17,10 +17,7 @@ import {
 } from './application/events';
 import { CartResolver } from './presentation/graphql/cart.resolver';
 import { CartRepository } from './infrastructure/postgres/cart.repository';
-import {
-  ProductAdapter,
-  TenantCurrencyAdapter,
-} from './infrastructure/adapters';
+import { ProductAdapter } from './infrastructure/adapters';
 
 const CommandHandlers = [
   CartCreateHandler,
@@ -45,7 +42,6 @@ const EventHandlers = [
   providers: [
     { provide: 'ICartRepository', useClass: CartRepository },
     { provide: 'IProductAdapter', useClass: ProductAdapter },
-    { provide: 'ITenantCurrencyAdapter', useClass: TenantCurrencyAdapter },
     CartResolver,
     ...CommandHandlers,
     ...QueryHandlers,

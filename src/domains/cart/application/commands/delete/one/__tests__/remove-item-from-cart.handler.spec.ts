@@ -8,7 +8,6 @@ import { ICartRepository } from '../../../../../aggregates/repositories/cart.int
 import { CartMapper, CartDTO } from '../../../../mappers';
 import { Cart } from '../../../../../aggregates/entities/cart/cart.entity';
 import { Id } from '../../../../../aggregates/value-objects';
-import { ITenantCurrencyAdapter } from '../../../../ports';
 
 interface MockCart {
   commit: jest.Mock;
@@ -22,7 +21,6 @@ describe('RemoveItemFromCartHandler', () => {
   let handler: RemoveItemFromCartHandler;
   let cartRepository: jest.Mocked<ICartRepository>;
   let eventPublisher: jest.Mocked<EventPublisher>;
-  let tenantCurrencyAdapter: jest.Mocked<ITenantCurrencyAdapter>;
   let mockCart: MockCart;
 
   let findCartByCustomerIdMock: jest.Mock;
@@ -60,10 +58,6 @@ describe('RemoveItemFromCartHandler', () => {
       mergeObjectContext: mergeObjectContextMock,
     } as unknown as jest.Mocked<EventPublisher>;
 
-    tenantCurrencyAdapter = {
-      getCurrency: jest.fn().mockResolvedValue('USD'),
-    } as unknown as jest.Mocked<ITenantCurrencyAdapter>;
-
     cartRemoveItemMock = jest
       .spyOn(Cart, 'removeItem')
       .mockReturnValue(mockCart as unknown as Cart);
@@ -77,7 +71,7 @@ describe('RemoveItemFromCartHandler', () => {
       customerId: 'customer-id-456',
       tenantId: '019a039e-fe37-7516-ab6d-c16428949f9f',
       cartItems: [],
-      totalCart: 0,
+      totalCart: [],
     } as CartDTO);
 
     const module: TestingModule = await Test.createTestingModule({
@@ -90,10 +84,6 @@ describe('RemoveItemFromCartHandler', () => {
         {
           provide: EventPublisher,
           useValue: eventPublisher,
-        },
-        {
-          provide: 'ITenantCurrencyAdapter',
-          useValue: tenantCurrencyAdapter,
         },
       ],
     }).compile();
@@ -340,8 +330,9 @@ describe('RemoveItemFromCartHandler', () => {
         const expectedDto: CartDTO = {
           id: 'cart-id-123',
           customerId: 'customer-id-456',
+          tenantId: '019a039e-fe37-7516-ab6d-c16428949f9f',
           cartItems: [],
-          totalCart: { amount: '0', currency: 'USD' },
+          totalCart: [],
         } as CartDTO;
         toDtoMock.mockReturnValue(expectedDto);
 
@@ -363,6 +354,7 @@ describe('RemoveItemFromCartHandler', () => {
         const cartAfterRemoval: CartDTO = {
           id: 'cart-id-123',
           customerId: 'customer-id-456',
+          tenantId: '019a039e-fe37-7516-ab6d-c16428949f9f',
           cartItems: [
             {
               id: 'remaining-item',
@@ -370,7 +362,7 @@ describe('RemoveItemFromCartHandler', () => {
               qty: 2,
             },
           ],
-          totalCart: { amount: '50', currency: 'USD' },
+          totalCart: [{ amount: '50', currency: 'USD' }],
         } as CartDTO;
         toDtoMock.mockReturnValue(cartAfterRemoval);
 
@@ -556,8 +548,9 @@ describe('RemoveItemFromCartHandler', () => {
         const expectedDto: CartDTO = {
           id: 'cart-id-123',
           customerId: 'customer-id-456',
+          tenantId: '019a039e-fe37-7516-ab6d-c16428949f9f',
           cartItems: [],
-          totalCart: { amount: '0', currency: 'USD' },
+          totalCart: [],
         } as CartDTO;
 
         const mockVariantId = { getValue: () => 'complete-variant-123' } as Id;
