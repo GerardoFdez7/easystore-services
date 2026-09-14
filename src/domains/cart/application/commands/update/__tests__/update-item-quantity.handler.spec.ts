@@ -8,7 +8,6 @@ import { ICartRepository } from '../../../../aggregates/repositories/cart.interf
 import { CartMapper, CartDTO } from '../../../mappers';
 import { Cart } from '../../../../aggregates/entities/cart/cart.entity';
 import { Id, Qty } from '../../../../aggregates/value-objects';
-import { ITenantCurrencyAdapter } from '../../../ports';
 
 interface MockCart {
   commit: jest.Mock;
@@ -22,7 +21,6 @@ describe('UpdateItemQuantityHandler', () => {
   let handler: UpdateItemQuantityHandler;
   let cartRepository: jest.Mocked<ICartRepository>;
   let eventPublisher: jest.Mocked<EventPublisher>;
-  let tenantCurrencyAdapter: jest.Mocked<ITenantCurrencyAdapter>;
   let mockCart: MockCart;
 
   let findCartByCustomerIdMock: jest.Mock;
@@ -63,10 +61,6 @@ describe('UpdateItemQuantityHandler', () => {
       mergeObjectContext: mergeObjectContextMock,
     } as unknown as jest.Mocked<EventPublisher>;
 
-    tenantCurrencyAdapter = {
-      getCurrency: jest.fn().mockResolvedValue('USD'),
-    } as unknown as jest.Mocked<ITenantCurrencyAdapter>;
-
     cartUpdateItemQuantityMock = jest
       .spyOn(Cart, 'updateItemQuantity')
       .mockReturnValue(mockCart as unknown as Cart);
@@ -84,7 +78,7 @@ describe('UpdateItemQuantityHandler', () => {
       customerId: '550e8400-e29b-41d4-a716-446655440001',
       tenantId: '550e8400-e29b-41d4-a716-446655440003',
       cartItems: [],
-      totalCart: '0',
+      totalCart: [],
     } as CartDTO);
 
     const module: TestingModule = await Test.createTestingModule({
@@ -97,10 +91,6 @@ describe('UpdateItemQuantityHandler', () => {
         {
           provide: EventPublisher,
           useValue: eventPublisher,
-        },
-        {
-          provide: 'ITenantCurrencyAdapter',
-          useValue: tenantCurrencyAdapter,
         },
       ],
     }).compile();
@@ -474,8 +464,9 @@ describe('UpdateItemQuantityHandler', () => {
         const expectedDto: CartDTO = {
           id: '550e8400-e29b-41d4-a716-446655440000',
           customerId: '550e8400-e29b-41d4-a716-446655440001',
+          tenantId: '550e8400-e29b-41d4-a716-446655440003',
           cartItems: [],
-          totalCart: { amount: '0', currency: 'USD' },
+          totalCart: [],
         } as CartDTO;
         toDtoMock.mockReturnValue(expectedDto);
 
@@ -497,6 +488,7 @@ describe('UpdateItemQuantityHandler', () => {
         const cartAfterUpdate: CartDTO = {
           id: '550e8400-e29b-41d4-a716-446655440000',
           customerId: '550e8400-e29b-41d4-a716-446655440001',
+          tenantId: '550e8400-e29b-41d4-a716-446655440003',
           cartItems: [
             {
               id: 'updated-item',
@@ -504,7 +496,7 @@ describe('UpdateItemQuantityHandler', () => {
               qty: 3,
             },
           ],
-          totalCart: { amount: '75', currency: 'USD' },
+          totalCart: [{ amount: '75', currency: 'USD' }],
         } as CartDTO;
         toDtoMock.mockReturnValue(cartAfterUpdate);
 
@@ -831,6 +823,7 @@ describe('UpdateItemQuantityHandler', () => {
         const expectedDto: CartDTO = {
           id: '550e8400-e29b-41d4-a716-446655440007',
           customerId: '550e8400-e29b-41d4-a716-446655440006',
+          tenantId: '550e8400-e29b-41d4-a716-446655440003',
           cartItems: [
             {
               id: 'complete-item',
@@ -838,7 +831,7 @@ describe('UpdateItemQuantityHandler', () => {
               qty: 8,
             },
           ],
-          totalCart: { amount: '200', currency: 'USD' },
+          totalCart: [{ amount: '200', currency: 'USD' }],
         } as CartDTO;
 
         const mockCustomerId = {

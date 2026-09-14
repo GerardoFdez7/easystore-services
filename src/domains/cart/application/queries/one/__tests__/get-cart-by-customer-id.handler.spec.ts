@@ -1,8 +1,8 @@
 import { ResourceNotFoundError } from '@shared/infrastructure/postgres/errors';
-import { CurrencyCodes, Id } from '@shared/aggregates/value-objects';
+import { Id } from '@shared/aggregates/value-objects';
 import { Cart } from '../../../../aggregates/entities/cart/cart.entity';
 import { ICartRepository } from '../../../../aggregates/repositories/cart.interface';
-import { IProductAdapter, ITenantCurrencyAdapter } from '../../../ports';
+import { IProductAdapter } from '../../../ports';
 import { GetCartByCustomerIdDTO } from '../get-cart-by-customer-id.dto';
 import { GetCartByIdHandler } from '../get-cart-by-customer-id.handler';
 
@@ -25,20 +25,12 @@ describe('GetCartByIdHandler', () => {
   const productAdapter: jest.Mocked<IProductAdapter> = {
     getVariantsDetails: jest.fn(),
   };
-  const tenantCurrencyAdapter: jest.Mocked<ITenantCurrencyAdapter> = {
-    getCurrency: jest.fn(),
-  };
-  const handler = new GetCartByIdHandler(
-    cartRepository,
-    productAdapter,
-    tenantCurrencyAdapter,
-  );
+  const handler = new GetCartByIdHandler(cartRepository, productAdapter);
 
   beforeEach(() => {
     jest.resetAllMocks();
     cartRepository.findCartByCustomerId.mockResolvedValue(cart);
     cartRepository.getCartItemsCount.mockResolvedValue(0);
-    tenantCurrencyAdapter.getCurrency.mockResolvedValue(CurrencyCodes.USD);
   });
 
   it('loads a cart and its item count within the authenticated tenant', async () => {

@@ -5,7 +5,6 @@ import { Inject } from '@nestjs/common';
 import { ICartRepository } from '../../../../aggregates/repositories/cart.interface';
 import { Id } from '../../../../aggregates/value-objects';
 import { Cart } from '../../../../aggregates/entities/cart/cart.entity';
-import { ITenantCurrencyAdapter } from '../../../ports';
 import {
   findTenantCartOrThrow,
   persistCartMutation,
@@ -18,8 +17,6 @@ export class RemoveItemFromCartHandler
   constructor(
     @Inject('ICartRepository') private readonly cartRepository: ICartRepository,
     private readonly eventPublisher: EventPublisher,
-    @Inject('ITenantCurrencyAdapter')
-    private readonly tenantCurrencyAdapter: ITenantCurrencyAdapter,
   ) {}
 
   async execute(command: RemoveItemFromCartDto): Promise<CartDTO> {
@@ -35,8 +32,6 @@ export class RemoveItemFromCartHandler
       (cart) => Cart.removeItem(cart, variantId),
       this.eventPublisher,
       this.cartRepository,
-      command.tenantId,
-      this.tenantCurrencyAdapter,
     );
   }
 }

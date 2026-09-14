@@ -1,4 +1,3 @@
-import { BadRequestException } from '@nestjs/common';
 import { Money } from '@shared/aggregates/value-objects';
 import { Cart } from '../../../aggregates/entities/cart/cart.entity';
 import { CartItem } from '../../../aggregates/value-objects/cart-item.vo';
@@ -14,20 +13,18 @@ export class CartMapper {
       CartMapper.cartItemToDto(item, variantDetails),
     );
 
-    const currencies = new Set(
-      cartItems
-        .filter((item) => Money.compareAmounts(item.subTotal, '0') > 0)
-        .map((item) => item.currency),
-    );
-    if (currencies.size > 1) {
-      throw new BadRequestException(
-        `Cart contains items priced in mismatched currencies: ${[...currencies].join(', ')}`,
+    const totalsByCurrency = new Map<string, string>();
+    for (const item of cartItems) {
+      if (!item.currency) continue;
+      const runningTotal = totalsByCurrency.get(item.currency) ?? '0';
+      totalsByCurrency.set(
+        item.currency,
+        Money.addAmounts(runningTotal, item.subTotal),
       );
     }
 
-    const totalCart = cartItems.reduce(
-      (sum, item) => Money.addAmounts(sum, item.subTotal),
-      '0',
+    const totalCart = Array.from(totalsByCurrency, ([currency, amount]) =>
+      Money.create(amount, currency).getValue(),
     );
 
     return cart.toDTO<CartDTO>((entity) => ({

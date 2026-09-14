@@ -51,8 +51,8 @@ export class CartType {
   @Field(() => [CartItemType])
   cartItems: CartItemType[];
 
-  @Field(() => MoneyType)
-  totalCart: MoneyType;
+  @Field(() => [MoneyType])
+  totalCart: MoneyType[];
 }
 
 @ObjectType('PaginatedCart')
@@ -66,8 +66,8 @@ export class PaginatedCartType {
   @Field(() => Boolean)
   hasMore: boolean;
 
-  @Field(() => MoneyType)
-  totalCart: MoneyType;
+  @Field(() => [MoneyType])
+  totalCart: MoneyType[];
 }
 
 @InputType()

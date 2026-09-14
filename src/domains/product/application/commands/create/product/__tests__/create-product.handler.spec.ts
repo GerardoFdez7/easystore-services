@@ -6,6 +6,7 @@ import { CreateProductDTO } from '../create-product.dto';
 import { IProductRepository } from '../../../../../aggregates/repositories/product.interface';
 import { ProductMapper, ProductDTO } from '../../../../mappers';
 import { TypeEnum } from '../../../../../aggregates/value-objects';
+import { Product } from '../../../../../aggregates/entities';
 
 interface MockProduct {
   commit: jest.Mock;
@@ -85,6 +86,37 @@ describe('CreateProductHandler', () => {
     const baseCommand: CreateProductDTO = {
       data: baseProductData,
     } as unknown as CreateProductDTO;
+
+    it('rejects a negative variant price through product creation', async () => {
+      fromCreateDtoMock.mockImplementationOnce((data) =>
+        Product.create(data as never),
+      );
+      const command = {
+        data: {
+          name: 'Test Product',
+          shortDescription: 'Test description',
+          cover: 'https://example.com/cover.jpg',
+          tenantId: '0198b746-8c72-7a2f-9c31-6d4f9866f322',
+          productType: TypeEnum.PHYSICAL,
+          variants: [
+            {
+              attributes: [{ key: 'Size', value: 'M' }],
+              price: '-0.01',
+              currency: 'USD',
+              condition: 'NEW',
+              sku: 'TEST-001',
+              weight: 1,
+              dimension: { height: 1, width: 1, length: 1 },
+            },
+          ],
+        },
+      } as unknown as CreateProductDTO;
+
+      await expect(handler.execute(command)).rejects.toThrow(
+        'Price must be non-negative.',
+      );
+      expect(createMock).not.toHaveBeenCalled();
+    });
 
     describe('Product type validation for variants', () => {
       describe('Digital products', () => {

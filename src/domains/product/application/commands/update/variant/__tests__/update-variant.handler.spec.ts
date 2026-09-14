@@ -2,7 +2,11 @@
 import { EventPublisher } from '@nestjs/cqrs';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { ProductMapper } from '../../../../mappers';
-import { TypeEnum } from '../../../../../aggregates/value-objects';
+import { Product } from '../../../../../aggregates/entities';
+import {
+  ConditionEnum,
+  TypeEnum,
+} from '../../../../../aggregates/value-objects';
 import { UpdateVariantDTO } from '../update-variant.dto';
 import { UpdateVariantHandler } from '../update-variant.handler';
 
@@ -116,6 +120,46 @@ describe('UpdateVariantHandler', () => {
     );
     expect(repository.update).not.toHaveBeenCalled();
     expect(updatedProduct.commit).not.toHaveBeenCalled();
+  });
+
+  it('rejects a negative price through variant update', async () => {
+    const actualProduct = Product.create({
+      name: 'Product',
+      shortDescription: 'Description',
+      cover: 'https://example.com/cover.jpg',
+      tenantId,
+      productType: TypeEnum.PHYSICAL,
+      variants: [
+        {
+          attributes: [{ key: 'Size', value: 'M' }],
+          price: '10',
+          currency: 'USD',
+          condition: ConditionEnum.NEW,
+          sku: 'SKU-1',
+          weight: 1,
+          dimension: { height: 1, width: 1, length: 1 },
+        },
+      ],
+    });
+    const actualVariantId = actualProduct
+      .get('variants')[0]
+      .get('id')
+      .getValue();
+    repository.findById.mockResolvedValueOnce(actualProduct);
+    jest
+      .spyOn(ProductMapper, 'fromUpdateVariantDto')
+      .mockImplementationOnce((product, id, update) =>
+        product.updateVariant(id, update.data as never),
+      );
+
+    await expect(
+      handler.execute(
+        new UpdateVariantDTO(actualVariantId, productId, tenantId, {
+          price: '-0.01',
+        }),
+      ),
+    ).rejects.toThrow('Price must be non-negative.');
+    expect(repository.update).not.toHaveBeenCalled();
   });
 
   it('does not commit when persistence fails', async () => {
