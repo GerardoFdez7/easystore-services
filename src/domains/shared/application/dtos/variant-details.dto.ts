@@ -4,5 +4,6 @@ export interface VariantDetailsDTO {
   firstAttribute: { key: string; value: string };
   productName: string;
   isArchived: boolean;
-  price: number;
+  price: string;
+  currency: string;
 }

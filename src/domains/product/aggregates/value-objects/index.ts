@@ -9,6 +9,9 @@ export {
   MediumDescription,
   LongDescription,
   SortOrder,
+  Money,
+  IMoney,
+  CurrencyCodes,
 } from '../../../shared/aggregates/value-objects';
 
 export enum SortBy {
@@ -31,7 +34,6 @@ export {
 } from './product/filter-mode.vo';
 
 // Variant value objects
-export { Price } from './variant/price.vo';
 export { PersonalizationOptions } from './variant/personalization-option.vo';
 export { Weight } from './variant/weight.vo';
 export { Dimension, DimensionProps } from './variant/dimension.vo';

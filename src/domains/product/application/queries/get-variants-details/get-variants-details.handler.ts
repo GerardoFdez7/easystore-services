@@ -34,6 +34,7 @@ export class GetVariantsDetailsHandler
       productName: v.product.name,
       isArchived: v.isArchived,
       price: v.price,
+      currency: v.currency,
     }));
   }
 }

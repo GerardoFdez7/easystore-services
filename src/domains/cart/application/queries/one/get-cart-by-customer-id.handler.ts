@@ -5,6 +5,7 @@ import { ICartRepository } from '../../../aggregates/repositories/cart.interface
 import { CartDTO, CartMapper } from '../../mappers';
 import { Id, IMoney, Money } from '@shared/aggregates/value-objects';
 import { IProductAdapter, ITenantCurrencyAdapter } from '../../ports';
+import { assertCartMatchesTenantCurrency } from '../../shared/cart-command-helpers';
 
 export interface PaginatedCartDTO {
   cartItems: CartDTO['cartItems'];
@@ -55,6 +56,8 @@ export class GetCartByIdHandler
       query.tenantId,
     );
 
+    assertCartMatchesTenantCurrency(dto.cartItems, currency);
+
     // Get total count efficiently using the dedicated method
     const totalItems = await this.cartRepository.getCartItemsCount(
       customerId,
@@ -67,8 +70,8 @@ export class GetCartByIdHandler
       total: totalItems,
       hasMore,
       totalCart: Money.create(
-        typeof dto.totalCart === 'number'
-          ? dto.totalCart.toString()
+        typeof dto.totalCart === 'string'
+          ? dto.totalCart
           : dto.totalCart.amount,
         currency,
       ).getValue(),

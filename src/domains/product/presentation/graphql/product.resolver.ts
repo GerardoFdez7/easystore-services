@@ -40,6 +40,7 @@ import {
   GetAllProductsDTO,
 } from '../../application/queries';
 import { PaginatedProductsDTO } from '../../application/mappers';
+import { flattenVariantPrice } from '../../application/shared/variant-input.mapper';
 import {
   SortBy,
   SortOrder,
@@ -80,7 +81,11 @@ export class ProductResolver {
     @Args('input') input: CreateProductInput,
     @CurrentUser() user: JwtPayload,
   ): Promise<ProductType> {
-    const inputWithTenantId = { ...input, tenantId: user.tenantId };
+    const inputWithTenantId = {
+      ...input,
+      variants: input.variants?.map(flattenVariantPrice),
+      tenantId: user.tenantId,
+    };
     return this.commandBus.execute(new CreateProductDTO(inputWithTenantId));
   }
 
@@ -91,8 +96,12 @@ export class ProductResolver {
     @Args('input') input: UpdateProductInput,
     @CurrentUser() user: JwtPayload,
   ): Promise<ProductType> {
+    const updateData = {
+      ...input,
+      variants: input.variants?.map(flattenVariantPrice),
+    };
     return this.commandBus.execute(
-      new UpdateProductDTO(id, user.tenantId, { ...input }),
+      new UpdateProductDTO(id, user.tenantId, updateData),
     );
   }
 

@@ -1,3 +1,5 @@
+import { BadRequestException } from '@nestjs/common';
+import { Money } from '@shared/aggregates/value-objects';
 import { Cart } from '../../../aggregates/entities/cart/cart.entity';
 import { CartItem } from '../../../aggregates/value-objects/cart-item.vo';
 import { CartDTO, CartItemDTO } from './cart.dto';
@@ -12,7 +14,21 @@ export class CartMapper {
       CartMapper.cartItemToDto(item, variantDetails),
     );
 
-    const totalCart = cartItems.reduce((sum, item) => sum + item.subTotal, 0);
+    const currencies = new Set(
+      cartItems
+        .filter((item) => Money.compareAmounts(item.subTotal, '0') > 0)
+        .map((item) => item.currency),
+    );
+    if (currencies.size > 1) {
+      throw new BadRequestException(
+        `Cart contains items priced in mismatched currencies: ${[...currencies].join(', ')}`,
+      );
+    }
+
+    const totalCart = cartItems.reduce(
+      (sum, item) => Money.addAmounts(sum, item.subTotal),
+      '0',
+    );
 
     return cart.toDTO<CartDTO>((entity) => ({
       id: entity.get('id')?.getValue(),
@@ -41,16 +57,18 @@ export class CartMapper {
         qty,
         promotionId: cartItem.getPromotionId()?.getValue() || null,
         updatedAt: cartItem.getUpdatedAt(),
-        unitPrice: 0, // Default values when variant details not available
+        unitPrice: '0', // Default values when variant details not available
+        currency: '',
         productName: '',
-        subTotal: 0,
+        subTotal: '0',
         firstAttribute: { key: '', value: '' },
       };
     }
 
-    const unitPrice = variant.price;
+    const unitPrice = Money.normalizeAmount(variant.price);
+    const currency = variant.currency;
     const productName = variant.productName;
-    const subTotal = unitPrice * qty;
+    const subTotal = Money.multiplyAmount(unitPrice, qty);
 
     return {
       id: cartItem.getId().getValue(),
@@ -59,6 +77,7 @@ export class CartMapper {
       promotionId: cartItem.getPromotionId()?.getValue() || null,
       updatedAt: cartItem.getUpdatedAt(),
       unitPrice,
+      currency,
       productName,
       subTotal,
       firstAttribute: variant.firstAttribute,

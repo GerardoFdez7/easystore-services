@@ -1,5 +1,5 @@
-import { MoneyType } from '@shared/presentation/graphql/';
-import { ObjectType, Field, ID, Int, Float, InputType } from '@nestjs/graphql';
+import { DecimalValue, MoneyType } from '@shared/presentation/graphql/';
+import { ObjectType, Field, ID, Int, InputType } from '@nestjs/graphql';
 
 @ObjectType('FirstAttribute')
 export class FirstAttributeType {
@@ -27,14 +27,17 @@ export class CartItemType {
   @Field({ nullable: true })
   updatedAt?: Date;
 
-  @Field(() => Float, { nullable: true })
-  unitPrice?: number;
+  @Field(() => DecimalValue, { nullable: true })
+  unitPrice?: string;
+
+  @Field({ nullable: true })
+  currency?: string;
 
   @Field({ nullable: true })
   productName?: string;
 
-  @Field(() => Float, { nullable: true })
-  subTotal?: number;
+  @Field(() => DecimalValue, { nullable: true })
+  subTotal?: string;
 
   @Field(() => FirstAttributeType, { nullable: true })
   firstAttribute?: FirstAttributeType;

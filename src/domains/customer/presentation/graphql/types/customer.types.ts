@@ -8,6 +8,7 @@ import {
   ObjectType,
 } from '@nestjs/graphql';
 import { WishListSortBy } from '../../../application/queries/many/wish-list/find-wish-list-items.dto';
+import { MoneyType } from '@shared/presentation/graphql';
 
 export { WishListSortBy };
 
@@ -148,8 +149,8 @@ export class WishListWithVariantType extends WishListType {
   @Field(() => FirstAttributeType, { nullable: true })
   firstAttribute?: FirstAttributeType;
 
-  @Field(() => Float)
-  price: number;
+  @Field(() => MoneyType, { nullable: true })
+  price: MoneyType | null;
 
   @Field(() => Boolean, { nullable: true })
   isArchived?: boolean;
@@ -208,8 +209,8 @@ export class CustomerReviewProductWithVariantType extends CustomerReviewProductT
   @Field(() => FirstAttributeType, { nullable: true })
   firstAttribute?: FirstAttributeType;
 
-  @Field(() => Float)
-  price: number;
+  @Field(() => MoneyType, { nullable: true })
+  price: MoneyType | null;
 
   @Field(() => Boolean, { nullable: true })
   isArchived?: boolean;

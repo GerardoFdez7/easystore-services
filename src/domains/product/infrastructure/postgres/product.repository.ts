@@ -217,6 +217,7 @@ export class ProductRepository implements IProductRepository {
       const variantData = {
         id: variantDto.id,
         price: variantDto.price,
+        currency: variantDto.currency,
         variantCover: variantDto.variantCover,
         personalizationOptions: variantDto.personalizationOptions || [],
         weight: variantDto.weight,
@@ -786,7 +787,8 @@ export class ProductRepository implements IProductRepository {
       attributes: Array<{ key: string; value: string }>;
       product: { name: string };
       isArchived: boolean;
-      price: number;
+      price: string;
+      currency: string;
     }>
   > {
     const idValues = ids.map((id) => id.getValue());
@@ -866,7 +868,8 @@ export class ProductRepository implements IProductRepository {
         attributes: v.attributes.map((a) => ({ key: a.key, value: a.value })),
         product: { name: v.product.name },
         isArchived: v.isArchived,
-        price: +v.price,
+        price: v.price.toString(),
+        currency: v.currency,
       }));
     } catch (error) {
       return this.handleDatabaseError(error, 'find variants by ids');

@@ -49,7 +49,8 @@ describe('AddItemToCartHandler', () => {
       getVariantsDetails: jest.fn().mockResolvedValue([
         {
           variantId: '019a039e-fe37-7516-ab6d-b44cd5c58179',
-          price: 100,
+          price: '100',
+          currency: 'USD',
         },
       ]),
     } as unknown as jest.Mocked<IProductAdapter>;
@@ -239,7 +240,8 @@ describe('AddItemToCartHandler', () => {
             firstAttribute: { key: 'size', value: 'M' },
             productName: 'Product 1',
             isArchived: false,
-            price: 100,
+            price: '100',
+            currency: 'USD',
           },
           {
             variantId: 'variant-2',
@@ -247,7 +249,8 @@ describe('AddItemToCartHandler', () => {
             firstAttribute: { key: 'size', value: 'L' },
             productName: 'Product 2',
             isArchived: false,
-            price: 200,
+            price: '200',
+            currency: 'USD',
           },
         ]);
 
@@ -267,7 +270,8 @@ describe('AddItemToCartHandler', () => {
             firstAttribute: { key: 'size', value: 'M' },
             productName: 'Product 1',
             isArchived: false,
-            price: 100,
+            price: '100',
+            currency: 'USD',
           },
         ]);
 

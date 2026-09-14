@@ -205,8 +205,9 @@ describe('CartCreateHandler', () => {
         const expectedDto: CartDTO = {
           id: 'cart-id-123',
           customerId: 'customer-id-456',
+          tenantId: 'tenant-123',
           cartItems: [],
-          totalCart: 0,
+          totalCart: '0',
         } as CartDTO;
         toDtoMock.mockReturnValue(expectedDto);
 
@@ -289,8 +290,9 @@ describe('CartCreateHandler', () => {
         const expectedDto: CartDTO = {
           id: 'cart-id-123',
           customerId: 'customer-id-456',
+          tenantId: 'tenant-123',
           cartItems: [],
-          totalCart: 0,
+          totalCart: '0',
         } as CartDTO;
 
         mergeObjectContextMock.mockReturnValue(mockCart as never);

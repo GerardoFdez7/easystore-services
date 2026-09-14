@@ -77,7 +77,7 @@ describe('RemoveManyItemsFromCartHandler', () => {
       customerId: 'customer-id-456',
       tenantId: '019a039e-fe37-7516-ab6d-c16428949f9f',
       cartItems: [],
-      totalCart: 0,
+      totalCart: '0',
     } as CartDTO);
 
     const module: TestingModule = await Test.createTestingModule({

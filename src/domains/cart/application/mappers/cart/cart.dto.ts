@@ -7,7 +7,7 @@ export interface CartDTO {
   customerId: string;
   tenantId: string;
   cartItems: CartItemDTO[];
-  totalCart: number | import('@shared/aggregates/value-objects').IMoney;
+  totalCart: string | import('@shared/aggregates/value-objects').IMoney;
 }
 
 /**
@@ -21,7 +21,8 @@ export interface CartItemDTO {
   firstAttribute: { key: string; value: string };
   promotionId?: string | null;
   updatedAt: Date;
-  unitPrice: number;
+  unitPrice: string;
+  currency: string;
   productName: string;
-  subTotal: number;
+  subTotal: string;
 }

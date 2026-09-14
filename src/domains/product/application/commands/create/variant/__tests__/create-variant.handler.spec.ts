@@ -86,7 +86,8 @@ describe('CreateVariantHandler', () => {
       productId: 'product-123',
       tenantId: 'tenant-456',
       sku: 'VAR-001',
-      price: 29.99,
+      price: '29.99',
+      currency: 'USD',
       stock: 100,
       weight: 1.5,
       dimension: {
@@ -674,7 +675,8 @@ describe('CreateVariantHandler', () => {
             productId: 'prod-1',
             tenantId: 'tenant-1',
             sku: 'SKU-001',
-            price: 10,
+            price: '10',
+            currency: 'USD',
             stock: 0,
           },
         } as unknown as CreateVariantDTO;
@@ -698,7 +700,8 @@ describe('CreateVariantHandler', () => {
             productId: 'prod-1',
             tenantId: 'tenant-1',
             sku: 'SKU-001',
-            price: 99.99,
+            price: '99.99',
+            currency: 'USD',
             stock: 100,
             weight: 2.5,
             dimension: {
@@ -755,7 +758,8 @@ describe('CreateVariantHandler', () => {
             productId: 'product-789',
             tenantId: 'tenant-123',
             sku: 'VAR-COMPLETE',
-            price: 49.99,
+            price: '49.99',
+            currency: 'USD',
             stock: 50,
             weight: 1.0,
             dimension: {
@@ -772,7 +776,8 @@ describe('CreateVariantHandler', () => {
           variants: [
             {
               sku: 'VAR-COMPLETE',
-              price: 49.99,
+              price: '49.99',
+              currency: 'USD',
               stock: 50,
             },
           ],
