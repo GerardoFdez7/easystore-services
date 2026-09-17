@@ -7,13 +7,13 @@ import { RestoreProductHandler } from '../restore-product.handler';
 
 describe('RestoreProductHandler', () => {
   const productId = '0198b746-8c72-7a2f-9c31-6d4f9866f321';
-  const tenantId = '0198b746-8c72-7a2f-9c31-6d4f9866f322';
+  const storeId = '0198b746-8c72-7a2f-9c31-6d4f9866f322';
   const product = { get: jest.fn() };
   const restoredProduct = { commit: jest.fn() };
   const dto = { id: productId, isArchived: false };
   const repository = { findById: jest.fn(), update: jest.fn() };
   const publisher = { mergeObjectContext: jest.fn() };
-  const command = new RestoreProductDTO(productId, tenantId);
+  const command = new RestoreProductDTO(productId, storeId);
   let handler: RestoreProductHandler;
 
   beforeEach(() => {
@@ -31,17 +31,17 @@ describe('RestoreProductHandler', () => {
     publisher.mergeObjectContext.mockReturnValue(restoredProduct);
   });
 
-  it('restores an archived tenant-scoped product and commits its event', async () => {
+  it('restores an archived store-scoped product and commits its event', async () => {
     await expect(handler.execute(command)).resolves.toBe(dto);
 
     expect(repository.findById).toHaveBeenCalledWith(
-      expect.objectContaining({ value: tenantId }),
+      expect.objectContaining({ value: storeId }),
       expect.objectContaining({ value: productId }),
     );
     expect(product.get).toHaveBeenCalledWith('isArchived');
     expect(ProductMapper.fromRestoreDto).toHaveBeenCalledWith(product);
     expect(repository.update).toHaveBeenCalledWith(
-      expect.objectContaining({ value: tenantId }),
+      expect.objectContaining({ value: storeId }),
       expect.objectContaining({ value: productId }),
       restoredProduct,
     );

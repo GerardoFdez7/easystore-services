@@ -21,10 +21,14 @@ describe('CreateWarehouseHandler', () => {
   let mergeObjectContextMock: jest.Mock;
   let fromCreateDtoMock: jest.SpyInstance;
   let toDtoMock: jest.SpyInstance;
+  let getAddressDetailsMock: jest.Mock;
 
   beforeEach(async () => {
     createMock = jest.fn();
     mergeObjectContextMock = jest.fn();
+    getAddressDetailsMock = jest
+      .fn()
+      .mockResolvedValue([{ addressId: 'address-123' }]);
 
     warehouseRepository = {
       create: createMock,
@@ -60,6 +64,10 @@ describe('CreateWarehouseHandler', () => {
           provide: EventPublisher,
           useValue: eventPublisher,
         },
+        {
+          provide: 'IAddressAdapter',
+          useValue: { getAddressDetails: getAddressDetailsMock },
+        },
       ],
     }).compile();
 
@@ -74,11 +82,12 @@ describe('CreateWarehouseHandler', () => {
     const baseWarehouseData = {
       name: 'Main Warehouse',
       addressId: 'address-123',
-      tenantId: 'tenant-456',
+      storeId: 'store-456',
     };
 
     const baseCommand: CreateWarehouseDTO = {
       data: baseWarehouseData,
+      tenantId: 'tenant-123',
     } as unknown as CreateWarehouseDTO;
 
     describe('Warehouse mapping and processing', () => {
@@ -175,7 +184,8 @@ describe('CreateWarehouseHandler', () => {
           data: {
             name: 'Minimal Warehouse',
             addressId: 'addr-1',
-            tenantId: 'tenant-1',
+            storeId: 'store-1',
+            tenantId: 'tenant-123',
           },
         } as unknown as CreateWarehouseDTO;
 
@@ -212,6 +222,7 @@ describe('CreateWarehouseHandler', () => {
           data: {
             name: 'Complete Warehouse',
             addressId: 'address-789',
+            storeId: 'store-123',
             tenantId: 'tenant-123',
           },
         } as unknown as CreateWarehouseDTO;
@@ -220,6 +231,7 @@ describe('CreateWarehouseHandler', () => {
           id: 'warehouse-789',
           name: 'Complete Warehouse',
           addressId: 'address-789',
+          storeId: 'store-123',
           tenantId: 'tenant-123',
         } as unknown as WarehouseDTO;
 

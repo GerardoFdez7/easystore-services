@@ -27,7 +27,7 @@ export interface ICustomerReviewProductRepository {
   findById(
     id: Id,
     customerId: Id,
-    tenantId: Id,
+    storeId: Id,
   ): Promise<CustomerReviewProduct | null>;
 
   /**
@@ -40,7 +40,7 @@ export interface ICustomerReviewProductRepository {
   findMany(
     customerId: Id,
     reviewIds: Id[],
-    tenantId: Id,
+    storeId: Id,
   ): Promise<CustomerReviewProduct[]>;
 
   /**
@@ -50,5 +50,5 @@ export interface ICustomerReviewProductRepository {
    * @returns Promise that resolves when the review is successfully removed
    * @throws {Error} When repository operation fails or review not found
    */
-  removeReview(customerId: Id, reviewId: Id, tenantId: Id): Promise<void>;
+  removeReview(customerId: Id, reviewId: Id, storeId: Id): Promise<void>;
 }

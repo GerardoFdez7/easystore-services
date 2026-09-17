@@ -25,7 +25,11 @@ repository, adapter, and resolver exports first.
 1. Identify the providers the domain owns and the capabilities it intentionally
    exposes.
 2. Bind repository/port tokens to their implementations and register every required
-   command, query, event handler, and resolver exactly once.
+   command, query, event handler, and resolver exactly once. Always collect command,
+   query, and event handlers in dedicated arrays, then register them in the module's
+   `providers` using the spread operator (for example, `...CommandHandlers`,
+   `...QueryHandlers`, and `...EventHandlers`); do not register handler classes
+   inline.
 3. Add only required Nest module imports and exports; avoid using another domain's
    internals as a shortcut.
 4. Register a new domain module in `src/app.module.ts`.

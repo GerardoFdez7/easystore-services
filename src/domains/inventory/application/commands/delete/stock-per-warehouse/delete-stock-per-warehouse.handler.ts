@@ -20,7 +20,7 @@ export class DeleteStockPerWarehouseHandler
     const warehouse = await findWarehouseOrThrow(
       this.warehouseRepository,
       command.warehouseId,
-      command.tenantId,
+      command.storeId,
     );
 
     const updatedWarehouse = this.eventPublisher.mergeObjectContext(
@@ -30,7 +30,7 @@ export class DeleteStockPerWarehouseHandler
     await this.warehouseRepository.updateSingleStock(
       Id.create(command.stockId),
       Id.create(command.warehouseId),
-      Id.create(command.tenantId),
+      Id.create(command.storeId),
       {
         qtyAvailable: 0,
       },

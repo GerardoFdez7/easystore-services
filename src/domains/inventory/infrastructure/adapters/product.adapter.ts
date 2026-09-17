@@ -10,11 +10,11 @@ export class ProductAdapter implements IProductAdapter {
 
   async getVariantsDetails(
     variantIds: string[],
-    tenantId: string,
+    storeId: string,
     search?: string,
   ): Promise<VariantDetailsDTO[]> {
     return this.queryBus.execute(
-      new GetVariantsDetailsDTO(variantIds, tenantId, search),
+      new GetVariantsDetailsDTO(variantIds, storeId, search),
     );
   }
 }

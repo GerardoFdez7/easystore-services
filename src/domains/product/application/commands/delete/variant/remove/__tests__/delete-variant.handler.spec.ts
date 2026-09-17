@@ -8,13 +8,13 @@ import { DeleteVariantHandler } from '../delete-variant.handler';
 describe('DeleteVariantHandler', () => {
   const variantId = '0198b746-8c72-7a2f-9c31-6d4f9866f323';
   const productId = '0198b746-8c72-7a2f-9c31-6d4f9866f321';
-  const tenantId = '0198b746-8c72-7a2f-9c31-6d4f9866f322';
+  const storeId = '0198b746-8c72-7a2f-9c31-6d4f9866f322';
   const product = { id: productId };
   const updatedProduct = { commit: jest.fn() };
   const dto = { id: productId };
   const repository = { findById: jest.fn(), update: jest.fn() };
   const publisher = { mergeObjectContext: jest.fn() };
-  const command = new DeleteVariantDTO(variantId, productId, tenantId);
+  const command = new DeleteVariantDTO(variantId, productId, storeId);
   let handler: DeleteVariantHandler;
 
   beforeEach(() => {
@@ -31,11 +31,11 @@ describe('DeleteVariantHandler', () => {
     publisher.mergeObjectContext.mockReturnValue(updatedProduct);
   });
 
-  it('permanently removes a variant from its tenant-scoped product aggregate', async () => {
+  it('permanently removes a variant from its store-scoped product aggregate', async () => {
     await expect(handler.execute(command)).resolves.toBe(dto);
 
     expect(repository.findById).toHaveBeenCalledWith(
-      expect.objectContaining({ value: tenantId }),
+      expect.objectContaining({ value: storeId }),
       expect.objectContaining({ value: productId }),
     );
     expect(ProductMapper.fromRemoveVariantDto).toHaveBeenCalledWith(
@@ -43,7 +43,7 @@ describe('DeleteVariantHandler', () => {
       variantId,
     );
     expect(repository.update).toHaveBeenCalledWith(
-      expect.objectContaining({ value: tenantId }),
+      expect.objectContaining({ value: storeId }),
       expect.objectContaining({ value: productId }),
       updatedProduct,
     );

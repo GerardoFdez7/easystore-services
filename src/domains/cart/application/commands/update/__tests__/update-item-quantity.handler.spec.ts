@@ -76,7 +76,7 @@ describe('UpdateItemQuantityHandler', () => {
     toDtoMock = jest.spyOn(CartMapper, 'toDto').mockReturnValue({
       id: '550e8400-e29b-41d4-a716-446655440000',
       customerId: '550e8400-e29b-41d4-a716-446655440001',
-      tenantId: '550e8400-e29b-41d4-a716-446655440003',
+      storeId: '550e8400-e29b-41d4-a716-446655440003',
       cartItems: [],
       totalCart: [],
     } as CartDTO);
@@ -464,7 +464,7 @@ describe('UpdateItemQuantityHandler', () => {
         const expectedDto: CartDTO = {
           id: '550e8400-e29b-41d4-a716-446655440000',
           customerId: '550e8400-e29b-41d4-a716-446655440001',
-          tenantId: '550e8400-e29b-41d4-a716-446655440003',
+          storeId: '550e8400-e29b-41d4-a716-446655440003',
           cartItems: [],
           totalCart: [],
         } as CartDTO;
@@ -488,7 +488,7 @@ describe('UpdateItemQuantityHandler', () => {
         const cartAfterUpdate: CartDTO = {
           id: '550e8400-e29b-41d4-a716-446655440000',
           customerId: '550e8400-e29b-41d4-a716-446655440001',
-          tenantId: '550e8400-e29b-41d4-a716-446655440003',
+          storeId: '550e8400-e29b-41d4-a716-446655440003',
           cartItems: [
             {
               id: 'updated-item',
@@ -823,7 +823,7 @@ describe('UpdateItemQuantityHandler', () => {
         const expectedDto: CartDTO = {
           id: '550e8400-e29b-41d4-a716-446655440007',
           customerId: '550e8400-e29b-41d4-a716-446655440006',
-          tenantId: '550e8400-e29b-41d4-a716-446655440003',
+          storeId: '550e8400-e29b-41d4-a716-446655440003',
           cartItems: [
             {
               id: 'complete-item',

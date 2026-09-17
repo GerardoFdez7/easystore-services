@@ -1,5 +1,5 @@
 import {
-  findTenantCartOrThrow,
+  findStoreCartOrThrow,
   persistCartMutation,
 } from '../../../shared/cart-command-helpers';
 import { Cart } from '../../../../aggregates/entities/cart/cart.entity';
@@ -28,10 +28,10 @@ export class RemoveManyItemsFromCartHandler
    * @throws NotFoundException - When the cart is not found for the given customer
    */
   async execute(command: RemoveManyItemsFromCartDto): Promise<CartDTO> {
-    const cartFound = await findTenantCartOrThrow(
+    const cartFound = await findStoreCartOrThrow(
       this.cartRepository,
       command.customerId,
-      command.tenantId,
+      command.storeId,
     );
 
     const variantsIdList = command.data.variantIds.map((variantId) => {

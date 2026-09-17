@@ -86,7 +86,7 @@ describe('CreateWishListHandler', () => {
       id: 'wishlist-item-123',
       variantId: 'variant-id-123',
       customerId: 'customer-id-123',
-      tenantId: 'tenant-789',
+      storeId: 'store-789',
       updatedAt: new Date('2024-01-01T00:00:00.000Z'),
     };
 
@@ -124,7 +124,7 @@ describe('CreateWishListHandler', () => {
       variantId: 'variant-456',
     };
 
-    const baseCommand = new CreateWishListDto(baseWishListItem, 'tenant-789');
+    const baseCommand = new CreateWishListDto(baseWishListItem, 'store-789');
 
     describe('Customer retrieval and validation', () => {
       beforeEach(() => {
@@ -135,17 +135,17 @@ describe('CreateWishListHandler', () => {
         createMock.mockResolvedValue(mockWishListItem as any);
       });
 
-      it('should find customer by ID and tenant ID', async () => {
+      it('should find customer by ID and store ID', async () => {
         await handler.execute(baseCommand);
 
         expect(idCreateMock).toHaveBeenCalledWith('customer-123');
-        expect(idCreateMock).toHaveBeenCalledWith('tenant-789');
+        expect(idCreateMock).toHaveBeenCalledWith('store-789');
       });
 
       it('should handle valid customer ID correctly', async () => {
         const validCommand = new CreateWishListDto(
           { customerId: 'valid-customer-999', variantId: 'valid-variant-888' },
-          'valid-tenant-777',
+          'valid-store-777',
         );
 
         await handler.execute(validCommand);
@@ -221,7 +221,7 @@ describe('CreateWishListHandler', () => {
       it('should create wishlist with valid data set', async () => {
         const validCommand = new CreateWishListDto(
           { customerId: 'cust-001', variantId: 'var-001' },
-          'tenant-001',
+          'store-001',
         );
 
         await handler.execute(validCommand);
@@ -236,7 +236,7 @@ describe('CreateWishListHandler', () => {
       it('should handle different variant IDs', async () => {
         const variantCommand = new CreateWishListDto(
           { customerId: 'customer-123', variantId: 'var-xyz' },
-          'tenant-789',
+          'store-789',
         );
 
         await handler.execute(variantCommand);
@@ -327,7 +327,7 @@ describe('CreateWishListHandler', () => {
           id: 'wishlist-item-new',
           variantId: 'variant-id-123',
           customerId: 'customer-id-123',
-          tenantId: 'tenant-789',
+          storeId: 'store-789',
           updatedAt: new Date('2024-02-01T00:00:00.000Z'),
         };
         toDtoMock.mockReturnValue(expectedDto);
@@ -403,14 +403,14 @@ describe('CreateWishListHandler', () => {
       it('should execute complete wishlist creation flow', async () => {
         const completeCommand = new CreateWishListDto(
           { customerId: 'complete-customer', variantId: 'complete-variant' },
-          'complete-tenant',
+          'complete-store',
         );
 
         const expectedDto: WishListDTO = {
           id: 'wishlist-id-complete',
           variantId: 'complete-variant',
           customerId: 'complete-customer',
-          tenantId: 'complete-tenant',
+          storeId: 'complete-store',
           updatedAt: new Date('2024-03-01T00:00:00.000Z'),
         };
 
@@ -454,11 +454,11 @@ describe('CreateWishListHandler', () => {
       it('should handle concurrent wishlist creations', async () => {
         const command1 = new CreateWishListDto(
           { customerId: 'customer-1', variantId: 'variant-1' },
-          'tenant-1',
+          'store-1',
         );
         const command2 = new CreateWishListDto(
           { customerId: 'customer-2', variantId: 'variant-2' },
-          'tenant-2',
+          'store-2',
         );
 
         findCustomerByIdMock.mockResolvedValue(

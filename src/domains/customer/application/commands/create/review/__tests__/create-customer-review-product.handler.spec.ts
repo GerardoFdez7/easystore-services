@@ -129,7 +129,7 @@ describe('CreateCustomerReviewProductHandler', () => {
     const baseCommand = new CreateCustomerReviewProductDto(
       baseReviewData,
       'customer-123',
-      'tenant-456',
+      'store-456',
     );
 
     describe('Customer retrieval and validation', () => {
@@ -140,18 +140,18 @@ describe('CreateCustomerReviewProductHandler', () => {
         reviewCreateMock.mockResolvedValue(mockReview as unknown);
       });
 
-      it('should find customer by ID and tenant ID', async () => {
+      it('should find customer by ID and store ID', async () => {
         await handler.execute(baseCommand);
 
         expect(idCreateMock).toHaveBeenCalledWith('customer-123');
-        expect(idCreateMock).toHaveBeenCalledWith('tenant-456');
+        expect(idCreateMock).toHaveBeenCalledWith('store-456');
       });
 
       it('should handle valid customer ID correctly', async () => {
         const validCommand = new CreateCustomerReviewProductDto(
           { ratingCount: 3, comment: 'Valid', variantId: 'variant-999' },
           'valid-customer-999',
-          'valid-tenant-888',
+          'valid-store-888',
         );
         findCustomerByIdMock.mockResolvedValue(
           mockCustomer as unknown as Customer,
@@ -185,7 +185,7 @@ describe('CreateCustomerReviewProductHandler', () => {
         const validCommand = new CreateCustomerReviewProductDto(
           { ratingCount: 5, comment: 'Excellent!', variantId: 'variant-001' },
           'customer-valid-001',
-          'tenant-valid-002',
+          'store-valid-002',
         );
 
         await handler.execute(validCommand);
@@ -200,7 +200,7 @@ describe('CreateCustomerReviewProductHandler', () => {
         const ratingCommand = new CreateCustomerReviewProductDto(
           { ratingCount: 1, comment: 'Poor', variantId: 'variant-low' },
           'customer-rating',
-          'tenant-rating',
+          'store-rating',
         );
 
         await handler.execute(ratingCommand);
@@ -357,7 +357,7 @@ describe('CreateCustomerReviewProductHandler', () => {
         const completeCommand = new CreateCustomerReviewProductDto(
           { ratingCount: 5, comment: 'Perfect!', variantId: 'variant-perfect' },
           'customer-complete',
-          'tenant-complete',
+          'store-complete',
         );
 
         const expectedDto: CustomerReviewProductDTO = {
@@ -405,12 +405,12 @@ describe('CreateCustomerReviewProductHandler', () => {
         const command1 = new CreateCustomerReviewProductDto(
           { ratingCount: 5, comment: 'Great!', variantId: 'variant-1' },
           'customer-1',
-          'tenant-1',
+          'store-1',
         );
         const command2 = new CreateCustomerReviewProductDto(
           { ratingCount: 3, comment: 'Good', variantId: 'variant-2' },
           'customer-2',
-          'tenant-2',
+          'store-2',
         );
 
         findCustomerByIdMock.mockResolvedValue(

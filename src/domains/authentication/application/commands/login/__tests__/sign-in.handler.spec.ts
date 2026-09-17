@@ -30,11 +30,14 @@ describe('AuthenticationLoginHandler', () => {
     update: jest.fn(),
   };
   const tenantAdapter = {
-    getTenantIdByAuthIdentityId: jest.fn(),
-    getTenantIdByDomain: jest.fn(),
+    resolveTenantLoginContext: jest.fn(),
   };
   const customerRepository = { findByAuthIdentityId: jest.fn() };
   const employeeRepository = { findByAuthIdentityId: jest.fn() };
+  const storeAdapter = {
+    getStoreByDomain: jest.fn(),
+    validateStoreInTenant: jest.fn(),
+  };
   const publisher = { mergeObjectContext: jest.fn() };
   const id = { getValue: () => authIdentityId };
   const password = { getValue: () => 'stored-hash' };
@@ -77,6 +80,7 @@ describe('AuthenticationLoginHandler', () => {
       authRepository as never,
       tenantAdapter as never,
       customerRepository as never,
+      storeAdapter as never,
       employeeRepository as never,
       publisher as unknown as EventPublisher,
     );
@@ -85,7 +89,18 @@ describe('AuthenticationLoginHandler', () => {
     (bcrypt.compare as jest.Mock).mockResolvedValue(true);
     (generateToken as jest.Mock).mockReturnValue('access-token');
     (generateRefreshToken as jest.Mock).mockReturnValue('refresh-token');
-    tenantAdapter.getTenantIdByDomain.mockResolvedValue('tenant-1');
+    tenantAdapter.resolveTenantLoginContext.mockResolvedValue({
+      tenantId: 'tenant-1',
+      storeId: 'store-1',
+    });
+    storeAdapter.validateStoreInTenant.mockResolvedValue({
+      id: 'store-1',
+      tenantId: 'tenant-1',
+    });
+    storeAdapter.getStoreByDomain.mockResolvedValue({
+      id: 'store-1',
+      tenantId: 'tenant-1',
+    });
   });
 
   it.each([[AccountTypeEnum.CUSTOMER], [AccountTypeEnum.EMPLOYEE]])(
@@ -144,13 +159,13 @@ describe('AuthenticationLoginHandler', () => {
   });
 
   it.each([[AccountTypeEnum.CUSTOMER], [AccountTypeEnum.EMPLOYEE]])(
-    'throws NotFoundException for %s sign-in when the domain does not resolve to a tenant',
+    'throws NotFoundException for %s sign-in when the domain does not resolve to a store',
     async (accountType) => {
-      tenantAdapter.getTenantIdByDomain.mockResolvedValueOnce(null);
+      storeAdapter.getStoreByDomain.mockResolvedValueOnce(null);
 
       await expect(
         handler.execute(command(accountType, 'unknown-tenant.example.com')),
-      ).rejects.toThrow('Tenant not found for this domain');
+      ).rejects.toThrow('Store not found for this domain');
       expect(generateToken).not.toHaveBeenCalled();
       expect(auth.loginSucceeded).not.toHaveBeenCalled();
     },
@@ -161,25 +176,40 @@ describe('AuthenticationLoginHandler', () => {
       AccountTypeEnum.TENANT,
       undefined,
       tenantAdapter,
-      'getTenantIdByAuthIdentityId',
-      'tenant-1',
-      { tenantId: 'tenant-1', customerId: undefined, employeeId: undefined },
+      'resolveTenantLoginContext',
+      { tenantId: 'tenant-1', storeId: 'store-1' },
+      {
+        tenantId: 'tenant-1',
+        storeId: 'store-1',
+        customerId: undefined,
+        employeeId: undefined,
+      },
     ],
     [
       AccountTypeEnum.CUSTOMER,
       'tenant.example.com',
       customerRepository,
       'findByAuthIdentityId',
-      { id: 'customer-1', tenantId: 'tenant-1' },
-      { tenantId: 'tenant-1', customerId: 'customer-1', employeeId: undefined },
+      { id: 'customer-1', storeId: 'store-1' },
+      {
+        tenantId: 'tenant-1',
+        storeId: 'store-1',
+        customerId: 'customer-1',
+        employeeId: undefined,
+      },
     ],
     [
       AccountTypeEnum.EMPLOYEE,
       'tenant.example.com',
       employeeRepository,
       'findByAuthIdentityId',
-      { id: 'employee-1', tenantId: 'tenant-1' },
-      { tenantId: 'tenant-1', customerId: undefined, employeeId: 'employee-1' },
+      { id: 'employee-1', tenantId: 'tenant-1', storeId: 'store-1' },
+      {
+        tenantId: 'tenant-1',
+        storeId: 'store-1',
+        customerId: undefined,
+        employeeId: 'employee-1',
+      },
     ],
   ])(
     'issues correctly scoped tokens for a %s identity',
@@ -208,6 +238,9 @@ describe('AuthenticationLoginHandler', () => {
       expect(provider[profileMethod]).toHaveBeenCalledWith(
         accountType === AccountTypeEnum.EMPLOYEE ? id : authIdentityId,
       );
+      if (accountType === AccountTypeEnum.TENANT) {
+        expect(storeAdapter.validateStoreInTenant).not.toHaveBeenCalled();
+      }
       expect(generateToken).toHaveBeenCalledWith({
         email: 'user@example.com',
         accountType,
@@ -229,7 +262,7 @@ describe('AuthenticationLoginHandler', () => {
       AccountTypeEnum.TENANT,
       undefined,
       tenantAdapter,
-      'getTenantIdByAuthIdentityId',
+      'resolveTenantLoginContext',
       'Tenant',
     ],
     [
@@ -267,12 +300,12 @@ describe('AuthenticationLoginHandler', () => {
     [AccountTypeEnum.CUSTOMER, customerRepository],
     [AccountTypeEnum.EMPLOYEE, employeeRepository],
   ])(
-    'rejects a %s identity whose tenant does not match the resolved domain tenant',
+    'rejects a %s identity whose store does not match the resolved domain store',
     async (accountType, relatedProvider) => {
       const provider = relatedProvider as Record<string, jest.Mock>;
       provider.findByAuthIdentityId.mockResolvedValueOnce({
         id: 'related-1',
-        tenantId: 'other-tenant',
+        storeId: 'other-store',
       });
 
       await expect(

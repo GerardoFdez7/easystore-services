@@ -9,7 +9,7 @@ export interface IProductCategoriesProps extends DomainEntityProps {
   id: Id;
   productId: Id;
   categoryId: Id;
-  tenantId: Id;
+  storeId: Id;
 }
 
 export class ProductCategories extends DomainEntity<IProductCategoriesProps> {
@@ -26,13 +26,13 @@ export class ProductCategories extends DomainEntity<IProductCategoriesProps> {
   public static create(props: IProductCategoriesBase): ProductCategories {
     const productId = Id.create(props.productId);
     const categoryId = Id.create(props.categoryId);
-    const tenantId = Id.create(props.tenantId);
+    const storeId = Id.create(props.storeId);
 
     const productCategories = new ProductCategories({
       id: Id.generate(),
       productId,
       categoryId,
-      tenantId,
+      storeId,
     });
 
     return productCategories;

@@ -4,7 +4,7 @@ import { z } from 'zod/v4';
 const wishListItemSchema = z.object({
   variantId: z.uuid({ message: 'Id must be a valid UUID' }),
   customerId: z.uuid({ message: 'Id must be a valid UUID' }),
-  tenantId: z.uuid({ message: 'Id must be a valid UUID' }),
+  storeId: z.uuid({ message: 'Id must be a valid UUID' }),
 });
 
 const wishListItemWithIdSchema = wishListItemSchema.extend({
@@ -15,7 +15,7 @@ const wishListItemWithIdSchema = wishListItemSchema.extend({
 export interface WishListProps {
   variantId: string;
   customerId: string;
-  tenantId: string;
+  storeId: string;
 }
 
 export interface WishListPropsWithId extends WishListProps {
@@ -27,7 +27,7 @@ export class WishListItem {
   private readonly id: Id;
   private readonly variantId: Id;
   private readonly customerId: Id;
-  private readonly tenantId: Id;
+  private readonly storeId: Id;
   private readonly updatedAt: Date;
 
   private constructor(
@@ -38,7 +38,7 @@ export class WishListItem {
     this.id = existingId ? Id.create(existingId) : Id.generate();
     this.variantId = Id.create(props.variantId);
     this.customerId = Id.create(props.customerId);
-    this.tenantId = Id.create(props.tenantId);
+    this.storeId = Id.create(props.storeId);
     this.updatedAt = existingUpdatedAt || new Date();
   }
 
@@ -57,13 +57,13 @@ export class WishListItem {
     id: string;
     variantId: string;
     customerId: string;
-    tenantId: string;
+    storeId: string;
   } {
     return {
       id: this.id.getValue(),
       variantId: this.variantId.getValue(),
       customerId: this.customerId.getValue(),
-      tenantId: this.tenantId.getValue(),
+      storeId: this.storeId.getValue(),
     };
   }
 
@@ -80,8 +80,8 @@ export class WishListItem {
     return this.customerId;
   }
 
-  public getTenantId(): Id {
-    return this.tenantId;
+  public getStoreId(): Id {
+    return this.storeId;
   }
 
   public getUpdatedAt(): Date {
@@ -101,8 +101,8 @@ export class WishListItem {
     return this.customerId.getValue();
   }
 
-  public getTenantIdValue(): string {
-    return this.tenantId.getValue();
+  public getStoreIdValue(): string {
+    return this.storeId.getValue();
   }
 
   // Equals method for comparison
@@ -111,7 +111,7 @@ export class WishListItem {
       this.id.equals(other.id) &&
       this.variantId.equals(other.variantId) &&
       this.customerId.equals(other.customerId) &&
-      this.tenantId.equals(other.tenantId) &&
+      this.storeId.equals(other.storeId) &&
       this.updatedAt.getTime() === other.updatedAt.getTime()
     );
   }

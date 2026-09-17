@@ -87,7 +87,7 @@ describe('DeleteStockPerWarehouseHandler', () => {
     const baseCommand: DeleteStockPerWarehouseDTO = {
       stockId: 'stock-123',
       warehouseId: 'warehouse-123',
-      tenantId: 'tenant-123',
+      storeId: 'store-123',
       reason: 'Stock removal',
       createdById: 'user-456',
     };
@@ -105,7 +105,7 @@ describe('DeleteStockPerWarehouseHandler', () => {
         );
       });
 
-      it('should find warehouse with correct tenant and warehouse IDs', async () => {
+      it('should find warehouse with correct store and warehouse IDs', async () => {
         findByIdMock.mockResolvedValue(mockWarehouse);
         mergeObjectContextMock.mockReturnValue(mockWarehouse as never);
 
@@ -230,7 +230,7 @@ describe('DeleteStockPerWarehouseHandler', () => {
         const minimalCommand: DeleteStockPerWarehouseDTO = {
           stockId: 'stock-123',
           warehouseId: 'warehouse-123',
-          tenantId: 'tenant-1',
+          storeId: 'store-1',
           reason: 'Test removal',
           createdById: 'user-1',
         };
@@ -251,7 +251,7 @@ describe('DeleteStockPerWarehouseHandler', () => {
         const completeCommand: DeleteStockPerWarehouseDTO = {
           stockId: 'stock-123',
           warehouseId: 'warehouse-123',
-          tenantId: 'tenant-123',
+          storeId: 'store-123',
           reason: 'Complete stock removal',
           createdById: 'user-456',
         };
@@ -272,7 +272,7 @@ describe('DeleteStockPerWarehouseHandler', () => {
         const largeQuantityCommand: DeleteStockPerWarehouseDTO = {
           stockId: 'stock-123',
           warehouseId: 'warehouse-123',
-          tenantId: 'tenant-123',
+          storeId: 'store-123',
           reason: 'Bulk removal',
           createdById: 'user-456',
         };
@@ -333,7 +333,7 @@ describe('DeleteStockPerWarehouseHandler', () => {
         const completeCommand: DeleteStockPerWarehouseDTO = {
           stockId: 'stock-123',
           warehouseId: 'warehouse-123',
-          tenantId: 'tenant-789',
+          storeId: 'store-789',
           reason: 'Integration test stock removal',
           createdById: 'user-789',
         };

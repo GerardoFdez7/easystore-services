@@ -17,7 +17,7 @@ rules:
           - pattern: export { $...MEMBERS } from $SOURCE
       - metavariable-regex:
           metavariable: $SOURCE
-          regex: ^(?:\.\./)+(?:address|authentication|cart|category|inventory|product|tenant)(?:/|$)
+          regex: ^(?:\.\./)+(?:address|analytics|authentication|cart|category|customer|inventory|order|payment|product|shipping|store|tenant)(?:/|$)
 
   - id: ddd.lower-layers-must-not-import-presentation
     message: Aggregate, application, and infrastructure code must not import a domain presentation layer.
@@ -85,6 +85,7 @@ rules:
         - /src/domains/inventory/aggregates/entities/warehouse/warehouse.entity.ts
         - /src/domains/product/aggregates/entities/product/product.entity.ts
         - /src/domains/tenant/aggregates/entities/tenant/tenant.entity.ts
+        - /src/domains/store/aggregates/entities/store/store.entity.ts
     patterns:
       - pattern: import { $...BEFORE, Entity, $...AFTER } from "$SOURCE"
       - metavariable-regex:
@@ -104,6 +105,7 @@ rules:
         - /src/domains/inventory/aggregates/entities/warehouse/warehouse.entity.ts
         - /src/domains/product/aggregates/entities/product/product.entity.ts
         - /src/domains/tenant/aggregates/entities/tenant/tenant.entity.ts
+        - /src/domains/store/aggregates/entities/store/store.entity.ts
     patterns:
       - pattern: export class $ENTITY extends $BASE { ... }
       - pattern-not: export class $ENTITY extends Entity<$PROPS> { ... }

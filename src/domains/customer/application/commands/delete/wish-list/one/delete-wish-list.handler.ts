@@ -22,13 +22,13 @@ export class DeleteWishListHandler
   async execute(command: DeleteWishListDto): Promise<void> {
     const customerId = Id.create(command.customerId);
     const variantId = Id.create(command.variantId);
-    const tenantId = Id.create(command.tenantId);
+    const storeId = Id.create(command.storeId);
 
     // Find the customer to validate it exists
     const customerFound = await findCustomerOrThrow(
       this.customerRepository,
       customerId,
-      tenantId,
+      storeId,
     );
 
     // Remove the variant from wishlist using repository method and get the deleted item
@@ -36,7 +36,7 @@ export class DeleteWishListHandler
       await this.wishListRepository.removeVariantFromWishList(
         customerId,
         variantId,
-        tenantId,
+        storeId,
       );
 
     if (!deletedWishListItem) {

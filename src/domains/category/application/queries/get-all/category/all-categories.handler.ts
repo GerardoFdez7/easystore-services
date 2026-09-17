@@ -15,7 +15,7 @@ export class GetAllCategoriesHandler
   ) {}
 
   async execute(query: GetAllCategoriesDTO): Promise<PaginatedCategoriesDTO> {
-    const { tenantId, options } = query;
+    const { storeId, options } = query;
     const {
       page,
       limit,
@@ -39,7 +39,7 @@ export class GetAllCategoriesHandler
     }
 
     // Find all categories with pagination and optional filtering
-    const result = await this.categoryRepository.findAll(Id.create(tenantId), {
+    const result = await this.categoryRepository.findAll(Id.create(storeId), {
       page,
       limit,
       name,

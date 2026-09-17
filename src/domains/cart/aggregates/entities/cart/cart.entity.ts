@@ -13,7 +13,7 @@ import {
 export interface ICartProps extends EntityProps {
   id: Id;
   customerId: Id;
-  tenantId: Id;
+  storeId: Id;
   cartItems: Map<string, CartItem>;
 }
 
@@ -31,7 +31,7 @@ export class Cart extends Entity<ICartProps> {
     const cart = new Cart({
       id: Id.generate(),
       customerId: customerId,
-      tenantId: Id.create(input.tenantId),
+      storeId: Id.create(input.storeId),
       cartItems: new Map<string, CartItem>(),
     });
 
@@ -54,7 +54,7 @@ export class Cart extends Entity<ICartProps> {
     const cartUpdated = new Cart({
       id: cart.props.id,
       customerId: cart.props.customerId,
-      tenantId: cart.props.tenantId,
+      storeId: cart.props.storeId,
       cartItems,
     });
 
@@ -82,7 +82,7 @@ export class Cart extends Entity<ICartProps> {
     const cartUpdated = new Cart({
       id: cart.props.id,
       customerId: cart.props.customerId,
-      tenantId: cart.props.tenantId,
+      storeId: cart.props.storeId,
       cartItems: cartItems,
     });
 
@@ -115,7 +115,7 @@ export class Cart extends Entity<ICartProps> {
     const cartUpdated = new Cart({
       id: cart.props.id,
       customerId: cart.props.customerId,
-      tenantId: cart.props.tenantId,
+      storeId: cart.props.storeId,
       cartItems,
     });
 
@@ -156,7 +156,7 @@ export class Cart extends Entity<ICartProps> {
     const cartUpdated = new Cart({
       id: cart.props.id,
       customerId: cart.props.customerId,
-      tenantId: cart.props.tenantId,
+      storeId: cart.props.storeId,
       cartItems,
     });
 

@@ -13,7 +13,7 @@ export interface ICustomerRepository {
    */
   findByAuthIdentityId(
     authIdentityId: Id,
-  ): Promise<{ id: string; tenantId: string } | null>;
+  ): Promise<{ id: string; storeId: string } | null>;
 
   /**
    * Creates a new customer.
@@ -23,18 +23,18 @@ export interface ICustomerRepository {
   create(customer: Customer): Promise<Customer>;
 
   /**
-   * Finds a customer by their ID and tenant ID.
+   * Finds a customer by their ID and Store ID.
    * @param id The ID of the customer.
-   * @param tenantId The ID of the tenant.
+   * @param storeId The ID of the Store.
    * @returns A promise that resolves to the customer if found.
    */
-  findById(id: Id, tenantId: Id): Promise<Customer | null>;
+  findById(id: Id, storeId: Id): Promise<Customer | null>;
 
   /**
    * Updates an existing customer.
    * @param customer The customer object with updated information.
-   * @param tenantId Id of tenant.
+   * @param storeId Id of Store.
    * @returns A promise that resolves to the updated customer.
    */
-  update(customer: Customer, tenantId: Id): Promise<Customer>;
+  update(customer: Customer, storeId: Id): Promise<Customer>;
 }

@@ -27,6 +27,7 @@
       "@product/*": ["./src/domains/product/*"],
       "@category/*": ["./src/domains/category/*"],
       "@customer/*": ["./src/domains/customer/*"],
+      "@store/*": ["./src/domains/store/*"],
       "@database/*": ["./src/infrastructure/database/*"],
       "@graphql/*": ["./src/infrastructure/graphql/*"],
       "@shared/*": ["./src/domains/shared/*"],

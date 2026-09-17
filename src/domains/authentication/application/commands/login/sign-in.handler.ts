@@ -14,7 +14,7 @@ import {
 } from '../../../infrastructure/strategies';
 import { IEmployeeRepository } from '../../../aggregates/repositories/employee.interface';
 import { IAuthRepository } from '../../../aggregates/repositories/authentication.interface';
-import { ICustomerAdapter, ITenantAdapter } from '../../ports';
+import { ICustomerAdapter, IStoreAdapter, ITenantAdapter } from '../../ports';
 import { ResponseDTO } from '../../mappers';
 import {
   Id,
@@ -35,6 +35,8 @@ export class AuthenticationLoginHandler
     private readonly tenantAdapter: ITenantAdapter,
     @Inject('ICustomerAdapter')
     private readonly customerAdapter: ICustomerAdapter,
+    @Inject('IStoreAdapter')
+    private readonly storeAdapter: IStoreAdapter,
     @Inject('EmployeeRepository')
     private readonly employeeRepository: IEmployeeRepository,
     private readonly eventPublisher: EventPublisher,
@@ -103,57 +105,56 @@ export class AuthenticationLoginHandler
 
     // Initialize payload with common fields
     let tenantId: string;
+    let storeId: string;
     let customerId: string | undefined;
     let employeeId: string | undefined;
 
     // Determine IDs based on account type
     if (accountTypeVO.getValue() === AccountTypeEnum.TENANT) {
-      // For tenants, resolve the tenant through the tenant boundary adapter
-      const resolvedTenantId =
-        await this.tenantAdapter.getTenantIdByAuthIdentityId(
-          authIdentityIdValue,
-        );
-      if (!resolvedTenantId) {
+      const loginContext =
+        await this.tenantAdapter.resolveTenantLoginContext(authIdentityIdValue);
+      if (!loginContext) {
         throw new NotFoundException('Tenant not found for this auth identity');
       }
-      tenantId = resolvedTenantId;
+      tenantId = loginContext.tenantId;
+      storeId = loginContext.storeId;
     } else if (accountTypeVO.getValue() === AccountTypeEnum.CUSTOMER) {
-      // Resolve the tenant from the provided domain up front
-      const domainTenantId = await this.tenantAdapter.getTenantIdByDomain(
-        data.domain,
-      );
-      if (!domainTenantId) {
-        throw new NotFoundException('Tenant not found for this domain');
+      const store = await this.storeAdapter.getStoreByDomain(data.domain);
+      if (!store) {
+        throw new NotFoundException('Store not found for this domain');
       }
 
       // For customers, find customer and cross-check it belongs to the resolved tenant
       const customer =
         await this.customerAdapter.findByAuthIdentityId(authIdentityIdValue);
-      if (!customer || customer.tenantId !== domainTenantId) {
+      if (!customer || customer.storeId !== store.id) {
         throw new NotFoundException(
           'Customer not found for this auth identity',
         );
       }
-      tenantId = domainTenantId;
+      tenantId = store.tenantId;
+      storeId = store.id;
       customerId = customer.id;
     } else if (accountTypeVO.getValue() === AccountTypeEnum.EMPLOYEE) {
-      // Resolve the tenant from the provided domain up front
-      const domainTenantId = await this.tenantAdapter.getTenantIdByDomain(
-        data.domain,
-      );
-      if (!domainTenantId) {
-        throw new NotFoundException('Tenant not found for this domain');
+      const store = await this.storeAdapter.getStoreByDomain(data.domain);
+      if (!store) {
+        throw new NotFoundException('Store not found for this domain');
       }
 
       // For employees, find employee and cross-check it belongs to the resolved tenant
       const employee =
         await this.employeeRepository.findByAuthIdentityId(authIdentityId);
-      if (!employee || employee.tenantId !== domainTenantId) {
+      if (
+        !employee ||
+        employee.storeId !== store.id ||
+        employee.tenantId !== store.tenantId
+      ) {
         throw new NotFoundException(
           'Employee not found for this auth identity',
         );
       }
-      tenantId = domainTenantId;
+      tenantId = store.tenantId;
+      storeId = store.id;
       employeeId = employee.id;
     } else {
       throw new UnauthorizedException('Invalid account type');
@@ -168,6 +169,7 @@ export class AuthenticationLoginHandler
       accountType: accountTypeVO.getValue(),
       authIdentityId: authIdentityIdValue,
       tenantId,
+      storeId,
       customerId,
       employeeId,
     };

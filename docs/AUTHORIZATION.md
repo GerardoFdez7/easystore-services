@@ -19,7 +19,7 @@ operation with neither `@RequirePermission` nor `@AllowAccountTypes` is rejected
 
 ## Rules
 
-- Authentication, authorization, and tenant scoping are three independent checks.
+- Authentication, authorization, tenant ownership, and store scoping are independent checks.
   Passing one never satisfies another. An authorized employee still needs tenant
   scoping; a permitted customer still needs an ownership check.
 - Permissions are resolved per request, never embedded in the JWT. Revoking access
@@ -28,7 +28,9 @@ operation with neither `@RequirePermission` nor `@AllowAccountTypes` is rejected
   denial as `null`, `[]`, `false`, or a success-shaped response.
 - Decorator arguments are always enums, never string literals. A wrong string
   compiles and surfaces as an unexplained `403` instead of a build error.
-- Tenants are scoped to their own tenant. Full access never means cross-tenant access.
+- Every normal JWT carries required `tenantId` and selected `storeId`. Tenant-level
+  work uses trusted `tenantId`; commerce records and permission grants use trusted
+  `storeId`. Full access never crosses either boundary.
 - An operation reachable by customers requires **both** the account-type gate and a
   handler-level ownership filter. The gate alone exposes every customer's records to
   every other customer.
@@ -37,7 +39,7 @@ operation with neither `@RequirePermission` nor `@AllowAccountTypes` is rejected
 
 ### Tenant
 
-The store owner has every permission within their own tenant. The guard
+The account owner has every permission within the selected store of their own tenant. The guard
 short-circuits on `accountType === TENANT` — no role row, no permission lookup.
 
 Owner-only operations (store identity, domain, currency, billing) are expressed with

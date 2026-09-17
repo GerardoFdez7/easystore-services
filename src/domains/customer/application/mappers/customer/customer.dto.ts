@@ -5,7 +5,7 @@
 export interface CustomerDTO {
   id: string;
   name: string;
-  tenantId: string;
+  storeId: string;
   authIdentityId: string;
   defaultPhoneNumberId?: string | null;
   defaultShippingAddressId?: string | null;

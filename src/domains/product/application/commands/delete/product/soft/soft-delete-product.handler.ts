@@ -20,7 +20,7 @@ export class SoftDeleteProductHandler
     // Find the product by ID
     const product = await findProductOrThrow(
       this.productRepository,
-      command.tenantId,
+      command.storeId,
       command.id,
     );
 
@@ -39,7 +39,7 @@ export class SoftDeleteProductHandler
 
     // Save the updated product
     await this.productRepository.update(
-      Id.create(command.tenantId),
+      Id.create(command.storeId),
       Id.create(command.id),
       deletedProduct,
     );

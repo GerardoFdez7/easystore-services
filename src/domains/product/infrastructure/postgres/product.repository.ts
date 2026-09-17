@@ -158,13 +158,13 @@ export class ProductRepository implements IProductRepository {
     tx: Prisma.TransactionClient,
     entityId: string, // productId or variantId
     entityType: 'product' | 'variant',
-    tenantId: string,
+    storeId: string,
     mediaDtos: Omit<MediaDTO, 'productId' | 'variantId'>[] = [],
   ): Promise<void> {
     const deleteWhere: Prisma.MediaWhereInput = {};
     if (entityType === 'product') deleteWhere.productId = entityId;
     else deleteWhere.variantId = entityId;
-    deleteWhere.tenantId = tenantId;
+    deleteWhere.storeId = storeId;
 
     await tx.media.deleteMany({ where: deleteWhere });
 
@@ -176,7 +176,7 @@ export class ProductRepository implements IProductRepository {
           url: mediaDto.url,
           position: mediaDto.position,
           mediaType: mediaDto.mediaType,
-          tenantId,
+          storeId,
         };
         if (entityType === 'product') data.productId = entityId;
         else data.variantId = entityId;
@@ -189,7 +189,7 @@ export class ProductRepository implements IProductRepository {
   private async manageVariants(
     tx: Prisma.TransactionClient,
     productId: string,
-    tenantId: string,
+    storeId: string,
     variantDtos: VariantDTO[] = [],
     existingVariantsFull: (PrismaVariant & {
       attributes?: PrismaAttribute[];
@@ -209,7 +209,7 @@ export class ProductRepository implements IProductRepository {
     );
     if (variantsToDelete.length > 0) {
       await tx.variant.deleteMany({
-        where: { id: { in: variantsToDelete }, productId },
+        where: { id: { in: variantsToDelete }, productId, storeId },
       });
     }
 
@@ -229,7 +229,7 @@ export class ProductRepository implements IProductRepository {
         sku: variantDto.sku,
         isArchived: variantDto.isArchived,
         productId,
-        tenantId,
+        storeId,
       };
 
       let currentVariant: PrismaVariant & {
@@ -242,7 +242,7 @@ export class ProductRepository implements IProductRepository {
 
       if (variantDto.id && existingVariantIds.includes(variantDto.id)) {
         currentVariant = await tx.variant.update({
-          where: { id: variantDto.id },
+          where: { id_storeId: { id: variantDto.id, storeId } },
           data: variantData,
           include: {
             attributes: true,
@@ -271,7 +271,7 @@ export class ProductRepository implements IProductRepository {
         tx,
         currentVariant.id,
         'variant',
-        tenantId,
+        storeId,
         variantDto.variantMedia,
       );
       await this.manageWarranties(tx, currentVariant.id, variantDto.warranties);
@@ -286,17 +286,17 @@ export class ProductRepository implements IProductRepository {
   private async manageCategories(
     tx: Prisma.TransactionClient,
     productId: string,
-    tenantId: string,
+    storeId: string,
     categoryDtos: ProductCategoriesDTO[] = [],
   ): Promise<void> {
-    await tx.productCategories.deleteMany({ where: { productId, tenantId } });
+    await tx.productCategories.deleteMany({ where: { productId, storeId } });
     if (categoryDtos.length > 0) {
       await tx.productCategories.createMany({
         data: categoryDtos.map((cat) => ({
           id: cat.id,
           productId,
           categoryId: cat.categoryId,
-          tenantId,
+          storeId,
         })),
       });
     }
@@ -342,31 +342,31 @@ export class ProductRepository implements IProductRepository {
             brand: productDto.brand,
             manufacturer: productDto.manufacturer,
             isArchived: productDto.isArchived,
-            tenant: { connect: { id: productDto.tenantId } },
+            store: { connect: { id: productDto.storeId } },
           },
         });
 
         const newProductId = currentProductWithRelations.id;
-        const tenantId = productDto.tenantId;
+        const storeId = productDto.storeId;
 
         // Handle related entities
         await this.manageMedia(
           tx,
           newProductId,
           'product',
-          tenantId,
+          storeId,
           productDto.media,
         );
         await this.manageVariants(
           tx,
           newProductId,
-          tenantId,
+          storeId,
           productDto.variants,
         );
         await this.manageCategories(
           tx,
           newProductId,
-          tenantId,
+          storeId,
           productDto.categories,
         );
         await this.manageSustainabilities(
@@ -377,7 +377,7 @@ export class ProductRepository implements IProductRepository {
 
         // Return the created product with all relations
         return tx.product.findUniqueOrThrow({
-          where: { id: newProductId },
+          where: { id_storeId: { id: newProductId, storeId } },
           include: productRelations,
         });
       });
@@ -391,9 +391,9 @@ export class ProductRepository implements IProductRepository {
   /**
    * Updates an existing product with transaction support
    */
-  async update(tenantId: Id, id: Id, updates: Product): Promise<Product> {
+  async update(storeId: Id, id: Id, updates: Product): Promise<Product> {
     const idValue = id.getValue();
-    const tenantIdValue = tenantId.getValue();
+    const storeIdValue = storeId.getValue();
     const updatesDto = ProductMapper.toDto(updates) as ProductDTO;
 
     try {
@@ -402,7 +402,7 @@ export class ProductRepository implements IProductRepository {
         const existingProduct = await tx.product.findUnique({
           where: {
             id: idValue,
-            tenantId: tenantIdValue,
+            storeId: storeIdValue,
           },
           include: productRelations,
         });
@@ -415,7 +415,7 @@ export class ProductRepository implements IProductRepository {
         await tx.product.update({
           where: {
             id: idValue,
-            tenantId: tenantIdValue,
+            storeId: storeIdValue,
           },
           data: {
             name: updatesDto.name,
@@ -435,20 +435,20 @@ export class ProductRepository implements IProductRepository {
           tx,
           idValue,
           'product',
-          tenantIdValue,
+          storeIdValue,
           updatesDto.media,
         );
         await this.manageVariants(
           tx,
           idValue,
-          tenantIdValue,
+          storeIdValue,
           updatesDto.variants,
           existingProduct.variants,
         );
         await this.manageCategories(
           tx,
           idValue,
-          tenantIdValue,
+          storeIdValue,
           updatesDto.categories,
         );
         await this.manageSustainabilities(
@@ -459,7 +459,7 @@ export class ProductRepository implements IProductRepository {
 
         // Return updated product with all relations
         return tx.product.findUniqueOrThrow({
-          where: { id: idValue },
+          where: { id_storeId: { id: idValue, storeId: storeIdValue } },
           include: {
             media: true,
             variants: {
@@ -483,13 +483,13 @@ export class ProductRepository implements IProductRepository {
     }
   }
 
-  async hardDelete(tenantId: Id, id: Id): Promise<Product> {
-    const tenantIdValue = tenantId.getValue();
+  async hardDelete(storeId: Id, id: Id): Promise<Product> {
+    const storeIdValue = storeId.getValue();
     const idValue = id.getValue();
     try {
       const prismaProduct = await this.prisma.product.delete({
         where: {
-          tenantId: tenantIdValue,
+          storeId: storeIdValue,
           id: idValue,
         },
       });
@@ -516,13 +516,13 @@ export class ProductRepository implements IProductRepository {
   }
 
   // Find a product by its ID
-  async findById(tenantId: Id, id: Id): Promise<Product | null> {
-    const tenantIdValue = tenantId.getValue();
+  async findById(storeId: Id, id: Id): Promise<Product | null> {
+    const storeIdValue = storeId.getValue();
     const idValue = id.getValue();
     try {
       const prismaProduct = await this.prisma.product.findUnique({
         where: {
-          tenantId: tenantIdValue,
+          storeId: storeIdValue,
           id: idValue,
         },
         include: productRelations,
@@ -541,7 +541,7 @@ export class ProductRepository implements IProductRepository {
 
   // Find all products with pagination and optional filtering
   async findAll(
-    tenantId: Id,
+    storeId: Id,
     options?: {
       page?: number;
       limit?: number;
@@ -565,7 +565,7 @@ export class ProductRepository implements IProductRepository {
     } = options || {};
 
     const conditions: Prisma.ProductWhereInput[] = [
-      { tenantId: tenantId.getValue() },
+      { storeId: storeId.getValue() },
     ];
 
     if (name) {
@@ -778,7 +778,7 @@ export class ProductRepository implements IProductRepository {
 
   async findVariantsByIds(
     ids: Id[],
-    tenantId: Id,
+    storeId: Id,
     search?: string,
   ): Promise<
     Array<{
@@ -795,7 +795,7 @@ export class ProductRepository implements IProductRepository {
 
     try {
       const whereConditions: Prisma.VariantWhereInput = {
-        tenantId: tenantId.getValue(),
+        storeId: storeId.getValue(),
       };
 
       // If specific IDs are provided, filter by them
@@ -883,7 +883,7 @@ export class ProductRepository implements IProductRepository {
     return handlePrismaDatabaseError(error, operation, {
       resource: 'Product',
       foreignKeyEntities: {
-        tenantId: 'Tenant',
+        storeId: 'Store',
         categoryId: 'Category',
       },
     });

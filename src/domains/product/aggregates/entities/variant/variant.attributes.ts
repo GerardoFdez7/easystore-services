@@ -26,7 +26,7 @@ interface VariantCoreAttributes {
   barcode?: string;
   isbn?: string;
   productId: string;
-  tenantId: string;
+  storeId: string;
 }
 
 export interface IVariantBase extends VariantCoreAttributes {
@@ -52,7 +52,7 @@ export interface IVariantType extends IVariantSystem, VariantCoreAttributes {
 
 export type IMediaInitData = Omit<
   IMediaBase,
-  'productId' | 'variantId' | 'tenantId'
+  'productId' | 'variantId' | 'storeId'
 >;
 export type IWarrantyInitData = Omit<IWarrantyBase, 'variantId'>;
 export type IInstallmentPaymentInitData = Omit<

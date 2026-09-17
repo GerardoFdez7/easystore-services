@@ -1,12 +1,5 @@
 import { Tenant, ITenantBase, ITenantType } from '../../../aggregates/entities';
-import {
-  Id,
-  Name,
-  LongDescription,
-  Domain,
-  Media,
-  Currency,
-} from '../../../aggregates/value-objects';
+import { Id, Name } from '../../../aggregates/value-objects';
 import { TenantDTO } from '..';
 import { TenantSingUpDTO } from '../../commands';
 
@@ -23,19 +16,11 @@ export class TenantMapper {
   static fromPersistence(persistenceTenant: ITenantType): Tenant {
     return Tenant.reconstitute({
       id: Id.create(persistenceTenant.id),
-      businessName: persistenceTenant.businessName
-        ? Name.create(persistenceTenant.businessName)
-        : null,
-      ownerName: Name.create(persistenceTenant.ownerName),
-      domain: persistenceTenant.domain
-        ? Domain.create(persistenceTenant.domain)
-        : null,
-      logo: Media.create(persistenceTenant.logo),
-      description: persistenceTenant.description
-        ? LongDescription.create(persistenceTenant.description)
-        : null,
-      currency: Currency.create(persistenceTenant.currency),
+      name: Name.create(persistenceTenant.name),
       authIdentityId: Id.create(persistenceTenant.authIdentityId),
+      defaultStoreId: persistenceTenant.defaultStoreId
+        ? Id.create(persistenceTenant.defaultStoreId)
+        : null,
       defaultPhoneNumberId: persistenceTenant.defaultPhoneNumberId
         ? Id.create(persistenceTenant.defaultPhoneNumberId)
         : null,
@@ -58,14 +43,10 @@ export class TenantMapper {
   static toDto(tenant: Tenant): TenantDTO {
     return tenant.toDTO<TenantDTO>((entity) => ({
       id: entity.get('id')?.getValue() || undefined,
-      ownerName: entity.get('ownerName').getValue(),
-      businessName: entity.get('businessName')?.getValue(),
+      name: entity.get('name').getValue(),
       email: '',
-      domain: entity.get('domain')?.getValue(),
-      logo: entity.get('logo')?.getValue(),
-      description: entity.get('description')?.getValue(),
-      currency: entity.get('currency').getValue(),
       authIdentityId: entity.get('authIdentityId').getValue(),
+      defaultStoreId: entity.get('defaultStoreId')?.getValue(),
       defaultPhoneNumberId: entity.get('defaultPhoneNumberId')?.getValue(),
       defaultShippingAddressId: entity
         .get('defaultShippingAddressId')
@@ -96,7 +77,9 @@ export class TenantMapper {
    */
   static fromUpdateDto(
     tenant: Tenant,
-    dto: { data: Partial<Omit<ITenantBase, 'authIdentityId'>> },
+    dto: {
+      data: Partial<Omit<ITenantBase, 'authIdentityId' | 'defaultStoreId'>>;
+    },
   ): Tenant {
     tenant.update(dto.data);
     return tenant;

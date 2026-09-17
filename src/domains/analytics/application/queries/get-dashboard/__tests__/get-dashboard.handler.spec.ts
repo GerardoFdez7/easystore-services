@@ -8,7 +8,7 @@ import { CurrencyCodes, Id } from '@shared/aggregates/value-objects';
 import { GetDashboardDTO } from '../get-dashboard.dto';
 import { GetDashboardHandler } from '../get-dashboard.handler';
 
-const tenantId = Id.create('018f5c89-20d9-7bb5-8a19-7e5cfb4c0ab1');
+const storeId = Id.create('018f5c89-20d9-7bb5-8a19-7e5cfb4c0ab1');
 
 const emptyDashboard: IDashboard = {
   summary: {
@@ -42,7 +42,7 @@ describe('GetDashboardHandler', () => {
     repository.getDashboard.mockResolvedValue(emptyDashboard);
 
     await expect(
-      handler.execute(new GetDashboardDTO(tenantId)),
+      handler.execute(new GetDashboardDTO(storeId)),
     ).resolves.toEqual(emptyDashboard);
   });
 
@@ -50,16 +50,16 @@ describe('GetDashboardHandler', () => {
     repository.getDashboard.mockResolvedValue(undefined);
 
     await expect(
-      handler.execute(new GetDashboardDTO(tenantId)),
+      handler.execute(new GetDashboardDTO(storeId)),
     ).rejects.toBeInstanceOf(NotFoundException);
   });
 
-  it('passes the exact tenant Id instance to the repository', async () => {
+  it('passes the exact store Id instance to the repository', async () => {
     repository.getDashboard.mockResolvedValue(emptyDashboard);
 
-    await handler.execute(new GetDashboardDTO(tenantId));
+    await handler.execute(new GetDashboardDTO(storeId));
 
-    expect(repository.getDashboard).toHaveBeenCalledWith(tenantId);
+    expect(repository.getDashboard).toHaveBeenCalledWith(storeId);
   });
 });
 

@@ -31,7 +31,7 @@ export class WarehouseMapper {
       id: Id.create(persistenceWarehouse.id),
       name: Name.create(persistenceWarehouse.name),
       addressId: Id.create(persistenceWarehouse.addressId),
-      tenantId: Id.create(persistenceWarehouse.tenantId),
+      storeId: Id.create(persistenceWarehouse.storeId),
       createdAt: persistenceWarehouse.createdAt,
       updatedAt: persistenceWarehouse.updatedAt,
       stocks,
@@ -49,7 +49,7 @@ export class WarehouseMapper {
       id: entity.get('id')?.getValue(),
       name: entity.get('name')?.getValue(),
       addressId: entity.get('addressId')?.getValue(),
-      tenantId: entity.get('tenantId')?.getValue(),
+      storeId: entity.get('storeId')?.getValue(),
       createdAt: entity.get('createdAt'),
       updatedAt: entity.get('updatedAt'),
       stockPerWarehouses: entity

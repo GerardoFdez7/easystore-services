@@ -22,7 +22,7 @@ export interface IEmployeeRepository {
    */
   findByAuthIdentityId(
     authIdentityId: Id,
-  ): Promise<{ id: string; tenantId: string } | null>;
+  ): Promise<{ id: string; tenantId: string; storeId: string } | null>;
 
   /**
    * Resolves the full set of (feature, action) grants held by an employee's role,
@@ -33,6 +33,6 @@ export interface IEmployeeRepository {
    */
   findPermissionsByEmployeeId(
     employeeId: Id,
-    tenantId: Id,
+    storeId: Id,
   ): Promise<EmployeePermission[]>;
 }

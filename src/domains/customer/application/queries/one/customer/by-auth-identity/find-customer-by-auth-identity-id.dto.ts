@@ -1,6 +1,6 @@
 export interface CustomerIdentityDTO {
   id: string;
-  tenantId: string;
+  storeId: string;
 }
 
 export class FindCustomerByAuthIdentityIdDto {

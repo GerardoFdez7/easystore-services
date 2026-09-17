@@ -6,11 +6,11 @@ import { Id } from '@shared/aggregates/value-objects';
 export async function findWarehouseOrThrow(
   repository: IWarehouseRepository,
   warehouseId: string,
-  tenantId: string,
+  storeId: string,
 ): Promise<Warehouse> {
   const warehouse = await repository.findById(
     Id.create(warehouseId),
-    Id.create(tenantId),
+    Id.create(storeId),
   );
 
   if (!warehouse) {

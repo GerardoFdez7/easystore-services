@@ -21,7 +21,7 @@ export class GetAllWarehousesHandler
   ) {}
 
   async execute(query: GetAllWarehousesDTO): Promise<PaginatedWarehousesDTO> {
-    const { tenantId, options, stockOptions } = query;
+    const { storeId, options, stockOptions } = query;
     const {
       page,
       limit,
@@ -47,7 +47,7 @@ export class GetAllWarehousesHandler
       );
     }
 
-    const result = await this.warehouseRepository.findAll(Id.create(tenantId), {
+    const result = await this.warehouseRepository.findAll(Id.create(storeId), {
       page,
       limit,
       name,
@@ -70,7 +70,7 @@ export class GetAllWarehousesHandler
     // Fetch variant details
     const variantsDetails = await this.productAdapter.getVariantsDetails(
       variantIds,
-      tenantId,
+      storeId,
       search,
     );
     const detailsMap = new Map(
@@ -88,7 +88,10 @@ export class GetAllWarehousesHandler
             const addressIds = Array.from(addressIdsSet);
 
             const addressesDetails =
-              await this.addressAdapter.getAddressDetails(addressIds, tenantId);
+              await this.addressAdapter.getAddressDetails(
+                addressIds,
+                query.tenantId,
+              );
             return addressesDetails.map((detail) => [detail.addressId, detail]);
           })()
         : [],

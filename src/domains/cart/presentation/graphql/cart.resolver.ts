@@ -42,7 +42,7 @@ export class CartResolver {
     @CurrentUser() user: JwtPayload,
   ): Promise<CartType> {
     return this.commandBus.execute(
-      new AddItemToCartDto(input, user.customerId, user.tenantId),
+      new AddItemToCartDto(input, user.customerId, user.storeId),
     );
   }
 
@@ -54,7 +54,7 @@ export class CartResolver {
     @CurrentUser() user: JwtPayload,
   ): Promise<CartType> {
     return this.commandBus.execute(
-      new UpdateItemQuantityDto(input, user.customerId, user.tenantId),
+      new UpdateItemQuantityDto(input, user.customerId, user.storeId),
     );
   }
 
@@ -66,7 +66,7 @@ export class CartResolver {
     @CurrentUser() user: JwtPayload,
   ): Promise<CartType> {
     return this.commandBus.execute(
-      new RemoveItemFromCartDto(input, user.customerId, user.tenantId),
+      new RemoveItemFromCartDto(input, user.customerId, user.storeId),
     );
   }
 
@@ -78,7 +78,7 @@ export class CartResolver {
     @CurrentUser() user: JwtPayload,
   ): Promise<CartType> {
     return this.commandBus.execute(
-      new RemoveManyItemsFromCartDto(input, user.customerId, user.tenantId),
+      new RemoveManyItemsFromCartDto(input, user.customerId, user.storeId),
     );
   }
 
@@ -95,7 +95,7 @@ export class CartResolver {
     const { page, limit } = pagination;
 
     return this.queryBus.execute(
-      new GetCartByCustomerIdDTO(user.customerId, user.tenantId, page, limit),
+      new GetCartByCustomerIdDTO(user.customerId, user.storeId, page, limit),
     );
   }
 }

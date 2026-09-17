@@ -14,7 +14,7 @@ export interface ICategoryProps extends EntityProps {
   description?: ShortDescription;
   subCategories?: ICategoryProps[];
   parentId?: Id;
-  tenantId: Id;
+  storeId: Id;
   updatedAt: Date;
   createdAt: Date;
 }
@@ -47,15 +47,15 @@ export class Category extends Entity<ICategoryProps> {
         ? ShortDescription.create(props.description)
         : null,
       subCategories: (props.subCategories || []).map((subCategory) => {
-        const subCategoryWithTenantId = {
+        const subCategoryWithStoreId = {
           ...subCategory,
-          tenantId: props.tenantId,
+          storeId: props.storeId,
         };
-        const subCategoryEntity = Category.create(subCategoryWithTenantId);
+        const subCategoryEntity = Category.create(subCategoryWithStoreId);
         return subCategoryEntity.props;
       }),
       parentId: props.parentId ? Id.create(props.parentId) : null,
-      tenantId: Id.create(props.tenantId),
+      storeId: Id.create(props.storeId),
     };
 
     const category = new Category({
@@ -79,7 +79,7 @@ export class Category extends Entity<ICategoryProps> {
    */
   static update(
     category: Category,
-    updates: Partial<Omit<ICategoryBase, 'tenantId'>>,
+    updates: Partial<Omit<ICategoryBase, 'storeId'>>,
   ): Category {
     const props = { ...category.props };
 
@@ -97,11 +97,11 @@ export class Category extends Entity<ICategoryProps> {
 
     if (updates.subCategories !== undefined) {
       props.subCategories = (updates.subCategories || []).map((subCategory) => {
-        const subCategoryWithTenantId = {
+        const subCategoryWithStoreId = {
           ...subCategory,
-          tenantId: props.tenantId.getValue(),
+          storeId: props.storeId.getValue(),
         };
-        const subCategoryEntity = Category.create(subCategoryWithTenantId);
+        const subCategoryEntity = Category.create(subCategoryWithStoreId);
         return subCategoryEntity.props;
       });
     }

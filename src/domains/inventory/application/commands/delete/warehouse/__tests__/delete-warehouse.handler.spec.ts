@@ -87,7 +87,7 @@ describe('DeleteWarehouseHandler', () => {
   describe('execute', () => {
     const baseCommand: DeleteWarehouseDTO = {
       id: 'warehouse-123',
-      tenantId: 'tenant-456',
+      storeId: 'store-456',
     };
 
     describe('Warehouse finding and validation', () => {
@@ -99,11 +99,11 @@ describe('DeleteWarehouseHandler', () => {
         );
         expect(findByIdMock).toHaveBeenCalledWith(
           { value: 'warehouse-123' },
-          { value: 'tenant-456' },
+          { value: 'store-456' },
         );
       });
 
-      it('should find warehouse with correct tenant and warehouse IDs', async () => {
+      it('should find warehouse with correct store and warehouse IDs', async () => {
         findByIdMock.mockResolvedValue(mockWarehouse);
         mergeObjectContextMock.mockReturnValue(mockWarehouse as never);
 
@@ -112,7 +112,7 @@ describe('DeleteWarehouseHandler', () => {
         expect(idCreateMock).toHaveBeenCalledWith('warehouse-123');
         expect(findByIdMock).toHaveBeenCalledWith(
           { value: 'warehouse-123' },
-          { value: 'tenant-456' },
+          { value: 'store-456' },
         );
       });
     });
@@ -129,7 +129,7 @@ describe('DeleteWarehouseHandler', () => {
         expect(deleteMock).toHaveBeenCalledTimes(1);
         expect(deleteMock).toHaveBeenCalledWith(
           { value: 'warehouse-123' },
-          { value: 'tenant-456' },
+          { value: 'store-456' },
         );
       });
 
@@ -151,7 +151,7 @@ describe('DeleteWarehouseHandler', () => {
 
         expect(deleteMock).toHaveBeenCalledWith(
           { value: 'warehouse-123' },
-          { value: 'tenant-456' },
+          { value: 'store-456' },
         );
       });
 
@@ -214,24 +214,24 @@ describe('DeleteWarehouseHandler', () => {
     });
 
     describe('Edge cases and error scenarios', () => {
-      it('should handle deletion with different tenant IDs', async () => {
-        const differentTenantCommand: DeleteWarehouseDTO = {
+      it('should handle deletion with different store IDs', async () => {
+        const differentStoreCommand: DeleteWarehouseDTO = {
           id: 'warehouse-999',
-          tenantId: 'tenant-999',
+          storeId: 'store-999',
         };
 
         findByIdMock.mockResolvedValue(mockWarehouse);
         mergeObjectContextMock.mockReturnValue(mockWarehouse as never);
 
-        const result = await handler.execute(differentTenantCommand);
+        const result = await handler.execute(differentStoreCommand);
 
         expect(findByIdMock).toHaveBeenCalledWith(
           { value: 'warehouse-999' },
-          { value: 'tenant-999' },
+          { value: 'store-999' },
         );
         expect(deleteMock).toHaveBeenCalledWith(
           { value: 'warehouse-999' },
-          { value: 'tenant-999' },
+          { value: 'store-999' },
         );
         expect(result).toEqual({ id: 'warehouse-id' });
       });
@@ -269,7 +269,7 @@ describe('DeleteWarehouseHandler', () => {
       it('should execute complete warehouse deletion flow', async () => {
         const completeCommand: DeleteWarehouseDTO = {
           id: 'warehouse-789',
-          tenantId: 'tenant-789',
+          storeId: 'store-789',
         };
 
         const expectedDto: WarehouseDTO = {

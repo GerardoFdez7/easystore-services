@@ -18,7 +18,7 @@ export class GetProductByIdHandler implements IQueryHandler<GetProductByIdDTO> {
   async execute(query: GetProductByIdDTO): Promise<ProductDTO> {
     // Find the product by ID
     const product = await this.productRepository.findById(
-      Id.create(query.tenantId),
+      Id.create(query.storeId),
       Id.create(query.id),
     );
     if (!product) {
@@ -33,7 +33,7 @@ export class GetProductByIdHandler implements IQueryHandler<GetProductByIdDTO> {
 
     if (categoryIds.length > 0) {
       const categories = await this.categoryAdapter.getCategories(
-        Id.create(query.tenantId),
+        Id.create(query.storeId),
         categoryIds,
       );
 

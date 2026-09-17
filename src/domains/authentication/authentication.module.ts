@@ -14,6 +14,7 @@ import {
   ForgotPasswordHandler,
   UpdatePasswordHandler,
   GetInTouchHandler,
+  SwitchStoreHandler,
 } from './application/commands';
 // Query Handlers
 import { AuthenticationValidateTokenHandler } from './application/queries';
@@ -24,14 +25,16 @@ import {
   IdentityLoggedOutHandler,
   IdentityPasswordUpdatedHandler,
   IdentityEmailUpdatedHandler,
-  TenantProvisioningHandler,
-  CustomerProvisioningHandler,
 } from './application/events';
 import {
   AuthenticationRepository,
   EmployeeRepository,
 } from './infrastructure/postgres';
-import { CustomerAdapter, TenantAdapter } from './infrastructure/adapters';
+import {
+  CustomerAdapter,
+  StoreAdapter,
+  TenantAdapter,
+} from './infrastructure/adapters';
 import AuthenticationGuard from './infrastructure/guard/authentication.guard';
 import AuthorizationGuard from './infrastructure/guard/authorization.guard';
 import { PermissionService } from './infrastructure/guard/authorization/permission.service';
@@ -43,6 +46,10 @@ import {
 } from './infrastructure/emails';
 import { PasswordResetRateLimiter } from './infrastructure/rate-limiting/password-reset-rate-limiter';
 import { CleanupService } from './infrastructure/cron';
+import {
+  CustomerOnboardingService,
+  TenantOnboardingService,
+} from './infrastructure/onboarding';
 import AuthenticationResolver from './presentation/graphql/authentication.resolver';
 
 const CommandHandlers = [
@@ -52,6 +59,7 @@ const CommandHandlers = [
   ForgotPasswordHandler,
   UpdatePasswordHandler,
   GetInTouchHandler,
+  SwitchStoreHandler,
 ];
 
 const QueryHandlers = [AuthenticationValidateTokenHandler];
@@ -62,8 +70,6 @@ const EventHandlers = [
   IdentityLoggedOutHandler,
   IdentityPasswordUpdatedHandler,
   IdentityEmailUpdatedHandler,
-  TenantProvisioningHandler,
-  CustomerProvisioningHandler,
 ];
 
 const EmailBuilders = [ForgotPasswordEmailBuilder, GetInTouchEmailBuilder];
@@ -99,6 +105,10 @@ const CronServices = [CleanupService];
       useClass: CustomerAdapter,
     },
     {
+      provide: 'IStoreAdapter',
+      useClass: StoreAdapter,
+    },
+    {
       provide: 'EmployeeRepository',
       useClass: EmployeeRepository,
     },
@@ -111,6 +121,8 @@ const CronServices = [CleanupService];
     AuthorizationGuard,
     PermissionService,
     JwtStrategy,
+    TenantOnboardingService,
+    CustomerOnboardingService,
     ...CommandHandlers,
     ...QueryHandlers,
     ...EventHandlers,

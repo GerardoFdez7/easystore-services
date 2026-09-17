@@ -25,7 +25,7 @@ export interface ICartRepository {
   /**
    * Finds a cart by its customer's unique identifier with pagination support.
    * @param id - The unique identifier of the customer
-   * @param tenantId - The trusted tenant identifier that owns the cart
+   * @param storeId - The trusted Store identifier that owns the cart
    * @param page - Page number for pagination (starts from 1)
    * @param limit - Number of items per page
    * @returns Promise that resolves to the Cart entity if found
@@ -33,7 +33,7 @@ export interface ICartRepository {
    */
   findCartByCustomerId(
     id: Id,
-    tenantId: Id,
+    storeId: Id,
     page?: number,
     limit?: number,
   ): Promise<Cart>;
@@ -41,9 +41,9 @@ export interface ICartRepository {
   /**
    * Gets the total count of cart items for a customer.
    * @param id - The unique identifier of the customer
-   * @param tenantId - The trusted tenant identifier that owns the cart
+   * @param storeId - The trusted Store identifier that owns the cart
    * @returns Promise that resolves to the total count of cart items
    * @throws {Error} When cart is not found or repository operation fails
    */
-  getCartItemsCount(id: Id, tenantId: Id): Promise<number>;
+  getCartItemsCount(id: Id, storeId: Id): Promise<number>;
 }

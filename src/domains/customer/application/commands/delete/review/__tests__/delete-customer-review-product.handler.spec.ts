@@ -109,7 +109,7 @@ describe('DeleteCustomerReviewProductHandler', () => {
     const baseCommand = new DeleteCustomerReviewProductDto(
       'customer-123',
       'review-123',
-      'tenant-456',
+      'store-456',
     );
 
     describe('Customer and review retrieval with ownership validation', () => {
@@ -121,11 +121,11 @@ describe('DeleteCustomerReviewProductHandler', () => {
         removeReviewMock.mockResolvedValue(undefined);
       });
 
-      it('should find customer by ID and tenant ID', async () => {
+      it('should find customer by ID and store ID', async () => {
         await handler.execute(baseCommand);
 
         expect(idCreateMock).toHaveBeenCalledWith('customer-123');
-        expect(idCreateMock).toHaveBeenCalledWith('tenant-456');
+        expect(idCreateMock).toHaveBeenCalledWith('store-456');
       });
 
       it('should find review by ID before deletion', async () => {
@@ -149,7 +149,7 @@ describe('DeleteCustomerReviewProductHandler', () => {
         const validCommand = new DeleteCustomerReviewProductDto(
           'valid-customer-888',
           'valid-review-999',
-          'valid-tenant-777',
+          'valid-store-777',
         );
 
         findCustomerByIdMock.mockResolvedValue(
@@ -193,7 +193,7 @@ describe('DeleteCustomerReviewProductHandler', () => {
         const removeCommand = new DeleteCustomerReviewProductDto(
           'customer-delete-001',
           'review-delete-001',
-          'tenant-delete-001',
+          'store-delete-001',
         );
 
         findCustomerByIdMock.mockResolvedValue(
@@ -215,12 +215,12 @@ describe('DeleteCustomerReviewProductHandler', () => {
         const command1 = new DeleteCustomerReviewProductDto(
           'customer-multi-1',
           'review-multi-1',
-          'tenant-multi-1',
+          'store-multi-1',
         );
         const command2 = new DeleteCustomerReviewProductDto(
           'customer-multi-2',
           'review-multi-2',
-          'tenant-multi-2',
+          'store-multi-2',
         );
 
         findCustomerByIdMock.mockResolvedValue(
@@ -374,7 +374,7 @@ describe('DeleteCustomerReviewProductHandler', () => {
         const completeCommand = new DeleteCustomerReviewProductDto(
           'customer-complete-delete',
           'review-complete-delete',
-          'tenant-complete-delete',
+          'store-complete-delete',
         );
 
         findCustomerByIdMock.mockResolvedValue(
@@ -415,12 +415,12 @@ describe('DeleteCustomerReviewProductHandler', () => {
         const command1 = new DeleteCustomerReviewProductDto(
           'customer-concurrent-1',
           'review-concurrent-1',
-          'tenant-concurrent-1',
+          'store-concurrent-1',
         );
         const command2 = new DeleteCustomerReviewProductDto(
           'customer-concurrent-2',
           'review-concurrent-2',
-          'tenant-concurrent-2',
+          'store-concurrent-2',
         );
 
         findCustomerByIdMock.mockResolvedValue(

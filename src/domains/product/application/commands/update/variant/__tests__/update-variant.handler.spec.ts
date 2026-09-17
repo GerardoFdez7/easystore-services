@@ -13,7 +13,7 @@ import { UpdateVariantHandler } from '../update-variant.handler';
 describe('UpdateVariantHandler', () => {
   const variantId = '0198b746-8c72-7a2f-9c31-6d4f9866f323';
   const productId = '0198b746-8c72-7a2f-9c31-6d4f9866f321';
-  const tenantId = '0198b746-8c72-7a2f-9c31-6d4f9866f322';
+  const storeId = '0198b746-8c72-7a2f-9c31-6d4f9866f322';
   const productType = { getValue: jest.fn() };
   const product = { get: jest.fn((): typeof productType => productType) };
   const updatedProduct = { commit: jest.fn() };
@@ -23,7 +23,7 @@ describe('UpdateVariantHandler', () => {
   let handler: UpdateVariantHandler;
 
   const command = (data: Record<string, unknown>): UpdateVariantDTO =>
-    new UpdateVariantDTO(variantId, productId, tenantId, data as never);
+    new UpdateVariantDTO(variantId, productId, storeId, data as never);
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -40,7 +40,7 @@ describe('UpdateVariantHandler', () => {
     publisher.mergeObjectContext.mockReturnValue(updatedProduct);
   });
 
-  it('rejects a missing tenant-scoped product before inspecting update data', async () => {
+  it('rejects a missing store-scoped product before inspecting update data', async () => {
     repository.findById.mockResolvedValueOnce(null);
 
     await expect(handler.execute(command({ sku: 'SKU-2' }))).rejects.toThrow(
@@ -99,7 +99,7 @@ describe('UpdateVariantHandler', () => {
       updateCommand,
     );
     expect(repository.update).toHaveBeenCalledWith(
-      expect.objectContaining({ value: tenantId }),
+      expect.objectContaining({ value: storeId }),
       expect.objectContaining({ value: productId }),
       updatedProduct,
     );
@@ -127,7 +127,7 @@ describe('UpdateVariantHandler', () => {
       name: 'Product',
       shortDescription: 'Description',
       cover: 'https://example.com/cover.jpg',
-      tenantId,
+      storeId,
       productType: TypeEnum.PHYSICAL,
       variants: [
         {
@@ -154,7 +154,7 @@ describe('UpdateVariantHandler', () => {
 
     await expect(
       handler.execute(
-        new UpdateVariantDTO(actualVariantId, productId, tenantId, {
+        new UpdateVariantDTO(actualVariantId, productId, storeId, {
           price: '-0.01',
         }),
       ),

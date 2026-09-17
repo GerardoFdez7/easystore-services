@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PostgreService } from '@database/postgres.service';
-import { ResourceNotFoundError } from '@shared/infrastructure/postgres/errors';
 import { Id } from '@shared/aggregates/value-objects';
-import { TenantMapper } from '../../application/mappers';
+import { TenantDTO, TenantMapper } from '../../application/mappers';
 import { Tenant, ITenantType } from '../../aggregates/entities';
 import { Tenant as PrismaTenant } from '.prisma/postgres';
-import { ITenantRepository } from '../../aggregates/repositories/tenant.interface';
+import {
+  ITenantLoginContext,
+  ITenantRepository,
+} from '../../aggregates/repositories/tenant.interface';
 import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
-import { Domain } from '../../aggregates/value-objects/index';
 
 @Injectable()
 export default class TenantRepository implements ITenantRepository {
@@ -21,13 +22,9 @@ export default class TenantRepository implements ITenantRepository {
         return await tx.tenant.create({
           data: {
             id: tenantDto.id,
-            businessName: tenantDto.businessName,
-            ownerName: tenantDto.ownerName,
-            domain: tenantDto.domain,
-            logo: tenantDto.logo,
-            description: tenantDto.description,
-            currency: tenantDto.currency,
+            name: tenantDto.name,
             authIdentityId: tenantDto.authIdentityId,
+            ...this.getMutableTenantData(tenantDto),
           },
         });
       });
@@ -54,12 +51,7 @@ export default class TenantRepository implements ITenantRepository {
             id: idValue,
           },
           data: {
-            businessName: tenantDto.businessName,
-            ownerName: tenantDto.ownerName,
-            domain: tenantDto.domain,
-            logo: tenantDto.logo,
-            description: tenantDto.description,
-            currency: tenantDto.currency,
+            ...this.getMutableTenantData(tenantDto),
           },
         });
       });
@@ -67,32 +59,6 @@ export default class TenantRepository implements ITenantRepository {
       return this.mapToDomain(prismaTenant);
     } catch (error) {
       return this.handleDatabaseError(error, 'update tenant');
-    }
-  }
-
-  async delete(id: Id): Promise<void> {
-    const idValue = id.getValue();
-
-    try {
-      await this.prisma.$transaction(async (tx) => {
-        const existingTenant = await tx.tenant.findUnique({
-          where: {
-            id: idValue,
-          },
-        });
-
-        if (!existingTenant) {
-          throw new ResourceNotFoundError('Tenant', idValue);
-        }
-
-        await tx.tenant.delete({
-          where: {
-            id: idValue,
-          },
-        });
-      });
-    } catch (error) {
-      return this.handleDatabaseError(error, 'delete tenant');
     }
   }
 
@@ -126,14 +92,25 @@ export default class TenantRepository implements ITenantRepository {
     }
   }
 
-  async getTenantIdByDomain(domain: Domain): Promise<string | null> {
+  async resolveLoginContext(
+    authIdentityId: Id,
+  ): Promise<ITenantLoginContext | null> {
     try {
       const tenant = await this.prisma.tenant.findUnique({
-        where: { domain: domain.getValue() },
+        where: { authIdentityId: authIdentityId.getValue() },
+        select: {
+          id: true,
+          defaultStore: { select: { id: true, tenantId: true } },
+        },
       });
-      return tenant ? tenant.id : null;
+
+      if (!tenant?.defaultStore || tenant.defaultStore.tenantId !== tenant.id) {
+        return null;
+      }
+
+      return { tenantId: tenant.id, storeId: tenant.defaultStore.id };
     } catch (error) {
-      return this.handleDatabaseError(error, 'Get tenant id by domain.');
+      return this.handleDatabaseError(error, 'resolve tenant login context');
     }
   }
 
@@ -144,6 +121,25 @@ export default class TenantRepository implements ITenantRepository {
         authIdentityId: 'Auth Identity',
       },
     });
+  }
+
+  private getMutableTenantData(
+    tenantDto: TenantDTO,
+  ): Pick<
+    PrismaTenant,
+    | 'name'
+    | 'defaultStoreId'
+    | 'defaultPhoneNumberId'
+    | 'defaultShippingAddressId'
+    | 'defaultBillingAddressId'
+  > {
+    return {
+      name: tenantDto.name,
+      defaultStoreId: tenantDto.defaultStoreId,
+      defaultPhoneNumberId: tenantDto.defaultPhoneNumberId,
+      defaultShippingAddressId: tenantDto.defaultShippingAddressId,
+      defaultBillingAddressId: tenantDto.defaultBillingAddressId,
+    };
   }
 
   private mapToDomain(clientPrisma: PrismaTenant): Tenant {

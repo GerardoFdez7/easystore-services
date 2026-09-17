@@ -1,38 +1,15 @@
-import {
-  Field,
-  ID,
-  ObjectType,
-  InputType,
-  registerEnumType,
-} from '@nestjs/graphql';
-import { CurrencyCodes } from '../../../aggregates/value-objects';
-
-registerEnumType(CurrencyCodes, {
-  name: 'CurrencyCodes',
-});
+import { Field, ID, ObjectType, InputType } from '@nestjs/graphql';
 
 @ObjectType('Tenant')
 export class TenantType {
   @Field()
-  ownerName: string;
-
-  @Field({ nullable: true })
-  businessName?: string;
-
-  @Field({ nullable: true })
-  domain?: string;
+  name: string;
 
   @Field()
   email: string;
 
-  @Field({ nullable: true })
-  logo?: string;
-
-  @Field({ nullable: true })
-  description?: string;
-
-  @Field(() => CurrencyCodes)
-  currency: CurrencyCodes;
+  @Field(() => ID, { nullable: true })
+  defaultStoreId?: string;
 
   @Field(() => ID, { nullable: true })
   defaultPhoneNumberId?: string;
@@ -54,22 +31,7 @@ export class TenantType {
 @InputType()
 export class UpdateTenantInput {
   @Field({ nullable: true })
-  ownerName?: string;
-
-  @Field({ nullable: true })
-  businessName?: string;
-
-  @Field({ nullable: true })
-  domain?: string;
-
-  @Field({ nullable: true })
-  logo?: string;
-
-  @Field({ nullable: true })
-  description?: string;
-
-  @Field(() => CurrencyCodes, { nullable: true })
-  currency?: CurrencyCodes;
+  name?: string;
 
   @Field(() => ID, { nullable: true })
   defaultPhoneNumberId?: string;

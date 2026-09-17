@@ -18,7 +18,7 @@ export class UpdateProductHandler implements ICommandHandler<UpdateProductDTO> {
     // Find the product by ID
     const product = await findProductOrThrow(
       this.productRepository,
-      command.tenantId,
+      command.storeId,
       command.id,
     );
 
@@ -29,7 +29,7 @@ export class UpdateProductHandler implements ICommandHandler<UpdateProductDTO> {
 
     // Persist through repository
     await this.productRepository.update(
-      Id.create(command.tenantId),
+      Id.create(command.storeId),
       Id.create(command.id),
       updatedProduct,
     );

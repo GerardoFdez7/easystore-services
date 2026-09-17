@@ -21,7 +21,7 @@ export class CustomerMapper {
     const customerProps: ICustomerProps = {
       id: Id.create(persistenceCustomer.id),
       name: Name.create(persistenceCustomer.name),
-      tenantId: Id.create(persistenceCustomer.tenantId),
+      storeId: Id.create(persistenceCustomer.storeId),
       authIdentityId: Id.create(persistenceCustomer.authIdentityId),
       defaultPhoneNumberId: persistenceCustomer.defaultPhoneNumberId
         ? Id.create(persistenceCustomer.defaultPhoneNumberId)
@@ -48,7 +48,7 @@ export class CustomerMapper {
     return {
       id: customer.get('id').getValue(),
       name: customer.get('name').getValue(),
-      tenantId: customer.get('tenantId').getValue(),
+      storeId: customer.get('storeId').getValue(),
       authIdentityId: customer.get('authIdentityId').getValue(),
       defaultPhoneNumberId:
         customer.get('defaultPhoneNumberId')?.getValue() || null,

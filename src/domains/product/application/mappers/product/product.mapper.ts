@@ -59,7 +59,7 @@ export class ProductMapper {
         ? Manufacturer.create(persistenceProduct.manufacturer)
         : null,
       isArchived: persistenceProduct.isArchived,
-      tenantId: Id.create(persistenceProduct.tenantId),
+      storeId: Id.create(persistenceProduct.storeId),
       updatedAt: persistenceProduct.updatedAt,
       createdAt: persistenceProduct.createdAt,
       variants: (persistenceProduct.variants || []).map((variantItem) =>
@@ -126,7 +126,7 @@ export class ProductMapper {
         brand: entity.get('brand')?.getValue(),
         manufacturer: entity.get('manufacturer')?.getValue(),
         isArchived: entity.get('isArchived'),
-        tenantId: entity.get('tenantId')?.getValue(),
+        storeId: entity.get('storeId')?.getValue(),
         updatedAt: entity.get('updatedAt'),
         createdAt: entity.get('createdAt'),
         variants:
@@ -181,8 +181,8 @@ export class ProductMapper {
         case 'manufacturer':
           dto.manufacturer = product.get('manufacturer')?.getValue();
           break;
-        case 'tenantId':
-          dto.tenantId = product.get('tenantId')?.getValue();
+        case 'storeId':
+          dto.storeId = product.get('storeId')?.getValue();
           break;
       }
     });

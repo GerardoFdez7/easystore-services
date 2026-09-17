@@ -23,7 +23,7 @@ export class GetAllStockMovementsHandler
   async execute(
     query: GetAllStockMovementsDTO,
   ): Promise<PaginatedStockMovementsDTO> {
-    const { tenantId, warehouseId, options } = query;
+    const { storeId, warehouseId, options } = query;
     const {
       page,
       limit,
@@ -49,7 +49,7 @@ export class GetAllStockMovementsHandler
     }
 
     const stockMovements = await this.stockMovementRepository.findAll(
-      Id.create(tenantId),
+      Id.create(storeId),
       {
         warehouseId: Id.create(warehouseId),
         page,
@@ -85,7 +85,7 @@ export class GetAllStockMovementsHandler
     if (variantIds.size > 0) {
       const variantDetails = await this.productAdapter.getVariantsDetails(
         Array.from(variantIds),
-        tenantId,
+        storeId,
       );
 
       // Create a map for quick lookup

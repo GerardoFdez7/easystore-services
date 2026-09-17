@@ -12,7 +12,7 @@ import {
 type UpdatableVariantFields = Partial<
   Omit<
     IVariantBase,
-    | 'tenantId'
+    | 'storeId'
     | 'productId'
     | 'attributes'
     | 'dimension'
@@ -40,7 +40,7 @@ export class UpdateVariantDTO {
   constructor(
     public readonly id: string,
     public readonly productId: string,
-    public readonly tenantId: string,
+    public readonly storeId: string,
     public readonly data: UpdatableVariantFields,
   ) {}
 }

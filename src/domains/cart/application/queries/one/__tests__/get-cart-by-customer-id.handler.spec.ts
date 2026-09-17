@@ -8,11 +8,11 @@ import { GetCartByIdHandler } from '../get-cart-by-customer-id.handler';
 
 describe('GetCartByIdHandler', () => {
   const customerId = '019a039e-fe36-765d-96f1-fe92af9ab188';
-  const tenantId = '019a039e-fe37-7516-ab6d-c16428949f9f';
+  const storeId = '019a039e-fe37-7516-ab6d-c16428949f9f';
   const cart = Cart.reconstitute({
     id: Id.create('019a039e-fe32-747d-aba6-6f3d25bb2864'),
     customerId: Id.create(customerId),
-    tenantId: Id.create(tenantId),
+    storeId: Id.create(storeId),
     cartItems: new Map(),
   });
 
@@ -33,9 +33,9 @@ describe('GetCartByIdHandler', () => {
     cartRepository.getCartItemsCount.mockResolvedValue(0);
   });
 
-  it('loads a cart and its item count within the authenticated tenant', async () => {
+  it('loads a cart and its item count within the authenticated store', async () => {
     await handler.execute(
-      new GetCartByCustomerIdDTO(customerId, tenantId, 1, 20),
+      new GetCartByCustomerIdDTO(customerId, storeId, 1, 20),
     );
 
     expect(cartRepository.findCartByCustomerId).toHaveBeenCalledWith(
@@ -46,17 +46,17 @@ describe('GetCartByIdHandler', () => {
     );
     expect(
       cartRepository.findCartByCustomerId.mock.calls[0][1].getValue(),
-    ).toBe(tenantId);
+    ).toBe(storeId);
     expect(cartRepository.getCartItemsCount).toHaveBeenCalledWith(
       expect.objectContaining({ getValue: expect.any(Function) }),
       expect.objectContaining({ getValue: expect.any(Function) }),
     );
     expect(cartRepository.getCartItemsCount.mock.calls[0][1].getValue()).toBe(
-      tenantId,
+      storeId,
     );
   });
 
-  it('rejects access when no cart exists for the authenticated tenant', async () => {
+  it('rejects access when no cart exists for the authenticated store', async () => {
     cartRepository.findCartByCustomerId.mockRejectedValue(
       new ResourceNotFoundError('Cart'),
     );

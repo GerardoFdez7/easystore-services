@@ -19,13 +19,13 @@ export class UpdateCategoryHandler
   async execute(command: UpdateCategoryDTO): Promise<CategoryDTO> {
     // Value objects
     const categoryId = Id.create(command.id);
-    const tenantId = Id.create(command.tenantId);
+    const storeId = Id.create(command.storeId);
 
     // Find the category by ID
     const category = await findCategoryOrThrow(
       this.categoryRepository,
       categoryId,
-      tenantId,
+      storeId,
     );
 
     // Update the category using the domain method
@@ -34,7 +34,7 @@ export class UpdateCategoryHandler
     );
 
     // Persist through repository
-    await this.categoryRepository.update(categoryId, tenantId, updatedCategory);
+    await this.categoryRepository.update(categoryId, storeId, updatedCategory);
 
     // Commit events to event bus
     updatedCategory.commit();

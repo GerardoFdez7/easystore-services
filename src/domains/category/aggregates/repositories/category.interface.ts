@@ -17,34 +17,34 @@ export default interface ICategoryRepository {
   /**
    * Updates an existing category in the repository.
    * @param id - The unique identifier of the category to update
-   * @param tenantId - The tenant identifier to scope the search
+   * @param storeId - The Store identifier to scope the search
    * @param updates - Partial category data containing fields to update
    * @returns Promise that resolves to the updated Category entity
    * @throws {Error} When category is not found or update fails
    */
-  update(id: Id, tenantId: Id, updates: Category): Promise<Category>;
+  update(id: Id, storeId: Id, updates: Category): Promise<Category>;
 
   /**
    * Deletes a category from the repository.
    * @param id - The unique identifier of the category to delete
-   * @param tenantId - The tenant identifier to scope the search
+   * @param storeId - The Store identifier to scope the search
    * @returns Promise that resolves to void when deletion is successful
    * @throws {Error} When category is not found or deletion fails
    */
-  delete(id: Id, tenantId: Id): Promise<void>;
+  delete(id: Id, storeId: Id): Promise<void>;
 
   /**
    * Finds a category by its unique identifier.
    * @param id - The unique identifier of the category
-   * @param tenantId - The tenant identifier to scope the search
+   * @param storeId - The Store identifier to scope the search
    * @returns Promise that resolves to the Category entity if found, null otherwise
    * @throws {Error} When repository operation fails
    */
-  findById(id: Id, tenantId: Id): Promise<Category | null>;
+  findById(id: Id, storeId: Id): Promise<Category | null>;
 
   /**
-   * Finds a category by its name within a specific tenant.
-   * @param tenantId - The tenant identifier to scope the search
+   * Finds a category by its name within a specific Store.
+   * @param storeId - The Store identifier to scope the search
    * @param options - Optional query parameters for pagination and filtering
    * @param options.page The page number for pagination (e.g., 1 for the first page).
    * @param options.limit The number of items per page.
@@ -57,7 +57,7 @@ export default interface ICategoryRepository {
    * @throws {Error} When repository operation fails
    */
   findAll(
-    tenantId: Id,
+    storeId: Id,
     options?: {
       page?: number;
       limit?: number;
@@ -72,9 +72,9 @@ export default interface ICategoryRepository {
   /**
    * Finds multiple categories by their unique identifiers.
    * @param ids - Array of unique identifiers of the categories
-   * @param tenantId - The tenant identifier to scope the search
+   * @param storeId - The Store identifier to scope the search
    * @returns Promise that resolves to an array of Category entities
    * @throws {Error} When repository operation fails
    */
-  findByIds(ids: Id[], tenantId: Id): Promise<Category[]>;
+  findByIds(ids: Id[], storeId: Id): Promise<Category[]>;
 }

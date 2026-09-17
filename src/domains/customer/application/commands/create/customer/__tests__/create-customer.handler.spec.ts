@@ -52,7 +52,7 @@ describe('CreateCustomerHandler', () => {
     defaultDto = {
       id: 'customer-id-123',
       name: 'John Doe',
-      tenantId: 'tenant-abc',
+      storeId: 'store-abc',
       authIdentityId: 'auth-xyz',
       defaultPhoneNumberId: null,
       defaultShippingAddressId: null,
@@ -88,7 +88,7 @@ describe('CreateCustomerHandler', () => {
   describe('execute', () => {
     const baseCustomerData = {
       name: 'Alice Example',
-      tenantId: 'tenant-123',
+      storeId: 'store-123',
       authIdentityId: 'auth-456',
     };
 
@@ -115,7 +115,7 @@ describe('CreateCustomerHandler', () => {
       it('should create a customer with valid data set', async () => {
         const validCommand = new CreateCustomerDto({
           name: 'Valid Customer',
-          tenantId: 'tenant-valid-001',
+          storeId: 'store-valid-001',
           authIdentityId: 'auth-valid-002',
         });
 
@@ -123,7 +123,7 @@ describe('CreateCustomerHandler', () => {
 
         expect(customerCreateMock).toHaveBeenCalledWith({
           name: 'Valid Customer',
-          tenantId: 'tenant-valid-001',
+          storeId: 'store-valid-001',
           authIdentityId: 'auth-valid-002',
         });
       });
@@ -131,7 +131,7 @@ describe('CreateCustomerHandler', () => {
       it('should forward optional identifiers when provided', async () => {
         const optionalCommand = new CreateCustomerDto({
           name: 'Optional Customer',
-          tenantId: 'tenant-optional',
+          storeId: 'store-optional',
           authIdentityId: 'auth-optional',
         });
 
@@ -139,7 +139,7 @@ describe('CreateCustomerHandler', () => {
 
         expect(customerCreateMock).toHaveBeenCalledWith({
           name: 'Optional Customer',
-          tenantId: 'tenant-optional',
+          storeId: 'store-optional',
           authIdentityId: 'auth-optional',
         });
       });
@@ -230,7 +230,7 @@ describe('CreateCustomerHandler', () => {
         const expectedDto: CustomerDTO = {
           id: 'customer-id-456',
           name: 'Alice Example',
-          tenantId: 'tenant-123',
+          storeId: 'store-123',
           authIdentityId: 'auth-456',
           defaultPhoneNumberId: null,
           defaultShippingAddressId: null,
@@ -250,7 +250,7 @@ describe('CreateCustomerHandler', () => {
 
         expect(result).toHaveProperty('id');
         expect(result).toHaveProperty('name');
-        expect(result).toHaveProperty('tenantId');
+        expect(result).toHaveProperty('storeId');
         expect(result).toHaveProperty('authIdentityId');
       });
     });
@@ -259,7 +259,7 @@ describe('CreateCustomerHandler', () => {
       it('should handle customer creation with extended data', async () => {
         const extendedCommand = new CreateCustomerDto({
           name: 'Extended Customer',
-          tenantId: 'tenant-extended',
+          storeId: 'store-extended',
           authIdentityId: 'auth-extended',
         });
 
@@ -270,7 +270,7 @@ describe('CreateCustomerHandler', () => {
 
         expect(customerCreateMock).toHaveBeenCalledWith({
           name: 'Extended Customer',
-          tenantId: 'tenant-extended',
+          storeId: 'store-extended',
           authIdentityId: 'auth-extended',
         });
         expect(result).toEqual(defaultDto);
@@ -311,14 +311,14 @@ describe('CreateCustomerHandler', () => {
       it('should execute complete customer creation flow', async () => {
         const completeCommand = new CreateCustomerDto({
           name: 'Complete Customer',
-          tenantId: 'tenant-complete',
+          storeId: 'store-complete',
           authIdentityId: 'auth-complete',
         });
 
         const expectedDto: CustomerDTO = {
           id: 'customer-id-complete',
           name: 'Complete Customer',
-          tenantId: 'tenant-complete',
+          storeId: 'store-complete',
           authIdentityId: 'auth-complete',
           defaultPhoneNumberId: null,
           defaultShippingAddressId: null,
@@ -344,7 +344,7 @@ describe('CreateCustomerHandler', () => {
       it('should maintain data consistency throughout the flow', async () => {
         const customerData = {
           name: 'Consistency Customer',
-          tenantId: 'tenant-consistency',
+          storeId: 'store-consistency',
           authIdentityId: 'auth-consistency',
         };
         const command = new CreateCustomerDto(customerData);
@@ -374,12 +374,12 @@ describe('CreateCustomerHandler', () => {
       it('should handle concurrent customer creation requests', async () => {
         const command1 = new CreateCustomerDto({
           name: 'Customer One',
-          tenantId: 'tenant-1',
+          storeId: 'store-1',
           authIdentityId: 'auth-1',
         });
         const command2 = new CreateCustomerDto({
           name: 'Customer Two',
-          tenantId: 'tenant-2',
+          storeId: 'store-2',
           authIdentityId: 'auth-2',
         });
 

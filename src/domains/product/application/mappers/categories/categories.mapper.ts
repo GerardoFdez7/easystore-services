@@ -22,7 +22,7 @@ export class ProductCategoriesMapper {
       id: Id.create(persistenceProductCategories.id),
       productId: Id.create(persistenceProductCategories.productId),
       categoryId: Id.create(persistenceProductCategories.categoryId),
-      tenantId: Id.create(persistenceProductCategories.tenantId),
+      storeId: Id.create(persistenceProductCategories.storeId),
     });
   }
 
@@ -36,7 +36,7 @@ export class ProductCategoriesMapper {
       id: entity.get('id')?.getValue() || undefined,
       productId: entity.get('productId')?.getValue(),
       categoryId: entity.get('categoryId')?.getValue(),
-      tenantId: entity.get('tenantId')?.getValue(),
+      storeId: entity.get('storeId')?.getValue(),
     }));
   }
 }

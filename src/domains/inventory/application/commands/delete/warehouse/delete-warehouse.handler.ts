@@ -20,7 +20,7 @@ export class DeleteWarehouseHandler
     const warehouse = await findWarehouseOrThrow(
       this.warehouseRepository,
       command.id,
-      command.tenantId,
+      command.storeId,
     );
 
     const warehouseDeleted = this.eventPublisher.mergeObjectContext(
@@ -29,7 +29,7 @@ export class DeleteWarehouseHandler
 
     await this.warehouseRepository.delete(
       Id.create(command.id),
-      Id.create(command.tenantId),
+      Id.create(command.storeId),
     );
 
     warehouseDeleted.commit();

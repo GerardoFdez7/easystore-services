@@ -16,11 +16,11 @@ export class EmployeeRepository implements IEmployeeRepository {
   constructor(private readonly prisma: PostgreService) {}
 
   /**
-   * Finds an employee by its auth identity ID and returns employee data with tenant info.
+   * Finds an employee by its auth identity ID and returns its Tenant and Store scope.
    */
   async findByAuthIdentityId(
     authIdentityId: Id,
-  ): Promise<{ id: string; tenantId: string } | null> {
+  ): Promise<{ id: string; tenantId: string; storeId: string } | null> {
     const authIdentityIdValue = authIdentityId.getValue();
 
     try {
@@ -30,9 +30,10 @@ export class EmployeeRepository implements IEmployeeRepository {
         },
         select: {
           id: true,
+          storeId: true,
           role: {
             select: {
-              tenantId: true,
+              store: { select: { tenantId: true } },
             },
           },
         },
@@ -44,7 +45,8 @@ export class EmployeeRepository implements IEmployeeRepository {
 
       return {
         id: employee.id,
-        tenantId: employee.role.tenantId,
+        tenantId: employee.role.store.tenantId,
+        storeId: employee.storeId,
       };
     } catch (error) {
       return this.handleDatabaseError(error, 'find employee by auth identity');
@@ -53,26 +55,26 @@ export class EmployeeRepository implements IEmployeeRepository {
 
   /**
    * Resolves the full set of (feature, action) grants held by an employee's role,
-   * scoped to the employee's tenant.
+   * scoped to the employee's Store.
    */
   async findPermissionsByEmployeeId(
     employeeId: Id,
-    tenantId: Id,
+    storeId: Id,
   ): Promise<EmployeePermission[]> {
     const employeeIdValue = employeeId.getValue();
-    const tenantIdValue = tenantId.getValue();
+    const storeIdValue = storeId.getValue();
 
     try {
       const employee = await this.prisma.employee.findFirst({
         where: {
           id: employeeIdValue,
-          tenantId: tenantIdValue,
+          storeId: storeIdValue,
         },
         select: {
           role: {
             select: {
               roleFeatures: {
-                where: { tenantId: tenantIdValue },
+                where: { storeId: storeIdValue },
                 select: {
                   action: true,
                   feature: { select: { code: true } },

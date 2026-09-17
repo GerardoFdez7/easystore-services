@@ -18,9 +18,9 @@ describe('EmployeeRepository', () => {
 
   describe('findPermissionsByEmployeeId', () => {
     const employeeId = Id.create('0198b746-8c72-7a2f-9c31-6d4f9866f311');
-    const tenantId = Id.create('0198b746-8c72-7a2f-9c31-6d4f9866f312');
+    const storeId = Id.create('0198b746-8c72-7a2f-9c31-6d4f9866f312');
 
-    it('maps a role grid to its granted (feature, action) pairs, scoped by tenant', async () => {
+    it('maps a role grid to its granted (feature, action) pairs, scoped by store', async () => {
       prisma.employee.findFirst.mockResolvedValue({
         role: {
           roleFeatures: [
@@ -33,7 +33,7 @@ describe('EmployeeRepository', () => {
 
       const result = await repository.findPermissionsByEmployeeId(
         employeeId,
-        tenantId,
+        storeId,
       );
 
       expect(result).toEqual([
@@ -45,35 +45,35 @@ describe('EmployeeRepository', () => {
         expect.objectContaining({
           where: {
             id: employeeId.getValue(),
-            tenantId: tenantId.getValue(),
+            storeId: storeId.getValue(),
           },
         }),
       );
     });
 
-    it('scopes the roleFeatures lookup itself by tenant, not just the employee', async () => {
+    it('scopes the roleFeatures lookup itself by store, not just the employee', async () => {
       prisma.employee.findFirst.mockResolvedValue({
         role: { roleFeatures: [] },
       });
 
-      await repository.findPermissionsByEmployeeId(employeeId, tenantId);
+      await repository.findPermissionsByEmployeeId(employeeId, storeId);
 
       const call = prisma.employee.findFirst.mock.calls[0][0] as {
         select: {
-          role: { select: { roleFeatures: { where: { tenantId: string } } } };
+          role: { select: { roleFeatures: { where: { storeId: string } } } };
         };
       };
-      expect(call.select.role.select.roleFeatures.where.tenantId).toBe(
-        tenantId.getValue(),
+      expect(call.select.role.select.roleFeatures.where.storeId).toBe(
+        storeId.getValue(),
       );
     });
 
-    it('returns an empty set when the employee does not resolve for that tenant', async () => {
+    it('returns an empty set when the employee does not resolve for that store', async () => {
       prisma.employee.findFirst.mockResolvedValue(null);
 
       const result = await repository.findPermissionsByEmployeeId(
         employeeId,
-        tenantId,
+        storeId,
       );
 
       expect(result).toEqual([]);
@@ -86,7 +86,7 @@ describe('EmployeeRepository', () => {
 
       const result = await repository.findPermissionsByEmployeeId(
         employeeId,
-        tenantId,
+        storeId,
       );
 
       expect(result).toEqual([]);
@@ -98,7 +98,7 @@ describe('EmployeeRepository', () => {
       );
 
       await expect(
-        repository.findPermissionsByEmployeeId(employeeId, tenantId),
+        repository.findPermissionsByEmployeeId(employeeId, storeId),
       ).rejects.toMatchObject({ code: 'DATABASE_OPERATION_ERROR' });
     });
   });
@@ -109,12 +109,17 @@ describe('EmployeeRepository', () => {
     it('returns the employee id and tenant id for a matching auth identity', async () => {
       prisma.employee.findFirst.mockResolvedValue({
         id: 'employee-1',
-        role: { tenantId: 'tenant-1' },
+        storeId: 'store-1',
+        role: { store: { tenantId: 'tenant-1' } },
       });
 
       const result = await repository.findByAuthIdentityId(authIdentityId);
 
-      expect(result).toEqual({ id: 'employee-1', tenantId: 'tenant-1' });
+      expect(result).toEqual({
+        id: 'employee-1',
+        tenantId: 'tenant-1',
+        storeId: 'store-1',
+      });
     });
 
     it('returns null when no employee matches the auth identity', async () => {

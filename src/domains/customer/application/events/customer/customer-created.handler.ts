@@ -15,7 +15,7 @@ export class CustomerCreatedHandler
   async handle(event: CustomerCreatedEvent): Promise<void> {
     await this.cartAdapter.createCart(
       event.customer.getProps().id.getValue(),
-      event.customer.getProps().tenantId.getValue(),
+      event.customer.getProps().storeId.getValue(),
     );
   }
 }

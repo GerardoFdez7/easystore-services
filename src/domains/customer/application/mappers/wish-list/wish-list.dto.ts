@@ -6,7 +6,7 @@ export interface WishListDTO {
   id: string;
   variantId: string;
   customerId: string;
-  tenantId: string;
+  storeId: string;
   updatedAt: Date;
 }
 

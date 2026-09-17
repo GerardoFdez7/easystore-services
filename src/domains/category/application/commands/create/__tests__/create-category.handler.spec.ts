@@ -9,7 +9,7 @@ describe('CreateCategoryHandler', () => {
   const dto = { id: 'category-1', name: 'Office' };
   const repository = { create: jest.fn() };
   const publisher = { mergeObjectContext: jest.fn() };
-  const data = { name: 'Office', tenantId: 'tenant-1' };
+  const data = { name: 'Office', storeId: 'store-1' };
   let handler: CreateCategoryHandler;
 
   beforeEach(() => {
@@ -25,7 +25,7 @@ describe('CreateCategoryHandler', () => {
     publisher.mergeObjectContext.mockReturnValue(category);
   });
 
-  it('creates, persists, commits, and maps a tenant category', async () => {
+  it('creates, persists, commits, and maps a store category', async () => {
     const command = new CreateCategoryDTO(data as never);
 
     await expect(handler.execute(command)).resolves.toBe(dto);

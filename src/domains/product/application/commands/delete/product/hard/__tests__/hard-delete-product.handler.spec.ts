@@ -7,13 +7,13 @@ import { HardDeleteProductHandler } from '../hard-delete-product.handler';
 
 describe('HardDeleteProductHandler', () => {
   const productId = '0198b746-8c72-7a2f-9c31-6d4f9866f321';
-  const tenantId = '0198b746-8c72-7a2f-9c31-6d4f9866f322';
+  const storeId = '0198b746-8c72-7a2f-9c31-6d4f9866f322';
   const product = { id: productId };
   const deletedProduct = { commit: jest.fn() };
   const dto = { id: productId };
   const repository = { hardDelete: jest.fn() };
   const publisher = { mergeObjectContext: jest.fn() };
-  const command = new HardDeleteProductDTO(productId, tenantId);
+  const command = new HardDeleteProductDTO(productId, storeId);
   let handler: HardDeleteProductHandler;
 
   beforeEach(() => {
@@ -30,11 +30,11 @@ describe('HardDeleteProductHandler', () => {
     publisher.mergeObjectContext.mockReturnValue(deletedProduct);
   });
 
-  it('hard-deletes only the tenant-scoped product and publishes the deletion event', async () => {
+  it('hard-deletes only the store-scoped product and publishes the deletion event', async () => {
     await expect(handler.execute(command)).resolves.toBe(dto);
 
     expect(repository.hardDelete).toHaveBeenCalledWith(
-      expect.objectContaining({ value: tenantId }),
+      expect.objectContaining({ value: storeId }),
       expect.objectContaining({ value: productId }),
     );
     expect(ProductMapper.fromHardDeleteDto).toHaveBeenCalledWith(product);

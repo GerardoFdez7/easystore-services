@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-import { EventPublisher } from '@nestjs/cqrs';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { AuthenticationMapper } from '../../../mappers';
+import { EventPublisher } from '@nestjs/cqrs';
 import { AccountTypeEnum } from '../../../../aggregates/value-objects';
+import { AuthenticationMapper } from '../../../mappers';
 import { AuthenticationRegisterDTO } from '../sign-up.dto';
 import { AuthenticationRegisterHandler } from '../sign-up.handler';
 
@@ -10,9 +10,11 @@ describe('AuthenticationRegisterHandler', () => {
   const auth = { commit: jest.fn() };
   const dto = { id: 'auth-1', email: 'owner@example.com' };
   const repository = { create: jest.fn() };
-  const tenantAdapter = { getTenantIdByDomain: jest.fn() };
+  const storeAdapter = { getStoreByDomain: jest.fn() };
+  const tenantOnboarding = { provision: jest.fn() };
+  const customerOnboarding = { provision: jest.fn() };
   const publisher = { mergeObjectContext: jest.fn() };
-  const command = new AuthenticationRegisterDTO({
+  const tenantCommand = new AuthenticationRegisterDTO({
     email: 'owner@example.com',
     password: 'StrongPassword123!',
     accountType: AccountTypeEnum.TENANT,
@@ -23,7 +25,9 @@ describe('AuthenticationRegisterHandler', () => {
     jest.clearAllMocks();
     handler = new AuthenticationRegisterHandler(
       repository as never,
-      tenantAdapter as never,
+      storeAdapter as never,
+      tenantOnboarding as never,
+      customerOnboarding as never,
       publisher as unknown as EventPublisher,
     );
     jest
@@ -33,100 +37,119 @@ describe('AuthenticationRegisterHandler', () => {
     publisher.mergeObjectContext.mockReturnValue(auth);
   });
 
-  it('creates the identity through the domain mapper and publishes its event', async () => {
-    await expect(handler.execute(command)).resolves.toBe(dto);
+  it('provisions a tenant atomically before committing its post-commit event', async () => {
+    await expect(handler.execute(tenantCommand)).resolves.toBe(dto);
 
-    expect(AuthenticationMapper.fromRegisterDto).toHaveBeenCalledWith(command);
-    expect(publisher.mergeObjectContext).toHaveBeenCalledWith(auth);
-    expect(repository.create).toHaveBeenCalledWith(auth);
+    expect(tenantOnboarding.provision).toHaveBeenCalledWith(auth, undefined);
+    expect(customerOnboarding.provision).not.toHaveBeenCalled();
+    expect(repository.create).not.toHaveBeenCalled();
     expect(auth.commit).toHaveBeenCalledTimes(1);
-    expect(AuthenticationMapper.toDto).toHaveBeenCalledWith(auth);
-    expect(repository.create.mock.invocationCallOrder[0]).toBeLessThan(
+    expect(tenantOnboarding.provision.mock.invocationCallOrder[0]).toBeLessThan(
       auth.commit.mock.invocationCallOrder[0],
     );
   });
 
-  it('does not persist when domain creation rejects invalid registration data', async () => {
-    const error = new Error('Invalid email');
-    jest
-      .spyOn(AuthenticationMapper, 'fromRegisterDto')
-      .mockImplementationOnce(() => {
-        throw error;
-      });
+  it('does not commit an event or expose a retry result when onboarding rolls back', async () => {
+    const failure = new Error('duplicate domain');
+    tenantOnboarding.provision.mockRejectedValueOnce(failure);
 
-    await expect(handler.execute(command)).rejects.toBe(error);
+    await expect(handler.execute(tenantCommand)).rejects.toBe(failure);
+    expect(auth.commit).not.toHaveBeenCalled();
+    expect(AuthenticationMapper.toDto).not.toHaveBeenCalled();
+    expect(repository.create).not.toHaveBeenCalled();
+  });
+
+  it('propagates a customer onboarding transaction failure without committing identity state', async () => {
+    const failure = new Error('cart insert failed');
+    customerOnboarding.provision.mockRejectedValueOnce(failure);
+    storeAdapter.getStoreByDomain.mockResolvedValueOnce({
+      id: 'trusted-store-1',
+      tenantId: 'tenant-1',
+    });
+    const command = new AuthenticationRegisterDTO({
+      email: 'person@example.com',
+      password: 'StrongPassword123!',
+      accountType: AccountTypeEnum.CUSTOMER,
+      domain: 'shop.example.com',
+    } as never);
+
+    await expect(handler.execute(command)).rejects.toBe(failure);
+    expect(customerOnboarding.provision).toHaveBeenCalledWith(
+      auth,
+      'trusted-store-1',
+    );
     expect(repository.create).not.toHaveBeenCalled();
     expect(auth.commit).not.toHaveBeenCalled();
   });
 
-  it('does not commit or expose a DTO when persistence fails', async () => {
-    const error = new Error('duplicate identity');
-    repository.create.mockRejectedValueOnce(error);
+  it.each([[AccountTypeEnum.CUSTOMER], [AccountTypeEnum.EMPLOYEE]])(
+    'rejects %s registration without a Store domain before creating identity state',
+    async (accountType) => {
+      const command = new AuthenticationRegisterDTO({
+        email: 'person@example.com',
+        password: 'StrongPassword123!',
+        accountType,
+      } as never);
 
-    await expect(handler.execute(command)).rejects.toBe(error);
+      await expect(handler.execute(command)).rejects.toBeInstanceOf(
+        BadRequestException,
+      );
+      expect(storeAdapter.getStoreByDomain).not.toHaveBeenCalled();
+      expect(repository.create).not.toHaveBeenCalled();
+      expect(auth.commit).not.toHaveBeenCalled();
+    },
+  );
+
+  it('does not create or commit a customer identity for an unknown Store domain', async () => {
+    storeAdapter.getStoreByDomain.mockResolvedValueOnce(null);
+    const command = new AuthenticationRegisterDTO({
+      email: 'person@example.com',
+      password: 'StrongPassword123!',
+      accountType: AccountTypeEnum.CUSTOMER,
+      domain: 'unknown.example.com',
+    } as never);
+
+    await expect(handler.execute(command)).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+    expect(repository.create).not.toHaveBeenCalled();
     expect(auth.commit).not.toHaveBeenCalled();
-    expect(AuthenticationMapper.toDto).not.toHaveBeenCalled();
   });
 
-  it.each([[AccountTypeEnum.CUSTOMER], [AccountTypeEnum.EMPLOYEE]])(
-    'throws BadRequestException for %s sign-up without a domain',
-    async (accountType) => {
-      const commandWithoutDomain = new AuthenticationRegisterDTO({
-        email: 'owner@example.com',
-        password: 'StrongPassword123!',
-        accountType,
-      } as never);
+  it('uses only the Store resolved from the domain for customer onboarding without post-registration provisioning', async () => {
+    storeAdapter.getStoreByDomain.mockResolvedValueOnce({
+      id: 'store-1',
+      tenantId: 'tenant-1',
+    });
+    const command = new AuthenticationRegisterDTO({
+      email: 'person@example.com',
+      password: 'StrongPassword123!',
+      accountType: AccountTypeEnum.CUSTOMER,
+      domain: 'shop.example.com',
+    } as never);
 
-      await expect(
-        handler.execute(commandWithoutDomain),
-      ).rejects.toBeInstanceOf(BadRequestException);
-      expect(tenantAdapter.getTenantIdByDomain).not.toHaveBeenCalled();
-      expect(repository.create).not.toHaveBeenCalled();
-    },
-  );
-
-  it.each([[AccountTypeEnum.CUSTOMER], [AccountTypeEnum.EMPLOYEE]])(
-    'throws NotFoundException for %s sign-up when the domain does not resolve to a tenant',
-    async (accountType) => {
-      tenantAdapter.getTenantIdByDomain.mockResolvedValueOnce(null);
-      const commandWithDomain = new AuthenticationRegisterDTO({
-        email: 'owner@example.com',
-        password: 'StrongPassword123!',
-        accountType,
-        domain: 'unknown-tenant.example.com',
-      } as never);
-
-      await expect(handler.execute(commandWithDomain)).rejects.toBeInstanceOf(
-        NotFoundException,
-      );
-      expect(tenantAdapter.getTenantIdByDomain).toHaveBeenCalledWith(
-        'unknown-tenant.example.com',
-      );
-      expect(repository.create).not.toHaveBeenCalled();
-    },
-  );
-
-  it.each([[AccountTypeEnum.CUSTOMER], [AccountTypeEnum.EMPLOYEE]])(
-    'creates the identity for %s sign-up when the domain resolves to a tenant',
-    async (accountType) => {
-      tenantAdapter.getTenantIdByDomain.mockResolvedValueOnce('tenant-1');
-      const commandWithDomain = new AuthenticationRegisterDTO({
-        email: 'owner@example.com',
-        password: 'StrongPassword123!',
-        accountType,
-        domain: 'tenant.example.com',
-      } as never);
-
-      await expect(handler.execute(commandWithDomain)).resolves.toBe(dto);
-      expect(tenantAdapter.getTenantIdByDomain).toHaveBeenCalledWith(
-        'tenant.example.com',
-      );
-      expect(repository.create).toHaveBeenCalledWith(auth);
-    },
-  );
-
-  it('does not require a domain for TENANT sign-up', async () => {
     await expect(handler.execute(command)).resolves.toBe(dto);
-    expect(tenantAdapter.getTenantIdByDomain).not.toHaveBeenCalled();
+    expect(customerOnboarding.provision).toHaveBeenCalledWith(auth, 'store-1');
+    expect(tenantOnboarding.provision).not.toHaveBeenCalled();
+    expect(repository.create).not.toHaveBeenCalled();
+    expect(auth.commit).toHaveBeenCalledTimes(1);
+  });
+
+  it('creates and commits an employee identity after its Store domain resolves', async () => {
+    storeAdapter.getStoreByDomain.mockResolvedValueOnce({
+      id: 'store-1',
+      tenantId: 'tenant-1',
+    });
+    const command = new AuthenticationRegisterDTO({
+      email: 'employee@example.com',
+      password: 'StrongPassword123!',
+      accountType: AccountTypeEnum.EMPLOYEE,
+      domain: 'shop.example.com',
+    } as never);
+
+    await expect(handler.execute(command)).resolves.toBe(dto);
+    expect(repository.create).toHaveBeenCalledWith(auth);
+    expect(customerOnboarding.provision).not.toHaveBeenCalled();
+    expect(auth.commit).toHaveBeenCalledTimes(1);
   });
 });

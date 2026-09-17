@@ -6,7 +6,7 @@ import { ICartRepository } from '../../../../aggregates/repositories/cart.interf
 import { Id } from '../../../../aggregates/value-objects';
 import { Cart } from '../../../../aggregates/entities/cart/cart.entity';
 import {
-  findTenantCartOrThrow,
+  findStoreCartOrThrow,
   persistCartMutation,
 } from '../../../shared/cart-command-helpers';
 
@@ -21,10 +21,10 @@ export class RemoveItemFromCartHandler
 
   async execute(command: RemoveItemFromCartDto): Promise<CartDTO> {
     const variantId = Id.create(command.data.variantId);
-    const cartFound = await findTenantCartOrThrow(
+    const cartFound = await findStoreCartOrThrow(
       this.cartRepository,
       command.customerId,
-      command.tenantId,
+      command.storeId,
     );
 
     return persistCartMutation(

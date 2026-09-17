@@ -18,7 +18,8 @@ reviews:
   high_level_summary_in_walkthrough: true
   high_level_summary_instructions: >-
     Summarize behavioral changes, affected bounded contexts, public GraphQL or
-    database contract changes, security and tenant-isolation risk, authorization
+    database contract changes, account-level Tenant ownership and Store-isolation
+    risk, authorization
     posture changes (operations whose permissions were added, widened, or removed),
     performance impact, migrations, and test evidence. Separate verified facts from
     assumptions.
@@ -86,15 +87,16 @@ reviews:
           Ignore proper nouns, customer-provided data, and explicitly localized
           user-facing resources. Report the exact file and text that violates the
           rule. Pass only when every in-scope addition is English.
-      - name: 'Tenant and access safety'
+      - name: 'Tenant, store, and access safety'
         mode: 'error'
         instructions: >-
-          Fail if the changes can bypass authentication or authorization, accept
-          tenant/user/role ownership from untrusted input, omit tenant or owner scope
-          from any lookup, relation, count, mutation, uniqueness check, delete, or
-          cache key, reveal cross-tenant existence, expose a secret, or enable
-          injection. Pass only when trusted server identity and fail-closed tenant
-          isolation are preserved on every path.
+          Fail if Store lookup, creation, switching, or Tenant-owned Store management
+          omits trusted tenantId; if independently scoped operational data omits
+          trusted storeId; if a client can override tenantId, storeId, identity,
+          customer, or employee ownership. Aggregate-owned children may derive Store
+          ownership through a globally unique parent and must not duplicate storeId.
+          Require fail-closed account ownership and cross-Store isolation for every
+          lookup, relation, count, mutation, uniqueness check, and cache key.
       - name: 'Authorization coverage'
         mode: 'error'
         instructions: >-

@@ -1,6 +1,10 @@
-import { Domain } from '../value-objects/tenant/domain.vo';
 import { Tenant } from '../entities/tenant/tenant.entity';
 import { Id } from '@shared/aggregates/value-objects';
+
+export interface ITenantLoginContext {
+  tenantId: string;
+  storeId: string;
+}
 
 /**
  * Repository interface for Tenant aggregate.
@@ -23,12 +27,6 @@ export interface ITenantRepository {
   update(id: Id, tenant: Tenant): Promise<Tenant>;
 
   /**
-   * Deletes a tenant by its unique identifier.
-   * @param id The unique identifier of the tenant.
-   */
-  delete(id: Id): Promise<void>;
-
-  /**
    * Finds a tenant by its auth identity ID.
    * @param authIdentityId The auth identity ID to search for.
    * @returns The tenant entity or null if not found.
@@ -42,10 +40,6 @@ export interface ITenantRepository {
    */
   findById(id: Id): Promise<Tenant | null>;
 
-  /**
-   * Retrieves the tenant ID associated with a given domain.
-   * @param domain The domain to search for.
-   * @returns A promise that resolves to the tenant ID string if found, otherwise null.
-   */
-  getTenantIdByDomain(domain: Domain): Promise<string | null>;
+  /** Resolves an owner's Tenant and tenant-owned default Store atomically. */
+  resolveLoginContext(authIdentityId: Id): Promise<ITenantLoginContext | null>;
 }

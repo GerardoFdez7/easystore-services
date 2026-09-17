@@ -4,7 +4,7 @@ import { IStockPerWarehouseType } from '../';
 export interface IWarehouseType extends IWarehouseSystem {
   name: string;
   addressId: string;
-  tenantId: string;
+  storeId: string;
   stockPerWarehouses?: IStockPerWarehouseType[];
 }
 
@@ -12,7 +12,7 @@ export interface IWarehouseType extends IWarehouseSystem {
 export interface IWarehouseBase {
   name: string;
   addressId?: string;
-  tenantId: string;
+  storeId: string;
 }
 
 // System-generated properties for a warehouse

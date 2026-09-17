@@ -3,7 +3,7 @@ import { IProductBase } from '../../../../aggregates/entities';
 type UpdatableProductFields = Partial<
   Omit<
     IProductBase,
-    'tenantId' | 'variants' | 'media' | 'categories' | 'sustainabilities'
+    'storeId' | 'variants' | 'media' | 'categories' | 'sustainabilities'
   >
 >;
 
@@ -14,7 +14,7 @@ type UpdatableProductFields = Partial<
 export class UpdateProductDTO {
   constructor(
     public readonly id: string,
-    public readonly tenantId: string,
+    public readonly storeId: string,
     public readonly data: UpdatableProductFields,
   ) {}
 }

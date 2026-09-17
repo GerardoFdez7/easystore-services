@@ -12,13 +12,13 @@ jest.mock('../../../shared/find-product-or-throw', () => ({
 describe('RestoreVariantHandler', () => {
   const variantId = '0198b746-8c72-7a2f-9c31-6d4f9866f323';
   const productId = '0198b746-8c72-7a2f-9c31-6d4f9866f321';
-  const tenantId = '0198b746-8c72-7a2f-9c31-6d4f9866f322';
+  const storeId = '0198b746-8c72-7a2f-9c31-6d4f9866f322';
   const product = { id: productId };
   const restoredProduct = { commit: jest.fn() };
   const dto = { id: productId };
   const repository = { update: jest.fn() };
   const publisher = { mergeObjectContext: jest.fn() };
-  const command = new RestoreVariantDTO(variantId, productId, tenantId);
+  const command = new RestoreVariantDTO(variantId, productId, storeId);
   let handler: RestoreVariantHandler;
 
   beforeEach(() => {
@@ -40,7 +40,7 @@ describe('RestoreVariantHandler', () => {
 
     expect(findProductOrThrow).toHaveBeenCalledWith(
       repository,
-      tenantId,
+      storeId,
       productId,
       variantId,
     );
@@ -54,7 +54,7 @@ describe('RestoreVariantHandler', () => {
       variantId,
     );
     expect(repository.update).toHaveBeenCalledWith(
-      expect.objectContaining({ value: tenantId }),
+      expect.objectContaining({ value: storeId }),
       expect.objectContaining({ value: productId }),
       restoredProduct,
     );

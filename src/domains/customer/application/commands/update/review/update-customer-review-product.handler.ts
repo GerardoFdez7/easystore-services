@@ -24,13 +24,13 @@ export class UpdateCustomerReviewProductHandler
     command: UpdateCustomerReviewProductDto,
   ): Promise<CustomerReviewProductDTO> {
     const customerId = Id.create(command.customerId);
-    const tenantId = Id.create(command.tenantId);
+    const storeId = Id.create(command.storeId);
     const reviewId = Id.create(command.review.id);
 
     // Search customer
     const customerFound = await this.customerRepository.findById(
       customerId,
-      tenantId,
+      storeId,
     );
 
     if (!customerFound) {
@@ -43,7 +43,7 @@ export class UpdateCustomerReviewProductHandler
     const existingReview = await this.reviewRepository.findById(
       reviewId,
       customerId,
-      tenantId,
+      storeId,
     );
 
     if (!existingReview) {

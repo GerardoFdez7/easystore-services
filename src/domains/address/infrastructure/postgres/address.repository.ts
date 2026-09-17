@@ -129,7 +129,7 @@ export default class AddressRepository implements IAddressRepository {
 
   /**
    * Finds all addresses for a given owner with pagination and filtering options
-   * @param owner - The owner (tenant or customer) of the addresses
+   * @param owner - The owner (Tenant or customer) of the addresses
    * @param options - Optional query parameters for pagination and filtering
    * @returns Promise that resolves to paginated addresses with total count and hasMore flag
    */

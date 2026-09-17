@@ -39,7 +39,7 @@ export default class CategoryRepository implements ICategoryRepository {
         if (categoryDto.parentId) {
           const parentDepth = await this.calculateCategoryDepth(
             categoryDto.parentId,
-            categoryDto.tenantId,
+            categoryDto.storeId,
             tx,
           );
 
@@ -56,7 +56,7 @@ export default class CategoryRepository implements ICategoryRepository {
         if (categoryDto.subCategories && categoryDto.subCategories.length > 0) {
           await this.validateCategoryDepth(
             categoryDto.parentId,
-            categoryDto.tenantId,
+            categoryDto.storeId,
             categoryDto.subCategories,
             tx,
           );
@@ -70,7 +70,7 @@ export default class CategoryRepository implements ICategoryRepository {
             cover: categoryDto.cover,
             description: categoryDto.description,
             parentId: categoryDto.parentId,
-            tenantId: categoryDto.tenantId,
+            storeId: categoryDto.storeId,
           },
           include: {
             subCategories: true,
@@ -89,7 +89,12 @@ export default class CategoryRepository implements ICategoryRepository {
 
         // Return the created category with all relations
         return await tx.category.findUnique({
-          where: { id: createdCategory.id },
+          where: {
+            id_storeId: {
+              id: createdCategory.id,
+              storeId: categoryDto.storeId,
+            },
+          },
           include: categoryRelations,
         });
       });
@@ -103,9 +108,9 @@ export default class CategoryRepository implements ICategoryRepository {
   /**
    * Updates an existing category with transaction support
    */
-  async update(id: Id, tenantId: Id, updates: Category): Promise<Category> {
+  async update(id: Id, storeId: Id, updates: Category): Promise<Category> {
     const idValue = id.getValue();
-    const tenantIdValue = tenantId.getValue();
+    const storeIdValue = storeId.getValue();
     const updatesDto = CategoryMapper.toDto(updates);
 
     return executeDatabaseOperation(
@@ -115,7 +120,7 @@ export default class CategoryRepository implements ICategoryRepository {
           await tx.category.update({
             where: {
               id: idValue,
-              tenantId: tenantIdValue,
+              storeId: storeIdValue,
             },
             data: {
               name: updatesDto.name,
@@ -134,13 +139,14 @@ export default class CategoryRepository implements ICategoryRepository {
             await this.updateSubCategories(
               tx,
               idValue,
+              storeIdValue,
               updatesDto.subCategories,
             );
           }
 
           // Return updated category with all relations
           return await tx.category.findUnique({
-            where: { id: idValue },
+            where: { id_storeId: { id: idValue, storeId: storeIdValue } },
             include: categoryRelations,
           });
         });
@@ -154,11 +160,11 @@ export default class CategoryRepository implements ICategoryRepository {
   /**
    * Deletes a category with transaction support
    */
-  async delete(id: Id, tenantId: Id): Promise<void> {
+  async delete(id: Id, storeId: Id): Promise<void> {
     const categoryId = id.getValue();
     const categoryOwner = {
       id: categoryId,
-      tenantId: tenantId.getValue(),
+      storeId: storeId.getValue(),
     };
 
     try {
@@ -195,15 +201,15 @@ export default class CategoryRepository implements ICategoryRepository {
   /**
    * Finds a category by ID with proper error handling
    */
-  async findById(id: Id, tenantId: Id): Promise<Category | null> {
+  async findById(id: Id, storeId: Id): Promise<Category | null> {
     const idValue = id.getValue();
-    const tenantIdValue = tenantId.getValue();
+    const storeIdValue = storeId.getValue();
 
     try {
       const prismaCategory = await this.prisma.category.findUnique({
         where: {
           id: idValue,
-          tenantId: tenantIdValue,
+          storeId: storeIdValue,
         },
         include: {
           subCategories: {
@@ -225,7 +231,7 @@ export default class CategoryRepository implements ICategoryRepository {
    * Finds all categories with pagination and filtering
    */
   async findAll(
-    tenantId: Id,
+    storeId: Id,
     options?: {
       page?: number;
       limit?: number;
@@ -236,7 +242,7 @@ export default class CategoryRepository implements ICategoryRepository {
       sortOrder?: SortOrder;
     },
   ): Promise<{ categories: Category[]; total: number; hasMore: boolean }> {
-    const tenantIdValue = tenantId.getValue();
+    const storeIdValue = storeId.getValue();
     const page = options?.page || 1;
     const limit = options?.limit || 25;
     const skip = (page - 1) * limit;
@@ -247,7 +253,7 @@ export default class CategoryRepository implements ICategoryRepository {
     try {
       // Build where clause
       const whereClause: Prisma.CategoryWhereInput = {
-        tenantId: tenantIdValue,
+        storeId: storeIdValue,
       };
 
       if (options?.name) {
@@ -334,14 +340,14 @@ export default class CategoryRepository implements ICategoryRepository {
   /**
    * Finds multiple categories by their unique identifiers
    */
-  async findByIds(ids: Id[], tenantId: Id): Promise<Category[]> {
+  async findByIds(ids: Id[], storeId: Id): Promise<Category[]> {
     const idsValues = ids.map((id) => id.getValue());
-    const tenantIdValue = tenantId.getValue();
+    const storeIdValue = storeId.getValue();
 
     try {
       const prismaCategories = await this.prisma.category.findMany({
         where: {
-          tenantId: tenantIdValue,
+          storeId: storeIdValue,
           id: { in: idsValues },
         },
         orderBy: {
@@ -360,7 +366,7 @@ export default class CategoryRepository implements ICategoryRepository {
    */
   private async calculateCategoryDepth(
     categoryId: string,
-    tenantId: string,
+    storeId: string,
     tx?: Prisma.TransactionClient,
   ): Promise<number> {
     const prismaClient = tx || this.prisma;
@@ -371,7 +377,7 @@ export default class CategoryRepository implements ICategoryRepository {
       const category = await prismaClient.category.findUnique({
         where: {
           id: currentCategoryId,
-          tenantId: tenantId,
+          storeId: storeId,
         },
         select: {
           parentId: true,
@@ -441,7 +447,7 @@ export default class CategoryRepository implements ICategoryRepository {
    */
   private async validateCategoryDepth(
     parentId: string | null,
-    tenantId: string,
+    storeId: string,
     subCategories: ICategoryType[],
     tx?: Prisma.TransactionClient,
   ): Promise<void> {
@@ -450,7 +456,7 @@ export default class CategoryRepository implements ICategoryRepository {
     // Calculate current depth from root parent
     let currentDepth = 0;
     if (parentId) {
-      currentDepth = await this.calculateCategoryDepth(parentId, tenantId, tx);
+      currentDepth = await this.calculateCategoryDepth(parentId, storeId, tx);
     }
 
     // Calculate the depth of the subcategories being added
@@ -474,12 +480,13 @@ export default class CategoryRepository implements ICategoryRepository {
   private async updateSubCategories(
     tx: Prisma.TransactionClient,
     parentId: string,
+    storeId: string,
     subCategories: ICategoryType[],
   ): Promise<void> {
-    // Get the parent category to determine tenant and validate depth
-    const parentCategory = await tx.category.findUnique({
-      where: { id: parentId },
-      select: { tenantId: true },
+    // Load the parent within the same Store before changing its descendants.
+    const parentCategory = await tx.category.findFirst({
+      where: { id: parentId, storeId },
+      select: { storeId: true },
     });
 
     if (!parentCategory) {
@@ -490,7 +497,7 @@ export default class CategoryRepository implements ICategoryRepository {
     if (subCategories && subCategories.length > 0) {
       await this.validateCategoryDepth(
         parentId,
-        parentCategory.tenantId,
+        parentCategory.storeId,
         subCategories,
         tx,
       );
@@ -498,7 +505,7 @@ export default class CategoryRepository implements ICategoryRepository {
 
     // Get existing subcategories
     const existingSubCategories = await tx.category.findMany({
-      where: { parentId },
+      where: { parentId, storeId },
       select: { id: true },
     });
 
@@ -514,6 +521,7 @@ export default class CategoryRepository implements ICategoryRepository {
         where: {
           id: { in: idsToDelete },
           parentId,
+          storeId,
         },
       });
     }
@@ -523,7 +531,7 @@ export default class CategoryRepository implements ICategoryRepository {
       if (subCategory.id && existingIds.has(subCategory.id)) {
         // Update existing subcategory
         await tx.category.update({
-          where: { id: subCategory.id },
+          where: { id_storeId: { id: subCategory.id, storeId } },
           data: this.getSubCategoryData(subCategory, parentId),
         });
 
@@ -532,6 +540,7 @@ export default class CategoryRepository implements ICategoryRepository {
           await this.updateSubCategories(
             tx,
             subCategory.id,
+            storeId,
             subCategory.subCategories,
           );
         }
@@ -580,14 +589,14 @@ export default class CategoryRepository implements ICategoryRepository {
     parentId: string,
   ): Pick<
     Prisma.CategoryUncheckedCreateInput,
-    'name' | 'cover' | 'description' | 'parentId' | 'tenantId'
+    'name' | 'cover' | 'description' | 'parentId' | 'storeId'
   > {
     return {
       name: subCategory.name,
       cover: subCategory.cover,
       description: subCategory.description,
       parentId,
-      tenantId: subCategory.tenantId,
+      storeId: subCategory.storeId,
     };
   }
 
@@ -599,7 +608,7 @@ export default class CategoryRepository implements ICategoryRepository {
       resource: 'Category',
       foreignKeyEntities: {
         parentId: 'Parent Category',
-        tenantId: 'Tenant',
+        storeId: 'Store',
       },
     });
   }

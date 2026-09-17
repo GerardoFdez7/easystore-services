@@ -12,13 +12,13 @@ jest.mock('../../../../shared/find-product-or-throw', () => ({
 describe('ArchiveVariantHandler', () => {
   const variantId = '0198b746-8c72-7a2f-9c31-6d4f9866f323';
   const productId = '0198b746-8c72-7a2f-9c31-6d4f9866f321';
-  const tenantId = '0198b746-8c72-7a2f-9c31-6d4f9866f322';
+  const storeId = '0198b746-8c72-7a2f-9c31-6d4f9866f322';
   const product = { id: productId };
   const archivedProduct = { commit: jest.fn() };
   const dto = { id: productId };
   const repository = { update: jest.fn() };
   const publisher = { mergeObjectContext: jest.fn() };
-  const command = new ArchiveVariantDTO(variantId, productId, tenantId);
+  const command = new ArchiveVariantDTO(variantId, productId, storeId);
   let handler: ArchiveVariantHandler;
 
   beforeEach(() => {
@@ -40,7 +40,7 @@ describe('ArchiveVariantHandler', () => {
 
     expect(findProductOrThrow).toHaveBeenCalledWith(
       repository,
-      tenantId,
+      storeId,
       productId,
     );
     expect(ProductMapper.fromArchiveVariantDto).toHaveBeenCalledWith(
@@ -48,7 +48,7 @@ describe('ArchiveVariantHandler', () => {
       variantId,
     );
     expect(repository.update).toHaveBeenCalledWith(
-      expect.objectContaining({ value: tenantId }),
+      expect.objectContaining({ value: storeId }),
       expect.objectContaining({ value: productId }),
       archivedProduct,
     );

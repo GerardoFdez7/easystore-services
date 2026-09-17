@@ -46,9 +46,9 @@ export class Domain {
     return new Domain(value !== null ? value.toLowerCase() : value);
   }
 
-  public static createDefault(businessName: string): Domain {
+  public static createDefault(name: string): Domain {
     // Convert business name to a valid domain format
-    const sanitizedName = businessName
+    const sanitizedName = name
       .toLowerCase()
       .replace(/[^\w\s-]/g, '') // Remove special characters
       .replace(/\s+/g, '-') // Replace spaces with hyphens

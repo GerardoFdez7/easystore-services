@@ -14,14 +14,14 @@ export class WishListRepository implements IWishListRepository {
   async findWishListItemByVariantId(
     customerId: Id,
     variantId: Id,
-    tenantId: Id,
+    storeId: Id,
   ): Promise<WishListItem | null> {
     try {
       const wishListItemFound = await this.postgresService.wishList.findFirst({
         where: {
           customerId: customerId.getValue(),
           variantId: variantId.getValue(),
-          tenantId: tenantId.getValue(),
+          storeId: storeId.getValue(),
         },
       });
 
@@ -39,7 +39,7 @@ export class WishListRepository implements IWishListRepository {
   async removeVariantFromWishList(
     customerId: Id,
     variantId: Id,
-    tenantId: Id,
+    storeId: Id,
   ): Promise<WishListItem | null> {
     try {
       const wishListItem = await this.postgresService.$transaction(
@@ -48,7 +48,7 @@ export class WishListRepository implements IWishListRepository {
             where: {
               customerId: customerId.getValue(),
               variantId: variantId.getValue(),
-              tenantId: tenantId.getValue(),
+              storeId: storeId.getValue(),
             },
           });
 
@@ -57,7 +57,7 @@ export class WishListRepository implements IWishListRepository {
           }
 
           await tx.wishList.delete({
-            where: { id: item.id, tenantId: tenantId.getValue() },
+            where: { id_storeId: { id: item.id, storeId: storeId.getValue() } },
           });
 
           return item;
@@ -73,14 +73,14 @@ export class WishListRepository implements IWishListRepository {
   async removeManyFromWishList(
     customerId: Id,
     variantIds: Id[],
-    tenantId: Id,
+    storeId: Id,
   ): Promise<WishListItem[]> {
     try {
       const wishListItems = await this.postgresService.$transaction(
         async (tx) => {
           const where = {
             customerId: customerId.getValue(),
-            tenantId: tenantId.getValue(),
+            storeId: storeId.getValue(),
             variantId: {
               in: variantIds.map((id) => id.getValue()),
             },
@@ -121,7 +121,7 @@ export class WishListRepository implements IWishListRepository {
               id: wishListData.id,
               variantId: wishListData.variantId,
               customerId: wishListData.customerId,
-              tenantId: wishListData.tenantId,
+              storeId: wishListData.storeId,
               updatedAt: wishListData.updatedAt,
             },
           }),
@@ -133,12 +133,12 @@ export class WishListRepository implements IWishListRepository {
     }
   }
 
-  async findMany(customerId: Id, tenantId: Id): Promise<WishListItem[]> {
+  async findMany(customerId: Id, storeId: Id): Promise<WishListItem[]> {
     try {
       const wishListItems = await this.postgresService.wishList.findMany({
         where: {
           customerId: customerId.getValue(),
-          tenantId: tenantId.getValue(),
+          storeId: storeId.getValue(),
         },
         orderBy: { updatedAt: 'desc' },
       });

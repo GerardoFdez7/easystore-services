@@ -24,12 +24,12 @@ export class CreateCustomerReviewProductHandler
     command: CreateCustomerReviewProductDto,
   ): Promise<CustomerReviewProductDTO> {
     const customerId = Id.create(command.customerId);
-    const tenantIdId = Id.create(command.tenantId);
+    const storeIdId = Id.create(command.storeId);
     const { ratingCount, comment, variantId } = command.review;
     // Find customer
     const customer = await this.customerRepository.findById(
       customerId,
-      tenantIdId,
+      storeIdId,
     );
 
     if (!customer) {

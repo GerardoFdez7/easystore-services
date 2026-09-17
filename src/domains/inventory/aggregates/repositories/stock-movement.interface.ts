@@ -10,7 +10,7 @@ export default interface IStockMovementRepository {
   /**
    * Finds all stock movements with comprehensive filtering, pagination and sorting.
    * Supports all possible query combinations for GraphQL flexibility.
-   * @param tenantId - The tenant identifier to scope the search
+   * @param storeId - The Store identifier to scope the search
    * @param options - Optional query parameters for pagination and filtering
    * @param options.page The page number for pagination (e.g., 1 for the first page).
    * @param options.limit The number of items per page.
@@ -25,7 +25,7 @@ export default interface IStockMovementRepository {
    * @throws {Error} When repository operation fails
    */
   findAll(
-    tenantId: Id,
+    storeId: Id,
     options?: {
       page?: number;
       limit?: number;

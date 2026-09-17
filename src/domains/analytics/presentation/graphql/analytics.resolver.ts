@@ -37,7 +37,7 @@ export class AnalyticsResolver {
     }
 
     const dashboard = await this.getDashboardHandler.execute(
-      new GetDashboardDTO(Id.create(user.tenantId)),
+      new GetDashboardDTO(Id.create(user.storeId)),
     );
 
     return DashboardType.fromDashboard(dashboard);

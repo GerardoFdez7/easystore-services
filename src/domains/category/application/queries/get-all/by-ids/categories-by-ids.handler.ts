@@ -15,7 +15,7 @@ export class GetCategoriesByIdsHandler
   ) {}
 
   async execute(query: GetCategoriesByIdsDTO): Promise<CategoryDTO[]> {
-    const { categoriesIds, tenantId } = query;
+    const { categoriesIds, storeId } = query;
 
     // Validate input
     if (!categoriesIds || categoriesIds.length === 0) {
@@ -24,12 +24,12 @@ export class GetCategoriesByIdsHandler
 
     // Create value objects for IDs
     const idsVO = categoriesIds.map((id) => Id.create(id));
-    const tenantIdVO = Id.create(tenantId);
+    const storeIdVO = Id.create(storeId);
 
     // Find categories by IDs
     const categories = await this.categoryRepository.findByIds(
       idsVO,
-      tenantIdVO,
+      storeIdVO,
     );
 
     if (!categories || categories.length === 0) {

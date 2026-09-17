@@ -11,13 +11,13 @@ jest.mock('../../../shared/find-product-or-throw', () => ({
 
 describe('UpdateProductHandler', () => {
   const productId = '0198b746-8c72-7a2f-9c31-6d4f9866f321';
-  const tenantId = '0198b746-8c72-7a2f-9c31-6d4f9866f322';
+  const storeId = '0198b746-8c72-7a2f-9c31-6d4f9866f322';
   const product = { id: productId };
   const updatedProduct = { commit: jest.fn() };
   const dto = { id: productId, name: 'Updated product' };
   const repository = { update: jest.fn() };
   const publisher = { mergeObjectContext: jest.fn() };
-  const command = new UpdateProductDTO(productId, tenantId, {
+  const command = new UpdateProductDTO(productId, storeId, {
     name: 'Updated product',
   });
   let handler: UpdateProductHandler;
@@ -36,17 +36,17 @@ describe('UpdateProductHandler', () => {
     publisher.mergeObjectContext.mockReturnValue(updatedProduct);
   });
 
-  it('updates a product only within its tenant boundary', async () => {
+  it('updates a product only within its store boundary', async () => {
     await expect(handler.execute(command)).resolves.toBe(dto);
 
     expect(findProductOrThrow).toHaveBeenCalledWith(
       repository,
-      tenantId,
+      storeId,
       productId,
     );
     expect(ProductMapper.fromUpdateDto).toHaveBeenCalledWith(product, command);
     expect(repository.update).toHaveBeenCalledWith(
-      expect.objectContaining({ value: tenantId }),
+      expect.objectContaining({ value: storeId }),
       expect.objectContaining({ value: productId }),
       updatedProduct,
     );
@@ -55,7 +55,7 @@ describe('UpdateProductHandler', () => {
   });
 
   it('accepts an empty patch and lets the domain preserve current values', async () => {
-    const emptyPatch = new UpdateProductDTO(productId, tenantId, {});
+    const emptyPatch = new UpdateProductDTO(productId, storeId, {});
 
     await handler.execute(emptyPatch);
 

@@ -84,7 +84,7 @@ describe('CreateVariantHandler', () => {
   describe('execute', () => {
     const baseVariant = {
       productId: 'product-123',
-      tenantId: 'tenant-456',
+      storeId: 'store-456',
       sku: 'VAR-001',
       price: '29.99',
       currency: 'USD',
@@ -111,26 +111,26 @@ describe('CreateVariantHandler', () => {
           ),
         );
 
-        expect(idCreateMock).toHaveBeenCalledWith(baseVariant.tenantId);
+        expect(idCreateMock).toHaveBeenCalledWith(baseVariant.storeId);
         expect(idCreateMock).toHaveBeenCalledWith(baseVariant.productId);
         expect(findByIdMock).toHaveBeenCalledWith(
-          { value: baseVariant.tenantId },
+          { value: baseVariant.storeId },
           { value: baseVariant.productId },
         );
         expect(updateMock).not.toHaveBeenCalled();
       });
 
-      it('should find product with correct tenant and product IDs', async () => {
+      it('should find product with correct store and product IDs', async () => {
         findByIdMock.mockResolvedValue(mockProduct as never);
         mockProduct.get.mockReturnValue({ getValue: () => TypeEnum.PHYSICAL });
         mergeObjectContextMock.mockReturnValue(mockUpdatedProduct as never);
 
         await handler.execute(baseCommand);
 
-        expect(idCreateMock).toHaveBeenNthCalledWith(1, baseVariant.tenantId);
+        expect(idCreateMock).toHaveBeenNthCalledWith(1, baseVariant.storeId);
         expect(idCreateMock).toHaveBeenNthCalledWith(2, baseVariant.productId);
         expect(findByIdMock).toHaveBeenCalledWith(
-          { value: baseVariant.tenantId },
+          { value: baseVariant.storeId },
           { value: baseVariant.productId },
         );
       });
@@ -596,7 +596,7 @@ describe('CreateVariantHandler', () => {
         await handler.execute(baseCommand);
 
         expect(updateMock).toHaveBeenCalledWith(
-          { value: baseVariant.tenantId },
+          { value: baseVariant.storeId },
           { value: baseVariant.productId },
           mockUpdatedProduct,
         );
@@ -673,7 +673,7 @@ describe('CreateVariantHandler', () => {
         const minimalCommand: CreateVariantDTO = {
           variant: {
             productId: 'prod-1',
-            tenantId: 'tenant-1',
+            storeId: 'store-1',
             sku: 'SKU-001',
             price: '10',
             currency: 'USD',
@@ -698,7 +698,7 @@ describe('CreateVariantHandler', () => {
         const fullCommand: CreateVariantDTO = {
           variant: {
             productId: 'prod-1',
-            tenantId: 'tenant-1',
+            storeId: 'store-1',
             sku: 'SKU-001',
             price: '99.99',
             currency: 'USD',
@@ -756,7 +756,7 @@ describe('CreateVariantHandler', () => {
         const completeCommand: CreateVariantDTO = {
           variant: {
             productId: 'product-789',
-            tenantId: 'tenant-123',
+            storeId: 'store-123',
             sku: 'VAR-COMPLETE',
             price: '49.99',
             currency: 'USD',

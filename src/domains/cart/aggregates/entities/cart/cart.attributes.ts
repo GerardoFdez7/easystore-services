@@ -1,6 +1,6 @@
 export interface ICartBaseType {
   customerId: string;
-  tenantId: string;
+  storeId: string;
 }
 
 export interface ICartItemBaseType {

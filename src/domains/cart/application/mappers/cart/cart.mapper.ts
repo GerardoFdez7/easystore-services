@@ -30,7 +30,7 @@ export class CartMapper {
     return cart.toDTO<CartDTO>((entity) => ({
       id: entity.get('id')?.getValue(),
       customerId: entity.get('customerId')?.getValue(),
-      tenantId: entity.get('tenantId')?.getValue(),
+      storeId: entity.get('storeId')?.getValue(),
       cartItems,
       totalCart,
     }));

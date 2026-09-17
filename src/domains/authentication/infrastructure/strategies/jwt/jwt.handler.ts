@@ -1,6 +1,6 @@
 import { Response, Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
-import { AccountTypeEnum } from '../../../aggregates/value-objects';
+import { IAuthenticatedContext } from '../../../application/ports';
 
 const jwtSecret = process.env.JWT_SECRET;
 const jwtExpiration = '1d';
@@ -16,14 +16,22 @@ const jwtService = new JwtService({ secret: jwtSecret });
 export const isTokenBlacklisted = (token: string): boolean =>
   blacklistedTokens.has(token);
 
-export interface JwtPayload {
-  email: string;
-  accountType: AccountTypeEnum;
-  authIdentityId: string;
+export interface JwtPayload extends IAuthenticatedContext {
   tenantId: string;
-  customerId?: string;
-  employeeId?: string;
+  storeId: string;
 }
+
+export const isJwtPayload = (value: unknown): value is JwtPayload => {
+  if (!value || typeof value !== 'object') return false;
+  const payload = value as Partial<JwtPayload>;
+  return (
+    typeof payload.email === 'string' &&
+    typeof payload.authIdentityId === 'string' &&
+    typeof payload.tenantId === 'string' &&
+    typeof payload.storeId === 'string' &&
+    typeof payload.accountType === 'string'
+  );
+};
 
 export interface PasswordResetPayload {
   email: string;
@@ -45,7 +53,9 @@ export const verifyToken = (token: string): JwtPayload => {
   }
 
   try {
-    return jwtService.verify<JwtPayload>(token);
+    const payload = jwtService.verify<JwtPayload>(token);
+    if (!isJwtPayload(payload)) throw new Error('Invalid token payload');
+    return payload;
   } catch (error) {
     if (error instanceof Error && error.name === 'JsonWebTokenError') {
       throw new Error('Invalid token');

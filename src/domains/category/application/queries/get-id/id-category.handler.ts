@@ -18,7 +18,7 @@ export class GetCategoryByIdHandler
     // Find the category by ID
     const category = await this.categoryRepository.findById(
       Id.create(query.id),
-      Id.create(query.tenantId),
+      Id.create(query.storeId),
     );
     if (!category) {
       throw new NotFoundException(`Category with ID ${query.id} not found`);

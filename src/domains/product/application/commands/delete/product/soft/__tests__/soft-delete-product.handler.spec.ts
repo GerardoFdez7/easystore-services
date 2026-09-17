@@ -12,13 +12,13 @@ jest.mock('../../../../shared/find-product-or-throw', () => ({
 
 describe('SoftDeleteProductHandler', () => {
   const productId = '0198b746-8c72-7a2f-9c31-6d4f9866f321';
-  const tenantId = '0198b746-8c72-7a2f-9c31-6d4f9866f322';
+  const storeId = '0198b746-8c72-7a2f-9c31-6d4f9866f322';
   const product = { get: jest.fn() };
   const archivedProduct = { commit: jest.fn() };
   const dto = { id: productId, isArchived: true };
   const repository = { update: jest.fn() };
   const publisher = { mergeObjectContext: jest.fn() };
-  const command = new SoftDeleteProductDTO(productId, tenantId);
+  const command = new SoftDeleteProductDTO(productId, storeId);
   let handler: SoftDeleteProductHandler;
 
   beforeEach(() => {
@@ -36,18 +36,18 @@ describe('SoftDeleteProductHandler', () => {
     publisher.mergeObjectContext.mockReturnValue(archivedProduct);
   });
 
-  it('archives and persists a live tenant-scoped product', async () => {
+  it('archives and persists a live store-scoped product', async () => {
     await expect(handler.execute(command)).resolves.toBe(dto);
 
     expect(findProductOrThrow).toHaveBeenCalledWith(
       repository,
-      tenantId,
+      storeId,
       productId,
     );
     expect(product.get).toHaveBeenCalledWith('isArchived');
     expect(ProductMapper.fromSoftDeleteDto).toHaveBeenCalledWith(product);
     expect(repository.update).toHaveBeenCalledWith(
-      expect.objectContaining({ value: tenantId }),
+      expect.objectContaining({ value: storeId }),
       expect.objectContaining({ value: productId }),
       archivedProduct,
     );
