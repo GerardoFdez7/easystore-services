@@ -26,11 +26,15 @@ describe('UpdateWarehouseHandler', () => {
   let idCreateMock: jest.SpyInstance;
   let fromUpdateDtoMock: jest.SpyInstance;
   let toDtoMock: jest.SpyInstance;
+  let getAddressDetailsMock: jest.Mock;
 
   beforeEach(async () => {
     findByIdMock = jest.fn();
     updateMock = jest.fn();
     mergeObjectContextMock = jest.fn();
+    getAddressDetailsMock = jest
+      .fn()
+      .mockResolvedValue([{ addressId: 'new-address-123' }]);
 
     warehouseRepository = {
       findById: findByIdMock,
@@ -76,6 +80,10 @@ describe('UpdateWarehouseHandler', () => {
           provide: EventPublisher,
           useValue: eventPublisher,
         },
+        {
+          provide: 'IAddressAdapter',
+          useValue: { getAddressDetails: getAddressDetailsMock },
+        },
       ],
     }).compile();
 
@@ -94,7 +102,8 @@ describe('UpdateWarehouseHandler', () => {
 
     const baseCommand: UpdateWarehouseDTO = {
       id: 'warehouse-123',
-      tenantId: 'tenant-456',
+      storeId: 'store-456',
+      tenantId: 'tenant-123',
       data: baseUpdateData,
     };
 
@@ -107,11 +116,11 @@ describe('UpdateWarehouseHandler', () => {
         );
         expect(findByIdMock).toHaveBeenCalledWith(
           { value: 'warehouse-123' },
-          { value: 'tenant-456' },
+          { value: 'store-456' },
         );
       });
 
-      it('should find warehouse with correct tenant and warehouse IDs', async () => {
+      it('should find warehouse with correct store and warehouse IDs', async () => {
         findByIdMock.mockResolvedValue(mockWarehouse);
         mergeObjectContextMock.mockReturnValue(mockWarehouse as never);
 
@@ -120,7 +129,7 @@ describe('UpdateWarehouseHandler', () => {
         expect(idCreateMock).toHaveBeenCalledWith('warehouse-123');
         expect(findByIdMock).toHaveBeenCalledWith(
           { value: 'warehouse-123' },
-          { value: 'tenant-456' },
+          { value: 'store-456' },
         );
       });
     });
@@ -158,7 +167,7 @@ describe('UpdateWarehouseHandler', () => {
 
         expect(updateMock).toHaveBeenCalledWith(
           { value: 'warehouse-123' },
-          { value: 'tenant-456' },
+          { value: 'store-456' },
           mockWarehouse,
           {},
         );
@@ -229,7 +238,8 @@ describe('UpdateWarehouseHandler', () => {
       it('should handle warehouse update with minimal required fields', async () => {
         const minimalCommand: UpdateWarehouseDTO = {
           id: 'warehouse-1',
-          tenantId: 'tenant-1',
+          storeId: 'store-1',
+          tenantId: 'tenant-123',
           data: {
             name: 'Minimal Update',
           },
@@ -250,7 +260,8 @@ describe('UpdateWarehouseHandler', () => {
       it('should handle warehouse update with all optional fields', async () => {
         const completeCommand: UpdateWarehouseDTO = {
           id: 'warehouse-123',
-          tenantId: 'tenant-456',
+          storeId: 'store-456',
+          tenantId: 'tenant-123',
           data: {
             name: 'Complete Updated Warehouse',
             addressId: 'new-address-789',
@@ -292,7 +303,8 @@ describe('UpdateWarehouseHandler', () => {
       it('should execute complete warehouse update flow', async () => {
         const completeCommand: UpdateWarehouseDTO = {
           id: 'warehouse-789',
-          tenantId: 'tenant-789',
+          storeId: 'store-789',
+          tenantId: 'tenant-123',
           data: {
             name: 'Integration Updated Warehouse',
             addressId: 'address-integration',

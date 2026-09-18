@@ -42,7 +42,7 @@ export interface IProductProps extends EntityProps {
   brand?: Brand;
   manufacturer?: Manufacturer;
   isArchived: boolean;
-  tenantId: Id;
+  storeId: Id;
   updatedAt: Date;
   createdAt: Date;
   variants: Variant[];
@@ -109,18 +109,18 @@ export class Product extends Entity<IProductProps> {
       manufacturer: props.manufacturer
         ? Manufacturer.create(props.manufacturer)
         : null,
-      tenantId: Id.create(props.tenantId),
+      storeId: Id.create(props.storeId),
     };
     // Creation of related entities
     // This ID represents the product being created.
     const newProductIdValue = Id.generate();
-    const productTenantId = transformedProps.tenantId;
+    const productStoreId = transformedProps.storeId;
 
     const variants = props.variants.map((variantData) =>
       Variant.create({
         ...variantData,
         productId: newProductIdValue.getValue(),
-        tenantId: productTenantId.getValue(),
+        storeId: productStoreId.getValue(),
       }),
     );
 
@@ -128,7 +128,7 @@ export class Product extends Entity<IProductProps> {
       Media.create({
         ...mediaData,
         productId: newProductIdValue.getValue(),
-        tenantId: productTenantId.getValue(),
+        storeId: productStoreId.getValue(),
       }),
     );
 
@@ -136,7 +136,7 @@ export class Product extends Entity<IProductProps> {
       ProductCategories.create({
         ...categoryData,
         productId: newProductIdValue.getValue(),
-        tenantId: productTenantId.getValue(),
+        storeId: productStoreId.getValue(),
       }),
     );
 
@@ -174,7 +174,7 @@ export class Product extends Entity<IProductProps> {
    */
   static update(
     product: Product,
-    updates: Partial<Omit<IProductBase, 'tenantId'>>,
+    updates: Partial<Omit<IProductBase, 'storeId'>>,
   ): Product {
     const props = { ...product.props };
 
@@ -215,7 +215,7 @@ export class Product extends Entity<IProductProps> {
         Variant.create({
           ...variantData,
           productId: product.props.id.getValue(),
-          tenantId: product.props.tenantId.getValue(),
+          storeId: product.props.storeId.getValue(),
         }),
       );
     }
@@ -239,7 +239,7 @@ export class Product extends Entity<IProductProps> {
         Media.create({
           ...mediaData,
           productId: product.props.id.getValue(),
-          tenantId: product.props.tenantId.getValue(),
+          storeId: product.props.storeId.getValue(),
         }),
       );
     }
@@ -249,7 +249,7 @@ export class Product extends Entity<IProductProps> {
         ProductCategories.create({
           ...categoryData,
           productId: product.props.id.getValue(),
-          tenantId: product.props.tenantId.getValue(),
+          storeId: product.props.storeId.getValue(),
         }),
       );
     }
@@ -353,7 +353,7 @@ export class Product extends Entity<IProductProps> {
       // productId is likely null if the product itself is new and not yet persisted.
       // This needs careful handling. For now, we assume this.props.id is available.
       productId: this.props.id ? this.props.id.getValue() : null,
-      tenantId: this.props.tenantId.getValue(),
+      storeId: this.props.storeId.getValue(),
     });
 
     const newVariants = [...this.props.variants, newVariant];

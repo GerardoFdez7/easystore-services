@@ -3,5 +3,5 @@ import { IDashboard } from '../entities';
 
 /** Read-only analytics retrieval. */
 export interface IAnalyticsRepository {
-  getDashboard(tenantId: Id): Promise<IDashboard | undefined>;
+  getDashboard(storeId: Id): Promise<IDashboard | undefined>;
 }

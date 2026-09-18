@@ -4,6 +4,6 @@ export class RemoveManyItemsFromCartDto {
   constructor(
     public readonly data: RemoveManyItemsFromCartData,
     public readonly customerId: string,
-    public readonly tenantId: string,
+    public readonly storeId: string,
   ) {}
 }

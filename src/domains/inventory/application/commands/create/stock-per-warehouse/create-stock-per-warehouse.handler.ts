@@ -18,7 +18,7 @@ export class CreateStockPerWarehouseHandler
   async execute(command: CreateStockPerWarehouseDTO): Promise<WarehouseDTO> {
     const warehouse = await this.warehouseRepository.findById(
       Id.create(command.data.warehouseId),
-      Id.create(command.tenantId),
+      Id.create(command.storeId),
     );
     if (!warehouse) {
       throw new NotFoundException(
@@ -32,7 +32,7 @@ export class CreateStockPerWarehouseHandler
 
     await this.warehouseRepository.update(
       Id.create(command.data.warehouseId),
-      Id.create(command.tenantId),
+      Id.create(command.storeId),
       updatedWarehouse,
       {
         reason: command.reason || 'Initial stock of this variant',

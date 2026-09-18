@@ -20,7 +20,7 @@ export class RestoreVariantHandler
     // Find the product by ID
     const product = await findProductOrThrow(
       this.productRepository,
-      command.tenantId,
+      command.storeId,
       command.productId,
       command.id,
     );
@@ -32,7 +32,7 @@ export class RestoreVariantHandler
 
     // Save the updated variant
     await this.productRepository.update(
-      Id.create(command.tenantId),
+      Id.create(command.storeId),
       Id.create(command.productId),
       restoredVariant,
     );

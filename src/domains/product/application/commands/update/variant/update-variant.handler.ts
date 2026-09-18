@@ -14,11 +14,11 @@ export class UpdateVariantHandler implements ICommandHandler<UpdateVariantDTO> {
   ) {}
 
   async execute(command: UpdateVariantDTO): Promise<ProductDTO> {
-    const { id: variantId, productId, tenantId, data } = command;
+    const { id: variantId, productId, storeId, data } = command;
 
     // Find the product by ID
     const product = await this.productRepository.findById(
-      Id.create(tenantId),
+      Id.create(storeId),
       Id.create(productId),
     );
     if (!product) {
@@ -70,7 +70,7 @@ export class UpdateVariantHandler implements ICommandHandler<UpdateVariantDTO> {
 
     // Persist through repository
     await this.productRepository.update(
-      Id.create(tenantId),
+      Id.create(storeId),
       Id.create(productId),
       updatedProductDomainEntity,
     );

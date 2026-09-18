@@ -64,8 +64,8 @@ export default class CategoryResolver {
     input: CreateCategoryInput,
     @CurrentUser() user: JwtPayload,
   ): Promise<CategoryType> {
-    const inputWithTenantId = { ...input, tenantId: user.tenantId };
-    return this.commandBus.execute(new CreateCategoryDTO(inputWithTenantId));
+    const inputWithStoreId = { ...input, storeId: user.storeId };
+    return this.commandBus.execute(new CreateCategoryDTO(inputWithStoreId));
   }
 
   @RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.EDIT)
@@ -77,7 +77,7 @@ export default class CategoryResolver {
     @CurrentUser() user: JwtPayload,
   ): Promise<CategoryType> {
     return this.commandBus.execute(
-      new UpdateCategoryDTO(id, user.tenantId, input),
+      new UpdateCategoryDTO(id, user.storeId, input),
     );
   }
 
@@ -87,7 +87,7 @@ export default class CategoryResolver {
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: JwtPayload,
   ): Promise<CategoryType> {
-    return this.commandBus.execute(new DeleteCategoryDTO(id, user.tenantId));
+    return this.commandBus.execute(new DeleteCategoryDTO(id, user.storeId));
   }
 
   ///////////////
@@ -105,7 +105,7 @@ export default class CategoryResolver {
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: JwtPayload,
   ): Promise<CategoryType> {
-    return this.queryBus.execute(new GetCategoryByIdDTO(id, user.tenantId));
+    return this.queryBus.execute(new GetCategoryByIdDTO(id, user.storeId));
   }
 
   @RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.VIEW)
@@ -128,7 +128,7 @@ export default class CategoryResolver {
     const { page, limit, name } = pagination;
 
     return this.queryBus.execute(
-      new GetAllCategoriesDTO(user.tenantId, {
+      new GetAllCategoriesDTO(user.storeId, {
         page,
         limit,
         name,

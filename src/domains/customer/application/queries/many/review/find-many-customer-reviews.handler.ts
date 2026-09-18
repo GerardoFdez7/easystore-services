@@ -23,14 +23,14 @@ export class FindManyCustomerReviewsHandler
     query: FindManyCustomerReviewsDto,
   ): Promise<PaginatedCustomerReviewProductWithVariantDTO> {
     const customerId = Id.create(query.customerId);
-    const tenantId = Id.create(query.tenantId);
+    const storeId = Id.create(query.storeId);
     const reviewIds = query.reviewIds?.map((id) => Id.create(id));
 
     // Get reviews from repository
     const reviews = await this.customerReviewProductRepository.findMany(
       customerId,
       reviewIds,
-      tenantId,
+      storeId,
     );
 
     const paginatedReviews = CustomerReviewProductMapper.toPaginatedDto(
@@ -48,8 +48,10 @@ export class FindManyCustomerReviewsHandler
     );
 
     // Get variant details from product adapter
-    const variantDetails =
-      await this.productAdapter.getVariantsDetails(variantIdStrings);
+    const variantDetails = await this.productAdapter.getVariantsDetails(
+      variantIdStrings,
+      query.storeId,
+    );
 
     const enrichedReviews = enrichWithVariantDetails(
       paginatedReviews.reviews,

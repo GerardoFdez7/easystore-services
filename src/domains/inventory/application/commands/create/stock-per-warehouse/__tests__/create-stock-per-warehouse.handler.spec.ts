@@ -85,7 +85,7 @@ describe('CreateStockPerWarehouseHandler', () => {
 
   describe('execute', () => {
     const baseStockData = {
-      tenantId: 'tenant-123',
+      storeId: 'store-123',
       warehouseId: 'warehouse-123',
       productId: 'product-456',
       variantId: 'variant-789',
@@ -93,7 +93,7 @@ describe('CreateStockPerWarehouseHandler', () => {
     };
 
     const baseCommand: CreateStockPerWarehouseDTO = {
-      tenantId: 'tenant-123',
+      storeId: 'store-123',
       reason: 'Initial stock creation for this test',
       createdById: 'user-456',
       data: baseStockData,
@@ -112,7 +112,7 @@ describe('CreateStockPerWarehouseHandler', () => {
         );
       });
 
-      it('should find warehouse with correct tenant and warehouse IDs', async () => {
+      it('should find warehouse with correct store and warehouse IDs', async () => {
         findByIdMock.mockResolvedValue(mockWarehouse);
         mergeObjectContextMock.mockReturnValue(mockWarehouse as never);
 
@@ -232,11 +232,11 @@ describe('CreateStockPerWarehouseHandler', () => {
     describe('Edge cases and error scenarios', () => {
       it('should handle stock with minimal required fields', async () => {
         const minimalCommand: CreateStockPerWarehouseDTO = {
-          tenantId: 'tenant-1',
+          storeId: 'store-1',
           reason: 'Test stock creation esge case',
           createdById: 'user-1',
           data: {
-            tenantId: 'tenant-1',
+            storeId: 'store-1',
             warehouseId: 'warehouse-1',
             variantId: 'variant-1',
             qtyAvailable: 1,
@@ -257,11 +257,11 @@ describe('CreateStockPerWarehouseHandler', () => {
 
       it('should handle stock with all optional fields', async () => {
         const completeCommand: CreateStockPerWarehouseDTO = {
-          tenantId: 'tenant-123',
+          storeId: 'store-123',
           reason: 'Complete stock addition',
           createdById: 'user-456',
           data: {
-            tenantId: 'tenant-123',
+            storeId: 'store-123',
             warehouseId: 'warehouse-123',
             variantId: 'variant-789',
             qtyAvailable: 500,
@@ -302,11 +302,11 @@ describe('CreateStockPerWarehouseHandler', () => {
     describe('Complete flow integration', () => {
       it('should execute complete stock creation flow', async () => {
         const completeCommand: CreateStockPerWarehouseDTO = {
-          tenantId: 'tenant-789',
+          storeId: 'store-789',
           reason: 'Integration test stock',
           createdById: 'user-789',
           data: {
-            tenantId: 'tenant-789',
+            storeId: 'store-789',
             warehouseId: 'warehouse-789',
             variantId: 'variant-789',
             qtyAvailable: 250,

@@ -19,7 +19,7 @@ export default interface IWarehouseRepository {
   /**
    * Updates an existing warehouse in the repository.
    * @param id - The unique identifier of the warehouse to update
-   * @param tenantId - The tenant identifier to scope the search
+   * @param storeId - The Store identifier to scope the search
    * @param updates - Warehouse entity containing fields to update
    * @param stockMovementContext - Optional context for stock movements
    * @returns Promise that resolves to the updated Warehouse entity
@@ -27,7 +27,7 @@ export default interface IWarehouseRepository {
    */
   update(
     id: Id,
-    tenantId: Id,
+    storeId: Id,
     updates: Warehouse,
     stockMovementContext?: {
       reason?: string;
@@ -48,9 +48,9 @@ export default interface IWarehouseRepository {
   updateSingleStock(
     stockId: Id,
     warehouseId: Id,
-    tenantId: Id,
+    storeId: Id,
     stockUpdate: Partial<
-      Omit<IStockPerWarehouseBase, 'variantId' | 'warehouseId' | 'tenantId'>
+      Omit<IStockPerWarehouseBase, 'variantId' | 'warehouseId' | 'storeId'>
     >,
     stockMovementContext?: {
       reason?: string;
@@ -61,25 +61,25 @@ export default interface IWarehouseRepository {
   /**
    * Deletes a warehouse from the repository.
    * @param id - The unique identifier of the warehouse to delete
-   * @param tenantId - The tenant identifier to scope the search
+   * @param storeId - The Store identifier to scope the search
    * @returns Promise that resolves to void when deletion is successful
    * @throws {Error} When warehouse is not found or deletion fails
    */
-  delete(id: Id, tenantId: Id): Promise<void>;
+  delete(id: Id, storeId: Id): Promise<void>;
 
   /**
    * Finds a warehouse by its unique identifier.
    * @param id - The unique identifier of the warehouse
-   * @param tenantId - The tenant identifier to scope the search
+   * @param storeId - The Store identifier to scope the search
    * @returns Promise that resolves to the Warehouse entity if found, null otherwise
    * @throws {Error} When repository operation fails
    */
-  findById(id: Id, tenantId: Id): Promise<Warehouse | null>;
+  findById(id: Id, storeId: Id): Promise<Warehouse | null>;
 
   /**
-   * Finds warehouses by tenant with comprehensive filtering, pagination, and sorting.
+   * Finds warehouses by Store with comprehensive filtering, pagination, and sorting.
    * Supports all possible query combinations for GraphQL flexibility.
-   * @param tenantId - The tenant identifier to scope the search
+   * @param storeId - The Store identifier to scope the search
    * @param options - Optional query parameters for pagination and filtering
    * @param options.page The page number for pagination (e.g., 1 for the first page).
    * @param options.limit The number of items per page.
@@ -93,7 +93,7 @@ export default interface IWarehouseRepository {
    * @throws {Error} When repository operation fails
    */
   findAll(
-    tenantId: Id,
+    storeId: Id,
     options?: {
       page?: number;
       limit?: number;

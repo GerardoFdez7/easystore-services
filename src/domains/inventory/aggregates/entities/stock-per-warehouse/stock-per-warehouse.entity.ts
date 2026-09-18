@@ -23,7 +23,7 @@ export interface IStockPerWarehouseProps extends DomainEntityProps {
   serialNumbers: SerialNumbers;
   variantId: Id;
   warehouseId: Id;
-  tenantId: Id;
+  storeId: Id;
 }
 
 export class StockPerWarehouse extends DomainEntity<IStockPerWarehouseProps> {
@@ -61,7 +61,7 @@ export class StockPerWarehouse extends DomainEntity<IStockPerWarehouseProps> {
       serialNumbers: SerialNumbers.create(props.serialNumbers || []),
       variantId: Id.create(props.variantId),
       warehouseId: Id.create(props.warehouseId),
-      tenantId: Id.create(props.tenantId),
+      storeId: Id.create(props.storeId),
     };
 
     const stockPerWarehouse = new StockPerWarehouse(transformedProps);
@@ -78,7 +78,7 @@ export class StockPerWarehouse extends DomainEntity<IStockPerWarehouseProps> {
   static update(
     stockPerWarehouse: StockPerWarehouse,
     updates: Partial<
-      Omit<IStockPerWarehouseBase, 'variantId' | 'warehouseId' | 'tenantId'>
+      Omit<IStockPerWarehouseBase, 'variantId' | 'warehouseId' | 'storeId'>
     >,
   ): StockPerWarehouse {
     const props = { ...stockPerWarehouse.props };

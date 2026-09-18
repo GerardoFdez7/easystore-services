@@ -16,19 +16,19 @@ import {
 export class AnalyticsRepository implements IAnalyticsRepository {
   constructor(private readonly prisma: PostgreService) {}
 
-  async getDashboard(tenantId: Id): Promise<IDashboard | undefined> {
+  async getDashboard(storeId: Id): Promise<IDashboard | undefined> {
     try {
-      const tenantIdValue = tenantId.getValue();
-      const tenant = await this.prisma.tenant.findUnique({
-        where: { id: tenantIdValue },
+      const storeIdValue = storeId.getValue();
+      const store = await this.prisma.store.findUnique({
+        where: { id: storeIdValue },
         select: { currency: true },
       });
 
-      if (!tenant) {
+      if (!store) {
         return undefined;
       }
 
-      const currency = tenant.currency;
+      const currency = store.currency;
       const threeMonthsAgo = new Date();
       threeMonthsAgo.setDate(1);
       threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
@@ -57,7 +57,7 @@ export class AnalyticsRepository implements IAnalyticsRepository {
           COALESCE(SUM(CASE WHEN o.status = 'COMPLETED' THEN o."totalAmount" ELSE 0 END), 0) as "completedRevenue",
           COALESCE(SUM(CASE WHEN o.status = 'CANCELLED' THEN o."totalAmount" ELSE 0 END), 0) as "cancelledRevenue"
         FROM sales."Order" o
-        WHERE o."tenantId" = ${tenantIdValue}
+        WHERE o."storeId" = ${storeIdValue}
         AND o."createdAt" >= ${threeMonthsAgo}
       `;
 
@@ -66,16 +66,16 @@ export class AnalyticsRepository implements IAnalyticsRepository {
           CAST(COUNT(o.id) AS INTEGER) as "ordersCount",
           COALESCE(SUM(o."totalAmount"), 0) as revenue
         FROM sales."Order" o
-        WHERE o."tenantId" = ${tenantIdValue} AND o."createdAt" >= ${threeMonthsAgo}
+        WHERE o."storeId" = ${storeIdValue} AND o."createdAt" >= ${threeMonthsAgo}
         GROUP BY DATE(o."createdAt") ORDER BY DATE(o."createdAt") ASC
       `;
       const recentOrdersResult = await this.prisma.$queryRaw<RawRecentOrder[]>`
         SELECT o.id as "orderId", o."orderNumber" as "orderNumber", o."createdAt" as "orderDate", c.name as "customerName",
           o."totalAmount" as "orderTotal", o.status as "orderStatus", a.city as "shippingCity"
         FROM sales."Order" o
-        INNER JOIN customer."Customer" c ON c.id = o."customerId"
-        INNER JOIN "common"."Address" a ON a.id = o."addressId"
-        WHERE o."tenantId" = ${tenantIdValue}
+        INNER JOIN customer."Customer" c ON c.id = o."customerId" AND c."storeId" = o."storeId"
+        INNER JOIN "common"."Address" a ON a.id = o."addressId" AND a."storeId" = o."storeId"
+        WHERE o."storeId" = ${storeIdValue}
         ORDER BY o."createdAt" DESC LIMIT 5
       `;
       const topProductsResult = await this.prisma.$queryRaw<RawTopProduct[]>`
@@ -86,7 +86,7 @@ export class AnalyticsRepository implements IAnalyticsRepository {
           COALESCE(SUM(item_subtotal), 0) as "totalRevenue",
           CAST(COUNT(DISTINCT order_id) AS INTEGER) as "ordersCount"
         FROM sales.dashboard_sales_view
-        WHERE tenant_id = ${tenantIdValue} AND order_date >= ${threeMonthsAgo}
+        WHERE store_id = ${storeIdValue} AND order_date >= ${threeMonthsAgo}
           AND order_status IN ('COMPLETED', 'SHIPPED')
         GROUP BY variant_id, variant_sku ORDER BY "totalRevenue" DESC LIMIT 10
       `;

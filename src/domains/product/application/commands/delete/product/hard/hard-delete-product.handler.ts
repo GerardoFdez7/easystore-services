@@ -18,7 +18,7 @@ export class HardDeleteProductHandler
   async execute(command: HardDeleteProductDTO): Promise<ProductDTO> {
     // Find the product by ID
     const product = await this.productRepository.hardDelete(
-      Id.create(command.tenantId),
+      Id.create(command.storeId),
       Id.create(command.id),
     );
     if (!product) {

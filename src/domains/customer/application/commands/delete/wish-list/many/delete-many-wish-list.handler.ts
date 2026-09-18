@@ -25,13 +25,13 @@ export class DeleteManyWishListHandler
   ): Promise<WishListMultiStatusDTO> {
     const customerId = Id.create(command.customerId);
     const variantIds = command.variantIds.map((id) => Id.create(id));
-    const tenantId = Id.create(command.tenantId);
+    const storeId = Id.create(command.storeId);
 
     // Find the customer to validate it exists
     const customerFound = await findCustomerOrThrow(
       this.customerRepository,
       customerId,
-      tenantId,
+      storeId,
     );
 
     // Remove multiple variants from wishlist using repository method and get the deleted items
@@ -39,7 +39,7 @@ export class DeleteManyWishListHandler
       await this.wishListRepository.removeManyFromWishList(
         customerId,
         variantIds,
-        tenantId,
+        storeId,
       );
 
     const deletedItemsByVariantId = new Map(

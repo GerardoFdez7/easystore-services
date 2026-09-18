@@ -1,33 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { TenantSingUpDTO } from '../../../tenant/application/commands';
-import { GetTenantByAuthIdentityDTO } from '../../../tenant/application/queries';
-import { GetTenantByDomainDto } from '../../../tenant/application/queries';
-import {
-  ITenantAdapter,
-  ITenantProvisioningData,
-} from '../../application/ports';
+import { QueryBus } from '@nestjs/cqrs';
+import { ResolveTenantLoginContextDTO } from '../../../tenant/application/queries';
+import { ITenantAdapter, ITenantLoginContext } from '../../application/ports';
 
 @Injectable()
 export class TenantAdapter implements ITenantAdapter {
-  constructor(
-    private readonly commandBus: CommandBus,
-    private readonly queryBus: QueryBus,
-  ) {}
+  constructor(private readonly queryBus: QueryBus) {}
 
-  async provisionTenant(data: ITenantProvisioningData): Promise<void> {
-    await this.commandBus.execute(new TenantSingUpDTO(data));
-  }
-
-  async getTenantIdByAuthIdentityId(
+  resolveTenantLoginContext(
     authIdentityId: string,
-  ): Promise<string | null> {
+  ): Promise<ITenantLoginContext | null> {
     return this.queryBus.execute(
-      new GetTenantByAuthIdentityDTO(authIdentityId),
+      new ResolveTenantLoginContextDTO(authIdentityId),
     );
-  }
-
-  getTenantIdByDomain(domain: string): Promise<string | null> {
-    return this.queryBus.execute(new GetTenantByDomainDto(domain));
   }
 }

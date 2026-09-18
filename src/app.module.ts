@@ -7,6 +7,7 @@ import { PostgresModule } from '@database/postgres.module';
 import MediaModule from '@media/media.module';
 import { AuthenticationDomain } from './domains/authentication/authentication.module';
 import { TenantDomain } from './domains/tenant/tenant.module';
+import { StoreDomain } from './domains/store/store.module';
 import { ProductDomain } from './domains/product/product.module';
 import { CategoryDomain } from './domains/category/category.module';
 import { AddressDomain } from './domains/address/address.module';
@@ -27,6 +28,7 @@ import { AnalyticsDomain } from './domains/analytics/analytics.module';
     MediaModule,
     AuthenticationDomain,
     TenantDomain,
+    StoreDomain,
     CustomerDomain,
     ProductDomain,
     CategoryDomain,

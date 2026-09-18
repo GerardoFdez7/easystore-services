@@ -106,7 +106,7 @@ export default class AuthorizationGuard implements CanActivate {
 
       req.__permissions ??= await this.permissionService.loadFor(
         user.employeeId,
-        user.tenantId,
+        user.storeId,
       );
 
       const granted = this.permissionService.has(

@@ -26,11 +26,11 @@ export class FindWishListItemsHandler
 
   async execute(query: FindWishlistItemsDto): Promise<PaginatedWishlistDTO> {
     const customerId = Id.create(query.customerId);
-    const tenantId = Id.create(query.tenantId);
+    const storeId = Id.create(query.storeId);
 
     const wishListItems = await this.wishListRepository.findMany(
       customerId,
-      tenantId,
+      storeId,
     );
 
     if (wishListItems.length === 0) {
@@ -41,8 +41,10 @@ export class FindWishListItemsHandler
       WishListMapper.toDto(item),
     );
     const variantIdStrings = wishListDtos.map((item) => item.variantId);
-    const variantDetails =
-      await this.productAdapter.getVariantsDetails(variantIdStrings);
+    const variantDetails = await this.productAdapter.getVariantsDetails(
+      variantIdStrings,
+      query.storeId,
+    );
     const sortedItems = this.sortWishListItems(
       enrichWithVariantDetails(wishListDtos, variantDetails),
       query.sortBy,

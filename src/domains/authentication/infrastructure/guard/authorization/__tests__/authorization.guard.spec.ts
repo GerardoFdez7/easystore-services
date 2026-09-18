@@ -153,6 +153,7 @@ describe('AuthorizationGuard', () => {
         accountType: AccountTypeEnum.EMPLOYEE,
         employeeId: 'employee-1',
         tenantId: 'tenant-1',
+        storeId: 'store-1',
       } as JwtPayload,
       req,
     );
@@ -164,7 +165,7 @@ describe('AuthorizationGuard', () => {
     await expect(guard.canActivate(context)).resolves.toBe(true);
     expect(permissionService.loadFor).toHaveBeenCalledWith(
       'employee-1',
-      'tenant-1',
+      'store-1',
     );
   });
 
@@ -180,6 +181,7 @@ describe('AuthorizationGuard', () => {
       accountType: AccountTypeEnum.EMPLOYEE,
       employeeId: 'employee-1',
       tenantId: 'tenant-1',
+      storeId: 'store-1',
     } as JwtPayload);
     permissionService.loadFor.mockResolvedValue([
       { feature: FeatureEnum.CATALOG, action: PermissionActionEnum.VIEW },
@@ -189,7 +191,7 @@ describe('AuthorizationGuard', () => {
     await expect(guard.canActivate(context)).resolves.toBe(true);
     expect(permissionService.loadFor).toHaveBeenCalledWith(
       'employee-1',
-      'tenant-1',
+      'store-1',
     );
   });
 
@@ -204,6 +206,7 @@ describe('AuthorizationGuard', () => {
       accountType: AccountTypeEnum.EMPLOYEE,
       employeeId: 'employee-1',
       tenantId: 'tenant-1',
+      storeId: 'store-1',
     } as JwtPayload);
     permissionService.loadFor.mockResolvedValue([
       { feature: FeatureEnum.CATALOG, action: PermissionActionEnum.VIEW },
@@ -228,6 +231,7 @@ describe('AuthorizationGuard', () => {
         accountType: AccountTypeEnum.EMPLOYEE,
         employeeId: 'employee-1',
         tenantId: 'tenant-1',
+        storeId: 'store-1',
       } as JwtPayload,
       req,
     );

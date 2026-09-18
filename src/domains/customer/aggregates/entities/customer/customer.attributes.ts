@@ -1,6 +1,6 @@
 export interface ICustomerBase {
   name: string;
-  tenantId: string;
+  storeId: string;
   authIdentityId: string;
 }
 

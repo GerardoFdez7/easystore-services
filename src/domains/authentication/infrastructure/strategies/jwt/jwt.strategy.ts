@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { JwtPayload } from './jwt.handler';
+import { isJwtPayload, JwtPayload } from './jwt.handler';
 
 /** Validates JWT payloads after Passport extracts the cookie token. */
 @Injectable()
@@ -18,6 +18,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   validate(payload: JwtPayload): JwtPayload {
+    if (!isJwtPayload(payload)) {
+      throw new UnauthorizedException('Invalid token payload');
+    }
     return payload;
   }
 }

@@ -4,16 +4,16 @@ import { Cart } from '../../aggregates/entities/cart/cart.entity';
 import { Id } from '../../aggregates/value-objects';
 import { CartDTO, CartMapper } from '../mappers';
 
-export async function findTenantCartOrThrow(
+export async function findStoreCartOrThrow(
   cartRepository: {
-    findCartByCustomerId(customerId: Id, tenantId: Id): Promise<Cart | null>;
+    findCartByCustomerId(customerId: Id, storeId: Id): Promise<Cart | null>;
   },
   customerId: string,
-  tenantId: string,
+  storeId: string,
 ): Promise<Cart> {
   const cart = await cartRepository.findCartByCustomerId(
     Id.create(customerId),
-    Id.create(tenantId),
+    Id.create(storeId),
   );
   if (!cart) throw new NotFoundException('Cart not found');
   return cart;

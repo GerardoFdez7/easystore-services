@@ -83,7 +83,7 @@ describe('AddItemToCartHandler', () => {
     toDtoMock = jest.spyOn(CartMapper, 'toDto').mockReturnValue({
       id: '019a039e-fe32-747d-aba6-6f3d25bb2864',
       customerId: '019a039e-fe36-765d-96f1-fe92af9ab188',
-      tenantId: '019a039e-fe37-7516-ab6d-c16428949f9f',
+      storeId: '019a039e-fe37-7516-ab6d-c16428949f9f',
       cartItems: [],
       totalCart: [{ amount: '0', currency: 'USD' }],
     } as CartDTO);
@@ -133,9 +133,9 @@ describe('AddItemToCartHandler', () => {
 
         await handler.execute(baseCommand);
 
-        const [customerId, tenantId] = findCartByCustomerIdMock.mock.calls[0];
+        const [customerId, storeId] = findCartByCustomerIdMock.mock.calls[0];
         expect(customerId.getValue()).toBe(baseCommand.customerId);
-        expect(tenantId.getValue()).toBe(baseCommand.tenantId);
+        expect(storeId.getValue()).toBe(baseCommand.storeId);
       });
 
       it('should throw NotFoundException when cart is not found', async () => {
@@ -156,7 +156,7 @@ describe('AddItemToCartHandler', () => {
       });
 
       it('does not return or mutate another customer cart when the resolved scope does not match', async () => {
-        // findCartByCustomerId is scoped by (customerId, tenantId) taken from
+        // findCartByCustomerId is scoped by (customerId, storeId) taken from
         // @CurrentUser(), so a request scoped to another customer's cart
         // resolves to no record — indistinguishable from a missing cart,
         // never a distinct forbidden error.
@@ -209,7 +209,7 @@ describe('AddItemToCartHandler', () => {
 
         expect(productAdapter.getVariantsDetails).toHaveBeenCalledWith(
           ['019a039e-fe37-7516-ab6d-b44cd5c58179'],
-          baseCommand.tenantId ?? '',
+          baseCommand.storeId ?? '',
         );
       });
 
@@ -451,7 +451,7 @@ describe('AddItemToCartHandler', () => {
         const expectedDto: CartDTO = {
           id: '019a039e-fe32-747d-aba6-6f3d25bb2864',
           customerId: '019a039e-fe36-765d-96f1-fe92af9ab188',
-          tenantId: '019a039e-fe37-7516-ab6d-c16428949f9f',
+          storeId: '019a039e-fe37-7516-ab6d-c16428949f9f',
           cartItems: [
             {
               id: 'item-1',
@@ -614,7 +614,7 @@ describe('AddItemToCartHandler', () => {
         const expectedDto: CartDTO = {
           id: '019a039e-fe39-7a1c-8d2f-3a6d9e1c7f5b',
           customerId: '019a039e-fe39-7a1c-8d2f-2f5c8d0b6e4a',
-          tenantId: '019a039e-fe37-7516-ab6d-c16428949f9f',
+          storeId: '019a039e-fe37-7516-ab6d-c16428949f9f',
           cartItems: [
             {
               id: 'item-1',

@@ -67,7 +67,7 @@ export class VariantMapper {
         : null,
       isArchived: persistenceVariant.isArchived,
       productId: Id.create(persistenceVariant.productId),
-      tenantId: Id.create(persistenceVariant.tenantId),
+      storeId: Id.create(persistenceVariant.storeId),
       updatedAt: persistenceVariant.updatedAt,
       createdAt: persistenceVariant.createdAt,
       variantMedia: (persistenceVariant.variantMedia || []).map((mediaItem) =>
@@ -109,7 +109,7 @@ export class VariantMapper {
       isbn: entity.get('isbn')?.getValue(),
       isArchived: entity.get('isArchived'),
       productId: entity.get('productId')?.getValue(),
-      tenantId: entity.get('tenantId')?.getValue(),
+      storeId: entity.get('storeId')?.getValue(),
       updatedAt: entity.get('updatedAt'),
       createdAt: entity.get('createdAt'),
       variantMedia:

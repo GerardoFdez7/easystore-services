@@ -31,7 +31,7 @@ input AddVariantToProductInput {
   installmentPayments: [CreateInstallmentInput!]
   isbn: String
   personalizationOptions: [String!]
-  price: Float!
+  price: MoneyInput!
   sku: String!
   upc: String
   variantCover: String
@@ -88,17 +88,18 @@ input AuthenticationInput {
 type Cart {
   cartItems: [CartItem!]!
   id: ID!
-  totalCart: Money!
+  totalCart: [Money!]!
 }
 
 type CartItem {
+  currency: String
   firstAttribute: FirstAttribute
   id: ID!
   productName: String
   promotionId: ID
   qty: Int!
-  subTotal: Float
-  unitPrice: Float
+  subTotal: Decimal
+  unitPrice: Decimal
   updatedAt: DateTime
   variantId: ID!
 }
@@ -197,6 +198,14 @@ input CreateProductInput {
   sustainabilities: [CreateSustainabilityInput!]
   tags: [String!]
   variants: [AddVariantToProductInput!]!
+}
+
+input CreateStoreInput {
+  currency: CurrencyCodes
+  description: String
+  domain: String
+  logo: String
+  name: String
 }
 
 input CreateSustainabilityInput {
@@ -412,7 +421,7 @@ type CustomerReviewProductWithVariant {
   firstAttribute: CustomerFirstAttribute
   id: ID!
   isArchived: Boolean
-  price: Float!
+  price: Money
   productName: String!
   ratingCount: Float!
   sku: String!
@@ -513,6 +522,11 @@ type Money {
   currency: String!
 }
 
+input MoneyInput {
+  amount: Decimal!
+  currency: String!
+}
+
 type Mutation {
   addItemToCart(input: AddItemToCartInput!): Cart!
   addReviewProduct(input: CreateCustomerReviewProductInput!): CustomerReviewProduct!
@@ -522,6 +536,7 @@ type Mutation {
   createAddress(input: CreateAddressInput!): AddressType!
   createCategory(input: CreateCategoryInput!): Category!
   createProduct(input: CreateProductInput!): Product!
+  createStore(input: CreateStoreInput!): Store!
   createWarehouse(input: CreateWarehouseInput!): Warehouse!
   deleteAddress(id: ID!): AddressType!
   deleteCategory(id: ID!): Category!
@@ -541,7 +556,9 @@ type Mutation {
   removeVariantFromWishList(input: WishListItemDeleteInput!): Boolean!
   restoreProduct(id: String!): Product!
   restoreVariant(id: String!, productId: String!): Product!
+  setDefaultStore(storeId: String!): Tenant!
   softDeleteProduct(id: String!): Product!
+  switchStore(storeId: String!): Response!
   updateAddress(id: ID!, input: UpdateAddressInput!): AddressType!
   updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
   updateCustomer(input: UpdateCustomerInput!): Customer!
@@ -550,6 +567,7 @@ type Mutation {
   updateProduct(id: String!, input: UpdateProductInput!): Product!
   updateReviewProduct(input: UpdateCustomerReviewProductInput!): CustomerReviewProduct!
   updateStockInWarehouse(input: UpdateStockInWarehouseInput!, reason: String, stockId: ID!, warehouseId: ID!): Warehouse!
+  updateStore(input: UpdateStoreInput!): Store!
   updateTenant(input: UpdateTenantInput!): Tenant!
   updateWarehouse(id: ID!, input: UpdateWarehouseInput!): Warehouse!
 }
@@ -570,7 +588,7 @@ type PaginatedCart {
   cartItems: [CartItem!]!
   hasMore: Boolean!
   total: Int!
-  totalCart: Money!
+  totalCart: [Money!]!
 }
 
 type PaginatedCategoriesType {
@@ -594,6 +612,12 @@ type PaginatedProductsType {
 type PaginatedStockMovementsType {
   hasMore: Boolean!
   stockMovements: [StockMovement!]!
+  total: Int!
+}
+
+type PaginatedStoresType {
+  hasMore: Boolean!
+  stores: [Store!]!
   total: Int!
 }
 
@@ -657,6 +681,7 @@ type Query {
   getAllCountries: [CountryType!]!
   getAllProducts(categoriesIds: [ID!], filterMode: ProductFilterMode = ALL, limit: Int = 25, name: String, page: Int = 1, sortBy: ProductSortBy, sortOrder: SortOrder, type: TypeEnum): PaginatedProductsType!
   getAllStockMovements(createdById: ID, dateFrom: DateTime, dateTo: DateTime, includeDeleted: Boolean = false, limit: Int = 10, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID, warehouseId: ID!): PaginatedStockMovementsType!
+  getAllStores(limit: Int! = 20, page: Int! = 1): PaginatedStoresType!
   getAllWarehouses(addressId: ID, includeAddresses: Boolean = false, limit: Int = 10, name: String, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, stockFilters: StockPerWarehouseFilterInput): PaginatedWarehousesType!
   getCart(limit: Int = 10, page: Int = 1): PaginatedCart!
   getCategoryById(id: ID!): Category!
@@ -670,6 +695,7 @@ type Query {
   getMediaUploadToken: MediaAuthResponse!
   getProductById(id: String!): Product!
   getStatesByCountryId(countryId: ID!): [StateType!]!
+  getStoreById(id: ID!): Store!
   getTenantById: Tenant!
   getWarehouseById(id: ID!, isArchived: Boolean): Warehouse!
   getWishListItems(limit: Int = 10, page: Int = 1, sortBy: WishListSortBy, sortOrder: SortOrder): PaginatedWishlist!
@@ -758,23 +784,30 @@ input StockPerWarehouseSortBy {
   variantFirstAttribute: SortOrder
 }
 
+type Store {
+  createdAt: DateTime!
+  currency: CurrencyCodes!
+  description: String
+  domain: String
+  id: ID!
+  logo: String
+  name: String
+  updatedAt: DateTime!
+}
+
 type Sustainability {
   certification: String!
   recycledPercentage: Float!
 }
 
 type Tenant {
-  businessName: String
   createdAt: DateTime!
-  currency: CurrencyCodes!
   defaultBillingAddressId: ID
   defaultPhoneNumberId: ID
   defaultShippingAddressId: ID
-  description: String
-  domain: String
+  defaultStoreId: ID
   email: String!
-  logo: String
-  ownerName: String!
+  name: String!
   updatedAt: DateTime!
 }
 
@@ -879,21 +912,24 @@ input UpdateStockInWarehouseInput {
   serialNumbers: [String!]
 }
 
+input UpdateStoreInput {
+  currency: CurrencyCodes
+  description: String
+  domain: String
+  logo: String
+  name: String
+}
+
 input UpdateSustainabilityInput {
   certification: String
   recycledPercentage: Float
 }
 
 input UpdateTenantInput {
-  businessName: String
-  currency: CurrencyCodes
   defaultBillingAddressId: ID
   defaultPhoneNumberId: ID
   defaultShippingAddressId: ID
-  description: String
-  domain: String
-  logo: String
-  ownerName: String
+  name: String
 }
 
 input UpdateWarehouseInput {
@@ -912,7 +948,7 @@ type Variant {
   isArchived: Boolean
   isbn: String
   personalizationOptions: [String!]
-  price: Float!
+  price: Money!
   sku: String!
   upc: String
   variantCover: String
@@ -985,7 +1021,7 @@ type WishListWithVariant {
   firstAttribute: CustomerFirstAttribute
   id: ID!
   isArchived: Boolean
-  price: Float!
+  price: Money
   productName: String!
   sku: String!
   updatedAt: DateTime!

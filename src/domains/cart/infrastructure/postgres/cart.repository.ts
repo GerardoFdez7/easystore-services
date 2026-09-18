@@ -25,7 +25,7 @@ export class CartRepository implements ICartRepository {
           data: {
             id: cartDto.id,
             customerId: cartDto.customerId,
-            tenantId: cartDto.tenantId,
+            storeId: cartDto.storeId,
           },
         });
 
@@ -37,7 +37,7 @@ export class CartRepository implements ICartRepository {
               qty: item.qty,
               variantId: item.variantId,
               cartId: createdCart.id,
-              tenantId: cartDto.tenantId,
+              storeId: cartDto.storeId,
               promotionId: item.promotionId,
               updatedAt: item.updatedAt,
             })),
@@ -46,7 +46,9 @@ export class CartRepository implements ICartRepository {
 
         // Return the created cart with its items
         return await tx.cart.findUnique({
-          where: { id: createdCart.id },
+          where: {
+            id_storeId: { id: createdCart.id, storeId: cartDto.storeId },
+          },
           include: {
             cartItems: true,
           },
@@ -61,7 +63,7 @@ export class CartRepository implements ICartRepository {
 
   async findCartByCustomerId(
     id: Id,
-    tenantId: Id,
+    storeId: Id,
     page?: number,
     limit?: number,
   ): Promise<Cart> {
@@ -76,7 +78,7 @@ export class CartRepository implements ICartRepository {
       const prismaCart = await this.prisma.cart.findFirst({
         where: {
           customerId: id.getValue(),
-          tenantId: tenantId.getValue(),
+          storeId: storeId.getValue(),
         },
         include: {
           cartItems: {
@@ -95,12 +97,12 @@ export class CartRepository implements ICartRepository {
     }
   }
 
-  async getCartItemsCount(id: Id, tenantId: Id): Promise<number> {
+  async getCartItemsCount(id: Id, storeId: Id): Promise<number> {
     try {
       const cart = await this.prisma.cart.findFirst({
         where: {
           customerId: id.getValue(),
-          tenantId: tenantId.getValue(),
+          storeId: storeId.getValue(),
         },
         include: {
           _count: {
@@ -126,7 +128,7 @@ export class CartRepository implements ICartRepository {
         const updatedCart = await tx.cart.update({
           where: {
             id: cartDto.id,
-            tenantId: cartDto.tenantId,
+            storeId: cartDto.storeId,
           },
           data: {
             customerId: cartDto.customerId,
@@ -137,7 +139,7 @@ export class CartRepository implements ICartRepository {
         const existingItems = await tx.cartItem.findMany({
           where: {
             cartId: cartDto.id,
-            tenantId: cartDto.tenantId,
+            storeId: cartDto.storeId,
           },
         });
 
@@ -177,7 +179,7 @@ export class CartRepository implements ICartRepository {
         // Delete removed items
         for (const item of itemsToDelete) {
           await tx.cartItem.delete({
-            where: { id: item.id },
+            where: { id_storeId: { id: item.id, storeId: cartDto.storeId } },
           });
         }
 
@@ -189,7 +191,7 @@ export class CartRepository implements ICartRepository {
               qty: item.qty,
               variantId: item.variantId,
               cartId: updatedCart.id,
-              tenantId: cartDto.tenantId,
+              storeId: cartDto.storeId,
               promotionId: item.promotionId,
               updatedAt: item.updatedAt,
             },
@@ -199,7 +201,7 @@ export class CartRepository implements ICartRepository {
         // Update changed items
         for (const item of itemsToUpdate) {
           await tx.cartItem.update({
-            where: { id: item.id },
+            where: { id_storeId: { id: item.id, storeId: cartDto.storeId } },
             data: {
               qty: item.qty,
               variantId: item.variantId,
@@ -211,7 +213,9 @@ export class CartRepository implements ICartRepository {
 
         // Return the updated cart with its items
         return await tx.cart.findUnique({
-          where: { id: updatedCart.id },
+          where: {
+            id_storeId: { id: updatedCart.id, storeId: cartDto.storeId },
+          },
           include: {
             cartItems: true,
           },
@@ -267,7 +271,7 @@ export class CartRepository implements ICartRepository {
     return Cart.reconstitute({
       id: Id.create(prismaCart.id),
       customerId: Id.create(prismaCart.customerId),
-      tenantId: Id.create(prismaCart.tenantId),
+      storeId: Id.create(prismaCart.storeId),
       cartItems: cartItems,
     });
   }

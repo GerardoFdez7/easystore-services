@@ -14,11 +14,11 @@ export class DeleteVariantHandler implements ICommandHandler<DeleteVariantDTO> {
   ) {}
 
   async execute(command: DeleteVariantDTO): Promise<ProductDTO> {
-    const { productId, id, tenantId } = command;
+    const { productId, id, storeId } = command;
 
     // Find the product by ID
     const product = await this.productRepository.findById(
-      Id.create(tenantId),
+      Id.create(storeId),
       Id.create(productId),
     );
     if (!product) {
@@ -32,7 +32,7 @@ export class DeleteVariantHandler implements ICommandHandler<DeleteVariantDTO> {
 
     // Save the updated product
     await this.productRepository.update(
-      Id.create(tenantId),
+      Id.create(storeId),
       Id.create(productId),
       updatedProduct,
     );

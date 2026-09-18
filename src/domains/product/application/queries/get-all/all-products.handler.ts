@@ -16,7 +16,7 @@ export class GetAllProductsHandler implements IQueryHandler<GetAllProductsDTO> {
   ) {}
 
   async execute(query: GetAllProductsDTO): Promise<PaginatedProductsDTO> {
-    const { tenantId, options } = query;
+    const { storeId, options } = query;
     const {
       page,
       limit,
@@ -47,7 +47,7 @@ export class GetAllProductsHandler implements IQueryHandler<GetAllProductsDTO> {
     }
 
     // Create value objects
-    const tenantIdVO = Id.create(tenantId);
+    const storeIdVO = Id.create(storeId);
     const categoriesIdsVO = categoriesIds
       ? categoriesIds.map((categoryId) => Id.create(categoryId))
       : undefined;
@@ -57,7 +57,7 @@ export class GetAllProductsHandler implements IQueryHandler<GetAllProductsDTO> {
       : undefined;
 
     // Find all products with pagination and optional filtering
-    const result = await this.productRepository.findAll(tenantIdVO, {
+    const result = await this.productRepository.findAll(storeIdVO, {
       page,
       limit,
       name,
@@ -87,7 +87,7 @@ export class GetAllProductsHandler implements IQueryHandler<GetAllProductsDTO> {
 
     if (allCategoryIds.size > 0) {
       const categories = await this.categoryAdapter.getCategories(
-        tenantIdVO,
+        storeIdVO,
         Array.from(allCategoryIds),
       );
 

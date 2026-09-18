@@ -8,7 +8,7 @@ import {
 } from '../value-objects';
 
 /**
- * Persistence contract for the Product aggregate and its tenant-scoped queries.
+ * Persistence contract for the Product aggregate and its Store-scoped queries.
  */
 export interface IProductRepository {
   /**
@@ -22,12 +22,12 @@ export interface IProductRepository {
   /**
    * Updates an existing product
    * @param id The unique identifier of the product to update
-   * @param tenantId The tenant identifier to scope the search
+   * @param storeId The Store identifier to scope the search
    * @param updates Product data containing fields to update
    * @returns Promise that resolves to the updated Product entity
    * @throws {Error} When product is not found or update fails
    */
-  update(tenantId: Id, id: Id, updates: Product): Promise<Product>;
+  update(storeId: Id, id: Id, updates: Product): Promise<Product>;
 
   /**
    * Hard delete a product by its ID (permanent deletion)
@@ -35,21 +35,21 @@ export interface IProductRepository {
    * @returns The deleted product
    * @throws {Error} If there is an error during the database operation
    */
-  hardDelete(tenantId: Id, id: Id): Promise<Product>;
+  hardDelete(storeId: Id, id: Id): Promise<Product>;
 
   /**
    * Find a product by its ID
-   * @param tenantId The tenant ID
+   * @param storeId The Store ID
    * @param id The product ID
    * @returns The product or null if not found
    * @throws {Error} If there is an error during the search
    */
-  findById(tenantId: Id, id: Id): Promise<Product | null>;
+  findById(storeId: Id, id: Id): Promise<Product | null>;
 
   /**
    * Find all products with pagination, filtering, and sorting.
    *
-   * @param tenantId The tenant ID to scope the search.
+   * @param storeId The Store ID to scope the search.
    * @param options Optional parameters for pagination, filtering, and sorting.
    * @param options.page The page number (default: 1).
    * @param options.limit The number of items per page (default: 10).
@@ -72,7 +72,7 @@ export interface IProductRepository {
    * @throws {Error} If there is an error during the search.
    */
   findAll(
-    tenantId: Id,
+    storeId: Id,
     options?: {
       page?: number;
       limit?: number;
@@ -94,7 +94,7 @@ export interface IProductRepository {
    */
   findVariantsByIds(
     ids: Id[],
-    tenantId: Id,
+    storeId: Id,
     search?: string,
   ): Promise<
     Array<{

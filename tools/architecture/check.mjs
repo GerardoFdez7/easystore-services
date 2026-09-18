@@ -1,10 +1,16 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
+import ts from 'typescript';
 import {
+  aggregateOwnedPrismaModels,
   aggregateRoots,
   allowedAggregateDependencies,
   persistenceRepositoryContractExceptions,
   specializedMutationDtos,
+  storeScopedDomains,
+  storeScopedPrismaModels,
+  storeQualifiedRelationModels,
+  tenantScopedAddressCapabilityExceptions,
 } from './config.mjs';
 
 const repositoryRoot = resolve(import.meta.dirname, '../..');
@@ -13,6 +19,115 @@ const domainsRoot = process.env.ARCHITECTURE_DOMAINS_ROOT
   ? resolve(process.env.ARCHITECTURE_DOMAINS_ROOT)
   : join(repositoryRoot, 'src', 'domains');
 const errors = [];
+
+function validateStoreScope() {
+  for (const domain of storeScopedDomains) {
+    const root = join(domainsRoot, domain);
+    if (!existsSync(root)) continue;
+    for (const file of walk(root).filter((candidate) => candidate.endsWith('.ts'))) {
+      const relativeFile = relative(domainsRoot, file).split(sep).join('/');
+      if (tenantScopedAddressCapabilityExceptions[relativeFile]) continue;
+      if (/\btenantId\b/.test(readFileSync(file, 'utf8'))) {
+        report(file, 'operational artifacts must use storeId; tenantId is account scope only');
+      }
+    }
+  }
+
+  const schema = process.env.ARCHITECTURE_SCHEMA_PATH
+    ? resolve(process.env.ARCHITECTURE_SCHEMA_PATH)
+    : join(repositoryRoot, 'src', 'infrastructure', 'database', 'postgres.schema.prisma');
+  if (!existsSync(schema)) return;
+  const source = readFileSync(schema, 'utf8');
+  const isFixture = process.env.ARCHITECTURE_SCHEMA_FIXTURE === 'true';
+  const isAggregateOwnedFixture = process.env.ARCHITECTURE_AGGREGATE_OWNED_FIXTURE === 'true';
+  const scopedModels = isFixture
+    ? isAggregateOwnedFixture
+      ? []
+      : ['Subscription', 'StockPerWarehouse']
+    : storeScopedPrismaModels;
+  for (const model of scopedModels) {
+    const match = source.match(
+      new RegExp(`model\\s+${model}\\s+\\{([\\s\\S]*?)\\}`, 'm'),
+    );
+    if (!match) { report(schema, `configured store-scoped Prisma model ${model} is missing`); continue; }
+    if (
+      !/\bstoreId\s+String\b/.test(match[1]) ||
+      !/\bstore\s+Store\b/.test(match[1])
+    ) {
+      report(schema, `${model} must declare storeId and a Store relation`);
+    }
+    if (/\btenantId\b/.test(match[1])) report(schema, `${model} must not retain tenantId`);
+  }
+
+  const ownedModels = isFixture
+    ? isAggregateOwnedFixture
+      ? aggregateOwnedPrismaModels
+      : {}
+    : aggregateOwnedPrismaModels;
+  for (const [model, parent] of Object.entries(ownedModels)) {
+    const match = source.match(
+      new RegExp(`model\\s+${model}\\s+\\{([\\s\\S]*?)\\}`, 'm'),
+    );
+    if (!match) { report(schema, `configured aggregate-owned Prisma model ${model} is missing`); continue; }
+    const body = match[1];
+    if (/\bstoreId\s+String\b/.test(body) || /\bstore\s+Store\b/.test(body)) {
+      report(schema, `${model} must derive Store ownership through ${parent.parentModel}, not declare storeId or a Store relation`);
+    }
+    const parentRelation = new RegExp(
+      `\\b${parent.parentField}\\s+${parent.parentModel}\\s+@relation\\(fields:\\s*\\[${parent.parentIdField}\\],\\s*references:\\s*\\[id\\]`,
+    );
+    if (!parentRelation.test(body)) {
+      report(schema, `${model} must reference its globally unique ${parent.parentModel} by ${parent.parentIdField}`);
+    }
+  }
+
+  for (const model of storeQualifiedRelationModels) {
+    const match = source.match(
+      new RegExp(`model\\s+${model}\\s+\\{([\\s\\S]*?)\\}`, 'm'),
+    );
+    if (!match) continue;
+    const body = match[1];
+    const storeOwnershipRelation = body.match(
+      /\bstore\s+Store\s+@relation\(fields:\s*\[([^\]]+)\]/,
+    );
+    if (
+      !storeOwnershipRelation ||
+      storeOwnershipRelation[1].trim() !== 'storeId' ||
+      !/\bstore\s+Store\s+@relation\(fields:\s*\[storeId\],\s*references:\s*\[id\]/.test(
+        body,
+      )
+    ) {
+      report(
+        schema,
+        `${model} has an unqualified cross-Store relation; use a composite (id, storeId) foreign key`,
+      );
+    }
+    const hasUnqualifiedParentRelation = [...body.matchAll(
+      /(\w+)\s+\w+\s+@relation\(fields:\s*\[[^,\]]+Id\],\s*references:\s*\[id\]/g,
+    )].some((match) => match[1] !== 'store');
+    if (hasUnqualifiedParentRelation) {
+      report(schema, `${model} has an unqualified cross-Store relation; use a composite (id, storeId) foreign key`);
+    }
+  }
+}
+
+function validateJwtScope() {
+  const jwtPath = process.env.ARCHITECTURE_JWT_PATH
+    ? resolve(process.env.ARCHITECTURE_JWT_PATH)
+    : join(repositoryRoot, 'src', 'domains', 'authentication', 'infrastructure', 'strategies', 'jwt', 'jwt.handler.ts');
+  if (!existsSync(jwtPath)) return;
+  const source = readFileSync(jwtPath, 'utf8');
+  const tree = ts.createSourceFile(jwtPath, source, ts.ScriptTarget.Latest, true);
+  const payload = tree.statements.find(
+    (statement) => ts.isInterfaceDeclaration(statement) && statement.name.text === 'JwtPayload',
+  );
+  if (!payload) { report(jwtPath, 'JWT payload interface is missing'); return; }
+  const hasRequiredString = (name) => payload.members.some((member) =>
+    ts.isPropertySignature(member) && member.name.getText(tree) === name && !member.questionToken && member.type?.kind === ts.SyntaxKind.StringKeyword,
+  );
+  if (!hasRequiredString('tenantId')) report(jwtPath, 'JWT account scope is missing required tenantId claim');
+  if (!hasRequiredString('storeId')) report(jwtPath, 'JWT operational scope is missing required storeId claim');
+}
 
 const allowedExternalImports = new Set(allowedAggregateDependencies);
 const kebabCase = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -440,6 +555,7 @@ function validateApplicationLayer(domainRoot) {
       file.endsWith('.port.ts'),
     )) {
       const source = readFileSync(portFile, 'utf8');
+      const isContextContract = portFile.endsWith('authenticated-context.port.ts');
       const declaration = String.raw`export\s+interface\s+I\w+\b`;
       if (!new RegExp(declaration).test(source)) {
         report(portFile, 'port must export an I* interface');
@@ -459,7 +575,7 @@ function validateApplicationLayer(domainRoot) {
           .at(-1)
           .replace(/\.port\.ts$/, '.adapter.ts'),
       );
-      if (!existsSync(adapterFile)) {
+      if (!isContextContract && !existsSync(adapterFile)) {
         report(portFile, `port is missing adapter ${display(adapterFile)}`);
       }
     }
@@ -631,14 +747,16 @@ function validateConfiguredExceptions(exceptions, label) {
   }
 }
 
-validateConfiguredExceptions(
-  specializedMutationDtos,
-  'specialized mutation DTO',
-);
-validateConfiguredExceptions(
-  persistenceRepositoryContractExceptions,
-  'persistence repository contract',
-);
+if (process.env.ARCHITECTURE_SCHEMA_FIXTURE !== 'true') {
+  validateConfiguredExceptions(
+    specializedMutationDtos,
+    'specialized mutation DTO',
+  );
+  validateConfiguredExceptions(
+    persistenceRepositoryContractExceptions,
+    'persistence repository contract',
+  );
+}
 
 function validateDomainStructure(domainRoot, domainName) {
   if (!kebabCase.test(domainName)) {
@@ -983,6 +1101,9 @@ for (const domainName of readdirSync(domainsRoot)) {
     );
   }
 }
+
+validateStoreScope();
+validateJwtScope();
 
 if (errors.length > 0) {
   console.error('Architecture validation failed:\n');

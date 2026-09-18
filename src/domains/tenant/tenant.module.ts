@@ -5,12 +5,13 @@ import { CqrsModule } from '@nestjs/cqrs';
 import {
   TenantSingUpHandler,
   UpdateTenantHandler,
+  SetDefaultStoreHandler,
 } from './application/commands';
 // Query Handlers
 import {
   GetTenantByIdHandler,
   GetTenantByAuthIdentityHandler,
-  GetTenantByDomainHandler,
+  ResolveTenantLoginContextHandler,
 } from './application/queries';
 // Event Handlers
 import {
@@ -18,16 +19,21 @@ import {
   TenantUpdatedHandler,
 } from './application/events';
 import TenantRepository from './infrastructure/postgres/tenant.repository';
+import { StoreOwnershipAdapter } from './infrastructure/adapters';
 import TenantResolver from './presentation/graphql/tenant.resolver';
 
 // Command handlers
-const CommandHandlers = [TenantSingUpHandler, UpdateTenantHandler];
+const CommandHandlers = [
+  TenantSingUpHandler,
+  UpdateTenantHandler,
+  SetDefaultStoreHandler,
+];
 
 // Query handlers
 const QueryHandlers = [
   GetTenantByIdHandler,
   GetTenantByAuthIdentityHandler,
-  GetTenantByDomainHandler,
+  ResolveTenantLoginContextHandler,
 ];
 
 // Event handlers
@@ -40,6 +46,7 @@ const EventHandlers = [TenantCreatedHandler, TenantUpdatedHandler];
       provide: 'ITenantRepository',
       useClass: TenantRepository,
     },
+    { provide: 'IStoreOwnershipAdapter', useClass: StoreOwnershipAdapter },
     TenantResolver,
     ...CommandHandlers,
     ...QueryHandlers,

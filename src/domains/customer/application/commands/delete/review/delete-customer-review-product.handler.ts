@@ -22,20 +22,20 @@ export class DeleteCustomerReviewProductHandler
   async execute(command: DeleteCustomerReviewProductDto): Promise<void> {
     const customerId = Id.create(command.customerId);
     const reviewId = Id.create(command.reviewId);
-    const tenantId = Id.create(command.tenantId);
+    const storeId = Id.create(command.storeId);
 
     // Find the customer to validate it exists
     const customerFound = await findCustomerOrThrow(
       this.customerRepository,
       customerId,
-      tenantId,
+      storeId,
     );
 
     // Find the review to validate it exists and belongs to the customer
     const reviewFound = await this.reviewRepository.findById(
       reviewId,
       customerId,
-      tenantId,
+      storeId,
     );
 
     if (!reviewFound) {
@@ -45,7 +45,7 @@ export class DeleteCustomerReviewProductHandler
     }
 
     // Remove the review using repository method before emitting the domain event
-    await this.reviewRepository.removeReview(customerId, reviewId, tenantId);
+    await this.reviewRepository.removeReview(customerId, reviewId, storeId);
 
     // Use the domain method to emit the event
     Customer.removeCustomerReviewProduct(reviewFound, customerFound);

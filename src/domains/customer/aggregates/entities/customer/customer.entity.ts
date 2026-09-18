@@ -24,7 +24,7 @@ import {
 export interface ICustomerProps extends EntityProps {
   id: Id;
   name: Name;
-  tenantId: Id;
+  storeId: Id;
   authIdentityId: Id;
   defaultPhoneNumberId?: Id;
   defaultShippingAddressId?: Id;
@@ -54,7 +54,7 @@ export class Customer extends Entity<ICustomerProps> {
     const customer = new Customer({
       id: Id.generate(),
       name: Name.create(input.name),
-      tenantId: Id.create(input.tenantId),
+      storeId: Id.create(input.storeId),
       authIdentityId: Id.create(input.authIdentityId),
       defaultPhoneNumberId: input.defaultPhoneNumberId
         ? Id.create(input.defaultPhoneNumberId)
@@ -76,13 +76,13 @@ export class Customer extends Entity<ICustomerProps> {
 
   static update(
     customer: Customer,
-    input: Partial<Omit<ICustomerCreate, 'tenantId' | 'authIdentityId'>>,
+    input: Partial<Omit<ICustomerCreate, 'storeId' | 'authIdentityId'>>,
   ): Customer {
     const customerProps = customer.getProps();
     const customerUpdated = new Customer({
       id: customerProps.id,
       name: input.name ? Name.create(input.name) : customerProps.name,
-      tenantId: customerProps.tenantId,
+      storeId: customerProps.storeId,
       authIdentityId: customerProps.authIdentityId,
       defaultPhoneNumberId: input.defaultPhoneNumberId
         ? Id.create(input.defaultPhoneNumberId)
@@ -109,7 +109,7 @@ export class Customer extends Entity<ICustomerProps> {
     const item = WishListItem.create({
       variantId: wishlistItem.variantId,
       customerId: wishlistItem.customerId,
-      tenantId: customer.getProps().tenantId.getValue(),
+      storeId: customer.getProps().storeId.getValue(),
     });
 
     customer.apply(new WishlistItemCreatedEvent(item, customer));
@@ -140,7 +140,7 @@ export class Customer extends Entity<ICustomerProps> {
       comment: customerReviewProduct.comment,
       customerId: customer.getProps().id.getValue(),
       variantId: customerReviewProduct.variantId,
-      tenantId: customer.getProps().tenantId.getValue(),
+      storeId: customer.getProps().storeId.getValue(),
     });
 
     customer.apply(new CustomerReviewProductCreatedEvent(review, customer));

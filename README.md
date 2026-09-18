@@ -6,12 +6,6 @@
   <a href="https://graphql.org/" target="_blank" rel="noreferrer">
     <img src="https://www.vectorlogo.zone/logos/graphql/graphql-icon.svg" alt="graphql" width="40" height="40"/>
   </a> 
-  <a href="https://www.elastic.co/" target="_blank" rel="noreferrer">
-    <img src="https://www.vectorlogo.zone/logos/elastic/elastic-icon.svg" alt="elasticsearch" width="40" height="40"/>
-  </a>
-  <a href="https://redis.io/" target="_blank" rel="noreferrer">
-    <img src="https://raw.githubusercontent.com/gilbarbara/logos/92bb74e98bca1ea1ad794442676ebc4e75038adc/logos/redis.svg" alt="redis" width="40" height="40"/>
-  </a>
   <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
     <img src="https://www.vectorlogo.zone/logos/docker/docker-icon.svg" alt="docker" width="50" height="50"/>
   </a>
@@ -145,7 +139,7 @@ The Apollo Playground provides an interactive environment to:
 ### Database Entity-Relationship Diagram (ERD)
 
 <div align="center">
-  <img src="src/infrastructure/database/erd.svg" alt="Database ERD"/>
+  <img src="src/infrastructure/database/docs/erd.png" alt="Database ERD"/>
 </div>
 
 ## Contributing

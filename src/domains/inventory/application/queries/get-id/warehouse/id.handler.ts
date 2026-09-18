@@ -19,11 +19,11 @@ export class GetWarehouseByIdHandler
   ) {}
 
   async execute(query: GetWarehouseByIdDTO): Promise<WarehouseDTO | null> {
-    const { id, tenantId, isArchived } = query;
+    const { id, storeId, isArchived } = query;
 
     const warehouse = await this.warehouseRepository.findById(
       Id.create(id),
-      Id.create(tenantId),
+      Id.create(storeId),
     );
 
     if (!warehouse) {
@@ -40,7 +40,7 @@ export class GetWarehouseByIdHandler
     // Fetch variant details
     const variantsDetails = await this.productAdapter.getVariantsDetails(
       variantIds,
-      tenantId,
+      storeId,
     );
     const detailsMap = new Map(
       variantsDetails.map((detail) => [detail.variantId, detail]),

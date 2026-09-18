@@ -7,7 +7,7 @@ import { TenantUpdatedEvent } from '../../../aggregates/events/tenant/tenant-upd
 export class TenantUpdatedHandler implements IEventHandler<TenantUpdatedEvent> {
   handle(event: TenantUpdatedEvent): void {
     logger.log(
-      `Tenant updated: ${event.tenant.get('ownerName').getValue()}, with id: ${event.tenant.get('id').getValue()}`,
+      `Tenant updated: ${event.tenant.get('name').getValue()}, with id: ${event.tenant.get('id').getValue()}`,
     );
   }
 }

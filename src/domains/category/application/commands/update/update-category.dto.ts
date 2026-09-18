@@ -1,7 +1,7 @@
 import { ICategoryBase } from '../../../aggregates/entities';
 
 type UpdatableCategoryFields = Partial<
-  Omit<ICategoryBase, 'tenantId' | 'subCategories' | 'id'>
+  Omit<ICategoryBase, 'storeId' | 'subCategories' | 'id'>
 >;
 
 /**
@@ -11,7 +11,7 @@ type UpdatableCategoryFields = Partial<
 export class UpdateCategoryDTO {
   constructor(
     public readonly id: string,
-    public readonly tenantId: string,
+    public readonly storeId: string,
     public readonly data: UpdatableCategoryFields,
   ) {}
 }

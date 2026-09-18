@@ -10,4 +10,5 @@ export {
   setTokenCookies,
   clearTokenCookies,
   extractTokenFromCookies,
+  isJwtPayload,
 } from './jwt/jwt.handler';

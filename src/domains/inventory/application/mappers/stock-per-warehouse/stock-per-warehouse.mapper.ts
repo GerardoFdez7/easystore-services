@@ -48,7 +48,7 @@ export class StockPerWarehouseMapper {
       ),
       variantId: Id.create(persistenceStockPerWarehouse.variantId),
       warehouseId: Id.create(persistenceStockPerWarehouse.warehouseId),
-      tenantId: Id.create(persistenceStockPerWarehouse.tenantId),
+      storeId: Id.create(persistenceStockPerWarehouse.storeId),
     };
     return StockPerWarehouse.reconstitute(stockPerWarehouseProps);
   }
@@ -85,7 +85,7 @@ export class StockPerWarehouseMapper {
         serialNumbers: entity.get('serialNumbers')?.getValue(),
         variantId: entity.get('variantId')?.getValue(),
         warehouseId: entity.get('warehouseId')?.getValue(),
-        tenantId: entity.get('tenantId')?.getValue(),
+        storeId: entity.get('storeId')?.getValue(),
       }));
     }
 
@@ -128,8 +128,8 @@ export class StockPerWarehouseMapper {
         case 'warehouseId':
           dto.warehouseId = stockPerWarehouse.get('warehouseId')?.getValue();
           break;
-        case 'tenantId':
-          dto.tenantId = stockPerWarehouse.get('tenantId')?.getValue();
+        case 'storeId':
+          dto.storeId = stockPerWarehouse.get('storeId')?.getValue();
           break;
       }
     });

@@ -6,9 +6,9 @@ import { Id } from '../../../aggregates/value-objects';
 export async function findCategoryOrThrow(
   repository: ICategoryRepository,
   categoryId: Id,
-  tenantId: Id,
+  storeId: Id,
 ): Promise<Category> {
-  const category = await repository.findById(categoryId, tenantId);
+  const category = await repository.findById(categoryId, storeId);
 
   if (!category) {
     throw new NotFoundException(

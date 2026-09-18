@@ -21,7 +21,7 @@ export default class StockMovementRepository
    * Finds all stock movements with pagination and filtering
    */
   async findAll(
-    tenantId: Id,
+    storeId: Id,
     options?: {
       page?: number;
       limit?: number;
@@ -44,9 +44,9 @@ export default class StockMovementRepository
     try {
       // Build where clause
       const whereClause: Prisma.StockMovementWhereInput = {
-        tenantId: tenantId.getValue(),
+        storeId: storeId.getValue(),
         warehouse: {
-          tenantId: tenantId.getValue(),
+          storeId: storeId.getValue(),
           id: options?.warehouseId?.getValue(),
         },
         StockPerWarehouse: {

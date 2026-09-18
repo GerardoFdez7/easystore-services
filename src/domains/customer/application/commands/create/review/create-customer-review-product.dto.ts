@@ -4,6 +4,6 @@ export class CreateCustomerReviewProductDto {
   constructor(
     public readonly review: ICustomerReviewBase,
     public readonly customerId: string,
-    public readonly tenantId: string,
+    public readonly storeId: string,
   ) {}
 }

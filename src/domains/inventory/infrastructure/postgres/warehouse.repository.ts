@@ -33,7 +33,7 @@ export default class WarehouseRepository implements IWarehouseRepository {
             id: warehouseDto.id,
             name: warehouseDto.name,
             address: { connect: { id: warehouseDto.addressId } },
-            tenant: { connect: { id: warehouseDto.tenantId } },
+            store: { connect: { id: warehouseDto.storeId } },
             createdAt: warehouseDto.createdAt,
             updatedAt: warehouseDto.updatedAt,
           },
@@ -53,7 +53,7 @@ export default class WarehouseRepository implements IWarehouseRepository {
    */
   async update(
     id: Id,
-    tenantId: Id,
+    storeId: Id,
     updates: Warehouse,
     stockMovementContext?: {
       reason?: string;
@@ -61,7 +61,7 @@ export default class WarehouseRepository implements IWarehouseRepository {
     },
   ): Promise<Warehouse> {
     const idValue = id.getValue();
-    const tenantIdValue = tenantId.getValue();
+    const storeIdValue = storeId.getValue();
     const updatesDto = WarehouseMapper.toDto(updates);
 
     return executeDatabaseOperation(
@@ -69,10 +69,7 @@ export default class WarehouseRepository implements IWarehouseRepository {
         const prismaWarehouse = await this.prisma.$transaction(async (tx) => {
           // Check if warehouse exists and get current state (excluding soft-deleted stocks)
           const existingWarehouse = await tx.warehouse.findUnique({
-            where: {
-              id: idValue,
-              tenantId: tenantIdValue,
-            },
+            where: { id_storeId: { id: idValue, storeId: storeIdValue } },
             include: {
               stockPerWarehouses: {
                 where: {
@@ -88,10 +85,7 @@ export default class WarehouseRepository implements IWarehouseRepository {
 
           // Update the warehouse basic info
           await tx.warehouse.update({
-            where: {
-              id: idValue,
-              tenantId: tenantIdValue,
-            },
+            where: { id_storeId: { id: idValue, storeId: storeIdValue } },
             data: {
               name: updatesDto.name,
               addressId: updatesDto.addressId,
@@ -106,7 +100,7 @@ export default class WarehouseRepository implements IWarehouseRepository {
               where: {
                 warehouseId: idValue,
                 variantId: updatedStock.variantId,
-                tenantId: tenantIdValue,
+                storeId: storeIdValue,
               },
             });
 
@@ -116,7 +110,9 @@ export default class WarehouseRepository implements IWarehouseRepository {
               if (existingStock.deletedAt !== null) {
                 // Reactivate soft-deleted stock
                 await tx.stockPerWarehouse.update({
-                  where: { id: existingStock.id, tenantId: tenantIdValue },
+                  where: {
+                    id_storeId: { id: existingStock.id, storeId: storeIdValue },
+                  },
                   data: {
                     ...this.getStockUpdateData(updatedStock),
                     deletedAt: null, // Reactivate
@@ -132,7 +128,7 @@ export default class WarehouseRepository implements IWarehouseRepository {
                     tx,
                     idValue,
                     actualStockId,
-                    tenantIdValue,
+                    storeIdValue,
                     deltaQty,
                     stockMovementContext,
                   );
@@ -140,7 +136,9 @@ export default class WarehouseRepository implements IWarehouseRepository {
               } else {
                 // Stock already exists and is active - update it
                 await tx.stockPerWarehouse.update({
-                  where: { id: existingStock.id, tenantId: tenantIdValue },
+                  where: {
+                    id_storeId: { id: existingStock.id, storeId: storeIdValue },
+                  },
                   data: this.getStockUpdateData(updatedStock),
                 });
                 actualStockId = existingStock.id;
@@ -153,7 +151,7 @@ export default class WarehouseRepository implements IWarehouseRepository {
                     tx,
                     idValue,
                     actualStockId,
-                    tenantIdValue,
+                    storeIdValue,
                     deltaQty,
                     stockMovementContext,
                   );
@@ -173,7 +171,7 @@ export default class WarehouseRepository implements IWarehouseRepository {
                   serialNumbers: updatedStock.serialNumbers,
                   variantId: updatedStock.variantId,
                   warehouseId: idValue,
-                  tenantId: tenantIdValue,
+                  storeId: storeIdValue,
                   deletedAt: null,
                 },
               });
@@ -184,7 +182,7 @@ export default class WarehouseRepository implements IWarehouseRepository {
                 tx,
                 idValue,
                 actualStockId,
-                tenantIdValue,
+                storeIdValue,
                 updatedStock.qtyAvailable,
                 stockMovementContext,
               );
@@ -193,10 +191,7 @@ export default class WarehouseRepository implements IWarehouseRepository {
 
           // Fetch the updated warehouse with all stocks (excluding soft-deleted)
           const finalWarehouse = await tx.warehouse.findUnique({
-            where: {
-              id: idValue,
-              tenantId: tenantIdValue,
-            },
+            where: { id_storeId: { id: idValue, storeId: storeIdValue } },
             include: {
               stockPerWarehouses: {
                 where: {
@@ -218,18 +213,15 @@ export default class WarehouseRepository implements IWarehouseRepository {
   /**
    * Deletes a warehouse with transaction support
    */
-  async delete(id: Id, tenantId: Id): Promise<void> {
+  async delete(id: Id, storeId: Id): Promise<void> {
     const idValue = id.getValue();
-    const tenantIdValue = tenantId.getValue();
+    const storeIdValue = storeId.getValue();
 
     try {
       await this.prisma.$transaction(async (tx) => {
         // Check if warehouse exists
         const existingWarehouse = await tx.warehouse.findUnique({
-          where: {
-            id: idValue,
-            tenantId: tenantIdValue,
-          },
+          where: { id_storeId: { id: idValue, storeId: storeIdValue } },
           include: {
             stockPerWarehouses: {
               include: {
@@ -250,7 +242,7 @@ export default class WarehouseRepository implements IWarehouseRepository {
             await tx.stockMovement.deleteMany({
               where: {
                 stockPerWarehouseId: stock.id,
-                tenantId: tenantIdValue,
+                storeId: storeIdValue,
               },
             });
           }
@@ -260,16 +252,13 @@ export default class WarehouseRepository implements IWarehouseRepository {
         await tx.stockPerWarehouse.deleteMany({
           where: {
             warehouseId: idValue,
-            tenantId: tenantIdValue,
+            storeId: storeIdValue,
           },
         });
 
         // Delete the warehouse
         await tx.warehouse.delete({
-          where: {
-            id: idValue,
-            tenantId: tenantIdValue,
-          },
+          where: { id_storeId: { id: idValue, storeId: storeIdValue } },
         });
       });
     } catch (error) {
@@ -283,7 +272,7 @@ export default class WarehouseRepository implements IWarehouseRepository {
   async updateSingleStock(
     stockId: Id,
     warehouseId: Id,
-    tenantId: Id,
+    storeId: Id,
     stockUpdate: Partial<
       Omit<IStockPerWarehouseBase, 'variantId' | 'warehouseId'>
     >,
@@ -294,7 +283,7 @@ export default class WarehouseRepository implements IWarehouseRepository {
   ): Promise<Warehouse> {
     const warehouseIdValue = warehouseId.getValue();
     const stockIdValue = stockId.getValue();
-    const tenantIdValue = tenantId.getValue();
+    const storeIdValue = storeId.getValue();
 
     try {
       const prismaWarehouse = await this.prisma.$transaction(async (tx) => {
@@ -303,7 +292,7 @@ export default class WarehouseRepository implements IWarehouseRepository {
           where: {
             id: stockIdValue,
             warehouseId: warehouseIdValue,
-            tenantId: tenantIdValue,
+            storeId: storeIdValue,
             deletedAt: null,
           },
         });
@@ -322,14 +311,16 @@ export default class WarehouseRepository implements IWarehouseRepository {
             tx,
             warehouseIdValue,
             existingStock.id,
-            tenantIdValue,
+            storeIdValue,
             -existingStock.qtyAvailable,
             stockMovementContext,
           );
 
           // Soft delete the stock
           await tx.stockPerWarehouse.update({
-            where: { id: existingStock.id, tenantId: tenantIdValue },
+            where: {
+              id_storeId: { id: existingStock.id, storeId: storeIdValue },
+            },
             data: {
               qtyAvailable: 0,
               qtyReserved: 0,
@@ -355,7 +346,7 @@ export default class WarehouseRepository implements IWarehouseRepository {
               tx,
               warehouseIdValue,
               existingStock.id,
-              tenantIdValue,
+              storeIdValue,
               deltaQty,
               stockMovementContext,
             );
@@ -363,7 +354,9 @@ export default class WarehouseRepository implements IWarehouseRepository {
 
           // Update the stock record
           await tx.stockPerWarehouse.update({
-            where: { id: existingStock.id, tenantId: tenantIdValue },
+            where: {
+              id_storeId: { id: existingStock.id, storeId: storeIdValue },
+            },
             data: {
               qtyAvailable:
                 stockUpdate.qtyAvailable ?? existingStock.qtyAvailable,
@@ -382,7 +375,9 @@ export default class WarehouseRepository implements IWarehouseRepository {
 
         // Return updated warehouse with fresh data
         const updatedWarehouse = await tx.warehouse.findUnique({
-          where: { id: warehouseIdValue, tenantId: tenantIdValue },
+          where: {
+            id_storeId: { id: warehouseIdValue, storeId: storeIdValue },
+          },
           include: {
             stockPerWarehouses: {
               where: { deletedAt: null },
@@ -406,16 +401,13 @@ export default class WarehouseRepository implements IWarehouseRepository {
   /**
    * Finds a warehouse by ID with proper error handling
    */
-  async findById(id: Id, tenantId: Id): Promise<Warehouse | null> {
+  async findById(id: Id, storeId: Id): Promise<Warehouse | null> {
     const idValue = id.getValue();
-    const tenantIdValue = tenantId.getValue();
+    const storeIdValue = storeId.getValue();
 
     try {
       const prismaWarehouse = await this.prisma.warehouse.findUnique({
-        where: {
-          id: idValue,
-          tenantId: tenantIdValue,
-        },
+        where: { id_storeId: { id: idValue, storeId: storeIdValue } },
         include: {
           stockPerWarehouses: {
             where: {
@@ -435,7 +427,7 @@ export default class WarehouseRepository implements IWarehouseRepository {
    * Finds all warehouses with pagination and filtering
    */
   async findAll(
-    tenantId: Id,
+    storeId: Id,
     options?: {
       page?: number;
       limit?: number;
@@ -447,7 +439,7 @@ export default class WarehouseRepository implements IWarehouseRepository {
       sortOrder?: SortOrder;
     },
   ): Promise<{ warehouses: Warehouse[]; total: number; hasMore: boolean }> {
-    const tenantIdValue = tenantId.getValue();
+    const storeIdValue = storeId.getValue();
     const page = options?.page || 1;
     const limit = options?.limit || 10;
     const skip = (page - 1) * limit;
@@ -457,7 +449,7 @@ export default class WarehouseRepository implements IWarehouseRepository {
     try {
       // Build where clause
       const whereClause: Prisma.WarehouseWhereInput = {
-        tenantId: tenantIdValue,
+        storeId: storeIdValue,
       };
 
       if (options?.name) {
@@ -577,7 +569,7 @@ export default class WarehouseRepository implements IWarehouseRepository {
       resource: 'Warehouse',
       foreignKeyEntities: {
         addressId: 'Address',
-        tenantId: 'Tenant',
+        storeId: 'Store',
         stockPerWarehouseId: 'StockPerWarehouse',
         warehouseId: 'Warehouse',
         variantId: 'Variant',
@@ -602,7 +594,7 @@ export default class WarehouseRepository implements IWarehouseRepository {
     tx: Prisma.TransactionClient,
     warehouseId: string,
     stockPerWarehouseId: string,
-    tenantId: string,
+    storeId: string,
     deltaQty: number,
     context?: { reason?: string; createdById?: string },
   ): Promise<void> {
@@ -611,7 +603,7 @@ export default class WarehouseRepository implements IWarehouseRepository {
       context?.reason,
       context?.createdById,
       new Date(),
-      tenantId,
+      storeId,
     );
     const movement = stockMovement.getMovement();
 
@@ -623,7 +615,7 @@ export default class WarehouseRepository implements IWarehouseRepository {
         createdById: movement.createdById,
         warehouseId,
         stockPerWarehouseId,
-        tenantId,
+        storeId,
         occurredAt: movement.occurredAt,
       },
     });

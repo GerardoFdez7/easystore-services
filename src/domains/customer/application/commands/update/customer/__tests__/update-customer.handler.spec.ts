@@ -61,7 +61,7 @@ describe('UpdateCustomerHandler', () => {
     defaultDto = {
       id: 'customer-id-123',
       name: 'Updated Customer',
-      tenantId: 'tenant-abc',
+      storeId: 'store-abc',
       authIdentityId: 'auth-xyz',
       defaultPhoneNumberId: null,
       defaultShippingAddressId: null,
@@ -102,7 +102,7 @@ describe('UpdateCustomerHandler', () => {
     const baseCommand = new UpdateCustomerDto(
       baseUpdateData,
       'customer-123',
-      'tenant-456',
+      'store-456',
     );
 
     describe('Customer retrieval and validation', () => {
@@ -114,12 +114,12 @@ describe('UpdateCustomerHandler', () => {
         updateMock.mockResolvedValue(mockCustomer as unknown as Customer);
       });
 
-      it('should find customer by ID and tenant ID', async () => {
+      it('should find customer by ID and store ID', async () => {
         await handler.execute(baseCommand);
 
-        const [customerId, tenantId] = findCustomerByIdMock.mock.calls[0];
+        const [customerId, storeId] = findCustomerByIdMock.mock.calls[0];
         expect(customerId.getValue()).toBe(baseCommand.customerId);
-        expect(tenantId.getValue()).toBe(baseCommand.tenantId);
+        expect(storeId.getValue()).toBe(baseCommand.storeId);
       });
 
       it('should throw NotFoundException when customer is not found', async () => {
@@ -139,14 +139,14 @@ describe('UpdateCustomerHandler', () => {
       });
 
       it('does not return or mutate another customer record when the resolved scope does not match', async () => {
-        // The repository is scoped by (customerId, tenantId) taken from
+        // The repository is scoped by (customerId, storeId) taken from
         // @CurrentUser(), so a request for a customerId that belongs to
         // another customer resolves to no record here — indistinguishable
         // from a genuinely missing customer, never a distinct forbidden error.
         const otherCustomersCommand = new UpdateCustomerDto(
           { name: 'Attempted cross-customer update' },
           'someone-elses-customer-id',
-          'tenant-456',
+          'store-456',
         );
         findCustomerByIdMock.mockResolvedValue(null);
 
@@ -161,7 +161,7 @@ describe('UpdateCustomerHandler', () => {
         const validCommand = new UpdateCustomerDto(
           { name: 'Valid Name' },
           'valid-customer-999',
-          'valid-tenant-888',
+          'valid-store-888',
         );
         findCustomerByIdMock.mockResolvedValue(
           mockCustomer as unknown as Customer,
@@ -172,7 +172,7 @@ describe('UpdateCustomerHandler', () => {
         await handler.execute(validCommand);
 
         expect(idCreateMock).toHaveBeenCalledWith('valid-customer-999');
-        expect(idCreateMock).toHaveBeenCalledWith('valid-tenant-888');
+        expect(idCreateMock).toHaveBeenCalledWith('valid-store-888');
       });
     });
 
@@ -204,7 +204,7 @@ describe('UpdateCustomerHandler', () => {
         const validCommand = new UpdateCustomerDto(
           { name: 'Valid Updated Name' },
           'customer-valid-001',
-          'tenant-valid-002',
+          'store-valid-002',
         );
 
         await handler.execute(validCommand);
@@ -218,7 +218,7 @@ describe('UpdateCustomerHandler', () => {
         const partialCommand = new UpdateCustomerDto(
           { name: 'Partial Update' },
           'customer-partial',
-          'tenant-partial',
+          'store-partial',
         );
 
         await handler.execute(partialCommand);
@@ -331,7 +331,7 @@ describe('UpdateCustomerHandler', () => {
         const expectedDto: CustomerDTO = {
           id: 'customer-id-updated',
           name: 'Updated Customer Name',
-          tenantId: 'tenant-abc',
+          storeId: 'store-abc',
           authIdentityId: 'auth-xyz',
           defaultPhoneNumberId: null,
           defaultShippingAddressId: null,
@@ -351,7 +351,7 @@ describe('UpdateCustomerHandler', () => {
 
         expect(result).toHaveProperty('id');
         expect(result).toHaveProperty('name');
-        expect(result).toHaveProperty('tenantId');
+        expect(result).toHaveProperty('storeId');
         expect(result).toHaveProperty('authIdentityId');
       });
     });
@@ -380,8 +380,8 @@ describe('UpdateCustomerHandler', () => {
         );
       });
 
-      it('should propagate Id.create errors for tenant ID', async () => {
-        const idCreationError = new Error('Invalid tenant ID format');
+      it('should propagate Id.create errors for store ID', async () => {
+        const idCreationError = new Error('Invalid store ID format');
         idCreateMock
           .mockReturnValueOnce({ getValue: () => 'customer-id' } as Id)
           .mockImplementationOnce(() => {
@@ -422,13 +422,13 @@ describe('UpdateCustomerHandler', () => {
         const completeCommand = new UpdateCustomerDto(
           { name: 'Complete Update' },
           'customer-complete',
-          'tenant-complete',
+          'store-complete',
         );
 
         const expectedDto: CustomerDTO = {
           id: 'customer-id-complete',
           name: 'Complete Update',
-          tenantId: 'tenant-complete',
+          storeId: 'store-complete',
           authIdentityId: 'auth-complete',
           defaultPhoneNumberId: null,
           defaultShippingAddressId: null,
@@ -461,7 +461,7 @@ describe('UpdateCustomerHandler', () => {
         const command = new UpdateCustomerDto(
           customerData,
           'customer-consistency',
-          'tenant-consistency',
+          'store-consistency',
         );
 
         findCustomerByIdMock.mockResolvedValue(
@@ -505,12 +505,12 @@ describe('UpdateCustomerHandler', () => {
         const command1 = new UpdateCustomerDto(
           { name: 'Customer One Update' },
           'customer-1',
-          'tenant-1',
+          'store-1',
         );
         const command2 = new UpdateCustomerDto(
           { name: 'Customer Two Update' },
           'customer-2',
-          'tenant-2',
+          'store-2',
         );
 
         findCustomerByIdMock.mockResolvedValue(
@@ -536,7 +536,7 @@ describe('UpdateCustomerHandler', () => {
         const nameOnlyCommand = new UpdateCustomerDto(
           { name: 'Only Name Changed' },
           'customer-name-only',
-          'tenant-name-only',
+          'store-name-only',
         );
 
         findCustomerByIdMock.mockResolvedValue(
@@ -557,7 +557,7 @@ describe('UpdateCustomerHandler', () => {
         const emptyCommand = new UpdateCustomerDto(
           {},
           'customer-empty',
-          'tenant-empty',
+          'store-empty',
         );
 
         findCustomerByIdMock.mockResolvedValue(

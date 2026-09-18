@@ -134,7 +134,7 @@ describe('UpdateCustomerReviewProductHandler', () => {
     const baseCommand = new UpdateCustomerReviewProductDto(
       baseReviewUpdate,
       'customer-123',
-      'tenant-456',
+      'store-456',
     );
 
     describe('Customer and review retrieval', () => {
@@ -146,11 +146,11 @@ describe('UpdateCustomerReviewProductHandler', () => {
         reviewUpdateMock.mockResolvedValue(mockReview as any);
       });
 
-      it('should find customer by ID and tenant ID', async () => {
+      it('should find customer by ID and store ID', async () => {
         await handler.execute(baseCommand);
 
         expect(idCreateMock).toHaveBeenCalledWith('customer-123');
-        expect(idCreateMock).toHaveBeenCalledWith('tenant-456');
+        expect(idCreateMock).toHaveBeenCalledWith('store-456');
       });
 
       it('should find review by ID', async () => {
@@ -160,14 +160,14 @@ describe('UpdateCustomerReviewProductHandler', () => {
         expect(findByIdMock).toHaveBeenCalledTimes(1);
       });
 
-      it('should scope the review lookup to the authenticated customer, not the tenant', async () => {
+      it('should scope the review lookup to the authenticated customer, not the store', async () => {
         const customerId = { getValue: (): string => 'customer-123' } as Id;
-        const tenantId = { getValue: (): string => 'tenant-456' } as Id;
+        const storeId = { getValue: (): string => 'store-456' } as Id;
         const reviewId = { getValue: (): string => 'review-id-123' } as Id;
 
         idCreateMock
           .mockReturnValueOnce(customerId)
-          .mockReturnValueOnce(tenantId)
+          .mockReturnValueOnce(storeId)
           .mockReturnValueOnce(reviewId);
 
         await handler.execute(baseCommand);
@@ -175,7 +175,7 @@ describe('UpdateCustomerReviewProductHandler', () => {
         expect(findByIdMock).toHaveBeenCalledWith(
           reviewId,
           customerId,
-          tenantId,
+          storeId,
         );
       });
 
@@ -187,7 +187,7 @@ describe('UpdateCustomerReviewProductHandler', () => {
             comment: 'Valid update',
           },
           'valid-customer-999',
-          'valid-tenant-888',
+          'valid-store-888',
         );
         findCustomerByIdMock.mockResolvedValue(
           mockCustomer as unknown as Customer,
@@ -228,7 +228,7 @@ describe('UpdateCustomerReviewProductHandler', () => {
         const validCommand = new UpdateCustomerReviewProductDto(
           { id: 'review-001', ratingCount: 5, comment: 'Excellent!' },
           'customer-valid-001',
-          'tenant-valid-002',
+          'store-valid-002',
         );
 
         await handler.execute(validCommand);
@@ -247,7 +247,7 @@ describe('UpdateCustomerReviewProductHandler', () => {
         const ratingCommand = new UpdateCustomerReviewProductDto(
           { id: 'review-rating', ratingCount: 1, comment: 'Poor' },
           'customer-rating',
-          'tenant-rating',
+          'store-rating',
         );
 
         await handler.execute(ratingCommand);
@@ -444,7 +444,7 @@ describe('UpdateCustomerReviewProductHandler', () => {
         const completeCommand = new UpdateCustomerReviewProductDto(
           { id: 'review-complete', ratingCount: 5, comment: 'Perfect!' },
           'customer-complete',
-          'tenant-complete',
+          'store-complete',
         );
 
         const expectedDto: CustomerReviewProductDTO = {
@@ -495,12 +495,12 @@ describe('UpdateCustomerReviewProductHandler', () => {
         const command1 = new UpdateCustomerReviewProductDto(
           { id: 'review-1', ratingCount: 5, comment: 'Great!' },
           'customer-1',
-          'tenant-1',
+          'store-1',
         );
         const command2 = new UpdateCustomerReviewProductDto(
           { id: 'review-2', ratingCount: 3, comment: 'Good' },
           'customer-2',
-          'tenant-2',
+          'store-2',
         );
 
         findCustomerByIdMock.mockResolvedValue(

@@ -36,13 +36,16 @@ import { Media } from '../../../domains/shared/aggregates/value-objects/media.vo
 import {
   Currency,
   Domain,
-} from '../../../domains/tenant/aggregates/value-objects';
+} from '../../../domains/store/aggregates/value-objects';
 import { PostgreService } from '../postgres.service';
 import { assertFeatureCatalogSeeded } from './production.seed';
 
 const logger = new CustomLoggerService();
 const dataDir = path.join(__dirname, '..', 'countries');
 const developmentSeedUuidNamespace = '2f8f2b5e-4f1e-5a92-9a9c-4bc1c0a6a5d1';
+const developmentSeedOutletDomain = Domain.create(
+  'outlet.easystore.lat',
+).getValue();
 
 /** Shorthand for preset expansion only, never a stored value: no aggregate `FULL`. */
 type PresetGrant = 'full' | 'edit' | 'view' | 'none';
@@ -131,6 +134,8 @@ function createDevelopmentFixtureId(name: string): string {
 export function createDevelopmentFixtureIds(): Record<
   | 'tenantAuth'
   | 'tenant'
+  | 'store'
+  | 'secondStore'
   | 'customerAuth'
   | 'customer'
   | 'employee'
@@ -142,6 +147,7 @@ export function createDevelopmentFixtureIds(): Record<
   | 'customerAddress'
   | 'warehouse'
   | 'category'
+  | 'secondStoreCategory'
   | 'product'
   | 'variant'
   | 'media'
@@ -176,6 +182,8 @@ export function createDevelopmentFixtureIds(): Record<
   return {
     tenantAuth: createDevelopmentFixtureId('tenantAuth'),
     tenant: createDevelopmentFixtureId('tenant'),
+    store: createDevelopmentFixtureId('store'),
+    secondStore: createDevelopmentFixtureId('secondStore'),
     customerAuth: createDevelopmentFixtureId('customerAuth'),
     customer: createDevelopmentFixtureId('customer'),
     employee: createDevelopmentFixtureId('employee'),
@@ -187,6 +195,7 @@ export function createDevelopmentFixtureIds(): Record<
     customerAddress: createDevelopmentFixtureId('customerAddress'),
     warehouse: createDevelopmentFixtureId('warehouse'),
     category: createDevelopmentFixtureId('category'),
+    secondStoreCategory: createDevelopmentFixtureId('secondStoreCategory'),
     product: createDevelopmentFixtureId('product'),
     variant: createDevelopmentFixtureId('variant'),
     media: createDevelopmentFixtureId('media'),
@@ -224,9 +233,9 @@ export function createDevelopmentFeatureId(code: FeatureEnum): string {
   return createDevelopmentFixtureId(`feature:${code}`);
 }
 
-/** Stable per-role id for a development preset role, keyed by role name. */
-export function createDevelopmentRoleId(role: string): string {
-  return createDevelopmentFixtureId(`employeeRole:${role}`);
+/** Stable per-store role id for a development preset role. */
+export function createDevelopmentRoleId(storeId: string, role: string): string {
+  return createDevelopmentFixtureId(`employeeRole:${storeId}:${role}`);
 }
 
 /** Stable per-(role, feature, action) id for a `RoleFeatures` grant row. */
@@ -385,13 +394,13 @@ async function seedDevelopmentFeatureCatalog(
  */
 async function seedDevelopmentRolePresets(
   prisma: PostgreService,
-  tenantId: string,
+  storeId: string,
   featureIds: Record<FeatureEnum, string>,
 ): Promise<string> {
   let managerRoleId: string | undefined;
 
   for (const preset of developmentRolePresets) {
-    const roleId = createDevelopmentRoleId(preset.role);
+    const roleId = createDevelopmentRoleId(storeId, preset.role);
 
     if (preset.role === 'Manager') {
       managerRoleId = roleId;
@@ -399,8 +408,8 @@ async function seedDevelopmentRolePresets(
 
     await prisma.employeeRole.upsert({
       where: { id: roleId },
-      update: { role: preset.role, isSystem: true, tenantId },
-      create: { id: roleId, role: preset.role, isSystem: true, tenantId },
+      update: { role: preset.role, isSystem: true, storeId },
+      create: { id: roleId, role: preset.role, isSystem: true, storeId },
     });
 
     for (const feature of Object.values(FeatureEnum)) {
@@ -417,8 +426,8 @@ async function seedDevelopmentRolePresets(
 
         await prisma.roleFeatures.upsert({
           where: { id: roleFeatureId },
-          update: { roleId, featureId, action, tenantId },
-          create: { id: roleFeatureId, roleId, featureId, action, tenantId },
+          update: { roleId, featureId, action, storeId },
+          create: { id: roleFeatureId, roleId, featureId, action, storeId },
         });
       }
     }
@@ -458,20 +467,50 @@ async function seedDevelopmentDataForDatabase(
   await prisma.tenant.upsert({
     where: { id: ids.tenant },
     update: {
-      businessName: 'EasyStore Demo',
-      ownerName: 'Demo Owner',
-      domain: developmentSeedTenantDomain,
-      currency: 'GTQ',
+      name: 'Demo Owner',
       authIdentityId: ids.tenantAuth,
     },
     create: {
       id: ids.tenant,
-      businessName: 'EasyStore Demo',
-      ownerName: 'Demo Owner',
-      domain: developmentSeedTenantDomain,
-      currency: 'GTQ',
+      name: 'Demo Owner',
       authIdentityId: ids.tenantAuth,
     },
+  });
+  await prisma.store.upsert({
+    where: { id: ids.store },
+    update: {
+      tenantId: ids.tenant,
+      name: 'EasyStore Demo',
+      domain: developmentSeedTenantDomain,
+      currency: 'GTQ',
+    },
+    create: {
+      id: ids.store,
+      tenantId: ids.tenant,
+      name: 'EasyStore Demo',
+      domain: developmentSeedTenantDomain,
+      currency: 'GTQ',
+    },
+  });
+  await prisma.store.upsert({
+    where: { id: ids.secondStore },
+    update: {
+      tenantId: ids.tenant,
+      name: 'EasyStore Demo Outlet',
+      domain: developmentSeedOutletDomain,
+      currency: 'GTQ',
+    },
+    create: {
+      id: ids.secondStore,
+      tenantId: ids.tenant,
+      name: 'EasyStore Demo Outlet',
+      domain: developmentSeedOutletDomain,
+      currency: 'GTQ',
+    },
+  });
+  await prisma.tenant.update({
+    where: { id: ids.tenant },
+    data: { defaultStoreId: ids.store },
   });
   await prisma.authIdentity.upsert({
     where: { id: ids.customerAuth },
@@ -493,13 +532,13 @@ async function seedDevelopmentDataForDatabase(
     where: { id: ids.customer },
     update: {
       name: 'Demo Customer',
-      tenantId: ids.tenant,
+      storeId: ids.store,
       authIdentityId: ids.customerAuth,
     },
     create: {
       id: ids.customer,
       name: 'Demo Customer',
-      tenantId: ids.tenant,
+      storeId: ids.store,
       authIdentityId: ids.customerAuth,
     },
   });
@@ -524,7 +563,7 @@ async function seedDevelopmentDataForDatabase(
       startDate: new Date('2025-01-01'),
       endDate: new Date('2026-12-31'),
       planId: ids.plan,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.subscription,
@@ -532,7 +571,7 @@ async function seedDevelopmentDataForDatabase(
       startDate: new Date('2025-01-01'),
       endDate: new Date('2026-12-31'),
       planId: ids.plan,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
   await prisma.phoneNumber.upsert({
@@ -616,8 +655,6 @@ async function seedDevelopmentDataForDatabase(
     where: { id: ids.tenant },
     data: {
       defaultPhoneNumberId: ids.tenantPhone,
-      defaultShippingAddressId: ids.warehouseAddress,
-      defaultBillingAddressId: ids.warehouseAddress,
     },
   });
   await prisma.customer.update({
@@ -631,7 +668,7 @@ async function seedDevelopmentDataForDatabase(
   const featureIds = await seedDevelopmentFeatureCatalog(prisma);
   const managerRoleId = await seedDevelopmentRolePresets(
     prisma,
-    ids.tenant,
+    ids.store,
     featureIds,
   );
   await prisma.authIdentity.upsert({
@@ -656,14 +693,14 @@ async function seedDevelopmentDataForDatabase(
       name: 'Demo Manager',
       roleId: managerRoleId,
       authIdentityId: ids.employee,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.employee,
       name: 'Demo Manager',
       roleId: managerRoleId,
       authIdentityId: ids.employee,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
   await prisma.category.upsert({
@@ -672,14 +709,30 @@ async function seedDevelopmentDataForDatabase(
       name: 'Home Office',
       cover: 'https://images.unsplash.com/photo-1497366216548-37526070297c',
       description: 'Products for productive workspaces',
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.category,
       name: 'Home Office',
       cover: 'https://images.unsplash.com/photo-1497366216548-37526070297c',
       description: 'Products for productive workspaces',
-      tenantId: ids.tenant,
+      storeId: ids.store,
+    },
+  });
+  await prisma.category.upsert({
+    where: { id: ids.secondStoreCategory },
+    update: {
+      name: 'Home Office',
+      cover: 'https://images.unsplash.com/photo-1497366216548-37526070297c',
+      description: 'Independent outlet catalog category',
+      storeId: ids.secondStore,
+    },
+    create: {
+      id: ids.secondStoreCategory,
+      name: 'Home Office',
+      cover: 'https://images.unsplash.com/photo-1497366216548-37526070297c',
+      description: 'Independent outlet catalog category',
+      storeId: ids.secondStore,
     },
   });
   await prisma.product.upsert({
@@ -693,7 +746,7 @@ async function seedDevelopmentDataForDatabase(
       brand: 'EasyStore',
       manufacturer: 'Demo Furnishings',
       tags: ['office', 'chair', 'ergonomic'],
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.product,
@@ -705,7 +758,7 @@ async function seedDevelopmentDataForDatabase(
       brand: 'EasyStore',
       manufacturer: 'Demo Furnishings',
       tags: ['office', 'chair', 'ergonomic'],
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
   await prisma.productCategories.upsert({
@@ -713,13 +766,13 @@ async function seedDevelopmentDataForDatabase(
     update: {
       productId: ids.product,
       categoryId: ids.category,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.productCategory,
       productId: ids.product,
       categoryId: ids.category,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
   await prisma.variant.upsert({
@@ -733,7 +786,7 @@ async function seedDevelopmentDataForDatabase(
       sku: 'DEMO-CHAIR-BLK',
       barcode: 'DEMO-CHAIR-BLK',
       productId: ids.product,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.variant,
@@ -745,7 +798,7 @@ async function seedDevelopmentDataForDatabase(
       sku: 'DEMO-CHAIR-BLK',
       barcode: 'DEMO-CHAIR-BLK',
       productId: ids.product,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
   await prisma.media.upsert({
@@ -755,7 +808,7 @@ async function seedDevelopmentDataForDatabase(
       position: 0,
       mediaType: 'IMAGE',
       productId: ids.product,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.media,
@@ -763,7 +816,7 @@ async function seedDevelopmentDataForDatabase(
       position: 0,
       mediaType: 'IMAGE',
       productId: ids.product,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
   await prisma.dimension.upsert({
@@ -845,13 +898,13 @@ async function seedDevelopmentDataForDatabase(
     update: {
       name: 'Central Warehouse',
       addressId: ids.warehouseAddress,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.warehouse,
       name: 'Central Warehouse',
       addressId: ids.warehouseAddress,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
   await prisma.stockPerWarehouse.upsert({
@@ -863,7 +916,7 @@ async function seedDevelopmentDataForDatabase(
       serialNumbers: [],
       variantId: ids.variant,
       warehouseId: ids.warehouse,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.stock,
@@ -873,7 +926,7 @@ async function seedDevelopmentDataForDatabase(
       serialNumbers: [],
       variantId: ids.variant,
       warehouseId: ids.warehouse,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
   await prisma.stockMovement.upsert({
@@ -884,7 +937,7 @@ async function seedDevelopmentDataForDatabase(
       createdById: ids.employee,
       warehouseId: ids.warehouse,
       stockPerWarehouseId: ids.stock,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.stockMovement,
@@ -893,7 +946,7 @@ async function seedDevelopmentDataForDatabase(
       createdById: ids.employee,
       warehouseId: ids.warehouse,
       stockPerWarehouseId: ids.stock,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
   await prisma.taxRate.upsert({
@@ -903,7 +956,7 @@ async function seedDevelopmentDataForDatabase(
       countryId: geography.countryId,
       stateId: geography.stateId,
       categoryId: ids.category,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.taxRate,
@@ -911,7 +964,7 @@ async function seedDevelopmentDataForDatabase(
       countryId: geography.countryId,
       stateId: geography.stateId,
       categoryId: ids.category,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
   await prisma.shippingRule.upsert({
@@ -921,7 +974,7 @@ async function seedDevelopmentDataForDatabase(
       slug: 'standard-delivery',
       description: 'Standard delivery in Guatemala City',
       priority: 1,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.shippingRule,
@@ -929,7 +982,7 @@ async function seedDevelopmentDataForDatabase(
       slug: 'standard-delivery',
       description: 'Standard delivery in Guatemala City',
       priority: 1,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
   await prisma.shipmentRate.upsert({
@@ -940,7 +993,7 @@ async function seedDevelopmentDataForDatabase(
       shippingRuleId: ids.shippingRule,
       countryId: geography.countryId,
       stateId: geography.stateId,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.shipmentRate,
@@ -949,7 +1002,7 @@ async function seedDevelopmentDataForDatabase(
       shippingRuleId: ids.shippingRule,
       countryId: geography.countryId,
       stateId: geography.stateId,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
   const promotionData = {
@@ -963,7 +1016,7 @@ async function seedDevelopmentDataForDatabase(
     priority: 1,
     startDate: new Date('2025-01-01'),
     endDate: new Date('2026-12-31'),
-    tenantId: ids.tenant,
+    storeId: ids.store,
   };
 
   await prisma.promotion.upsert({
@@ -978,7 +1031,7 @@ async function seedDevelopmentDataForDatabase(
       usageLimit: 100,
       promotionId: ids.promotion,
       customerId: ids.customer,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.coupon,
@@ -986,16 +1039,16 @@ async function seedDevelopmentDataForDatabase(
       usageLimit: 100,
       promotionId: ids.promotion,
       customerId: ids.customer,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
   await prisma.cart.upsert({
     where: { id: ids.cart },
-    update: { customerId: ids.customer, tenantId: ids.tenant },
+    update: { customerId: ids.customer, storeId: ids.store },
     create: {
       id: ids.cart,
       customerId: ids.customer,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
   await prisma.cartItem.upsert({
@@ -1005,7 +1058,7 @@ async function seedDevelopmentDataForDatabase(
       variantId: ids.variant,
       cartId: ids.cart,
       promotionId: ids.promotion,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.cartItem,
@@ -1013,7 +1066,7 @@ async function seedDevelopmentDataForDatabase(
       variantId: ids.variant,
       cartId: ids.cart,
       promotionId: ids.promotion,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
   await prisma.cartPromotions.upsert({
@@ -1021,13 +1074,13 @@ async function seedDevelopmentDataForDatabase(
     update: {
       cartId: ids.cart,
       promotionId: ids.promotion,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.cartPromotion,
       cartId: ids.cart,
       promotionId: ids.promotion,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
   await prisma.order.upsert({
@@ -1039,7 +1092,7 @@ async function seedDevelopmentDataForDatabase(
       customerId: ids.customer,
       cartId: ids.cart,
       addressId: ids.customerAddress,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.order,
@@ -1049,7 +1102,7 @@ async function seedDevelopmentDataForDatabase(
       customerId: ids.customer,
       cartId: ids.cart,
       addressId: ids.customerAddress,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
   await prisma.orderDetail.upsert({
@@ -1061,7 +1114,7 @@ async function seedDevelopmentDataForDatabase(
       subtotal: 1899.99,
       orderId: ids.order,
       variantId: ids.variant,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.orderDetail,
@@ -1071,7 +1124,7 @@ async function seedDevelopmentDataForDatabase(
       subtotal: 1899.99,
       orderId: ids.order,
       variantId: ids.variant,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
   await prisma.orderPromotions.upsert({
@@ -1079,13 +1132,13 @@ async function seedDevelopmentDataForDatabase(
     update: {
       orderId: ids.order,
       promotionId: ids.promotion,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.orderPromotion,
       orderId: ids.order,
       promotionId: ids.promotion,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
   await prisma.couponUsage.upsert({
@@ -1093,13 +1146,13 @@ async function seedDevelopmentDataForDatabase(
     update: {
       couponId: ids.coupon,
       orderId: ids.order,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.couponUsage,
       couponId: ids.coupon,
       orderId: ids.order,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
   await prisma.return.upsert({
@@ -1109,7 +1162,7 @@ async function seedDevelopmentDataForDatabase(
       refundAmount: 100,
       variantId: ids.variant,
       orderId: ids.order,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.return,
@@ -1117,19 +1170,19 @@ async function seedDevelopmentDataForDatabase(
       refundAmount: 100,
       variantId: ids.variant,
       orderId: ids.order,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
   await prisma.paymentMethod.upsert({
     where: { id: ids.tenantPaymentMethod },
     update: {
       acceptedPaymentMethods: ['CREDIT_CARD', 'BANK_TRANSFER'],
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.tenantPaymentMethod,
       acceptedPaymentMethods: ['CREDIT_CARD', 'BANK_TRANSFER'],
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
   await prisma.paymentMethod.upsert({
@@ -1137,13 +1190,13 @@ async function seedDevelopmentDataForDatabase(
     update: {
       acceptedPaymentMethods: ['CREDIT_CARD'],
       customerId: ids.customer,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.customerPaymentMethod,
       acceptedPaymentMethods: ['CREDIT_CARD'],
       customerId: ids.customer,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
   await prisma.payment.upsert({
@@ -1155,7 +1208,7 @@ async function seedDevelopmentDataForDatabase(
       orderId: ids.order,
       paymentMethodId: ids.customerPaymentMethod,
       subscriptionId: ids.subscription,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.payment,
@@ -1165,7 +1218,7 @@ async function seedDevelopmentDataForDatabase(
       orderId: ids.order,
       paymentMethodId: ids.customerPaymentMethod,
       subscriptionId: ids.subscription,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
   await prisma.wishList.upsert({
@@ -1173,13 +1226,13 @@ async function seedDevelopmentDataForDatabase(
     update: {
       variantId: ids.variant,
       customerId: ids.customer,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.wishList,
       variantId: ids.variant,
       customerId: ids.customer,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
   await prisma.customerReviewProduct.upsert({
@@ -1189,7 +1242,7 @@ async function seedDevelopmentDataForDatabase(
       comment: 'Comfortable and easy to assemble.',
       customerId: ids.customer,
       variantId: ids.variant,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
     create: {
       id: ids.review,
@@ -1197,7 +1250,7 @@ async function seedDevelopmentDataForDatabase(
       comment: 'Comfortable and easy to assemble.',
       customerId: ids.customer,
       variantId: ids.variant,
-      tenantId: ids.tenant,
+      storeId: ids.store,
     },
   });
 }

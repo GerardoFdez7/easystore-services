@@ -20,7 +20,7 @@ export interface IProductType extends IProductSystem {
   brand?: string;
   manufacturer?: string;
   tags: string[];
-  tenantId: string;
+  storeId: string;
   variants: IVariantType[];
   media: IMediaType[];
   categories: IProductCategoriesType[];
@@ -37,7 +37,7 @@ export interface IProductBase {
   brand?: string;
   manufacturer?: string;
   tags?: string[];
-  tenantId: string;
+  storeId: string;
   variants?: IVariantInitData[];
   media?: IMediaInitData[];
   categories?: IProductCategoryInitData[];
@@ -53,13 +53,13 @@ export interface IProductSystem {
 }
 
 // Define InitData types for sub-entities (excluding parent IDs)
-export type IVariantInitData = Omit<IVariantBase, 'productId' | 'tenantId'>;
+export type IVariantInitData = Omit<IVariantBase, 'productId' | 'storeId'>;
 export type IMediaInitData = Omit<
   IMediaBase,
-  'productId' | 'variantId' | 'tenantId'
+  'productId' | 'variantId' | 'storeId'
 >;
 export type IProductCategoryInitData = Omit<
   IProductCategoriesBase,
-  'productId' | 'tenantId'
+  'productId' | 'storeId'
 >;
 export type ISustainabilityInitData = Omit<ISustainabilityBase, 'productId'>;

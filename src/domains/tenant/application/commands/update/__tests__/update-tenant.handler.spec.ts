@@ -9,11 +9,11 @@ describe('UpdateTenantHandler', () => {
   const tenantId = '0198b746-8c72-7a2f-9c31-6d4f9866f331';
   const tenant = { id: tenantId };
   const updatedTenant = { commit: jest.fn() };
-  const dto = { id: tenantId, name: 'Updated store' };
+  const dto = { id: tenantId, name: 'Updated owner' };
   const repository = { findById: jest.fn(), update: jest.fn() };
   const publisher = { mergeObjectContext: jest.fn() };
   const command = new UpdateTenantDTO(tenantId, {
-    businessName: 'Updated store',
+    name: 'Updated owner',
   });
   let handler: UpdateTenantHandler;
 
@@ -63,6 +63,15 @@ describe('UpdateTenantHandler', () => {
 
     expect(TenantMapper.fromUpdateDto).toHaveBeenCalledWith(tenant, emptyPatch);
     expect(repository.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not permit default-store changes through the generic update contract', () => {
+    const commandWithStore = new UpdateTenantDTO(tenantId, {
+      // @ts-expect-error Store ownership must be checked by SetDefaultStoreDTO.
+      defaultStoreId: '0198b746-8c72-7a2f-9c31-6d4f9866f332',
+    });
+
+    expect(commandWithStore).toBeDefined();
   });
 
   it('does not write when tenant domain validation rejects a patch', async () => {

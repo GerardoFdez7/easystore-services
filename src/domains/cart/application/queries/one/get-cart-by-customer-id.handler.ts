@@ -24,10 +24,10 @@ export class GetCartByIdHandler
 
   async execute(query: GetCartByCustomerIdDTO): Promise<PaginatedCartDTO> {
     const customerId = Id.create(query.id);
-    const tenantId = Id.create(query.tenantId);
+    const storeId = Id.create(query.storeId);
     const cartFound = await this.cartRepository.findCartByCustomerId(
       customerId,
-      tenantId,
+      storeId,
       query.page,
       query.limit,
     );
@@ -44,7 +44,7 @@ export class GetCartByIdHandler
       variantIds.length > 0
         ? await this.productAdapter.getVariantsDetails(
             variantIds,
-            query.tenantId,
+            query.storeId,
           )
         : [];
 
@@ -53,7 +53,7 @@ export class GetCartByIdHandler
     // Get total count efficiently using the dedicated method
     const totalItems = await this.cartRepository.getCartItemsCount(
       customerId,
-      tenantId,
+      storeId,
     );
     const hasMore = query.page * query.limit < totalItems;
 

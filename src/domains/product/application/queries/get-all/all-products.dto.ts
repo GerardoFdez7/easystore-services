@@ -7,7 +7,7 @@ import {
 
 export class GetAllProductsDTO {
   constructor(
-    public readonly tenantId: string,
+    public readonly storeId: string,
     public readonly options?: {
       page?: number;
       limit?: number;

@@ -74,7 +74,7 @@ export class CustomerResolver {
     return await this.commandBus.execute(
       new CreateWishListDto(
         { ...input, customerId: user.customerId },
-        user.tenantId,
+        user.storeId,
       ),
     );
   }
@@ -87,7 +87,7 @@ export class CustomerResolver {
     @CurrentUser() user: JwtPayload,
   ): Promise<CustomerReviewProductType> {
     return await this.commandBus.execute(
-      new CreateCustomerReviewProductDto(input, user.customerId, user.tenantId),
+      new CreateCustomerReviewProductDto(input, user.customerId, user.storeId),
     );
   }
 
@@ -99,7 +99,7 @@ export class CustomerResolver {
     @CurrentUser() user: JwtPayload,
   ): Promise<CustomerType> {
     return await this.commandBus.execute(
-      new UpdateCustomerDto(input, user.customerId, user.tenantId),
+      new UpdateCustomerDto(input, user.customerId, user.storeId),
     );
   }
 
@@ -111,7 +111,7 @@ export class CustomerResolver {
     @CurrentUser() user: JwtPayload,
   ): Promise<CustomerReviewProductType> {
     return await this.commandBus.execute(
-      new UpdateCustomerReviewProductDto(input, user.customerId, user.tenantId),
+      new UpdateCustomerReviewProductDto(input, user.customerId, user.storeId),
     );
   }
 
@@ -126,7 +126,7 @@ export class CustomerResolver {
       new DeleteCustomerReviewProductDto(
         user.customerId,
         input.id,
-        user.tenantId,
+        user.storeId,
       ),
     );
     return true;
@@ -140,7 +140,7 @@ export class CustomerResolver {
     @CurrentUser() user: JwtPayload,
   ): Promise<boolean> {
     await this.commandBus.execute(
-      new DeleteWishListDto(user.customerId, input.variantId, user.tenantId),
+      new DeleteWishListDto(user.customerId, input.variantId, user.storeId),
     );
     return true;
   }
@@ -156,7 +156,7 @@ export class CustomerResolver {
       new DeleteManyWishListDto(
         user.customerId,
         input.variantIds,
-        user.tenantId,
+        user.storeId,
       ),
     );
   }
@@ -171,7 +171,7 @@ export class CustomerResolver {
     @CurrentUser() user: JwtPayload,
   ): Promise<CustomerType> {
     return this.queryBus.execute(
-      new FindCustomerByIdDto(user.customerId, user.tenantId),
+      new FindCustomerByIdDto(user.customerId, user.storeId),
     );
   }
 
@@ -188,7 +188,7 @@ export class CustomerResolver {
     const result: PaginatedWishlistDTO = await this.queryBus.execute(
       new FindWishlistItemsDto(
         user.customerId,
-        user.tenantId,
+        user.storeId,
         pagination.page,
         pagination.limit,
         sortBy,
@@ -214,7 +214,7 @@ export class CustomerResolver {
       await this.queryBus.execute(
         new FindManyCustomerReviewsDto(
           user.customerId,
-          user.tenantId,
+          user.storeId,
           reviewIds,
           page,
           limit,

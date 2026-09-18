@@ -81,12 +81,12 @@ export class ProductResolver {
     @Args('input') input: CreateProductInput,
     @CurrentUser() user: JwtPayload,
   ): Promise<ProductType> {
-    const inputWithTenantId = {
+    const inputWithStoreId = {
       ...input,
       variants: input.variants?.map(flattenVariantPrice),
-      tenantId: user.tenantId,
+      storeId: user.storeId,
     };
-    return this.commandBus.execute(new CreateProductDTO(inputWithTenantId));
+    return this.commandBus.execute(new CreateProductDTO(inputWithStoreId));
   }
 
   @RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.EDIT)
@@ -101,7 +101,7 @@ export class ProductResolver {
       variants: input.variants?.map(flattenVariantPrice),
     };
     return this.commandBus.execute(
-      new UpdateProductDTO(id, user.tenantId, updateData),
+      new UpdateProductDTO(id, user.storeId, updateData),
     );
   }
 
@@ -111,7 +111,7 @@ export class ProductResolver {
     @Args('id') id: string,
     @CurrentUser() user: JwtPayload,
   ): Promise<ProductType> {
-    return this.commandBus.execute(new SoftDeleteProductDTO(id, user.tenantId));
+    return this.commandBus.execute(new SoftDeleteProductDTO(id, user.storeId));
   }
 
   @RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.DELETE)
@@ -120,7 +120,7 @@ export class ProductResolver {
     @Args('id') id: string,
     @CurrentUser() user: JwtPayload,
   ): Promise<ProductType> {
-    return this.commandBus.execute(new HardDeleteProductDTO(id, user.tenantId));
+    return this.commandBus.execute(new HardDeleteProductDTO(id, user.storeId));
   }
 
   @RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.EDIT)
@@ -129,7 +129,7 @@ export class ProductResolver {
     @Args('id') id: string,
     @CurrentUser() user: JwtPayload,
   ): Promise<ProductType> {
-    return this.commandBus.execute(new RestoreProductDTO(id, user.tenantId));
+    return this.commandBus.execute(new RestoreProductDTO(id, user.storeId));
   }
 
   // Variants mutations
@@ -141,7 +141,7 @@ export class ProductResolver {
     @CurrentUser() user: JwtPayload,
   ): Promise<ProductType> {
     return this.commandBus.execute(
-      new ArchiveVariantDTO(id, productId, user.tenantId),
+      new ArchiveVariantDTO(id, productId, user.storeId),
     );
   }
 
@@ -153,7 +153,7 @@ export class ProductResolver {
     @CurrentUser() user: JwtPayload,
   ): Promise<ProductType> {
     return this.commandBus.execute(
-      new RestoreVariantDTO(id, productId, user.tenantId),
+      new RestoreVariantDTO(id, productId, user.storeId),
     );
   }
 
@@ -165,7 +165,7 @@ export class ProductResolver {
     @CurrentUser() user: JwtPayload,
   ): Promise<ProductType> {
     return this.commandBus.execute(
-      new DeleteVariantDTO(id, productId, user.tenantId),
+      new DeleteVariantDTO(id, productId, user.storeId),
     );
   }
 
@@ -184,7 +184,7 @@ export class ProductResolver {
     @Args('id') id: string,
     @CurrentUser() user: JwtPayload,
   ): Promise<ProductType> {
-    return this.queryBus.execute(new GetProductByIdDTO(id, user.tenantId));
+    return this.queryBus.execute(new GetProductByIdDTO(id, user.storeId));
   }
 
   @RequirePermission(FeatureEnum.CATALOG, PermissionActionEnum.VIEW)
@@ -213,7 +213,7 @@ export class ProductResolver {
     filterMode?: ProductFilterModeEnum,
   ): Promise<PaginatedProductsDTO> {
     return this.queryBus.execute(
-      new GetAllProductsDTO(user.tenantId, {
+      new GetAllProductsDTO(user.storeId, {
         page,
         limit,
         name,

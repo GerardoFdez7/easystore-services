@@ -70,8 +70,10 @@ export default class InventoryResolver {
     input: CreateWarehouseInput,
     @CurrentUser() user: JwtPayload,
   ): Promise<WarehouseType> {
-    const inputWithTenantId = { ...input, tenantId: user.tenantId };
-    return this.commandBus.execute(new CreateWarehouseDTO(inputWithTenantId));
+    const inputWithStoreId = { ...input, storeId: user.storeId };
+    return this.commandBus.execute(
+      new CreateWarehouseDTO(inputWithStoreId, user.tenantId),
+    );
   }
 
   @RequirePermission(FeatureEnum.INVENTORY, PermissionActionEnum.EDIT)
@@ -83,7 +85,7 @@ export default class InventoryResolver {
     @CurrentUser() user: JwtPayload,
   ): Promise<WarehouseType> {
     return this.commandBus.execute(
-      new UpdateWarehouseDTO(id, user.tenantId, input),
+      new UpdateWarehouseDTO(id, user.storeId, user.tenantId, input),
     );
   }
 
@@ -93,7 +95,7 @@ export default class InventoryResolver {
     @Args('id', { type: () => ID }) id: string,
     @CurrentUser() user: JwtPayload,
   ): Promise<WarehouseType> {
-    return this.commandBus.execute(new DeleteWarehouseDTO(id, user.tenantId));
+    return this.commandBus.execute(new DeleteWarehouseDTO(id, user.storeId));
   }
 
   @RequirePermission(FeatureEnum.INVENTORY, PermissionActionEnum.EDIT)
@@ -107,9 +109,9 @@ export default class InventoryResolver {
     @Args('reason', { type: () => String, nullable: true }) reason?: string,
   ): Promise<WarehouseType> {
     return this.commandBus.execute(
-      new CreateStockPerWarehouseDTO(user.tenantId, reason, user.employeeId, {
+      new CreateStockPerWarehouseDTO(user.storeId, reason, user.employeeId, {
         ...input,
-        tenantId: user.tenantId,
+        storeId: user.storeId,
         warehouseId,
         variantId,
       }),
@@ -130,7 +132,7 @@ export default class InventoryResolver {
       new UpdateStockPerWarehouseDTO(
         stockId,
         warehouseId,
-        user.tenantId,
+        user.storeId,
         input,
         reason,
         user.employeeId,
@@ -150,7 +152,7 @@ export default class InventoryResolver {
       new DeleteStockPerWarehouseDTO(
         stockId,
         warehouseId,
-        user.tenantId,
+        user.storeId,
         reason,
         user.employeeId,
       ),
@@ -170,7 +172,7 @@ export default class InventoryResolver {
     isArchived?: boolean,
   ): Promise<WarehouseType> {
     return this.queryBus.execute(
-      new GetWarehouseByIdDTO(id, user.tenantId, isArchived),
+      new GetWarehouseByIdDTO(id, user.storeId, isArchived),
     );
   }
 
@@ -199,6 +201,7 @@ export default class InventoryResolver {
 
     return this.queryBus.execute(
       new GetAllWarehousesDTO(
+        user.storeId,
         user.tenantId,
         {
           page,
@@ -241,7 +244,7 @@ export default class InventoryResolver {
     includeDeleted?: boolean,
   ): Promise<PaginatedStockMovementsType> {
     return this.queryBus.execute(
-      new GetAllStockMovementsDTO(user.tenantId, warehouseId, {
+      new GetAllStockMovementsDTO(user.storeId, warehouseId, {
         page,
         limit,
         variantId,

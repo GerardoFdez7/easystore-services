@@ -1,6 +1,8 @@
 import { ITenantBase } from '../../../aggregates/entities';
 
-type UpdatableTenantFields = Partial<Omit<ITenantBase, 'authIdentityId'>>;
+type UpdatableTenantFields = Partial<
+  Omit<ITenantBase, 'authIdentityId' | 'defaultStoreId'>
+>;
 
 /**
  * Data Transfer Object for updating a Tenant

@@ -4,6 +4,6 @@ export class UpdateCustomerDto {
   constructor(
     public readonly data: ICustomerUpdateBase,
     public readonly customerId: string,
-    public readonly tenantId: string,
+    public readonly storeId: string,
   ) {}
 }

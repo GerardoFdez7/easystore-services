@@ -36,7 +36,7 @@ export interface IVariantProps extends DomainEntityProps {
   isbn?: ISBN;
   isArchived: boolean;
   productId: Id;
-  tenantId: Id;
+  storeId: Id;
   updatedAt: Date;
   createdAt: Date;
   variantMedia: Media[];
@@ -82,7 +82,7 @@ export class Variant extends DomainEntity<IVariantProps> {
       barcode: props.barcode ? Barcode.create(props.barcode) : null,
       isbn: props.isbn ? ISBN.create(props.isbn) : null,
       productId: props.productId ? Id.create(props.productId) : null,
-      tenantId: Id.create(props.tenantId),
+      storeId: Id.create(props.storeId),
     };
 
     // Creation of related entities
@@ -93,7 +93,7 @@ export class Variant extends DomainEntity<IVariantProps> {
       Media.create({
         ...mediaData,
         variantId: newVariantIdValue.getValue(),
-        tenantId: transformedProps.tenantId.getValue(),
+        storeId: transformedProps.storeId.getValue(),
       }),
     );
 
@@ -127,7 +127,7 @@ export class Variant extends DomainEntity<IVariantProps> {
   }
 
   public update(
-    data: Partial<Omit<IVariantBase, 'productId' | 'tenantId'>>,
+    data: Partial<Omit<IVariantBase, 'productId' | 'storeId'>>,
   ): Variant {
     const newProps = { ...this.props };
 
@@ -191,7 +191,7 @@ export class Variant extends DomainEntity<IVariantProps> {
         Media.create({
           ...mediaData,
           variantId: this.props.id.getValue(),
-          tenantId: this.props.tenantId.getValue(),
+          storeId: this.props.storeId.getValue(),
         }),
       );
     }

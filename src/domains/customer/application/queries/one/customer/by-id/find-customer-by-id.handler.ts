@@ -15,11 +15,11 @@ export class FindCustomerByIdHandler
   ) {}
 
   async execute(query: FindCustomerByIdDto): Promise<CustomerDTO> {
-    const { customerId, tenantId } = query;
+    const { customerId, storeId } = query;
 
     const customerFound = await this.customerRepository.findById(
       Id.create(customerId),
-      Id.create(tenantId),
+      Id.create(storeId),
     );
 
     if (!customerFound) throw new NotFoundException('Customer not found.');

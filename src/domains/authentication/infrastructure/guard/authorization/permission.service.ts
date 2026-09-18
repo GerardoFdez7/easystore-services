@@ -19,15 +19,15 @@ export class PermissionService {
 
   /**
    * Loads the full set of (feature, action) grants for an employee, scoped to the
-   * employee's tenant.
+   * employee's Store.
    * @param employeeId The employee ID to resolve grants for.
-   * @param tenantId The tenant ID the employee belongs to.
+   * @param storeId The selected Store ID the employee belongs to.
    * @returns The employee's granted (feature, action) pairs.
    */
-  loadFor(employeeId: string, tenantId: string): Promise<EmployeePermission[]> {
+  loadFor(employeeId: string, storeId: string): Promise<EmployeePermission[]> {
     return this.employeeRepository.findPermissionsByEmployeeId(
       Id.create(employeeId),
-      Id.create(tenantId),
+      Id.create(storeId),
     );
   }
 

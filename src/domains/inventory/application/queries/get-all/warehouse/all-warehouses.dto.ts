@@ -10,6 +10,7 @@ export interface StockPerWarehouseSortBy {
 
 export class GetAllWarehousesDTO {
   constructor(
+    public readonly storeId: string,
     public readonly tenantId: string,
     public readonly options?: {
       page?: number;

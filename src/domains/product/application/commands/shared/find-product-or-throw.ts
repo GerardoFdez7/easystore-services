@@ -5,12 +5,12 @@ import { Id } from '../../../aggregates/value-objects';
 
 export async function findProductOrThrow(
   repository: IProductRepository,
-  tenantId: string,
+  storeId: string,
   productId: string,
   displayedId = productId,
 ): Promise<Product> {
   const product = await repository.findById(
-    Id.create(tenantId),
+    Id.create(storeId),
     Id.create(productId),
   );
 

@@ -3,7 +3,8 @@ import { BadRequestException, Inject, NotFoundException } from '@nestjs/common';
 import { IAuthRepository } from '../../../aggregates/repositories/authentication.interface';
 import { AccountTypeEnum } from '../../../aggregates/value-objects';
 import { AuthenticationMapper } from '../../mappers';
-import { ITenantAdapter } from '../../ports';
+import { IStoreAdapter } from '../../ports';
+import { ICustomerOnboarding, ITenantOnboarding } from '../../ports';
 import { AuthenticationRegisterDTO } from './sign-up.dto';
 import { AuthenticationDTO } from '../../mappers/auth/authentication.dto';
 
@@ -14,8 +15,12 @@ export class AuthenticationRegisterHandler
   constructor(
     @Inject('AuthRepository')
     private readonly authRepository: IAuthRepository,
-    @Inject('ITenantAdapter')
-    private readonly tenantAdapter: ITenantAdapter,
+    @Inject('IStoreAdapter')
+    private readonly storeAdapter: IStoreAdapter,
+    @Inject('ITenantOnboarding')
+    private readonly tenantOnboarding: ITenantOnboarding,
+    @Inject('ICustomerOnboarding')
+    private readonly customerOnboarding: ICustomerOnboarding,
     private readonly eventPublisher: EventPublisher,
   ) {}
 
@@ -35,13 +40,13 @@ export class AuthenticationRegisterHandler
       );
     }
 
+    let trustedStoreId: string | undefined;
     if (requiresDomain) {
-      const tenantId = await this.tenantAdapter.getTenantIdByDomain(
-        data.domain,
-      );
-      if (!tenantId) {
-        throw new NotFoundException('Tenant not found for this domain');
+      const store = await this.storeAdapter.getStoreByDomain(data.domain);
+      if (!store) {
+        throw new NotFoundException('Store not found for this domain');
       }
+      trustedStoreId = store.id;
     }
 
     // Execute domain logic
@@ -49,8 +54,16 @@ export class AuthenticationRegisterHandler
       AuthenticationMapper.fromRegisterDto(command),
     );
 
-    // Persist entity
-    await this.authRepository.create(auth);
+    if (data.accountType === AccountTypeEnum.TENANT) {
+      await this.tenantOnboarding.provision(auth, data.domain);
+    } else if (data.accountType === AccountTypeEnum.CUSTOMER) {
+      if (!trustedStoreId) {
+        throw new NotFoundException('Store not found for this domain');
+      }
+      await this.customerOnboarding.provision(auth, trustedStoreId);
+    } else {
+      await this.authRepository.create(auth);
+    }
 
     // Publish event
     auth.commit();

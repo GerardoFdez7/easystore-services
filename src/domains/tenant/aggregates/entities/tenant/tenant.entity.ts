@@ -1,18 +1,13 @@
 import { Entity, EntityProps } from '@shared/aggregates/entities/entity.base';
-import { Id, Name, LongDescription, Currency } from '../../value-objects';
+import { Id, Name } from '../../value-objects';
 import { ITenantBase, ITenantType } from '..';
-import { Domain, Media } from '../../value-objects';
 import { TenantCreatedEvent, TenantUpdatedEvent } from '../../events';
 
 export interface ITenantProps extends EntityProps {
   id: Id;
-  businessName?: Name;
-  ownerName: Name;
-  domain?: Domain;
-  logo?: Media;
-  description?: LongDescription;
-  currency: Currency;
+  name: Name;
   authIdentityId: Id;
+  defaultStoreId?: Id;
   defaultPhoneNumberId?: Id;
   defaultShippingAddressId?: Id;
   defaultBillingAddressId?: Id;
@@ -29,25 +24,12 @@ export class Tenant extends Entity<ITenantProps> {
     return new Tenant(props);
   }
 
-  // Factory method to create a new Tenant
   static create(props: ITenantBase): Tenant {
-    const transformedProps = {
-      ownerName: Name.create(props.ownerName),
-      businessName: props.businessName ? Name.create(props.businessName) : null,
-      domain: props.domain ? Domain.create(props.domain) : null,
-      logo: props.logo ? Media.create(props.logo) : null,
-      description: props.description
-        ? LongDescription.create(props.description)
-        : null,
-      currency: props.currency
-        ? Currency.create(props.currency)
-        : Currency.create(process.env.DEFAULT_CURRENCY || 'GTQ'),
-      authIdentityId: Id.create(props.authIdentityId),
-    };
-
     const tenant = new Tenant({
       id: Id.generate(),
-      ...transformedProps,
+      name: Name.create(props.name),
+      authIdentityId: Id.create(props.authIdentityId),
+      defaultStoreId: null,
       defaultPhoneNumberId: null,
       defaultShippingAddressId: null,
       defaultBillingAddressId: null,
@@ -55,30 +37,14 @@ export class Tenant extends Entity<ITenantProps> {
       updatedAt: new Date(),
     });
 
-    // Apply domain event
     tenant.apply(new TenantCreatedEvent(tenant));
 
     return tenant;
   }
 
-  update(props: Partial<ITenantType>): Tenant {
-    if (props.ownerName) {
-      this.props.ownerName = Name.create(props.ownerName);
-    }
-    if (props.businessName) {
-      this.props.businessName = Name.create(props.businessName);
-    }
-    if (props.domain) {
-      this.props.domain = Domain.create(props.domain);
-    }
-    if (props.logo !== undefined) {
-      this.props.logo = Media.create(props.logo);
-    }
-    if (props.description) {
-      this.props.description = LongDescription.create(props.description);
-    }
-    if (props.currency) {
-      this.props.currency = Currency.create(props.currency);
+  update(props: Partial<Omit<ITenantType, 'defaultStoreId'>>): Tenant {
+    if (props.name) {
+      this.props.name = Name.create(props.name);
     }
     if (props.defaultPhoneNumberId) {
       this.props.defaultPhoneNumberId = Id.create(props.defaultPhoneNumberId);
@@ -96,9 +62,16 @@ export class Tenant extends Entity<ITenantProps> {
 
     this.props.updatedAt = new Date();
 
-    // Apply domain event
     this.apply(new TenantUpdatedEvent(this));
 
+    return this;
+  }
+
+  /** Records a store already verified by the store ownership capability. */
+  setDefaultStore(storeId: string): Tenant {
+    this.props.defaultStoreId = Id.create(storeId);
+    this.props.updatedAt = new Date();
+    this.apply(new TenantUpdatedEvent(this));
     return this;
   }
 }

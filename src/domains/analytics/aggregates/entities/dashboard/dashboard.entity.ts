@@ -4,7 +4,7 @@ import { IDashboardBase } from './dashboard.attributes';
 
 export interface IDashboardProps extends EntityProps, IDashboardBase {
   id: Id;
-  tenantId: Id;
+  storeId: Id;
 }
 
 export class Dashboard extends Entity<IDashboardProps> {

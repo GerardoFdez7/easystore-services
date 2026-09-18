@@ -13,6 +13,7 @@ import {
   JwtPayload,
   extractTokenFromCookies,
   isTokenBlacklisted,
+  isJwtPayload,
 } from '../strategies/jwt/jwt.handler';
 import {
   IsPublicKey,
@@ -84,6 +85,7 @@ export default class AuthenticationGuard
       }
       // Verify the JWT token
       const payload = this.jwtService.verify<JwtPayload>(token);
+      if (!isJwtPayload(payload)) throw new Error('Invalid token payload');
 
       // Attach user info to the request context
       req.user = payload;

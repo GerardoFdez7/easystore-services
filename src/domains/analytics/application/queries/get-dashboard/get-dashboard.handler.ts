@@ -12,11 +12,11 @@ export class GetDashboardHandler implements IQueryHandler<GetDashboardDTO> {
   ) {}
 
   async execute(query: GetDashboardDTO): Promise<DashboardDTO> {
-    const result = await this.analyticsRepository.getDashboard(query.tenantId);
+    const result = await this.analyticsRepository.getDashboard(query.storeId);
 
     if (!result) {
       throw new NotFoundException(
-        `No dashboard found for tenant with ID: ${query.tenantId.getValue()}`,
+        `No dashboard found for Store with ID: ${query.storeId.getValue()}`,
       );
     }
 

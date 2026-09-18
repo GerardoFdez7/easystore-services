@@ -1,7 +1,12 @@
-import { Resolver, Mutation, Query, Args, Context } from '@nestjs/graphql';
+import { Resolver, Mutation, Query, Args, Context, ID } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Request, Response } from 'express';
-import { Public, AllowAccountTypes } from '@shared/presentation/decorators';
+import {
+  Public,
+  AllowAccountTypes,
+  CurrentUser,
+  JwtPayload,
+} from '@shared/presentation/decorators';
 import { AccountTypeEnum } from '../../aggregates/value-objects';
 import {
   setTokenCookies,
@@ -23,6 +28,7 @@ import {
   ForgotPasswordDTO,
   UpdatePasswordDTO,
   GetInTouchDTO,
+  SwitchStoreDTO,
 } from '../../application/commands';
 import { AuthenticationValidateTokenDTO } from '../../application/queries';
 import { ResponseDTO } from '../../application/mappers';
@@ -66,6 +72,21 @@ export default class AuthenticationResolver {
       success: result.success,
       message: result.message,
     };
+  }
+
+  @AllowAccountTypes(AccountTypeEnum.TENANT)
+  @Mutation(() => ResponseType)
+  async switchStore(
+    @Args('storeId', { type: () => ID }) storeId: string,
+    @CurrentUser() user: JwtPayload,
+    @Context() context: { res: Response },
+  ): Promise<ResponseType> {
+    const result = await this.commandBus.execute<SwitchStoreDTO, ResponseDTO>(
+      new SwitchStoreDTO(storeId, user),
+    );
+    if (result.accessToken && context.res)
+      setTokenCookies(context.res, result.accessToken);
+    return { success: result.success, message: result.message };
   }
 
   @AllowAccountTypes(

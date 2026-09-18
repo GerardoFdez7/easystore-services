@@ -6,7 +6,7 @@ import { CartDTO, CartMapper } from '../../../mappers';
 import { Cart } from '../../../../aggregates/entities/cart/cart.entity';
 import { CartItem } from '../../../../aggregates/value-objects';
 import { IProductAdapter } from '../../../ports';
-import { findTenantCartOrThrow } from '../../../shared/cart-command-helpers';
+import { findStoreCartOrThrow } from '../../../shared/cart-command-helpers';
 
 @CommandHandler(AddItemToCartDto)
 export class AddItemToCartHandler implements ICommandHandler<AddItemToCartDto> {
@@ -21,15 +21,15 @@ export class AddItemToCartHandler implements ICommandHandler<AddItemToCartDto> {
   async execute(command: AddItemToCartDto): Promise<CartDTO> {
     const { variantId, promotionId } = command.data;
 
-    const cartFound = await findTenantCartOrThrow(
+    const cartFound = await findStoreCartOrThrow(
       this.cartRepository,
       command.customerId,
-      command.tenantId,
+      command.storeId,
     );
 
     const variants = await this.productAdapter.getVariantsDetails(
       [variantId],
-      command.tenantId,
+      command.storeId,
     );
 
     if (variants.length !== 1) {

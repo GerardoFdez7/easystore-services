@@ -1,7 +1,10 @@
 import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { TenantType, UpdateTenantInput } from './types/tenant.types';
-import { UpdateTenantDTO } from '../../application/commands';
+import {
+  SetDefaultStoreDTO,
+  UpdateTenantDTO,
+} from '../../application/commands';
 import { GetTenantByIdDTO } from '../../application/queries';
 import {
   CurrentUser,
@@ -27,6 +30,17 @@ export default class TenantResolver {
     const command = new UpdateTenantDTO(user.tenantId, { ...input });
 
     return this.commandBus.execute(command);
+  }
+
+  @AllowAccountTypes(AccountTypeEnum.TENANT)
+  @Mutation(() => TenantType)
+  setDefaultStore(
+    @CurrentUser() user: JwtPayload,
+    @Args('storeId', { type: () => String }) storeId: string,
+  ): Promise<TenantType> {
+    return this.commandBus.execute(
+      new SetDefaultStoreDTO(user.tenantId, storeId),
+    );
   }
 
   ///////////////

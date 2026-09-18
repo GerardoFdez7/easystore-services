@@ -40,7 +40,7 @@ export class CategoryMapper {
       parentId: persistenceCategory.parentId
         ? Id.create(persistenceCategory.parentId)
         : null,
-      tenantId: Id.create(persistenceCategory.tenantId),
+      storeId: Id.create(persistenceCategory.storeId),
       updatedAt: persistenceCategory.updatedAt,
       createdAt: persistenceCategory.createdAt,
     };
@@ -65,7 +65,7 @@ export class CategoryMapper {
           return CategoryMapper.toDto(subCategoryEntity);
         }) || [],
       parentId: entity.get('parentId')?.getValue(),
-      tenantId: entity.get('tenantId').getValue(),
+      storeId: entity.get('storeId').getValue(),
       updatedAt: entity.get('updatedAt'),
       createdAt: entity.get('createdAt'),
     }));

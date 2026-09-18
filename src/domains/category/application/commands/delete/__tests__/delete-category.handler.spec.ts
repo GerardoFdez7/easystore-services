@@ -11,13 +11,13 @@ jest.mock('../../shared/find-category-or-throw', () => ({
 
 describe('DeleteCategoryHandler', () => {
   const categoryId = '0198b746-8c72-7a2f-9c31-6d4f9866f312';
-  const tenantId = '0198b746-8c72-7a2f-9c31-6d4f9866f313';
+  const storeId = '0198b746-8c72-7a2f-9c31-6d4f9866f313';
   const category = { id: categoryId };
   const deletedCategory = { commit: jest.fn() };
   const dto = { id: categoryId };
   const repository = { delete: jest.fn() };
   const publisher = { mergeObjectContext: jest.fn() };
-  const command = new DeleteCategoryDTO(categoryId, tenantId);
+  const command = new DeleteCategoryDTO(categoryId, storeId);
   let handler: DeleteCategoryHandler;
 
   beforeEach(() => {
@@ -34,24 +34,24 @@ describe('DeleteCategoryHandler', () => {
     publisher.mergeObjectContext.mockReturnValue(deletedCategory);
   });
 
-  it('deletes only the category in the requested tenant and publishes its event', async () => {
+  it('deletes only the category in the requested store and publishes its event', async () => {
     await expect(handler.execute(command)).resolves.toBe(dto);
 
     expect(findCategoryOrThrow).toHaveBeenCalledWith(
       repository,
       expect.objectContaining({ value: categoryId }),
-      expect.objectContaining({ value: tenantId }),
+      expect.objectContaining({ value: storeId }),
     );
     expect(CategoryMapper.fromDeleteDto).toHaveBeenCalledWith(category);
     expect(repository.delete).toHaveBeenCalledWith(
       expect.objectContaining({ value: categoryId }),
-      expect.objectContaining({ value: tenantId }),
+      expect.objectContaining({ value: storeId }),
     );
     expect(deletedCategory.commit).toHaveBeenCalledTimes(1);
     expect(CategoryMapper.toDto).toHaveBeenCalledWith(category);
   });
 
-  it('does not delete when the tenant-scoped category is missing', async () => {
+  it('does not delete when the store-scoped category is missing', async () => {
     const error = new Error('Category not found');
     (findCategoryOrThrow as jest.Mock).mockRejectedValueOnce(error);
 

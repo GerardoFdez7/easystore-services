@@ -17,13 +17,13 @@ export class CustomerRepository implements ICustomerRepository {
    */
   async findByAuthIdentityId(
     authIdentityId: Id,
-  ): Promise<{ id: string; tenantId: string } | null> {
+  ): Promise<{ id: string; storeId: string } | null> {
     try {
       const customer = await this.postgresService.customer.findUnique({
         where: { authIdentityId: authIdentityId.getValue() },
         select: {
           id: true,
-          tenantId: true,
+          storeId: true,
         },
       });
 
@@ -62,16 +62,16 @@ export class CustomerRepository implements ICustomerRepository {
     }
   }
 
-  async update(customer: Customer, tenantId: Id): Promise<Customer> {
+  async update(customer: Customer, storeId: Id): Promise<Customer> {
     try {
       const customerData = CustomerMapper.toDto(customer);
       const customerId = customer.get('id').getValue();
-      const tenantIdValue = tenantId.getValue();
+      const storeIdValue = storeId.getValue();
 
       const updatedCustomer = await this.postgresService.$transaction(
         async (tx) =>
           tx.customer.update({
-            where: { id: customerId, tenantId: tenantIdValue },
+            where: { id_storeId: { id: customerId, storeId: storeIdValue } },
             data: {
               name: customerData.name,
               defaultPhoneNumberId: customerData.defaultPhoneNumberId,
@@ -92,10 +92,10 @@ export class CustomerRepository implements ICustomerRepository {
     }
   }
 
-  async findById(id: Id, tenantId: Id): Promise<Customer | null> {
+  async findById(id: Id, storeId: Id): Promise<Customer | null> {
     try {
       const customerFound = await this.postgresService.customer.findFirst({
-        where: { id: id.getValue(), tenantId: tenantId.getValue() },
+        where: { id: id.getValue(), storeId: storeId.getValue() },
       });
 
       return customerFound
@@ -118,7 +118,7 @@ export class CustomerRepository implements ICustomerRepository {
         defaultPhoneNumberId: 'Phone Number',
         defaultShippingAddressId: 'Address',
         defaultBillingAddressId: 'Address',
-        tenantId: 'Tenant',
+        storeId: 'Store',
       },
       uniqueConstraintError: uniqueMessage
         ? (_prismaError, field) =>

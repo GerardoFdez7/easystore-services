@@ -6,7 +6,7 @@ import { ICartRepository } from '../../../aggregates/repositories/cart.interface
 import { Id, Qty } from '../../../aggregates/value-objects';
 import { Cart } from '../../../aggregates/entities/cart/cart.entity';
 import {
-  findTenantCartOrThrow,
+  findStoreCartOrThrow,
   persistCartMutation,
 } from '../../shared/cart-command-helpers';
 
@@ -22,10 +22,10 @@ export class UpdateItemQuantityHandler
 
   async execute(command: UpdateItemQuantityDto): Promise<CartDTO> {
     const { variantId, quantity } = command.data;
-    const cartFound = await findTenantCartOrThrow(
+    const cartFound = await findStoreCartOrThrow(
       this.cartRepository,
       command.customerId,
-      command.tenantId,
+      command.storeId,
     );
 
     return persistCartMutation(

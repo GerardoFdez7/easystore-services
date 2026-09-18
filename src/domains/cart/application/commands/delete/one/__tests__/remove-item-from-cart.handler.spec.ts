@@ -69,7 +69,7 @@ describe('RemoveItemFromCartHandler', () => {
     toDtoMock = jest.spyOn(CartMapper, 'toDto').mockReturnValue({
       id: 'cart-id-123',
       customerId: 'customer-id-456',
-      tenantId: '019a039e-fe37-7516-ab6d-c16428949f9f',
+      storeId: '019a039e-fe37-7516-ab6d-c16428949f9f',
       cartItems: [],
       totalCart: [],
     } as CartDTO);
@@ -330,7 +330,7 @@ describe('RemoveItemFromCartHandler', () => {
         const expectedDto: CartDTO = {
           id: 'cart-id-123',
           customerId: 'customer-id-456',
-          tenantId: '019a039e-fe37-7516-ab6d-c16428949f9f',
+          storeId: '019a039e-fe37-7516-ab6d-c16428949f9f',
           cartItems: [],
           totalCart: [],
         } as CartDTO;
@@ -354,7 +354,7 @@ describe('RemoveItemFromCartHandler', () => {
         const cartAfterRemoval: CartDTO = {
           id: 'cart-id-123',
           customerId: 'customer-id-456',
-          tenantId: '019a039e-fe37-7516-ab6d-c16428949f9f',
+          storeId: '019a039e-fe37-7516-ab6d-c16428949f9f',
           cartItems: [
             {
               id: 'remaining-item',
@@ -548,7 +548,7 @@ describe('RemoveItemFromCartHandler', () => {
         const expectedDto: CartDTO = {
           id: 'cart-id-123',
           customerId: 'customer-id-456',
-          tenantId: '019a039e-fe37-7516-ab6d-c16428949f9f',
+          storeId: '019a039e-fe37-7516-ab6d-c16428949f9f',
           cartItems: [],
           totalCart: [],
         } as CartDTO;

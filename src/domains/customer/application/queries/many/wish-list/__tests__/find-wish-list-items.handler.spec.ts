@@ -54,7 +54,7 @@ describe('FindWishListItemsHandler', () => {
     const wishlistItem = WishListItem.fromPersistence({
       id: '33333333-3333-4333-8333-333333333333',
       customerId,
-      tenantId: '11111111-1111-4111-8111-111111111112',
+      storeId: '11111111-1111-4111-8111-111111111112',
       variantId,
       updatedAt: new Date('2026-01-01T00:00:00.000Z'),
     });
@@ -83,7 +83,10 @@ describe('FindWishListItemsHandler', () => {
     const customerArgument = findManyMock.mock.calls[0]?.[0];
 
     expect(customerArgument?.getValue()).toBe(customerId);
-    expect(getVariantsDetailsMock).toHaveBeenCalledWith([variantId]);
+    expect(getVariantsDetailsMock).toHaveBeenCalledWith(
+      [variantId],
+      '11111111-1111-4111-8111-111111111112',
+    );
     expect(result).toEqual({
       wishlistItems: [
         expect.objectContaining({
@@ -121,21 +124,21 @@ describe('FindWishListItemsHandler', () => {
       WishListItem.fromPersistence({
         id: '33333333-3333-4333-8333-333333333331',
         customerId,
-        tenantId: '11111111-1111-4111-8111-111111111112',
+        storeId: '11111111-1111-4111-8111-111111111112',
         variantId: variantIds[0],
         updatedAt: new Date('2026-01-03T00:00:00.000Z'),
       }),
       WishListItem.fromPersistence({
         id: '33333333-3333-4333-8333-333333333332',
         customerId,
-        tenantId: '11111111-1111-4111-8111-111111111112',
+        storeId: '11111111-1111-4111-8111-111111111112',
         variantId: variantIds[1],
         updatedAt: new Date('2026-01-01T00:00:00.000Z'),
       }),
       WishListItem.fromPersistence({
         id: '33333333-3333-4333-8333-333333333333',
         customerId,
-        tenantId: '11111111-1111-4111-8111-111111111112',
+        storeId: '11111111-1111-4111-8111-111111111112',
         variantId: variantIds[2],
         updatedAt: new Date('2026-01-02T00:00:00.000Z'),
       }),
@@ -225,7 +228,7 @@ describe('FindWishListItemsHandler', () => {
         WishListItem.fromPersistence({
           id: `33333333-3333-4333-8333-33333333333${index + 4}`,
           customerId,
-          tenantId: '11111111-1111-4111-8111-111111111112',
+          storeId: '11111111-1111-4111-8111-111111111112',
           variantId: id,
           updatedAt: new Date(`2026-01-0${index + 1}T00:00:00.000Z`),
         }),

@@ -9,7 +9,7 @@ export interface ICategoryBase {
   description?: string;
   subCategories?: ICategoryType[];
   parentId?: string;
-  tenantId: string;
+  storeId: string;
 }
 
 // System-generated properties for a Category

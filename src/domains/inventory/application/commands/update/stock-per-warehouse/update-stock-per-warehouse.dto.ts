@@ -4,7 +4,7 @@ export class UpdateStockPerWarehouseDTO {
   constructor(
     public readonly stockId: string,
     public readonly warehouseId: string,
-    public readonly tenantId: string,
+    public readonly storeId: string,
     public readonly data: Partial<
       Omit<IStockPerWarehouseBase, 'variantId' | 'warehouseId'>
     >,

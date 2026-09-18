@@ -9,7 +9,7 @@ export class TenantCreatedHandler implements IEventHandler<TenantCreatedEvent> {
     // Here we can implement side effects when a tenant is created
     // For example: send welcome email, create default settings, etc.
     logger.log(
-      `Tenant created: ${event.tenant.get('ownerName').getValue()}, with id: ${event.tenant.get('id').getValue()}`,
+      `Tenant created: ${event.tenant.get('name').getValue()}, with id: ${event.tenant.get('id').getValue()}`,
     );
   }
 }

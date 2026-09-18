@@ -97,7 +97,7 @@ describe('UpdateStockPerWarehouseHandler', () => {
     const baseCommand: UpdateStockPerWarehouseDTO = {
       stockId: 'stock-123',
       warehouseId: 'warehouse-123',
-      tenantId: 'tenant-123',
+      storeId: 'store-123',
       reason: 'Stock adjustment',
       createdById: 'user-456',
       data: baseStockData,
@@ -112,11 +112,11 @@ describe('UpdateStockPerWarehouseHandler', () => {
         );
         expect(findByIdMock).toHaveBeenCalledWith(
           { value: 'warehouse-123' },
-          { value: 'tenant-123' },
+          { value: 'store-123' },
         );
       });
 
-      it('should find warehouse with correct tenant and warehouse IDs', async () => {
+      it('should find warehouse with correct store and warehouse IDs', async () => {
         findByIdMock.mockResolvedValue(mockWarehouse);
         mergeObjectContextMock.mockReturnValue(mockWarehouse as never);
 
@@ -125,7 +125,7 @@ describe('UpdateStockPerWarehouseHandler', () => {
         expect(idCreateMock).toHaveBeenCalledWith('warehouse-123');
         expect(findByIdMock).toHaveBeenCalledWith(
           { value: 'warehouse-123' },
-          { value: 'tenant-123' },
+          { value: 'store-123' },
         );
       });
     });
@@ -165,7 +165,7 @@ describe('UpdateStockPerWarehouseHandler', () => {
         expect(updateSingleStockMock).toHaveBeenCalledWith(
           { value: 'stock-123' },
           { value: 'warehouse-123' },
-          { value: 'tenant-123' },
+          { value: 'store-123' },
           baseStockData,
           {
             reason: 'Stock adjustment',
@@ -242,7 +242,7 @@ describe('UpdateStockPerWarehouseHandler', () => {
         const minimalCommand: UpdateStockPerWarehouseDTO = {
           stockId: 'stock-123',
           warehouseId: 'warehouse-123',
-          tenantId: 'tenant-1',
+          storeId: 'store-1',
           reason: 'Test',
           createdById: 'user-1',
           data: {
@@ -267,7 +267,7 @@ describe('UpdateStockPerWarehouseHandler', () => {
         const completeCommand: UpdateStockPerWarehouseDTO = {
           stockId: 'stock-123',
           warehouseId: 'warehouse-123',
-          tenantId: 'tenant-123',
+          storeId: 'store-123',
           reason: 'Complete stock update',
           createdById: 'user-456',
           data: {
@@ -292,7 +292,7 @@ describe('UpdateStockPerWarehouseHandler', () => {
         const negativeQuantityCommand: UpdateStockPerWarehouseDTO = {
           stockId: 'stock-123',
           warehouseId: 'warehouse-123',
-          tenantId: 'tenant-123',
+          storeId: 'store-123',
           reason: 'Stock reduction',
           createdById: 'user-456',
           data: {
@@ -337,7 +337,7 @@ describe('UpdateStockPerWarehouseHandler', () => {
         const completeCommand: UpdateStockPerWarehouseDTO = {
           stockId: 'stock-123',
           warehouseId: 'warehouse-123',
-          tenantId: 'tenant-789',
+          storeId: 'store-789',
           reason: 'Integration test stock update',
           createdById: 'user-789',
           data: {

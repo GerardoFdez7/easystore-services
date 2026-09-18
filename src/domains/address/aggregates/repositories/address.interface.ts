@@ -5,7 +5,7 @@ import { AddressDetailsDTO } from '@shared/application/dtos';
 export type Owner = { tenantId: Id; customerId?: Id };
 
 /**
- * Persistence contract for addresses scoped to a tenant and, when applicable, a customer.
+ * Persistence contract for addresses scoped to a Tenant and, when applicable, a customer.
  */
 export interface IAddressRepository {
   /**
@@ -19,7 +19,7 @@ export interface IAddressRepository {
   /**
    * Updates an existing address in the repository.
    * @param id - The unique identifier of the address to update.
-   * @param owner - The tenant scope and optional customer owner.
+   * @param owner - The Tenant scope and optional customer owner.
    * @param updates - The address entity with updated data.
    * @returns A promise that resolves to the updated address entity.
    * @throws {Error} When the address does not exist or the update fails.
@@ -29,7 +29,7 @@ export interface IAddressRepository {
   /**
    * Deletes an address from the repository.
    * @param id - The unique identifier of the address to delete.
-   * @param owner - The tenant scope and optional customer owner.
+   * @param owner - The Tenant scope and optional customer owner.
    * @returns A promise that resolves when the address is deleted.
    * @throws {Error} When the address does not exist or the deletion fails.
    */
@@ -45,7 +45,7 @@ export interface IAddressRepository {
 
   /**
    * Finds all addresses for a given owner with pagination and filtering options
-   * @param owner - The tenant scope and optional customer owner
+   * @param owner - The Tenant scope and optional customer owner
    * @param options - Optional query parameters for pagination and filtering
    * @param options.page The page number for pagination (e.g., 1 for the first page).
    * @param options.limit The number of items per page.

@@ -19,7 +19,7 @@ export interface IWishListRepository {
   findWishListItemByVariantId(
     customerId: Id,
     variantId: Id,
-    tenantId: Id,
+    storeId: Id,
   ): Promise<WishListItem | null>;
 
   /**
@@ -31,7 +31,7 @@ export interface IWishListRepository {
   removeVariantFromWishList(
     customerId: Id,
     variantId: Id,
-    tenantId: Id,
+    storeId: Id,
   ): Promise<WishListItem | null>;
 
   /**
@@ -43,9 +43,9 @@ export interface IWishListRepository {
   removeManyFromWishList(
     customerId: Id,
     variantIds: Id[],
-    tenantId: Id,
+    storeId: Id,
   ): Promise<WishListItem[]>;
 
   /** Retrieves all wish-list items owned by one customer. */
-  findMany(customerId: Id, tenantId: Id): Promise<WishListItem[]>;
+  findMany(customerId: Id, storeId: Id): Promise<WishListItem[]>;
 }

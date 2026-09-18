@@ -10,10 +10,10 @@ export default class CategoryAdapter implements ICategoryAdapter {
   constructor(private readonly queryBus: QueryBus) {}
 
   async getCategories(
-    tenantId: Id,
+    storeId: Id,
     categoriesIds: string[],
   ): Promise<CategoryDTO[]> {
-    const query = new GetCategoriesByIdsDTO(categoriesIds, tenantId.getValue());
+    const query = new GetCategoriesByIdsDTO(categoriesIds, storeId.getValue());
     return this.queryBus.execute(query);
   }
 }

@@ -22,14 +22,14 @@ export class CreateWishListHandler
 
   async execute(command: CreateWishListDto): Promise<WishListDTO> {
     const customerId = Id.create(command.wishListItem.customerId);
-    const tenantId = Id.create(command.tenantId);
+    const storeId = Id.create(command.storeId);
     const variantId = Id.create(command.wishListItem.variantId);
 
     // Find the customer to validate it exists
     const customerFound = await findCustomerOrThrow(
       this.customerRepository,
       customerId,
-      tenantId,
+      storeId,
     );
 
     // Check if not exist a wishlist item already
@@ -37,7 +37,7 @@ export class CreateWishListHandler
       await this.wishListRepository.findWishListItemByVariantId(
         customerId,
         variantId,
-        tenantId,
+        storeId,
       );
 
     if (wishListItemFound !== null)

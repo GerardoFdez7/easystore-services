@@ -11,13 +11,13 @@ jest.mock('../../shared/find-category-or-throw', () => ({
 
 describe('UpdateCategoryHandler', () => {
   const categoryId = '0198b746-8c72-7a2f-9c31-6d4f9866f312';
-  const tenantId = '0198b746-8c72-7a2f-9c31-6d4f9866f313';
+  const storeId = '0198b746-8c72-7a2f-9c31-6d4f9866f313';
   const category = { id: categoryId };
   const updatedCategory = { commit: jest.fn() };
   const dto = { id: categoryId, name: 'Updated office' };
   const repository = { update: jest.fn() };
   const publisher = { mergeObjectContext: jest.fn() };
-  const command = new UpdateCategoryDTO(categoryId, tenantId, {
+  const command = new UpdateCategoryDTO(categoryId, storeId, {
     name: 'Updated office',
   });
   let handler: UpdateCategoryHandler;
@@ -36,13 +36,13 @@ describe('UpdateCategoryHandler', () => {
     publisher.mergeObjectContext.mockReturnValue(updatedCategory);
   });
 
-  it('updates a category within its tenant boundary and returns the updated DTO', async () => {
+  it('updates a category within its store boundary and returns the updated DTO', async () => {
     await expect(handler.execute(command)).resolves.toBe(dto);
 
     expect(findCategoryOrThrow).toHaveBeenCalledWith(
       repository,
       expect.objectContaining({ value: categoryId }),
-      expect.objectContaining({ value: tenantId }),
+      expect.objectContaining({ value: storeId }),
     );
     expect(CategoryMapper.fromUpdateDto).toHaveBeenCalledWith(
       category,
@@ -50,15 +50,15 @@ describe('UpdateCategoryHandler', () => {
     );
     expect(repository.update).toHaveBeenCalledWith(
       expect.objectContaining({ value: categoryId }),
-      expect.objectContaining({ value: tenantId }),
+      expect.objectContaining({ value: storeId }),
       updatedCategory,
     );
     expect(updatedCategory.commit).toHaveBeenCalledTimes(1);
     expect(CategoryMapper.toDto).toHaveBeenCalledWith(updatedCategory);
   });
 
-  it('supports an empty patch while retaining tenant scoping', async () => {
-    const emptyPatch = new UpdateCategoryDTO(categoryId, tenantId, {});
+  it('supports an empty patch while retaining store scoping', async () => {
+    const emptyPatch = new UpdateCategoryDTO(categoryId, storeId, {});
 
     await handler.execute(emptyPatch);
 

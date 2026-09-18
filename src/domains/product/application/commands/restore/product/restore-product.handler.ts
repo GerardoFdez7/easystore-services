@@ -16,11 +16,11 @@ export class RestoreProductHandler
   ) {}
 
   async execute(command: RestoreProductDTO): Promise<ProductDTO> {
-    const { id, tenantId } = command;
+    const { id, storeId } = command;
 
     // Find the product by ID
     const product = await this.productRepository.findById(
-      Id.create(tenantId),
+      Id.create(storeId),
       Id.create(id),
     );
     if (!product) {
@@ -42,7 +42,7 @@ export class RestoreProductHandler
 
     // Save the updated product
     await this.productRepository.update(
-      Id.create(tenantId),
+      Id.create(storeId),
       Id.create(id),
       restoredProduct,
     );

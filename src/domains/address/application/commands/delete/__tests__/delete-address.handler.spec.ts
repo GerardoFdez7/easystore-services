@@ -12,7 +12,7 @@ describe('DeleteAddressHandler', () => {
   const deletedAddress = { commit: jest.fn() };
   const dto = { id: 'address-1' };
   const addressId = { value: 'address-1' };
-  const owner = { value: 'tenant-1' };
+  const owner = { value: 'store-1' };
   const repository = { delete: jest.fn() };
   const publisher = { mergeObjectContext: jest.fn() };
   let handler: DeleteAddressHandler;
@@ -36,14 +36,14 @@ describe('DeleteAddressHandler', () => {
   });
 
   it('resolves the owner, deletes the address, commits, and returns the original DTO', async () => {
-    const command = new AddressDeleteDTO('address-1', 'tenant-1');
+    const command = new AddressDeleteDTO('address-1', 'store-1');
 
     await expect(handler.execute(command)).resolves.toBe(dto);
 
     expect(findAddressOrThrow).toHaveBeenCalledWith(
       repository,
       'address-1',
-      'tenant-1',
+      'store-1',
       undefined,
     );
     expect(AddressMapper.fromDeleteDto).toHaveBeenCalledWith(originalAddress);
@@ -57,9 +57,7 @@ describe('DeleteAddressHandler', () => {
     (findAddressOrThrow as jest.Mock).mockRejectedValueOnce(error);
 
     await expect(
-      handler.execute(
-        new AddressDeleteDTO('missing', 'tenant-1', 'customer-1'),
-      ),
+      handler.execute(new AddressDeleteDTO('missing', 'store-1', 'customer-1')),
     ).rejects.toBe(error);
     expect(repository.delete).not.toHaveBeenCalled();
     expect(deletedAddress.commit).not.toHaveBeenCalled();
@@ -70,7 +68,7 @@ describe('DeleteAddressHandler', () => {
     repository.delete.mockRejectedValueOnce(error);
 
     await expect(
-      handler.execute(new AddressDeleteDTO('address-1', 'tenant-1')),
+      handler.execute(new AddressDeleteDTO('address-1', 'store-1')),
     ).rejects.toBe(error);
     expect(deletedAddress.commit).not.toHaveBeenCalled();
     expect(AddressMapper.toDto).not.toHaveBeenCalled();

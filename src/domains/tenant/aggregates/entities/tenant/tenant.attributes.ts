@@ -1,17 +1,8 @@
-import { CurrencyCodes } from '../../value-objects';
-
-export interface ITenantType extends ITenantBase, ITenantSystem {
-  currency: CurrencyCodes;
-}
+export interface ITenantType extends ITenantBase, ITenantSystem {}
 
 export interface ITenantBase {
-  ownerName: string;
+  name: string;
   authIdentityId: string;
-  businessName?: string;
-  currency?: CurrencyCodes;
-  domain?: string;
-  logo?: string;
-  description?: string;
   defaultPhoneNumberId?: string;
   defaultShippingAddressId?: string;
   defaultBillingAddressId?: string;
@@ -19,6 +10,7 @@ export interface ITenantBase {
 
 export interface ITenantSystem {
   id: string;
+  defaultStoreId?: string;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -31,7 +31,7 @@ export class CustomerReviewProductRepository
               comment: reviewData.comment,
               customerId: reviewData.customerId,
               variantId: reviewData.variantId,
-              tenantId: reviewData.tenantId,
+              storeId: reviewData.storeId,
               updatedAt: reviewData.updatedAt,
             },
           }),
@@ -59,7 +59,7 @@ export class CustomerReviewProductRepository
             where: {
               id: reviewId,
               customerId: reviewData.customerId,
-              tenantId: reviewData.tenantId,
+              storeId: reviewData.storeId,
             },
             data: {
               ratingCount: reviewData.ratingCount,
@@ -83,11 +83,11 @@ export class CustomerReviewProductRepository
   async findById(
     id: Id,
     customerId: Id,
-    tenantId: Id,
+    storeId: Id,
   ): Promise<CustomerReviewProduct | null> {
     const idValue = id.getValue();
     const customerIdValue = customerId.getValue();
-    const tenantIdValue = tenantId.getValue();
+    const storeIdValue = storeId.getValue();
 
     try {
       const reviewProduct =
@@ -95,7 +95,7 @@ export class CustomerReviewProductRepository
           where: {
             id: idValue,
             customerId: customerIdValue,
-            tenantId: tenantIdValue,
+            storeId: storeIdValue,
           },
         });
 
@@ -119,14 +119,14 @@ export class CustomerReviewProductRepository
   async findMany(
     customerId: Id,
     reviewIds: Id[],
-    tenantId: Id,
+    storeId: Id,
   ): Promise<CustomerReviewProduct[]> {
     const customerIdValue = customerId.getValue();
 
     try {
       const whereClause: Prisma.CustomerReviewProductWhereInput = {
         customerId: customerIdValue,
-        tenantId: tenantId.getValue(),
+        storeId: storeId.getValue(),
       };
 
       // If reviewIds are provided, add them to the where clause
@@ -161,11 +161,7 @@ export class CustomerReviewProductRepository
    * @param reviewId The unique identifier of the review product.
    * @returns Promise that resolves when the review is successfully removed.
    */
-  async removeReview(
-    customerId: Id,
-    reviewId: Id,
-    tenantId: Id,
-  ): Promise<void> {
+  async removeReview(customerId: Id, reviewId: Id, storeId: Id): Promise<void> {
     const customerIdValue = customerId.getValue();
     const reviewIdValue = reviewId.getValue();
 
@@ -175,7 +171,7 @@ export class CustomerReviewProductRepository
           where: {
             id: reviewIdValue,
             customerId: customerIdValue,
-            tenantId: tenantId.getValue(),
+            storeId: storeId.getValue(),
           },
         });
       });

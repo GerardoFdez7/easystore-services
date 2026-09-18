@@ -15,3 +15,6 @@ export { UpdatePasswordHandler } from './update-password/update-password.handler
 
 export { GetInTouchDTO } from './get-in-touch/get-in-touch.dto';
 export { GetInTouchHandler } from './get-in-touch/get-in-touch.handler';
+
+export { SwitchStoreDTO } from './switch-store/switch-store.dto';
+export { SwitchStoreHandler } from './switch-store/switch-store.handler';

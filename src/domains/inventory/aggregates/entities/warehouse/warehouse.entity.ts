@@ -15,7 +15,7 @@ export interface IWarehouseProps extends EntityProps {
   id: Id;
   name: Name;
   addressId: Id;
-  tenantId: Id;
+  storeId: Id;
   createdAt: Date;
   updatedAt: Date;
   stocks: StockPerWarehouse[];
@@ -67,7 +67,7 @@ export class Warehouse extends Entity<IWarehouseProps> {
       id: Id.generate(),
       name: Name.create(props.name),
       addressId: props.addressId ? Id.create(props.addressId) : null,
-      tenantId: Id.create(props.tenantId),
+      storeId: Id.create(props.storeId),
       createdAt: new Date(),
       updatedAt: new Date(),
       stocks: [],
@@ -89,7 +89,7 @@ export class Warehouse extends Entity<IWarehouseProps> {
    */
   static update(
     warehouse: Warehouse,
-    updates: Partial<Omit<IWarehouseBase, 'tenantId'>>,
+    updates: Partial<Omit<IWarehouseBase, 'storeId'>>,
   ): Warehouse {
     const props = { ...warehouse.props };
 
@@ -135,6 +135,7 @@ export class Warehouse extends Entity<IWarehouseProps> {
     const stock = StockPerWarehouse.create({
       ...stockData,
       warehouseId: this.props.id.getValue(),
+      storeId: this.props.storeId.getValue(),
     });
 
     const newStocks = [...this.props.stocks, stock];

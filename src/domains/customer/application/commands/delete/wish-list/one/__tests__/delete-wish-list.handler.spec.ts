@@ -105,7 +105,7 @@ describe('DeleteWishListHandler', () => {
     const baseCommand = new DeleteWishListDto(
       'customer-123',
       'variant-456',
-      'tenant-789',
+      'store-789',
     );
 
     describe('Customer retrieval and validation', () => {
@@ -118,11 +118,11 @@ describe('DeleteWishListHandler', () => {
         );
       });
 
-      it('should find customer by ID and tenant ID', async () => {
+      it('should find customer by ID and store ID', async () => {
         await handler.execute(baseCommand);
 
         expect(idCreateMock).toHaveBeenCalledWith('customer-123');
-        expect(idCreateMock).toHaveBeenCalledWith('tenant-789');
+        expect(idCreateMock).toHaveBeenCalledWith('store-789');
       });
 
       it('should create variant ID object', async () => {
@@ -131,11 +131,11 @@ describe('DeleteWishListHandler', () => {
         expect(idCreateMock).toHaveBeenCalledWith('variant-456');
       });
 
-      it('should handle valid customer, variant and tenant IDs', async () => {
+      it('should handle valid customer, variant and store IDs', async () => {
         const validCommand = new DeleteWishListDto(
           'valid-customer-888',
           'valid-variant-777',
-          'valid-tenant-666',
+          'valid-store-666',
         );
 
         await handler.execute(validCommand);
@@ -175,7 +175,7 @@ describe('DeleteWishListHandler', () => {
         const removeCommand = new DeleteWishListDto(
           'customer-remove-001',
           'variant-remove-001',
-          'tenant-remove-001',
+          'store-remove-001',
         );
 
         await handler.execute(removeCommand);
@@ -196,12 +196,12 @@ describe('DeleteWishListHandler', () => {
         const command1 = new DeleteWishListDto(
           'customer-multi-1',
           'variant-multi-1',
-          'tenant-multi-1',
+          'store-multi-1',
         );
         const command2 = new DeleteWishListDto(
           'customer-multi-2',
           'variant-multi-2',
-          'tenant-multi-2',
+          'store-multi-2',
         );
 
         removeVariantFromWishListMock.mockResolvedValue(
@@ -321,7 +321,7 @@ describe('DeleteWishListHandler', () => {
         const completeCommand = new DeleteWishListDto(
           'customer-complete-delete',
           'variant-complete-delete',
-          'tenant-complete-delete',
+          'store-complete-delete',
         );
 
         findCustomerByIdMock.mockResolvedValue(
@@ -363,12 +363,12 @@ describe('DeleteWishListHandler', () => {
         const command1 = new DeleteWishListDto(
           'customer-concurrent-1',
           'variant-concurrent-1',
-          'tenant-concurrent-1',
+          'store-concurrent-1',
         );
         const command2 = new DeleteWishListDto(
           'customer-concurrent-2',
           'variant-concurrent-2',
-          'tenant-concurrent-2',
+          'store-concurrent-2',
         );
 
         removeVariantFromWishListMock.mockResolvedValue(

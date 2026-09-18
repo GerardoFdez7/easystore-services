@@ -65,7 +65,7 @@ describe('CreateProductHandler', () => {
     const baseProductData = {
       name: 'Test Product',
       description: 'Test Description',
-      tenantId: 'tenant-123',
+      storeId: 'store-123',
       productType: TypeEnum.PHYSICAL,
       variants: [
         {
@@ -96,7 +96,7 @@ describe('CreateProductHandler', () => {
           name: 'Test Product',
           shortDescription: 'Test description',
           cover: 'https://example.com/cover.jpg',
-          tenantId: '0198b746-8c72-7a2f-9c31-6d4f9866f322',
+          storeId: '0198b746-8c72-7a2f-9c31-6d4f9866f322',
           productType: TypeEnum.PHYSICAL,
           variants: [
             {
