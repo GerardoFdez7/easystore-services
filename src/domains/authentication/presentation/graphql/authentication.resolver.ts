@@ -1,4 +1,4 @@
-import { Resolver, Mutation, Query, Args, Context } from '@nestjs/graphql';
+import { Resolver, Mutation, Query, Args, Context, ID } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Request, Response } from 'express';
 import {
@@ -77,7 +77,7 @@ export default class AuthenticationResolver {
   @AllowAccountTypes(AccountTypeEnum.TENANT)
   @Mutation(() => ResponseType)
   async switchStore(
-    @Args('storeId') storeId: string,
+    @Args('storeId', { type: () => ID }) storeId: string,
     @CurrentUser() user: JwtPayload,
     @Context() context: { res: Response },
   ): Promise<ResponseType> {

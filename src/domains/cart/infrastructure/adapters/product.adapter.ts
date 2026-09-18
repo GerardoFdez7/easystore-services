@@ -13,7 +13,7 @@ export class ProductAdapter implements IProductAdapter {
     storeId: string,
   ): Promise<VariantDetailsDTO[]> {
     return this.queryBus.execute(
-      new GetVariantsDetailsDTO(variantIds, undefined, storeId),
+      new GetVariantsDetailsDTO(variantIds, storeId),
     );
   }
 }

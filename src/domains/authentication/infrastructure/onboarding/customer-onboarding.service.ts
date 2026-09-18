@@ -7,10 +7,11 @@ import { UniqueConstraintViolationError } from '@shared/infrastructure/postgres/
 import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
 import { AuthenticationMapper } from '../../application/mappers';
 import { AuthIdentity } from '../../aggregates/entities';
+import { ICustomerOnboarding } from '../../application/ports';
 
 /** Atomically provisions a customer identity, customer profile, and cart in a trusted Store. */
 @Injectable()
-export class CustomerOnboardingService {
+export class CustomerOnboardingService implements ICustomerOnboarding {
   constructor(private readonly prisma: PostgreService) {}
 
   async provision(auth: AuthIdentity, storeId: string): Promise<void> {

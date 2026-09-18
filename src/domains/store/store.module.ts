@@ -27,6 +27,5 @@ const QueryHandlers = [
     ...CommandHandlers,
     ...QueryHandlers,
   ],
-  exports: ['IStoreRepository'],
 })
 export class StoreDomain {}

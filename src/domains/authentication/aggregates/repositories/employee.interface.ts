@@ -26,9 +26,9 @@ export interface IEmployeeRepository {
 
   /**
    * Resolves the full set of (feature, action) grants held by an employee's role,
-   * scoped to the employee's tenant.
+   * scoped to the employee's Store.
    * @param employeeId The employee ID whose role grants are resolved.
-   * @param tenantId The tenant ID the employee belongs to.
+   * @param storeId The Store ID the employee belongs to.
    * @returns Promise that resolves to the granted (feature, action) pairs.
    */
   findPermissionsByEmployeeId(

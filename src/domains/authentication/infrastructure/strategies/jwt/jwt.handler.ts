@@ -1,6 +1,7 @@
 import { Response, Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { IAuthenticatedContext } from '../../../application/ports';
+import { AccountTypeEnum } from '../../../aggregates/value-objects';
 
 const jwtSecret = process.env.JWT_SECRET;
 const jwtExpiration = '1d';
@@ -29,7 +30,7 @@ export const isJwtPayload = (value: unknown): value is JwtPayload => {
     typeof payload.authIdentityId === 'string' &&
     typeof payload.tenantId === 'string' &&
     typeof payload.storeId === 'string' &&
-    typeof payload.accountType === 'string'
+    Object.values(AccountTypeEnum).includes(payload.accountType)
   );
 };
 

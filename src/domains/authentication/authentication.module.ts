@@ -32,7 +32,9 @@ import {
 } from './infrastructure/postgres';
 import {
   CustomerAdapter,
+  CustomerOnboardingAdapter,
   StoreAdapter,
+  TenantOnboardingAdapter,
   TenantAdapter,
 } from './infrastructure/adapters';
 import AuthenticationGuard from './infrastructure/guard/authentication.guard';
@@ -123,6 +125,8 @@ const CronServices = [CleanupService];
     JwtStrategy,
     TenantOnboardingService,
     CustomerOnboardingService,
+    { provide: 'ITenantOnboarding', useClass: TenantOnboardingAdapter },
+    { provide: 'ICustomerOnboarding', useClass: CustomerOnboardingAdapter },
     ...CommandHandlers,
     ...QueryHandlers,
     ...EventHandlers,

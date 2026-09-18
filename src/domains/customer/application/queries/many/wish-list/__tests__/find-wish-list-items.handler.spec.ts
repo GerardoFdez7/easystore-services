@@ -83,7 +83,10 @@ describe('FindWishListItemsHandler', () => {
     const customerArgument = findManyMock.mock.calls[0]?.[0];
 
     expect(customerArgument?.getValue()).toBe(customerId);
-    expect(getVariantsDetailsMock).toHaveBeenCalledWith([variantId]);
+    expect(getVariantsDetailsMock).toHaveBeenCalledWith(
+      [variantId],
+      '11111111-1111-4111-8111-111111111112',
+    );
     expect(result).toEqual({
       wishlistItems: [
         expect.objectContaining({

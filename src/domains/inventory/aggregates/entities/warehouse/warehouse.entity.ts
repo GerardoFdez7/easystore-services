@@ -135,6 +135,7 @@ export class Warehouse extends Entity<IWarehouseProps> {
     const stock = StockPerWarehouse.create({
       ...stockData,
       warehouseId: this.props.id.getValue(),
+      storeId: this.props.storeId.getValue(),
     });
 
     const newStocks = [...this.props.stocks, stock];

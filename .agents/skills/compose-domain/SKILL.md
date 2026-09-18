@@ -31,7 +31,8 @@ repository, adapter, and resolver exports first.
    `...QueryHandlers`, and `...EventHandlers`); do not register handler classes
    inline.
 3. Add only required Nest module imports and exports; avoid using another domain's
-   internals as a shortcut.
+   internals as a shortcut. Never export a repository token; expose application
+   capabilities or consumer-owned ports instead.
 4. Register a new domain module in `src/app.module.ts`.
 5. Identify the module-focused tests, compile checks, and architecture checks that
    verify the wiring.

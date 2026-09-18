@@ -4,12 +4,9 @@ import { IAuthRepository } from '../../../aggregates/repositories/authentication
 import { AccountTypeEnum } from '../../../aggregates/value-objects';
 import { AuthenticationMapper } from '../../mappers';
 import { IStoreAdapter } from '../../ports';
+import { ICustomerOnboarding, ITenantOnboarding } from '../../ports';
 import { AuthenticationRegisterDTO } from './sign-up.dto';
 import { AuthenticationDTO } from '../../mappers/auth/authentication.dto';
-import {
-  CustomerOnboardingService,
-  TenantOnboardingService,
-} from '../../../infrastructure/onboarding';
 
 @CommandHandler(AuthenticationRegisterDTO)
 export class AuthenticationRegisterHandler
@@ -20,8 +17,10 @@ export class AuthenticationRegisterHandler
     private readonly authRepository: IAuthRepository,
     @Inject('IStoreAdapter')
     private readonly storeAdapter: IStoreAdapter,
-    private readonly tenantOnboardingService: TenantOnboardingService,
-    private readonly customerOnboardingService: CustomerOnboardingService,
+    @Inject('ITenantOnboarding')
+    private readonly tenantOnboarding: ITenantOnboarding,
+    @Inject('ICustomerOnboarding')
+    private readonly customerOnboarding: ICustomerOnboarding,
     private readonly eventPublisher: EventPublisher,
   ) {}
 
@@ -56,12 +55,12 @@ export class AuthenticationRegisterHandler
     );
 
     if (data.accountType === AccountTypeEnum.TENANT) {
-      await this.tenantOnboardingService.provision(auth, data.domain);
+      await this.tenantOnboarding.provision(auth, data.domain);
     } else if (data.accountType === AccountTypeEnum.CUSTOMER) {
       if (!trustedStoreId) {
         throw new NotFoundException('Store not found for this domain');
       }
-      await this.customerOnboardingService.provision(auth, trustedStoreId);
+      await this.customerOnboarding.provision(auth, trustedStoreId);
     } else {
       await this.authRepository.create(auth);
     }

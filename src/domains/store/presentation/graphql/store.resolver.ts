@@ -1,4 +1,4 @@
-import { Args, ID, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, ID, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { AccountTypeEnum } from '@shared/aggregates/value-objects';
 import {
@@ -8,6 +8,7 @@ import {
 } from '@shared/presentation/decorators';
 import { CreateStoreDTO, UpdateStoreDTO } from '../../application/commands';
 import { GetAllStoresDTO, GetStoreByIdDTO } from '../../application/queries';
+import { PaginationArgs } from '@shared/presentation/graphql/pagination.args';
 import {
   CreateStoreInput,
   PaginatedStoresType,
@@ -54,11 +55,14 @@ export default class StoreResolver {
   @Query(() => PaginatedStoresType)
   getAllStores(
     @CurrentUser() user: JwtPayload,
-    @Args('page', { type: () => Int, defaultValue: 1 }) page: number,
-    @Args('limit', { type: () => Int, defaultValue: 20 }) limit: number,
+    @Args() pagination: PaginationArgs,
   ): Promise<PaginatedStoresType> {
     return this.queries.execute(
-      new GetAllStoresDTO(user.tenantId, page, limit),
+      new GetAllStoresDTO(
+        user.tenantId,
+        pagination.page ?? 1,
+        pagination.limit ?? 20,
+      ),
     );
   }
 }

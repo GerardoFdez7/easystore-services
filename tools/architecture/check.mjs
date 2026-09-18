@@ -1,5 +1,6 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
+import ts from 'typescript';
 import {
   aggregateOwnedPrismaModels,
   aggregateRoots,
@@ -90,8 +91,11 @@ function validateStoreScope() {
       /\bstore\s+Store\s+@relation\(fields:\s*\[([^\]]+)\]/,
     );
     if (
-      storeOwnershipRelation &&
-      storeOwnershipRelation[1].trim() !== 'storeId'
+      !storeOwnershipRelation ||
+      storeOwnershipRelation[1].trim() !== 'storeId' ||
+      !/\bstore\s+Store\s+@relation\(fields:\s*\[storeId\],\s*references:\s*\[id\]/.test(
+        body,
+      )
     ) {
       report(
         schema,
@@ -113,10 +117,16 @@ function validateJwtScope() {
     : join(repositoryRoot, 'src', 'domains', 'authentication', 'infrastructure', 'strategies', 'jwt', 'jwt.handler.ts');
   if (!existsSync(jwtPath)) return;
   const source = readFileSync(jwtPath, 'utf8');
-  const payload = source.match(/interface\s+JwtPayload(?:\s+extends\s+[^\{]+)?\s*\{([\s\S]*?)\}/);
+  const tree = ts.createSourceFile(jwtPath, source, ts.ScriptTarget.Latest, true);
+  const payload = tree.statements.find(
+    (statement) => ts.isInterfaceDeclaration(statement) && statement.name.text === 'JwtPayload',
+  );
   if (!payload) { report(jwtPath, 'JWT payload interface is missing'); return; }
-  if (!/\btenantId\s*:\s*string/.test(payload[1])) report(jwtPath, 'JWT account scope is missing required tenantId claim');
-  if (!/\bstoreId\s*:\s*string/.test(payload[1])) report(jwtPath, 'JWT operational scope is missing required storeId claim');
+  const hasRequiredString = (name) => payload.members.some((member) =>
+    ts.isPropertySignature(member) && member.name.getText(tree) === name && !member.questionToken && member.type?.kind === ts.SyntaxKind.StringKeyword,
+  );
+  if (!hasRequiredString('tenantId')) report(jwtPath, 'JWT account scope is missing required tenantId claim');
+  if (!hasRequiredString('storeId')) report(jwtPath, 'JWT operational scope is missing required storeId claim');
 }
 
 const allowedExternalImports = new Set(allowedAggregateDependencies);

@@ -71,6 +71,7 @@ export class Tenant extends Entity<ITenantProps> {
   setDefaultStore(storeId: string): Tenant {
     this.props.defaultStoreId = Id.create(storeId);
     this.props.updatedAt = new Date();
+    this.apply(new TenantUpdatedEvent(this));
     return this;
   }
 }

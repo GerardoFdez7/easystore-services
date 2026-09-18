@@ -41,8 +41,10 @@ export class FindWishListItemsHandler
       WishListMapper.toDto(item),
     );
     const variantIdStrings = wishListDtos.map((item) => item.variantId);
-    const variantDetails =
-      await this.productAdapter.getVariantsDetails(variantIdStrings);
+    const variantDetails = await this.productAdapter.getVariantsDetails(
+      variantIdStrings,
+      query.storeId,
+    );
     const sortedItems = this.sortWishListItems(
       enrichWithVariantDetails(wishListDtos, variantDetails),
       query.sortBy,

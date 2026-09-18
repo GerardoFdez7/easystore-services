@@ -48,8 +48,10 @@ export class FindManyCustomerReviewsHandler
     );
 
     // Get variant details from product adapter
-    const variantDetails =
-      await this.productAdapter.getVariantsDetails(variantIdStrings);
+    const variantDetails = await this.productAdapter.getVariantsDetails(
+      variantIdStrings,
+      query.storeId,
+    );
 
     const enrichedReviews = enrichWithVariantDetails(
       paginatedReviews.reviews,

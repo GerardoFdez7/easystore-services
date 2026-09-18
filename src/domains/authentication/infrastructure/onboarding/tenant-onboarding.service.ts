@@ -6,10 +6,11 @@ import { Id } from '@shared/aggregates/value-objects';
 import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
 import { AuthenticationMapper } from '../../application/mappers';
 import { AuthIdentity } from '../../aggregates/entities';
+import { ITenantOnboarding } from '../../application/ports';
 
 /** Atomically provisions the tenant account and its required initial commerce scope. */
 @Injectable()
-export class TenantOnboardingService {
+export class TenantOnboardingService implements ITenantOnboarding {
   constructor(private readonly prisma: PostgreService) {}
 
   async provision(auth: AuthIdentity, initialDomain?: string): Promise<void> {

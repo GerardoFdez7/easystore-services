@@ -37,9 +37,7 @@ export class Store extends Entity<IStoreProps> {
       description: props.description
         ? LongDescription.create(props.description)
         : null,
-      currency: Currency.create(
-        props.currency ?? process.env.DEFAULT_CURRENCY ?? 'USD',
-      ),
+      currency: Currency.create(props.currency ?? 'USD'),
       createdAt: new Date(),
       updatedAt: new Date(),
     });

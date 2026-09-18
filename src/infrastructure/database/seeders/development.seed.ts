@@ -43,6 +43,9 @@ import { assertFeatureCatalogSeeded } from './production.seed';
 const logger = new CustomLoggerService();
 const dataDir = path.join(__dirname, '..', 'countries');
 const developmentSeedUuidNamespace = '2f8f2b5e-4f1e-5a92-9a9c-4bc1c0a6a5d1';
+const developmentSeedOutletDomain = Domain.create(
+  'outlet.easystore.lat',
+).getValue();
 
 /** Shorthand for preset expansion only, never a stored value: no aggregate `FULL`. */
 type PresetGrant = 'full' | 'edit' | 'view' | 'none';
@@ -230,9 +233,9 @@ export function createDevelopmentFeatureId(code: FeatureEnum): string {
   return createDevelopmentFixtureId(`feature:${code}`);
 }
 
-/** Stable per-role id for a development preset role, keyed by role name. */
-export function createDevelopmentRoleId(role: string): string {
-  return createDevelopmentFixtureId(`employeeRole:${role}`);
+/** Stable per-store role id for a development preset role. */
+export function createDevelopmentRoleId(storeId: string, role: string): string {
+  return createDevelopmentFixtureId(`employeeRole:${storeId}:${role}`);
 }
 
 /** Stable per-(role, feature, action) id for a `RoleFeatures` grant row. */
@@ -397,7 +400,7 @@ async function seedDevelopmentRolePresets(
   let managerRoleId: string | undefined;
 
   for (const preset of developmentRolePresets) {
-    const roleId = createDevelopmentRoleId(preset.role);
+    const roleId = createDevelopmentRoleId(storeId, preset.role);
 
     if (preset.role === 'Manager') {
       managerRoleId = roleId;
@@ -494,14 +497,14 @@ async function seedDevelopmentDataForDatabase(
     update: {
       tenantId: ids.tenant,
       name: 'EasyStore Demo Outlet',
-      domain: 'outlet.easystore.lat',
+      domain: developmentSeedOutletDomain,
       currency: 'GTQ',
     },
     create: {
       id: ids.secondStore,
       tenantId: ids.tenant,
       name: 'EasyStore Demo Outlet',
-      domain: 'outlet.easystore.lat',
+      domain: developmentSeedOutletDomain,
       currency: 'GTQ',
     },
   });

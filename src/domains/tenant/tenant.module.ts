@@ -19,7 +19,7 @@ import {
   TenantUpdatedHandler,
 } from './application/events';
 import TenantRepository from './infrastructure/postgres/tenant.repository';
-import { StoreOwnershipAdapter } from './infrastructure/adapters/store-ownership.adapter';
+import { StoreOwnershipAdapter } from './infrastructure/adapters';
 import TenantResolver from './presentation/graphql/tenant.resolver';
 
 // Command handlers
