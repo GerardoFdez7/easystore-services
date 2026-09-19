@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
-import { CqrsModule } from '@nestjs/cqrs';
+import { CqrsModule, EventPublisher } from '@nestjs/cqrs';
+import { TransactionalEventPublisher } from '@shared/infrastructure/postgres';
 import { CreateStoreHandler, UpdateStoreHandler } from './application/commands';
 import {
   GetAllStoresHandler,
@@ -22,6 +23,7 @@ const QueryHandlers = [
 @Module({
   imports: [CqrsModule],
   providers: [
+    { provide: EventPublisher, useClass: TransactionalEventPublisher },
     { provide: 'IStoreRepository', useClass: StoreRepository },
     StoreResolver,
     ...CommandHandlers,

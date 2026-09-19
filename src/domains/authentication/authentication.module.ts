@@ -2,7 +2,8 @@ import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { CqrsModule } from '@nestjs/cqrs';
+import { CqrsModule, EventPublisher } from '@nestjs/cqrs';
+import { TransactionalEventPublisher } from '@shared/infrastructure/postgres';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EmailModule } from '@email/index';
 
@@ -48,10 +49,6 @@ import {
 } from './infrastructure/emails';
 import { PasswordResetRateLimiter } from './infrastructure/rate-limiting/password-reset-rate-limiter';
 import { CleanupService } from './infrastructure/cron';
-import {
-  CustomerOnboardingService,
-  TenantOnboardingService,
-} from './infrastructure/onboarding';
 import AuthenticationResolver from './presentation/graphql/authentication.resolver';
 
 const CommandHandlers = [
@@ -94,6 +91,7 @@ const CronServices = [CleanupService];
     }),
   ],
   providers: [
+    { provide: EventPublisher, useClass: TransactionalEventPublisher },
     {
       provide: 'AuthRepository',
       useClass: AuthenticationRepository,
@@ -123,8 +121,6 @@ const CronServices = [CleanupService];
     AuthorizationGuard,
     PermissionService,
     JwtStrategy,
-    TenantOnboardingService,
-    CustomerOnboardingService,
     { provide: 'ITenantOnboarding', useClass: TenantOnboardingAdapter },
     { provide: 'ICustomerOnboarding', useClass: CustomerOnboardingAdapter },
     ...CommandHandlers,

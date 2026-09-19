@@ -40,4 +40,17 @@ their implementation guidance.
    configuration, Semgrep coverage, Prisma artifacts, and module registration.
 6. Define focused and repository-level verification for the write-capable modes.
 
+## Multi-aggregate write workflows
+
+When one domain capability must atomically create or change aggregates owned by
+multiple bounded contexts, define a consumer-owned orchestration capability and map
+each context interaction to an application port plus infrastructure adapter. Keep
+aggregate construction, value-object validation, and event application in the owning
+context; the coordinator supplies only the trusted input needed by each public
+command.
+
+Use the shared `TransactionManager` to make participating repositories share one
+PostgreSQL transaction. Its transaction-aware event publisher releases aggregate
+events only after commit.
+
 For a localized layer task, skip this skill and use only the matching layer skill.

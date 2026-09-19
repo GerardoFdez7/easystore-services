@@ -4,8 +4,11 @@ import {
   Cart as PrismaCart,
   CartItem as PrismaCartItem,
 } from '.prisma/postgres';
-import { ResourceNotFoundError } from '@shared/infrastructure/postgres/errors';
-import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
+import {
+  ResourceNotFoundError,
+  handlePrismaDatabaseError,
+  TransactionManager,
+} from '@shared/infrastructure/postgres';
 import { Cart } from '../../aggregates/entities/cart/cart.entity';
 import { CartItem, Id } from '../../aggregates/value-objects';
 import { ICartRepository } from '../../aggregates/repositories/cart.interface';
@@ -13,13 +16,17 @@ import { CartMapper } from '../../application/mappers/cart/cart.mapper';
 
 @Injectable()
 export class CartRepository implements ICartRepository {
-  constructor(private readonly prisma: PostgreService) {}
+  constructor(
+    private readonly prisma: PostgreService,
+    private readonly transactions: TransactionManager,
+  ) {}
 
   async create(cart: Cart): Promise<Cart> {
     const cartDto = CartMapper.toDto(cart);
 
     try {
-      const prismaCart = await this.prisma.$transaction(async (tx) => {
+      const prismaCart = await this.transactions.execute(async () => {
+        const tx = this.transactions.client;
         // Create the cart
         const createdCart = await tx.cart.create({
           data: {

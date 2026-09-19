@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
-import { CqrsModule } from '@nestjs/cqrs';
+import { CqrsModule, EventPublisher } from '@nestjs/cqrs';
+import { TransactionalEventPublisher } from '@shared/infrastructure/postgres';
 import {
   CartCreateHandler,
   AddItemToCartHandler,
@@ -40,6 +41,7 @@ const EventHandlers = [
 @Module({
   imports: [CqrsModule],
   providers: [
+    { provide: EventPublisher, useClass: TransactionalEventPublisher },
     { provide: 'ICartRepository', useClass: CartRepository },
     { provide: 'IProductAdapter', useClass: ProductAdapter },
     CartResolver,

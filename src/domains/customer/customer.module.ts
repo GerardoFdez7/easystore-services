@@ -1,4 +1,5 @@
-import { CqrsModule } from '@nestjs/cqrs';
+import { CqrsModule, EventPublisher } from '@nestjs/cqrs';
+import { TransactionalEventPublisher } from '@shared/infrastructure/postgres';
 import { Module } from '@nestjs/common';
 import {
   CreateCustomerHandler,
@@ -66,6 +67,7 @@ const QueryHandlers = [
 @Module({
   imports: [CqrsModule],
   providers: [
+    { provide: EventPublisher, useClass: TransactionalEventPublisher },
     CustomerResolver,
     {
       provide: 'ICustomerRepository',

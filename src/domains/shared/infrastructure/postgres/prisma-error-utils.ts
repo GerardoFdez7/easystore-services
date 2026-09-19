@@ -5,7 +5,7 @@ import {
   ForeignKeyConstraintViolationError,
   ResourceNotFoundError,
   UniqueConstraintViolationError,
-} from '@shared/infrastructure/postgres/errors';
+} from './errors';
 
 interface PrismaDatabaseErrorOptions {
   resource: string;

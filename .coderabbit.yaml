@@ -90,13 +90,24 @@ reviews:
       - name: 'Tenant, store, and access safety'
         mode: 'error'
         instructions: >-
-          Fail if Store lookup, creation, switching, or Tenant-owned Store management
-          omits trusted tenantId; if independently scoped operational data omits
-          trusted storeId; if a client can override tenantId, storeId, identity,
-          customer, or employee ownership. Aggregate-owned children may derive Store
-          ownership through a globally unique parent and must not duplicate storeId.
-          Require fail-closed account ownership and cross-Store isolation for every
-          lookup, relation, count, mutation, uniqueness check, and cache key.
+          For every changed entity, query, relation, count, mutation, uniqueness check,
+          cache key, and repository or application port, first classify the data scope
+          as tenant-scoped, store-scoped, both tenant-and-store-scoped, or genuinely
+          global. Every non-global tenant/store-owned operation must carry at least one
+          trusted scope key: tenant-scoped data requires tenantId, store-scoped data
+          requires storeId, and data whose ownership or uniqueness is bounded by both
+          requires both tenantId and storeId. Never accept either key from client input;
+          derive them from authenticated server context or a trusted, already-scoped
+          parent. Fail when an operation can proceed with neither tenantId nor storeId,
+          when a required scope key is omitted from any lookup or write predicate, or
+          when a relation, count, uniqueness check, pagination query, cache key, or
+          mutation uses a broader scope than the entity's ownership contract. Genuinely
+          global data may omit both only when the schema/domain contract proves it is
+          not tenant- or store-owned. Store lookup, creation, switching, and
+          Tenant-owned Store management must include trusted tenantId. Aggregate-owned
+          children may derive Store ownership through a globally unique parent and must
+          not duplicate storeId, but the parent scope must remain enforced. Require
+          fail-closed account ownership and cross-Store isolation throughout.
       - name: 'Authorization coverage'
         mode: 'error'
         instructions: >-
@@ -121,7 +132,11 @@ reviews:
           a read-check-write sequence crosses transaction boundaries, retries can
           duplicate a non-idempotent effect, money uses unsafe arithmetic, or order,
           payment, cart, shipping, or inventory state can become inconsistent under
-          concurrency or partial failure.
+          concurrency or partial failure. For a multi-repository workflow,
+          TransactionManager.execute is the approved transaction boundary: all
+          participating repositories must use its transaction-scoped client rather
+          than opening isolated transactions. Aggregate events in that boundary must
+          be published through TransactionalEventPublisher only after commit.
       - name: 'Public contract safety'
         mode: 'error'
         instructions: >-
@@ -214,7 +229,10 @@ reviews:
           private constructor, and keep create distinct from event-free reconstitute.
         - Apply events only after valid state exists. Verify event payloads cannot
           leak secrets or mutable internals and reflect completed facts.
-        - Make tenant/owner scope explicit in repository contracts. Use typed IDs,
+        - Make the entity's scope explicit in repository contracts. Classify every
+          persisted entity as tenant-scoped, store-scoped, both, or genuinely global;
+          require at least one trusted tenantId/storeId for every non-global entity and
+          require both when the entity contract is bounded by both. Use typed IDs,
           domain values, typed pagination/sorting, and explicit named barrel exports.
         - For money and quantities, reject binary floating-point, negative or
           impossible values, untrusted totals, missing currency checks, overflow,
@@ -227,9 +245,11 @@ reviews:
       instructions: |
         Keep the application layer limited to secure CQRS use-case orchestration.
 
-        - Every use case must carry trusted tenant/owner identity through all
-          repository and port calls; never accept privileged ownership from client
-          input or let object spreading overwrite trusted values.
+        - Every use case must classify the target entity's scope and carry the required
+          trusted tenantId, storeId, or both through all repository and port calls. No
+          tenant/store-owned use case may reach a repository with neither scope key.
+          Never accept privileged ownership from client input or let object spreading
+          overwrite trusted values.
         - Customer-reachable use cases must enforce record ownership here; no guard
           can verify it, and a missing filter exposes every customer's data while
           tests still pass. Require ownership scoping inside the repository query
@@ -262,9 +282,13 @@ reviews:
           PostgreService.$transaction. Keep each read-check-write sequence in the same
           transaction and analyze lost updates, write skew, duplicate delivery,
           rollback, lock/constraint behavior, and idempotency.
-        - Scope every tenant-owned read, count, relation, uniqueness check, connect,
-          update, upsert, archive, restore, and delete by tenant/owner before lookup,
-          ordering, or pagination. Fail closed without revealing existence.
+        - Scope every non-global read, count, relation, uniqueness check, connect,
+          update, upsert, archive, restore, and delete by the entity's trusted
+          tenantId, storeId, or both before lookup, ordering, or pagination. Fail when
+          a tenant/store-owned operation has neither scope key, when a store-scoped
+          entity lacks storeId, when a tenant-scoped entity lacks tenantId, or when an
+          entity bounded by both omits either key. Fail closed without revealing
+          existence.
         - Reject interpolated SQL, unsafe raw queries, mass assignment, unbounded
           reads, over-fetching, N+1 queries, missing deterministic order, and indexes
           inconsistent with new filters or constraints.

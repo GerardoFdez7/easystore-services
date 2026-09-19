@@ -8,7 +8,7 @@ import { GraphQLError, GraphQLFormattedError } from 'graphql';
 import {
   DatabaseOperationError,
   ResourceNotFoundError,
-} from '@shared/infrastructure/postgres/errors';
+} from '@shared/infrastructure/postgres';
 import { formatGraphqlError } from '../error-formatter';
 
 function wrapResolverError(error: Error): GraphQLError {

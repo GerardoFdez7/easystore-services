@@ -1,15 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { PostgreService } from '@database/postgres.service';
-import { UniqueConstraintViolationError } from '@shared/infrastructure/postgres/errors';
+import {
+  handlePrismaDatabaseError,
+  TransactionManager,
+  UniqueConstraintViolationError,
+} from '@shared/infrastructure/postgres';
 import { Id } from '@shared/aggregates/value-objects';
-import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
 import { ICustomerRepository } from '../../aggregates/repositories';
 import { Customer } from '../../aggregates/entities/';
 import { CustomerMapper } from '../../application/mappers/';
 
 @Injectable()
 export class CustomerRepository implements ICustomerRepository {
-  constructor(private readonly postgresService: PostgreService) {}
+  constructor(
+    private readonly postgresService: PostgreService,
+    private readonly transactions: TransactionManager,
+  ) {}
   /**
    * Finds a customer by its auth identity ID.
    * @param authIdentityId The auth identity ID to search for.
@@ -45,11 +51,10 @@ export class CustomerRepository implements ICustomerRepository {
     try {
       const customerData = CustomerMapper.toDto(customer);
 
-      const createdCustomer = await this.postgresService.$transaction(
-        async (tx) =>
-          tx.customer.create({
-            data: customerData,
-          }),
+      const createdCustomer = await this.transactions.execute(async () =>
+        this.transactions.client.customer.create({
+          data: customerData,
+        }),
       );
 
       return CustomerMapper.fromPersistence(createdCustomer);

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '.prisma/postgres';
 import { PostgreService } from '@database/postgres.service';
 import { Id } from '@shared/aggregates/value-objects';
-import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
+import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres';
 import { ICustomerReviewProductRepository } from '../../aggregates/repositories';
 import { CustomerReviewProduct } from '../../aggregates/value-objects';
 import { CustomerReviewProductMapper } from '../../application/mappers';

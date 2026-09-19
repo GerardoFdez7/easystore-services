@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PostgreService } from '@database/postgres.service';
-import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
+import {
+  handlePrismaDatabaseError,
+  ResourceNotFoundError,
+} from '@shared/infrastructure/postgres';
 import { Prisma, Address as prismaAddress } from '.prisma/postgres';
-import { ResourceNotFoundError } from '@shared/infrastructure/postgres/errors';
 import { Address, IAddressType } from '../../aggregates/entities';
 import {
   IAddressRepository,

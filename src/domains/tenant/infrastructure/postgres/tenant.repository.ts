@@ -8,17 +8,24 @@ import {
   ITenantLoginContext,
   ITenantRepository,
 } from '../../aggregates/repositories/tenant.interface';
-import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
+import {
+  handlePrismaDatabaseError,
+  TransactionManager,
+} from '@shared/infrastructure/postgres';
 
 @Injectable()
 export default class TenantRepository implements ITenantRepository {
-  constructor(private readonly prisma: PostgreService) {}
+  constructor(
+    private readonly prisma: PostgreService,
+    private readonly transactions: TransactionManager,
+  ) {}
 
   async create(tenant: Tenant): Promise<Tenant> {
     const tenantDto = TenantMapper.toDto(tenant);
 
     try {
-      const prismaTenant = await this.prisma.$transaction(async (tx) => {
+      const prismaTenant = await this.transactions.execute(async () => {
+        const tx = this.transactions.client;
         return await tx.tenant.create({
           data: {
             id: tenantDto.id,
@@ -39,7 +46,8 @@ export default class TenantRepository implements ITenantRepository {
     const tenantDto = TenantMapper.toDto(tenant);
 
     try {
-      const prismaTenant = await this.prisma.$transaction(async (tx) => {
+      const prismaTenant = await this.transactions.execute(async () => {
+        const tx = this.transactions.client;
         await tx.tenant.findUniqueOrThrow({
           where: {
             id: idValue,

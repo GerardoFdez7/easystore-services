@@ -34,5 +34,23 @@ schema/generated types, error utilities, and an analogous implementation.
 6. Identify focused contract tests and any lint, build, or architecture checks
    specific to the change.
 
+## Shared transactions and domain events
+
+Use `TransactionManager` from
+`@shared/infrastructure/postgres/transaction-manager` when one operation writes
+through multiple repositories. `execute()` starts one PostgreSQL transaction or
+reuses the active one; participating repositories use `transactions.client` inside
+that boundary rather than opening independent `PostgreService.$transaction` calls.
+
+For cross-domain workflows, keep orchestration behind consumer-owned ports and their
+infrastructure adapters. Adapters may invoke provider public commands, but must not
+import provider aggregates or repositories. Each provider command remains responsible
+for creating its aggregate through its factory and persisting it through its own
+repository.
+
+`TransactionalEventPublisher` defers aggregate event publication until the active
+`TransactionManager` transaction commits. Continue to merge aggregate contexts and
+commit only after persistence succeeds.
+
 Infrastructure must not import presentation. Never weaken tenant filters or expose raw
 Prisma/external errors to satisfy a test.

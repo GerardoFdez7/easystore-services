@@ -1,4 +1,4 @@
-import { ResourceNotFoundError } from '@shared/infrastructure/postgres/errors';
+import { ResourceNotFoundError } from '@shared/infrastructure/postgres';
 import { Id } from '@shared/aggregates/value-objects';
 import { Cart } from '../../../../aggregates/entities/cart/cart.entity';
 import { ICartRepository } from '../../../../aggregates/repositories/cart.interface';

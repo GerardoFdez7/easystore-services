@@ -4,7 +4,7 @@ import {
   FeatureEnum,
   PermissionActionEnum,
 } from '@shared/aggregates/value-objects';
-import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
+import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres';
 import {
   EmployeePermission,
   IEmployeeRepository,

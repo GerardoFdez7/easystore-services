@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, StockMovement as PrismaStockMovement } from '.prisma/postgres';
 import { PostgreService } from '@database/postgres.service';
-import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
+import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres';
 import { IStockMovementRepository } from '../../aggregates/repositories';
 import {
   Id,

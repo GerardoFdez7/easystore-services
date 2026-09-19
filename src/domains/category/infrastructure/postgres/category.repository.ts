@@ -2,13 +2,11 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { PostgreService } from '@database/postgres.service';
 import {
   executeDatabaseOperation,
-  handlePrismaDatabaseError,
-} from '@shared/infrastructure/postgres/prisma-error-utils';
-import { Prisma, Category as PrismaCategory } from '.prisma/postgres';
-import {
   DatabaseOperationError,
+  handlePrismaDatabaseError,
   ResourceNotFoundError,
-} from '@shared/infrastructure/postgres/errors';
+} from '@shared/infrastructure/postgres';
+import { Prisma, Category as PrismaCategory } from '.prisma/postgres';
 import { Category, ICategoryType } from '../../aggregates/entities';
 import { CategoryMapper } from '../../application/mappers';
 import { Id, SortBy, SortOrder } from '../../aggregates/value-objects';

@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PostgreService } from '@database/postgres.service';
-import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
 import {
   Product as PrismaProduct,
   Variant as PrismaVariant,
@@ -12,10 +11,11 @@ import {
   Prisma,
 } from '.prisma/postgres';
 import {
-  ResourceNotFoundError,
-  ForeignKeyConstraintViolationError,
   DatabaseOperationError,
-} from '@shared/infrastructure/postgres/errors';
+  ForeignKeyConstraintViolationError,
+  handlePrismaDatabaseError,
+  ResourceNotFoundError,
+} from '@shared/infrastructure/postgres';
 import { Product, IProductType } from '../../aggregates/entities';
 import { IProductRepository } from '../../aggregates/repositories/product.interface';
 import {

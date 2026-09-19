@@ -3,10 +3,11 @@ import bcrypt from 'bcrypt';
 import { PostgreService } from '@database/postgres.service';
 import { AuthIdentity as PrismaAuthIdentity } from '.prisma/postgres';
 import {
+  handlePrismaDatabaseError,
   ResourceNotFoundError,
+  TransactionManager,
   UniqueConstraintViolationError,
-} from '@shared/infrastructure/postgres/errors';
-import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
+} from '@shared/infrastructure/postgres';
 import { AuthenticationMapper } from '../../application/mappers';
 import { AuthIdentity, IAuthIdentityType } from '../../aggregates/entities';
 import { IAuthRepository } from '../../aggregates/repositories/authentication.interface';
@@ -14,7 +15,10 @@ import { Id, Email, AccountType } from '../../aggregates/value-objects';
 
 @Injectable()
 export class AuthenticationRepository implements IAuthRepository {
-  constructor(private readonly prisma: PostgreService) {}
+  constructor(
+    private readonly prisma: PostgreService,
+    private readonly transactions: TransactionManager,
+  ) {}
 
   /**
    * Creates a new authIdentity with transaction support
@@ -23,7 +27,8 @@ export class AuthenticationRepository implements IAuthRepository {
     const authDto = AuthenticationMapper.toDto(authIdentity);
 
     try {
-      const prismaAuth = await this.prisma.$transaction(async (tx) => {
+      const prismaAuth = await this.transactions.execute(async () => {
+        const tx = this.transactions.client;
         const existing = await tx.authIdentity.findFirst({
           where: {
             email: authDto.email,
@@ -59,7 +64,8 @@ export class AuthenticationRepository implements IAuthRepository {
     const updatesDto = AuthenticationMapper.toDto(updates);
 
     try {
-      const prismaAuth = await this.prisma.$transaction(async (tx) => {
+      const prismaAuth = await this.transactions.execute(async () => {
+        const tx = this.transactions.client;
         const existingAuth = await tx.authIdentity.findUnique({
           where: { id: idValue },
         });

@@ -2,14 +2,20 @@ import { Injectable } from '@nestjs/common';
 import { PostgreService } from '@database/postgres.service';
 import { Prisma, Store as PrismaStore } from '.prisma/postgres';
 import { Id } from '@shared/aggregates/value-objects';
-import { handlePrismaDatabaseError } from '@shared/infrastructure/postgres/prisma-error-utils';
+import {
+  handlePrismaDatabaseError,
+  TransactionManager,
+} from '@shared/infrastructure/postgres';
 import { Store, IStoreType } from '../../aggregates/entities';
 import { IStoreRepository, StorePage } from '../../aggregates/repositories';
 import { StoreMapper } from '../../application/mappers';
 
 @Injectable()
 export default class StoreRepository implements IStoreRepository {
-  constructor(private readonly prisma: PostgreService) {}
+  constructor(
+    private readonly prisma: PostgreService,
+    private readonly transactions: TransactionManager,
+  ) {}
   async create(store: Store): Promise<Store> {
     const data = StoreMapper.toDto(store);
     const createData: Prisma.StoreUncheckedCreateInput = {
@@ -24,8 +30,8 @@ export default class StoreRepository implements IStoreRepository {
       updatedAt: data.updatedAt,
     };
     try {
-      const saved = await this.prisma.$transaction((tx) =>
-        tx.store.create({ data: createData }),
+      const saved = await this.transactions.execute(() =>
+        this.transactions.client.store.create({ data: createData }),
       );
       return this.map(saved);
     } catch (error) {
@@ -56,7 +62,7 @@ export default class StoreRepository implements IStoreRepository {
   }
   async findByIdAndTenantId(id: Id, tenantId: Id): Promise<Store | null> {
     try {
-      const store = await this.prisma.store.findUnique({
+      const store = await this.transactions.client.store.findUnique({
         where: {
           id_tenantId: { id: id.getValue(), tenantId: tenantId.getValue() },
         },
