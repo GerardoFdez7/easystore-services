@@ -35,6 +35,6 @@ Run `npm run verify` after all implementation and test edits are complete;
 do not run independent lint, typecheck, test, formatting, architecture, Semgrep,
 duplication, or other verification commands. Use that result to determine
 whether the work is complete or whether an in-scope local fix is needed. If a fix is required,
-make it and run `npm run verify` once more. Determine completion from the final
+make it and run `npm run verify` until the verification passes. Determine completion from the final
 verification result, and report any remaining failure that is out of scope precisely.
 Do not add dependencies, destructive migrations, or breaking public behavior without approval.
