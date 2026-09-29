@@ -6,10 +6,6 @@ description: >-
   fails, when adding repeated domain/application code, or when reviewing whether
   similar interfaces, functions, classes, DTOs, or tests should share an
   abstraction.
-modeSlugs:
-  - code
-  - debug
-  - reviewer
 ---
 
 # DRY refactoring
@@ -19,8 +15,7 @@ weakening the repository's duplication policy.
 
 ## Prerequisites
 
-In Coder or Debugger mode, first run the repository-configured jscpd gate. In
-read-only Reviewer mode, use the supplied gate output and inspect the reported clone
+In Coder mode, first run the repository-configured jscpd gate. Use the supplied gate output and inspect the reported clone
 locations instead.
 
 ```bash
@@ -35,11 +30,9 @@ npx jscpd --config .jscpd.json --reporters console,ai <path>
 
 ## Workflow
 
-Coder and Debugger perform the full workflow below. Reviewer evaluates whether the
+Coder perform the full workflow below, evaluates whether the
 reported duplication is semantic, whether the extraction preserves ownership, and
-whether the supplied verification covers all call sites; Reviewer does not edit or
-run commands.
-
+whether the supplied verification covers all call sites.
 1. Run `npm run duplication` and locate both sides of each clone.
 2. Read the complete containing functions/classes and their tests.
 3. Decide whether the code has the same semantics, owner, invariants, and reasons to

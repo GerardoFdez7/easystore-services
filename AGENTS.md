@@ -15,6 +15,13 @@ Select models by capability tier, using the best available model from the active
 provider. The examples below are illustrative, not a dependency on a specific
 provider or model family.
 
+Before launching or delegating any subagent, the Orchestrator must inform the user
+of the exact model and reasoning level or variant that will be used for that
+subagent (for example, `GPT-5.6 Luna, Light`). If the platform does not expose a
+separate reasoning level, report the available model variant or capability tier
+instead. This notice applies to every delegated subagent and must not promise
+model details the platform does not expose.
+
 | Delegated task | Profile | Model requirement |
 | --- | --- | --- |
 | Focused repository inspection, behavior tracing, and evidence gathering | `explorer.agent.md` | Lowest capable tier (for example, GPT-5.6 Luna with low reasoning) |

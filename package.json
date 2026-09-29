@@ -1,6 +1,6 @@
 {
   "name": "easystore-services",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Backend project of EasyStore, the web application that empowers you to build your own e-commerce platform without any programming knowledge. This user-friendly solution provides all the tools you need to create, manage, and grow your online store with ease.",
   "author": "EasyStore Team",
   "private": true,
@@ -24,9 +24,9 @@
     "architecture": "npm run architecture:test && npm run architecture:structure && npm run architecture:semgrep",
     "architecture:test": "node --test tools/architecture/check.test.mjs",
     "architecture:structure": "node tools/architecture/check.mjs",
-    "architecture:semgrep": "semgrep scan --config .semgrep.yml --error src/domains",
+    "architecture:semgrep": "node tools/semgrep/run.mjs scan --config .semgrep.yml --error src/domains",
     "duplication": "jscpd --config .jscpd.json",
-    "install:semgrep": "node tools/install-semgrep.mjs",
+    "install:semgrep": "node tools/semgrep/install-semgrep.mjs",
     "verify": "npm run build && npm run lint:fix && npm run test && npm run architecture && npm run duplication",
     "lint": "eslint",
     "lint:fix": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md,prisma}\" && npm run lint",
@@ -35,7 +35,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "postinstall": "npm run generate && node -e \"if(process.env.NODE_ENV==='development'){require('child_process').execFileSync(process.execPath,['tools/install-semgrep.mjs'],{stdio:'inherit'})}\"",
+    "postinstall": "npm run generate && node tools/postinstall.mjs",
     "prepare": "node -e \"if(process.env.NODE_ENV==='development' && !process.env.CI){require('child_process').execFileSync(process.execPath,['node_modules/husky/lib/bin.js','install'],{stdio:'inherit'})}\""
   },
   "dependencies": {
