@@ -558,7 +558,7 @@ type Mutation {
   restoreVariant(id: String!, productId: String!): Product!
   setDefaultStore(storeId: String!): Tenant!
   softDeleteProduct(id: String!): Product!
-  switchStore(storeId: String!): Response!
+  switchStore(storeId: ID!): Response!
   updateAddress(id: ID!, input: UpdateAddressInput!): AddressType!
   updateCategory(id: ID!, input: UpdateCategoryInput!): Category!
   updateCustomer(input: UpdateCustomerInput!): Customer!
@@ -681,7 +681,7 @@ type Query {
   getAllCountries: [CountryType!]!
   getAllProducts(categoriesIds: [ID!], filterMode: ProductFilterMode = ALL, limit: Int = 25, name: String, page: Int = 1, sortBy: ProductSortBy, sortOrder: SortOrder, type: TypeEnum): PaginatedProductsType!
   getAllStockMovements(createdById: ID, dateFrom: DateTime, dateTo: DateTime, includeDeleted: Boolean = false, limit: Int = 10, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, variantId: ID, warehouseId: ID!): PaginatedStockMovementsType!
-  getAllStores(limit: Int! = 20, page: Int! = 1): PaginatedStoresType!
+  getAllStores(limit: Int = 10, page: Int = 1): PaginatedStoresType!
   getAllWarehouses(addressId: ID, includeAddresses: Boolean = false, limit: Int = 10, name: String, page: Int = 1, sortBy: SortBy, sortOrder: SortOrder, stockFilters: StockPerWarehouseFilterInput): PaginatedWarehousesType!
   getCart(limit: Int = 10, page: Int = 1): PaginatedCart!
   getCategoryById(id: ID!): Category!
