@@ -5,6 +5,11 @@
 commit_msg_file=$1
 commit_msg=$(cat "$commit_msg_file")
 
+if grep -Eqi '^[[:space:]]*co-authored-by:[[:space:]]*.*(^|[^[:alnum:]_])(codex|claude|gemini|copilot|chatgpt|openai|cursor|aider|devin)([^[:alnum:]_]|$)' "$commit_msg_file"; then
+    echo "ERROR: AI agents cannot be added as commit co-authors."
+    exit 1
+fi
+
 # Define the pattern for conventional commits with optional emoji
 commit_pattern="^(feat|fix|docs|style|refactor|test|chore|revert|perf|build|ci|wip)(\(.+\))?: ([a-z]|:[a-z0-9_-]+:).*$"
 

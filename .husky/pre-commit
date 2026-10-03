@@ -1,5 +1,19 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
+reject_ai_coauthor() {
+    if grep -Eqi '^[[:space:]]*co-authored-by:[[:space:]]*.*(^|[^[:alnum:]_])(codex|claude|gemini|copilot|chatgpt|openai|cursor|aider|devin)([^[:alnum:]_]|$)' "$1"; then
+        echo "ERROR: AI agents cannot be added as commit co-authors."
+        exit 1
+    fi
+}
+
+# Git invokes pre-commit before creating COMMIT_EDITMSG, so normal commits have no
+# message to inspect here. commit-msg performs the actual lifecycle validation.
+# Keeping this check supports callers that explicitly provide a message file.
+if [ -n "${1:-}" ] && [ -f "$1" ]; then
+    reject_ai_coauthor "$1"
+fi
+
 npx lint-staged
 npm run architecture:structure
