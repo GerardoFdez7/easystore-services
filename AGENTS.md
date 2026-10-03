@@ -38,6 +38,13 @@ The default flow for work that needs a plan is:
 For a small, self-contained implementation request, Orchestrator may summon Coder
 directly. Summon Debugger only after Coder reports a reproducible unresolved failure.
 
+When an approved plan splits into independent units (for example, separate modules,
+layers, or files with no shared edits or ordering dependency), Orchestrator should
+summon multiple Coders in parallel, one per unit, each with its own scope and the
+corresponding part of the plan. Keep work sequential when units touch the same files
+or depend on each other's output. Announce the model and reasoning level for each
+parallel Coder, and verify the combined result once all finish.
+
 ## Behavior
 
 - Be direct and concise. Lead with the result, evidence, risk, or decision.

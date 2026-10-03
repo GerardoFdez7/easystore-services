@@ -15,7 +15,7 @@ reviews:
   review_progress: true
   fail_commit_status: true
   high_level_summary: true
-  high_level_summary_in_walkthrough: true
+  high_level_summary_in_walkthrough: false
   high_level_summary_instructions: >-
     Summarize behavioral changes, affected bounded contexts, public GraphQL or
     database contract changes, account-level Tenant ownership and Store-isolation
@@ -24,7 +24,7 @@ reviews:
     performance impact, migrations, and test evidence. Separate verified facts from
     assumptions.
   collapse_walkthrough: false
-  sequence_diagrams: false
+  sequence_diagrams: true
   poem: false
   in_progress_fortune: false
 

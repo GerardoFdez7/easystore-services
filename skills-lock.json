@@ -43,6 +43,12 @@
       "skillPath": "prisma-client-api/SKILL.md",
       "computedHash": "5dcc0793337151efa73a444e5adbc7e1c24180778e83b4fe94c9109c391bd333"
     },
+    "ucp": {
+      "source": "vercel-labs/agentic-commerce-skills",
+      "sourceType": "github",
+      "skillPath": "ucp/SKILL.md",
+      "computedHash": "05987423e41eca47ea1f125b2fd9470539fd3f726a7eb50c282d38bf2846ff1c"
+    },
     "zod": {
       "source": "pproenca/dot-skills",
       "sourceType": "github",

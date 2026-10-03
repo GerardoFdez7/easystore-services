@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "postgres": {
+    "Postgres": {
       "command": "npx",
       "args": [
         "-y",
@@ -11,23 +11,21 @@
         "DATABASE_URL_POSTGRES": "${DATABASE_URL_POSTGRES}"
       }
     },
-    "github": {
+    "GitHub": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"
       }
     },
-    "context7": {
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp"],
-      "env": {
-        "DEFAULT_MINIMUM_TOKENS": "6000"
-      }
-    },
-    "graphql-local": {
+    "Graphql": {
       "command": "./apollo-mcp-server",
-      "args": ["./apollo-mcp.yaml"]
+      "args": [
+        "./apollo-mcp.yaml"
+      ]
     }
   }
 }

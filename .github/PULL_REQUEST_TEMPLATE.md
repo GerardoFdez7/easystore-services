@@ -33,9 +33,8 @@ layer-specific test suites when the command integration test covers the behavior
 - **Integration tests added or updated:**
   - Path:
   - Scenarios covered:
-- **Verification commands executed:**
-  - `npm run test -- <test-path>`
-  - `npm run architecture`
+- **Verification command executed:**
+  - `npm run verify`
 - **If tests were unchanged, explain which existing integration test covers the change:**
 
 ## Checklist
