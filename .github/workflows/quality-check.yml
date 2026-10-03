@@ -43,20 +43,20 @@ jobs:
       - name: Generate Prisma client
         run: npm run generate
 
+      - name: Build project
+        run: npm run build
+
+      - name: Lint code
+        run: npm run lint
+
+      - name: Run unit tests
+        run: npm run test
+        
       - name: Check architecture
         run: npm run architecture
 
       - name: Check duplicated code
         run: npm run duplication
-
-      - name: Lint code
-        run: npm run lint
-
-      - name: Build project
-        run: npm run build
-
-      - name: Run unit tests
-        run: npm run test
 
       - name: Comment PR on failure
         if: failure()
