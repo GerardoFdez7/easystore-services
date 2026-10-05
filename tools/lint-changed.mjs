@@ -28,7 +28,18 @@ if (files.length === 0) {
 
 console.log(`Linting ${files.length} uncommitted file(s)...`);
 
-const run = (args) => spawnSync('npx', args, { stdio: 'inherit' }).status ?? 1;
+const run = (args) => {
+  const result = spawnSync('npx', args, {
+    shell: process.platform === 'win32',
+    stdio: 'inherit',
+  });
+
+  if (result.error) {
+    console.error(result.error);
+  }
+
+  return result.status ?? 1;
+};
 
 const eslintFiles = files.filter((file) => ESLINT_FILES.test(file));
 const prettierFiles = files.filter((file) => PRETTIER_EXTENSIONS.test(file));

@@ -32,7 +32,14 @@ const result = spawnSync(
     '--findRelatedTests',
     ...files,
   ],
-  { stdio: 'inherit' },
+  {
+    shell: process.platform === 'win32',
+    stdio: 'inherit',
+  },
 );
+
+if (result.error) {
+  console.error(result.error);
+}
 
 process.exit(result.status ?? 1);

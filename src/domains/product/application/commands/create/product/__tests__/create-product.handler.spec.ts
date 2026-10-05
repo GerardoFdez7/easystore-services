@@ -703,7 +703,10 @@ describe('CreateProductHandler', () => {
     describe('Edge cases and error scenarios', () => {
       it('should throw BadRequestException when product has no variants', async () => {
         const productWithoutVariants: CreateProductDTO = {
-          data: baseProductData,
+          data: {
+            ...baseProductData,
+            variants: [],
+          },
         } as unknown as CreateProductDTO;
 
         fromCreateDtoMock.mockImplementation(() => {

@@ -99,8 +99,13 @@ describe('formatGraphqlError', () => {
     expect(Logger.prototype.error).not.toHaveBeenCalled();
   });
 
-  it('logs the original stack for unexpected failures without exposing it', () => {
+  it('logs only an unexpected Error name and stack frames without exposing its message', () => {
     const failure = new Error('boom secret');
+    failure.stack =
+      'Error: boom secret\n' +
+      '    at protectedFrame (safe.ts:1:1)\n' +
+      'not a stack frame\n' +
+      '    at nextFrame (safe.ts:2:1)';
 
     const result = formatGraphqlError(
       formattedError,
@@ -114,7 +119,16 @@ describe('formatGraphqlError', () => {
     expect(JSON.stringify(result)).not.toContain('secret');
     expect(Logger.prototype.error).toHaveBeenCalledWith(
       'Unexpected GraphQL execution failure',
-      failure.stack,
+      'Error\n    at protectedFrame (safe.ts:1:1)\n    at nextFrame (safe.ts:2:1)',
+    );
+  });
+
+  it('logs only a non-Error value type for unexpected failures', () => {
+    formatGraphqlError(formattedError, 'secret non-Error value');
+
+    expect(Logger.prototype.error).toHaveBeenCalledWith(
+      'Unexpected GraphQL execution failure',
+      'string',
     );
   });
 

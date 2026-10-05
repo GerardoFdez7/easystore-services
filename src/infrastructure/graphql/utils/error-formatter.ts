@@ -23,6 +23,20 @@ const protocolErrorCodes = new Set([
 
 const graphqlLogger = new Logger('GraphqlErrorFormatter');
 
+function getSafeUnexpectedErrorDiagnostic(error: unknown): string {
+  if (!(error instanceof Error)) {
+    return typeof error;
+  }
+
+  const stackFrames = error.stack
+    ?.split('\n')
+    .filter((line) => /^\s*at\s/.test(line));
+
+  return stackFrames && stackFrames.length > 0
+    ? `${error.name}\n${stackFrames.join('\n')}`
+    : error.name;
+}
+
 function classifyHttpException(
   error: HttpException,
 ): PublicErrorClassification {
@@ -162,9 +176,7 @@ function maskGraphqlError(
 
   graphqlLogger.error(
     'Unexpected GraphQL execution failure',
-    originalError instanceof Error
-      ? originalError.stack
-      : JSON.stringify(originalError),
+    getSafeUnexpectedErrorDiagnostic(originalError),
   );
 
   return toFormattedError(formattedError, {

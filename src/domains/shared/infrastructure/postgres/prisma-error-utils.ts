@@ -72,11 +72,7 @@ function logUnmappedPrismaDatabaseError(
 
   // Deliberately log only allowlisted structural fields. Prisma messages, stacks,
   // SQL, connection details, and metadata values can contain sensitive data.
-  prismaErrorLogger.error(
-    JSON.stringify(diagnostic),
-    undefined,
-    PrismaErrorUtils.name,
-  );
+  prismaErrorLogger.error(JSON.stringify(diagnostic));
 }
 
 /**
