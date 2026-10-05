@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
 import { Inject, NotFoundException, BadRequestException } from '@nestjs/common';
 import { IProductRepository } from '../../../../aggregates/repositories/product.interface';
 import { Id } from '../../../../aggregates/value-objects';
-import { ProductMapper, ProductDTO, ProductReadDTO } from '../../../mappers';
+import { ProductMapper, ProductDTO } from '../../../mappers';
 import { RestoreProductDTO } from './restore-product.dto';
 
 @CommandHandler(RestoreProductDTO)
@@ -15,7 +15,7 @@ export class RestoreProductHandler
     private readonly eventPublisher: EventPublisher,
   ) {}
 
-  async execute(command: RestoreProductDTO): Promise<ProductReadDTO> {
+  async execute(command: RestoreProductDTO): Promise<ProductDTO> {
     const { id, storeId } = command;
 
     // Find the product by ID
@@ -51,8 +51,6 @@ export class RestoreProductHandler
     restoredProduct.commit();
 
     // Return the product as DTO
-    return ProductMapper.toReadDto(
-      ProductMapper.toDto(restoredProduct) as ProductDTO,
-    );
+    return ProductMapper.toDto(restoredProduct) as ProductDTO;
   }
 }

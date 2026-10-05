@@ -2,7 +2,7 @@ import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { UpdateProductDTO } from './update-product.dto';
 import { IProductRepository } from '../../../../aggregates/repositories/product.interface';
-import { ProductMapper, ProductDTO, ProductReadDTO } from '../../../mappers';
+import { ProductMapper, ProductDTO } from '../../../mappers';
 import { Id } from '../../../../aggregates/value-objects';
 import { findProductOrThrow } from '../../shared/find-product-or-throw';
 
@@ -14,7 +14,7 @@ export class UpdateProductHandler implements ICommandHandler<UpdateProductDTO> {
     private readonly eventPublisher: EventPublisher,
   ) {}
 
-  async execute(command: UpdateProductDTO): Promise<ProductReadDTO> {
+  async execute(command: UpdateProductDTO): Promise<ProductDTO> {
     // Find the product by ID
     const product = await findProductOrThrow(
       this.productRepository,
@@ -38,8 +38,6 @@ export class UpdateProductHandler implements ICommandHandler<UpdateProductDTO> {
     updatedProduct.commit();
 
     // Return the product as DTO
-    return ProductMapper.toReadDto(
-      ProductMapper.toDto(updatedProduct) as ProductDTO,
-    );
+    return ProductMapper.toDto(updatedProduct) as ProductDTO;
   }
 }

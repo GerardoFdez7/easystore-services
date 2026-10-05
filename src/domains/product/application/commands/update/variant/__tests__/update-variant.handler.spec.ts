@@ -91,10 +91,7 @@ describe('UpdateVariantHandler', () => {
     productType.getValue.mockReturnValueOnce(type);
     const updateCommand = command(data);
 
-    await expect(handler.execute(updateCommand)).resolves.toEqual({
-      ...dto,
-      variants: [],
-    });
+    await expect(handler.execute(updateCommand)).resolves.toEqual(dto);
 
     expect(ProductMapper.fromUpdateVariantDto).toHaveBeenCalledWith(
       product,

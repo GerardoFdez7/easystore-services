@@ -782,7 +782,7 @@ type Variant {
   isArchived: Boolean
   isbn: String
   personalizationOptions: [String!]
-  price: Money!
+  price: Decimal!
   sku: String!
   upc: String
   variantCover: String

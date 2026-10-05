@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { IProductRepository } from '../../../../../aggregates/repositories/product.interface';
-import { ProductMapper, ProductDTO, ProductReadDTO } from '../../../../mappers';
+import { ProductMapper, ProductDTO } from '../../../../mappers';
 import { Id } from '../../../../../aggregates/value-objects';
 import { DeleteVariantDTO } from './delete-variant.dto';
 
@@ -13,7 +13,7 @@ export class DeleteVariantHandler implements ICommandHandler<DeleteVariantDTO> {
     private readonly eventPublisher: EventPublisher,
   ) {}
 
-  async execute(command: DeleteVariantDTO): Promise<ProductReadDTO> {
+  async execute(command: DeleteVariantDTO): Promise<ProductDTO> {
     const { productId, id, storeId } = command;
 
     // Find the product by ID
@@ -41,8 +41,6 @@ export class DeleteVariantHandler implements ICommandHandler<DeleteVariantDTO> {
     updatedProduct.commit();
 
     // Return the product as DTO
-    return ProductMapper.toReadDto(
-      ProductMapper.toDto(updatedProduct) as ProductDTO,
-    );
+    return ProductMapper.toDto(updatedProduct) as ProductDTO;
   }
 }

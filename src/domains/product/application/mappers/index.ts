@@ -1,14 +1,9 @@
 // Product mapper
-export {
-  ProductDTO,
-  PaginatedProductsDTO,
-  ProductReadDTO,
-  PaginatedProductsReadDTO,
-} from './product/product.dto';
+export { ProductDTO, PaginatedProductsDTO } from './product/product.dto';
 export { ProductMapper } from './product/product.mapper';
 
 // Variant mapper
-export { VariantDTO, VariantReadDTO } from './variant/variant.dto';
+export { VariantDTO } from './variant/variant.dto';
 export { VariantMapper } from './variant/variant.mapper';
 
 // Media mapper

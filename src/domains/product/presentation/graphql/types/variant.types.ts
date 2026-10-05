@@ -18,7 +18,7 @@ import {
   UpdateInstallmentInput,
 } from './';
 import { ConditionEnum } from '../../../aggregates/value-objects';
-import { MoneyType, DecimalValue } from '@shared/presentation/graphql';
+import { DecimalValue } from '@shared/presentation/graphql';
 
 // Query types for variants
 registerEnumType(ConditionEnum, {
@@ -54,8 +54,9 @@ export class VariantType {
   @Field(() => [AttributeType])
   attributes: AttributeType[];
 
-  @Field(() => MoneyType)
-  price: MoneyType;
+  /** Amount in the currency of the variant's product (`Product.currency`). */
+  @Field(() => DecimalValue)
+  price: string;
 
   @Field(() => String, { nullable: true })
   variantCover?: string;

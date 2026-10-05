@@ -39,7 +39,7 @@ import {
   GetProductByIdDTO,
   GetAllProductsDTO,
 } from '../../application/queries';
-import { PaginatedProductsReadDTO } from '../../application/mappers';
+import { PaginatedProductsDTO } from '../../application/mappers';
 import {
   SortBy,
   SortOrder,
@@ -205,7 +205,7 @@ export class ProductResolver {
       type: () => ProductFilterModeEnum,
     })
     filterMode?: ProductFilterModeEnum,
-  ): Promise<PaginatedProductsReadDTO> {
+  ): Promise<PaginatedProductsDTO> {
     return this.queryBus.execute(
       new GetAllProductsDTO(user.storeId, {
         page,

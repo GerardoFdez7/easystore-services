@@ -229,7 +229,7 @@ describe('CreateVariantHandler', () => {
             mockProduct,
             digitalVariant.variant,
           );
-          expect(result).toEqual({ id: 'product-id', variants: [] });
+          expect(result).toEqual({ id: 'product-id' });
         });
       });
 
@@ -556,7 +556,7 @@ describe('CreateVariantHandler', () => {
           );
           expect(updateMock).toHaveBeenCalled();
           expect(mockUpdatedProduct.commit).toHaveBeenCalled();
-          expect(result).toEqual({ id: 'product-id', variants: [] });
+          expect(result).toEqual({ id: 'product-id' });
         });
       });
     });
@@ -663,7 +663,7 @@ describe('CreateVariantHandler', () => {
 
         const result = await handler.execute(baseCommand);
 
-        expect(result).toEqual({ ...expectedDto, variants: [] });
+        expect(result).toEqual(expectedDto);
       });
     });
 
@@ -689,7 +689,7 @@ describe('CreateVariantHandler', () => {
           mockProduct,
           minimalCommand.variant,
         );
-        expect(result).toEqual({ id: 'product-id', variants: [] });
+        expect(result).toEqual({ id: 'product-id' });
       });
 
       it('should handle variant with all optional fields', async () => {
@@ -725,7 +725,7 @@ describe('CreateVariantHandler', () => {
           mockProduct,
           fullCommand.variant,
         );
-        expect(result).toEqual({ id: 'product-id', variants: [] });
+        expect(result).toEqual({ id: 'product-id' });
       });
 
       it('should propagate repository errors', async () => {
@@ -769,7 +769,6 @@ describe('CreateVariantHandler', () => {
         const expectedDto: ProductDTO = {
           id: 'product-789',
           name: 'Complete Product',
-          currency: 'USD',
           variants: [
             {
               sku: 'VAR-COMPLETE',
@@ -797,11 +796,10 @@ describe('CreateVariantHandler', () => {
         expect(result).toEqual({
           id: 'product-789',
           name: 'Complete Product',
-          currency: 'USD',
           variants: [
             {
               sku: 'VAR-COMPLETE',
-              price: { amount: '49.99', currency: 'USD' },
+              price: '49.99',
               stock: 50,
             },
           ],

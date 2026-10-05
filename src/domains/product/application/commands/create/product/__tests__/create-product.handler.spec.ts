@@ -234,7 +234,7 @@ describe('CreateProductHandler', () => {
 
           const result = await handler.execute(digitalProduct);
 
-          expect(result).toEqual({ ...expectedDto, variants: [] });
+          expect(result).toEqual(expectedDto);
           expect(createMock).toHaveBeenCalledWith(mockProduct);
           expect(mockProduct.commit).toHaveBeenCalledTimes(1);
         });
@@ -617,7 +617,7 @@ describe('CreateProductHandler', () => {
 
           const result = await handler.execute(baseCommand);
 
-          expect(result).toEqual({ ...expectedDto, variants: [] });
+          expect(result).toEqual(expectedDto);
           expect(createMock).toHaveBeenCalledWith(mockProduct);
           expect(mockProduct.commit).toHaveBeenCalledTimes(1);
         });
@@ -696,17 +696,14 @@ describe('CreateProductHandler', () => {
         const result = await handler.execute(baseCommand);
 
         expect(toDtoMock).toHaveBeenCalledWith(mockProduct);
-        expect(result).toEqual({ ...expectedDto, variants: [] });
+        expect(result).toEqual(expectedDto);
       });
     });
 
     describe('Edge cases and error scenarios', () => {
       it('should throw BadRequestException when product has no variants', async () => {
         const productWithoutVariants: CreateProductDTO = {
-          data: {
-            ...baseProductData,
-            variants: [],
-          },
+          data: baseProductData,
         } as unknown as CreateProductDTO;
 
         fromCreateDtoMock.mockImplementation(() => {
@@ -835,7 +832,7 @@ describe('CreateProductHandler', () => {
 
         const result = await handler.execute(productWithMultipleValidVariants);
 
-        expect(result).toEqual({ ...expectedDto, variants: [] });
+        expect(result).toEqual(expectedDto);
         expect(createMock).toHaveBeenCalledWith(mockProduct);
         expect(mockProduct.commit).toHaveBeenCalledTimes(1);
       });

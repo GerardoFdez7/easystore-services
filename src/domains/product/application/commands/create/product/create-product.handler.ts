@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { IProductRepository } from '../../../../aggregates/repositories/product.interface';
 import { CreateProductDTO } from './create-product.dto';
-import { ProductMapper, ProductDTO, ProductReadDTO } from '../../../mappers';
+import { ProductMapper, ProductDTO } from '../../../mappers';
 import { validateVariantForProductType } from '../../shared/validate-variant-for-product-type';
 
 @CommandHandler(CreateProductDTO)
@@ -13,7 +13,7 @@ export class CreateProductHandler implements ICommandHandler<CreateProductDTO> {
     private readonly eventPublisher: EventPublisher,
   ) {}
 
-  async execute(command: CreateProductDTO): Promise<ProductReadDTO> {
+  async execute(command: CreateProductDTO): Promise<ProductDTO> {
     const productData = command.data;
     const { variants = [], productType } = productData;
 
@@ -44,6 +44,6 @@ export class CreateProductHandler implements ICommandHandler<CreateProductDTO> {
     product.commit();
 
     // Return the product as DTO
-    return ProductMapper.toReadDto(ProductMapper.toDto(product) as ProductDTO);
+    return ProductMapper.toDto(product) as ProductDTO;
   }
 }

@@ -47,10 +47,7 @@ describe('RestoreVariantHandler', () => {
   });
 
   it('restores the variant, persists the aggregate, commits, and maps it', async () => {
-    await expect(handler.execute(command)).resolves.toEqual({
-      ...dto,
-      variants: [],
-    });
+    await expect(handler.execute(command)).resolves.toEqual(dto);
 
     expect(ProductMapper.fromRestoreVariantDto).toHaveBeenCalledWith(
       product,

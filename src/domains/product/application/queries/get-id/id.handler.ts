@@ -2,7 +2,7 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { IProductRepository } from '../../../aggregates/repositories/product.interface';
 import { Id } from '../../../aggregates/value-objects';
-import { ProductMapper, ProductDTO, ProductReadDTO } from '../../mappers';
+import { ProductMapper, ProductDTO } from '../../mappers';
 import { GetProductByIdDTO } from './id.dto';
 import { ICategoryAdapter } from '../../ports/category.port';
 
@@ -15,7 +15,7 @@ export class GetProductByIdHandler implements IQueryHandler<GetProductByIdDTO> {
     private readonly categoryAdapter: ICategoryAdapter,
   ) {}
 
-  async execute(query: GetProductByIdDTO): Promise<ProductReadDTO> {
+  async execute(query: GetProductByIdDTO): Promise<ProductDTO> {
     // Find the product by ID
     const product = await this.productRepository.findById(
       Id.create(query.storeId),
@@ -43,14 +43,10 @@ export class GetProductByIdHandler implements IQueryHandler<GetProductByIdDTO> {
       );
 
       // Enrich product with category information using the mapper
-      return ProductMapper.toReadDto(
-        ProductMapper.enrichWithCategories(productDto, categoryMap),
-      );
+      return ProductMapper.enrichWithCategories(productDto, categoryMap);
     }
 
     // Return enriched product even with empty category map for consistency
-    return ProductMapper.toReadDto(
-      ProductMapper.enrichWithCategories(productDto, new Map()),
-    );
+    return ProductMapper.enrichWithCategories(productDto, new Map());
   }
 }

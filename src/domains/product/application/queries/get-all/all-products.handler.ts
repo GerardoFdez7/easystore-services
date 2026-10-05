@@ -2,7 +2,7 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { Inject, BadRequestException } from '@nestjs/common';
 import { IProductRepository } from '../../../aggregates/repositories/product.interface';
 import { Id, Type, ProductFilterMode } from '../../../aggregates/value-objects';
-import { ProductMapper, PaginatedProductsReadDTO } from '../../mappers';
+import { ProductMapper, PaginatedProductsDTO } from '../../mappers';
 import { GetAllProductsDTO } from './all-products.dto';
 import { ICategoryAdapter } from '../../ports/category.port';
 
@@ -15,7 +15,7 @@ export class GetAllProductsHandler implements IQueryHandler<GetAllProductsDTO> {
     private readonly categoryAdapter: ICategoryAdapter,
   ) {}
 
-  async execute(query: GetAllProductsDTO): Promise<PaginatedProductsReadDTO> {
+  async execute(query: GetAllProductsDTO): Promise<PaginatedProductsDTO> {
     const { storeId, options } = query;
     const {
       page,
@@ -97,14 +97,13 @@ export class GetAllProductsHandler implements IQueryHandler<GetAllProductsDTO> {
       );
 
       // Enrich products with category information using the mapper
-      return ProductMapper.toPaginatedReadDto(
-        ProductMapper.enrichPaginatedWithCategories(paginatedDto, categoryMap),
+      return ProductMapper.enrichPaginatedWithCategories(
+        paginatedDto,
+        categoryMap,
       );
     }
 
     // Return enriched products even with empty category map for consistency
-    return ProductMapper.toPaginatedReadDto(
-      ProductMapper.enrichPaginatedWithCategories(paginatedDto, new Map()),
-    );
+    return ProductMapper.enrichPaginatedWithCategories(paginatedDto, new Map());
   }
 }

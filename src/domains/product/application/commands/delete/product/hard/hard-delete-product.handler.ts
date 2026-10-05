@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
 import { Inject, NotFoundException } from '@nestjs/common';
 import { IProductRepository } from '../../../../../aggregates/repositories/product.interface';
 import { Id } from '../../../../../aggregates/value-objects';
-import { ProductMapper, ProductDTO, ProductReadDTO } from '../../../../mappers';
+import { ProductMapper, ProductDTO } from '../../../../mappers';
 import { HardDeleteProductDTO } from './hard-delete-product.dto';
 
 @CommandHandler(HardDeleteProductDTO)
@@ -15,7 +15,7 @@ export class HardDeleteProductHandler
     private readonly eventPublisher: EventPublisher,
   ) {}
 
-  async execute(command: HardDeleteProductDTO): Promise<ProductReadDTO> {
+  async execute(command: HardDeleteProductDTO): Promise<ProductDTO> {
     // Find the product by ID
     const product = await this.productRepository.hardDelete(
       Id.create(command.storeId),
@@ -34,6 +34,6 @@ export class HardDeleteProductHandler
     deletedProduct.commit();
 
     // Return the product as DTO
-    return ProductMapper.toReadDto(ProductMapper.toDto(product) as ProductDTO);
+    return ProductMapper.toDto(product) as ProductDTO;
   }
 }

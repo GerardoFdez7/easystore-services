@@ -36,10 +36,7 @@ describe('ArchiveVariantHandler', () => {
   });
 
   it('archives the requested variant and persists its product aggregate', async () => {
-    await expect(handler.execute(command)).resolves.toEqual({
-      ...dto,
-      variants: [],
-    });
+    await expect(handler.execute(command)).resolves.toEqual(dto);
 
     expect(findProductOrThrow).toHaveBeenCalledWith(
       repository,

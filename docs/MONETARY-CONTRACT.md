@@ -11,6 +11,9 @@ validated ISO 4217 `currency`. The shared `Currency` value object is the system-
 source of truth for supported codes. The GraphQL API exposes the amount with the
 `Decimal` scalar, which serializes to a canonical JSON string.
 
+A currency-less `Decimal` amount is allowed only where an aggregate owns the currency: a
+variant price is an amount in its product's currency (see Currency rules).
+
 EasyStore targets the Americas, with possible later expansion to Europe. Every
 supported currency has two minor-unit digits, so the whole system uses one fixed
 monetary scale of 2. There is no per-currency scale table.
@@ -85,11 +88,15 @@ first; it is not a routine operation.
 - **Store currency.** A store has a configured currency that the tenant can change at
   any time. It is the default for new variant prices and the currency of new orders.
   Changing it does not reprice or restrict existing variants.
-- **Product currency.** Currency lives on the product. Every variant of a product is
-  priced in the product's currency; variants never carry their own. The tenant picks the
-  currency when creating the product (typically the store currency) and may change it
-  later, which reprices all of its variants into the new currency (amounts are kept,
-  not converted). A variant input carries only an amount.
+- **Product currency.** Currency lives on the product and nowhere else on the catalog.
+  Every variant of a product is priced in the product's currency; a variant has only an
+  amount. The tenant picks the currency when creating the product (typically the store
+  currency) and may change it later, which keeps every variant amount (no conversion).
+  In the API, `Product.currency` is a `CurrencyCodes` and `Variant.price` is a `Decimal`
+  amount, not a `Money`; clients read the currency from the product. Variant inputs also
+  take only a `Decimal`. The domain `Variant` holds a currency-less `MoneyAmount`.
+  Aggregates that carry their own currency (cart items, orders) expose `Money` or a
+  `currency` field derived from the product at the time.
 - **Cart currency.** The first item added to a cart sets its currency. Adding a variant
   whose product currency differs from the items already in the cart is rejected; an
   empty cart accepts any currency. Checkout rejects a line whose currency differs from
@@ -136,10 +143,10 @@ Enforced in the backend:
 - Order currency: `Order.currency` is non-null and backfilled from the store.
 - Product currency: stored on `Product.currency` (`Variant.currency` was dropped).
   `Product` prices all variants in it, and the migration aborts if an existing product
-  has variants in different currencies. Variant inputs take only a `Decimal` amount, the
-  domain `Variant` holds a currency-less `MoneyAmount`, and the GraphQL `Variant.price`
-  `Money` is built from the product's currency. Cross-context variant lookups expose it
-  as `productCurrency` (`VariantDetailsDTO`); the cart compares that value.
+  has variants in different currencies. `Variant.price` (output) and variant inputs are
+  `Decimal` amounts, the domain `Variant` holds a currency-less `MoneyAmount`, and
+  cross-context variant lookups expose the currency as `productCurrency`
+  (`VariantDetailsDTO`); the cart compares that value.
 - Product currency lock: the product repository rejects changing a product's currency
   inside the update transaction when an order contains one of its variants in the
   current currency (`PRODUCT_CURRENCY_LOCKED`, surfaced as `CONFLICT`).
