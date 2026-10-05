@@ -1,1 +1,2 @@
-// Store events currently have no application side effects.
+export { StoreCreatedHandler } from './store/store-created.handler';
+export { StoreUpdatedHandler } from './store/store-updated.handler';

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { CqrsModule, EventPublisher } from '@nestjs/cqrs';
 import { TransactionalEventPublisher } from '@shared/infrastructure/postgres';
 import { CreateStoreHandler, UpdateStoreHandler } from './application/commands';
+import { StoreCreatedHandler, StoreUpdatedHandler } from './application/events';
 import {
   GetAllStoresHandler,
   GetStoreByDomainHandler,
@@ -20,6 +21,8 @@ const QueryHandlers = [
   ValidateStoreInTenantHandler,
 ];
 
+const EventHandlers = [StoreCreatedHandler, StoreUpdatedHandler];
+
 @Module({
   imports: [CqrsModule],
   providers: [
@@ -28,6 +31,7 @@ const QueryHandlers = [
     StoreResolver,
     ...CommandHandlers,
     ...QueryHandlers,
+    ...EventHandlers,
   ],
 })
 export class StoreDomain {}

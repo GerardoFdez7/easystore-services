@@ -43,6 +43,11 @@ export default class StoreResolver {
       new UpdateStoreDTO(user.storeId, user.tenantId, input),
     );
   }
+
+  ///////////////
+  //  Queries  //
+  ///////////////
+
   @AllowAccountTypes(AccountTypeEnum.TENANT)
   @Query(() => StoreType)
   getStoreById(
