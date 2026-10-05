@@ -31,7 +31,7 @@ describe('HardDeleteProductHandler', () => {
   });
 
   it('hard-deletes only the store-scoped product and publishes the deletion event', async () => {
-    await expect(handler.execute(command)).resolves.toBe(dto);
+    await expect(handler.execute(command)).resolves.toEqual(dto);
 
     expect(repository.hardDelete).toHaveBeenCalledWith(
       expect.objectContaining({ value: storeId }),

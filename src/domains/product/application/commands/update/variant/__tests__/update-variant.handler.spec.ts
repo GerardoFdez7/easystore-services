@@ -91,7 +91,7 @@ describe('UpdateVariantHandler', () => {
     productType.getValue.mockReturnValueOnce(type);
     const updateCommand = command(data);
 
-    await expect(handler.execute(updateCommand)).resolves.toBe(dto);
+    await expect(handler.execute(updateCommand)).resolves.toEqual(dto);
 
     expect(ProductMapper.fromUpdateVariantDto).toHaveBeenCalledWith(
       product,
@@ -129,11 +129,11 @@ describe('UpdateVariantHandler', () => {
       cover: 'https://example.com/cover.jpg',
       storeId,
       productType: TypeEnum.PHYSICAL,
+      currency: 'USD',
       variants: [
         {
           attributes: [{ key: 'Size', value: 'M' }],
           price: '10',
-          currency: 'USD',
           condition: ConditionEnum.NEW,
           sku: 'SKU-1',
           weight: 1,

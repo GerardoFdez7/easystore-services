@@ -13,19 +13,14 @@
     },
     "GitHub": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-github"
-      ],
+      "args": ["-y", "@modelcontextprotocol/server-github"],
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"
       }
     },
     "Graphql": {
       "command": "./apollo-mcp-server",
-      "args": [
-        "./apollo-mcp.yaml"
-      ]
+      "args": ["./apollo-mcp.yaml"]
     }
   }
 }

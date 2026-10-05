@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EventPublisher } from '@nestjs/cqrs';
 import { NotFoundException } from '@nestjs/common';
 import { AddItemToCartHandler } from '../add-item-to-cart.handler';
+import { PublicBadRequestException } from '@shared/application/exceptions/public-bad-request.exception';
 import { AddItemToCartDto } from '../add-item-to-cart.dto';
 import { ICartRepository } from '../../../../../aggregates/repositories/cart.interface';
 import { CartMapper, CartDTO } from '../../../../mappers';
@@ -16,6 +17,7 @@ interface MockCart {
   getId: jest.Mock;
   getCustomerId: jest.Mock;
   getCartItems: jest.Mock;
+  get: jest.Mock;
 }
 
 describe('AddItemToCartHandler', () => {
@@ -64,6 +66,7 @@ describe('AddItemToCartHandler', () => {
         getValue: () => '019a039e-fe36-765d-96f1-fe92af9ab188',
       }),
       getCartItems: jest.fn().mockReturnValue(new Map()),
+      get: jest.fn().mockReturnValue(new Map()),
     };
 
     mergeObjectContextMock.mockReturnValue(mockCart);
@@ -233,7 +236,7 @@ describe('AddItemToCartHandler', () => {
             productName: 'Product 1',
             isArchived: false,
             price: '100',
-            currency: 'USD',
+            productCurrency: 'USD',
           },
           {
             variantId: 'variant-2',
@@ -242,7 +245,7 @@ describe('AddItemToCartHandler', () => {
             productName: 'Product 2',
             isArchived: false,
             price: '200',
-            currency: 'USD',
+            productCurrency: 'USD',
           },
         ]);
 
@@ -263,13 +266,68 @@ describe('AddItemToCartHandler', () => {
             productName: 'Product 1',
             isArchived: false,
             price: '100',
-            currency: 'USD',
+            productCurrency: 'USD',
           },
         ]);
 
         await handler.execute(baseCommand);
 
         expect(cartItemCreateMock).toHaveBeenCalledTimes(1);
+        expect(updateMock).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('Cart currency', () => {
+      const requested = {
+        variantId: '019a039e-fe37-7516-ab6d-b44cd5c58179',
+        sku: 'sku-1',
+        firstAttribute: { key: 'size', value: 'M' },
+        productName: 'Product 1',
+        isArchived: false,
+        price: '100',
+        productCurrency: 'EUR',
+      };
+      const inCart = {
+        ...requested,
+        variantId: '019a039e-fe37-7516-ab6d-b44cd5c58180',
+      };
+
+      beforeEach(() => {
+        findCartByCustomerIdMock.mockResolvedValue(mockCart);
+        mergeObjectContextMock.mockReturnValue(mockCart as never);
+        updateMock.mockResolvedValue(mockCart);
+        mockCart.get.mockReturnValue(new Map([[inCart.variantId, {}]]));
+      });
+
+      it('rejects a variant whose product currency differs from the items in the cart', async () => {
+        productAdapter.getVariantsDetails
+          .mockResolvedValueOnce([requested])
+          .mockResolvedValueOnce([{ ...inCart, productCurrency: 'USD' }]);
+
+        await expect(handler.execute(baseCommand)).rejects.toThrow(
+          PublicBadRequestException,
+        );
+        expect(cartItemCreateMock).not.toHaveBeenCalled();
+        expect(updateMock).not.toHaveBeenCalled();
+      });
+
+      it('accepts a variant in the same currency as the cart', async () => {
+        productAdapter.getVariantsDetails
+          .mockResolvedValueOnce([requested])
+          .mockResolvedValueOnce([inCart]);
+
+        await handler.execute(baseCommand);
+
+        expect(updateMock).toHaveBeenCalledTimes(1);
+      });
+
+      it('accepts any currency when the cart is empty', async () => {
+        mockCart.get.mockReturnValue(new Map());
+        productAdapter.getVariantsDetails.mockResolvedValueOnce([requested]);
+
+        await handler.execute(baseCommand);
+
+        expect(productAdapter.getVariantsDetails).toHaveBeenCalledTimes(1);
         expect(updateMock).toHaveBeenCalledTimes(1);
       });
     });

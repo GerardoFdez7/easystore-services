@@ -85,172 +85,8 @@ model Store {
 }
 
 enum Currency {
-  AFN
-  ALL
-  EUR
-  DZD
-  AOA
-  XCD
-  SAR
-  ARS
-  AMD
-  AWG
-  AUD
-  AZN
-  BSD
-  BDT
-  BBD
-  BHD
-  BZD
-  XOF
-  BMD
-  BYR
-  MMK
-  BOB
-  BOV
-  USD
-  BAM
-  BWP
-  BRL
-  BND
-  BGN
-  BIF
-  BTN
-  INR
-  CVE
-  KHR
-  XAF
-  CAD
-  CLF
-  CLP
-  CNY
-  COP
-  COU
-  KMF
-  CDF
-  CRC
-  HRK
-  CUC
-  CUP
-  ANG
-  DKK
-  EGP
-  SVC
-  AED
-  ERN
-  ETB
-  FJD
-  PHP
-  XDR
-  GMD
-  GEL
-  GHS
-  GIP
-  GNF
   GTQ
-  GYD
-  HTG
-  HNL
-  HKD
-  HUF
-  IDR
-  IQD
-  NOK
-  ISK
-  KYD
-  FKP
-  SBD
-  ILS
-  JMD
-  JPY
-  GBP
-  JOD
-  KZT
-  KES
-  KGS
-  KWD
-  LSL
-  ZAR
-  LRD
-  LYD
-  CHF
-  LBP
-  MOP
-  MKD
-  MGA
-  MYR
-  MWK
-  MVR
-  MAD
-  MUR
-  MRO
-  MNT
-  MZN
-  MXN
-  MXV
-  NAD
-  NPR
-  NIO
-  NGN
-  NZD
-  XPF
-  OMR
-  XUA
-  PKR
-  PAB
-  PGK
-  PYG
-  PEN
-  PLN
-  QAR
-  LAK
-  VEF
-  CZK
-  KRW
-  MDL
-  KPW
-  DOP
-  IRR
-  TZS
-  SYP
-  RWF
-  RON
-  RUB
-  WST
-  STD
-  RSD
-  SCR
-  SLL
-  SGD
-  XSU
-  SOS
-  LKR
-  SZL
-  SDG
-  SSP
-  SEK
-  CHE
-  CHW
-  SRD
-  THB
-  TWD
-  TJS
-  TOP
-  TTD
-  TMT
-  TRY
-  TND
-  UGX
-  UAH
-  UYI
-  UYU
-  UZS
-  VUV
-  VND
-  YER
-  DJF
-  ZMW
-  ZWL
+  USD
 
   @@schema("tenant")
 }
@@ -285,7 +121,7 @@ model Plan {
   id           String         @id
   name         String         @unique @postgres.Citext
   description  String
-  price        Decimal
+  price        Decimal        @postgres.Decimal(19, 2)
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   subscription Subscription[]
@@ -553,6 +389,7 @@ model Product {
   shortDescription String
   longDescription  String?             @postgres.Text
   productType      ProductType
+  currency         Currency
   cover            String
   brand            String?
   manufacturer     String?
@@ -640,8 +477,7 @@ model Warranty {
 
 model Variant {
   id                     String                  @id
-  price                  Decimal                 @default(0)
-  currency               String                  @default("GTQ")
+  price                  Decimal                 @default(0) @postgres.Decimal(19, 2)
   variantCover           String?
   personalizationOptions String[]
   weight                 Float?
@@ -715,7 +551,7 @@ model Promotion {
   description     String
   type            PromotionType
   actionType      PromotionActionType?
-  actionValue     Decimal?
+  actionValue     Decimal?             @postgres.Decimal(19, 2)
   isStackable     Boolean              @default(false)
   params          Json
   priority        Int
@@ -867,7 +703,8 @@ model Order {
   id              String            @id
   orderNumber     String
   status          OrderStatus
-  totalAmount     Decimal
+  totalAmount     Decimal           @postgres.Decimal(19, 2)
+  currency        Currency
   customerId      String
   cartId          String
   addressId       String
@@ -906,8 +743,8 @@ model OrderDetail {
   id          String   @id
   productName String
   qty         Int
-  unitPrice   Decimal
-  subtotal    Decimal
+  unitPrice   Decimal  @postgres.Decimal(19, 2)
+  subtotal    Decimal  @postgres.Decimal(19, 2)
   orderId     String
   variantId   String
   storeId     String
@@ -926,7 +763,7 @@ model OrderDetail {
 model Return {
   id           String   @id
   returnReason String   @postgres.Text
-  refundAmount Decimal
+  refundAmount Decimal  @postgres.Decimal(19, 2)
   variantId    String
   orderId      String
   storeId      String
@@ -944,7 +781,7 @@ model Return {
 
 model Payment {
   id              String        @id
-  amount          Decimal
+  amount          Decimal       @postgres.Decimal(19, 2)
   status          Status
   transactionId   String?
   orderId         String

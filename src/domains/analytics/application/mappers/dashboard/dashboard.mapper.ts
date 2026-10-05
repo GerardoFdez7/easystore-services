@@ -85,10 +85,12 @@ export class DashboardMapper {
     };
   }
 
+  /**
+   * Aggregates such as averages can carry more than two decimals. They are rounded
+   * half away from zero exactly once, here, per docs/MONETARY-CONTRACT.md.
+   */
   static money(value: DashboardDecimal, currency: string): IMoney {
-    return Money.create(
-      typeof value === 'string' ? value : value.toFixed(),
-      currency,
-    ).getValue();
+    const amount = typeof value === 'string' ? value : value.toFixed();
+    return Money.create(Money.roundAmount(amount), currency).getValue();
   }
 }

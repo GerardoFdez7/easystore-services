@@ -26,6 +26,7 @@ import {
 } from '../';
 import { UpdateProductDTO, UpdateVariantDTO } from '../../commands';
 import { CategoryDTO } from '@shared/application/dtos';
+import { Currency } from '@shared/aggregates/value-objects';
 
 /**
  * Centralized mapper for Product domain entity to DTO conversion for queries and vice versa for commands.
@@ -48,6 +49,7 @@ export class ProductMapper {
         ? LongDescription.create(persistenceProduct.longDescription)
         : null,
       productType: Type.create(persistenceProduct.productType),
+      currency: Currency.create(persistenceProduct.currency),
       cover: Media.createCover(persistenceProduct.cover),
       tags: persistenceProduct.tags
         ? persistenceProduct.tags.map((tag) => Tags.create([tag]))
@@ -117,6 +119,7 @@ export class ProductMapper {
         shortDescription: entity.get('shortDescription')?.getValue(),
         longDescription: entity.get('longDescription')?.getValue(),
         productType: entity.get('productType')?.getValue(),
+        currency: entity.get('currency')?.getValue(),
         cover: entity.get('cover')?.getValue(),
         tags:
           entity
@@ -168,6 +171,9 @@ export class ProductMapper {
           break;
         case 'productType':
           dto.productType = product.get('productType')?.getValue();
+          break;
+        case 'currency':
+          dto.currency = product.get('currency')?.getValue();
           break;
         case 'cover':
           dto.cover = product.get('cover')?.getValue();

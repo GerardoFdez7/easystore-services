@@ -1,0 +1,42 @@
+{
+  "description": "Shared monetary test vectors (docs/MONETARY-CONTRACT.md). The backend and every client that implements money arithmetic must run these and produce identical results.",
+  "scale": 2,
+  "normalize": [
+    ["12.50", "12.5"],
+    ["007", "7"],
+    ["0.10", "0.1"],
+    ["-0.00", "0"],
+    ["100", "100"],
+    ["0.000", "0"]
+  ],
+  "round": [
+    ["1.005", "1.01"],
+    ["1.004", "1"],
+    ["-1.005", "-1.01"],
+    ["0.125", "0.13"],
+    ["-0.125", "-0.13"],
+    ["2.5", "2.5"],
+    ["1.2349", "1.23"],
+    ["0.995", "1"],
+    ["0.0049", "0"],
+    ["-0.004", "0"]
+  ],
+  "allocate": [
+    {
+      "total": "100",
+      "weights": [1, 1, 1],
+      "expected": ["33.34", "33.33", "33.33"]
+    },
+    { "total": "0.05", "weights": [1, 1], "expected": ["0.03", "0.02"] },
+    { "total": "10", "weights": [3, 2, 1], "expected": ["5", "3.33", "1.67"] },
+    {
+      "total": "-100",
+      "weights": [1, 1, 1],
+      "expected": ["-33.34", "-33.33", "-33.33"]
+    },
+    { "total": "1", "weights": [0, 1], "expected": ["0", "1"] },
+    { "total": "0.01", "weights": [1, 1, 1], "expected": ["0.01", "0", "0"] }
+  ],
+  "validAmounts": ["0", "12", "12.5", "12.50", "0.01", "1234567.89"],
+  "invalidAmounts": ["12.505", "1.234", "abc", "", "1e3", "+5", "1,5", "12."]
+}

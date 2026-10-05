@@ -33,6 +33,7 @@ npx jscpd --config .jscpd.json --reporters console,ai <path>
 Coder perform the full workflow below, evaluates whether the
 reported duplication is semantic, whether the extraction preserves ownership, and
 whether the supplied verification covers all call sites.
+
 1. Run `npm run duplication` and locate both sides of each clone.
 2. Read the complete containing functions/classes and their tests.
 3. Decide whether the code has the same semantics, owner, invariants, and reasons to

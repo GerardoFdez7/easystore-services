@@ -1,6 +1,7 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { AddItemToCartDto } from './add-item-to-cart.dto';
 import { Inject, NotFoundException } from '@nestjs/common';
+import { PublicBadRequestException } from '@shared/application/exceptions/public-bad-request.exception';
 import { ICartRepository } from '../../../../aggregates/repositories/cart.interface';
 import { CartDTO, CartMapper } from '../../../mappers';
 import { Cart } from '../../../../aggregates/entities/cart/cart.entity';
@@ -34,6 +35,25 @@ export class AddItemToCartHandler implements ICommandHandler<AddItemToCartDto> {
 
     if (variants.length !== 1) {
       throw new NotFoundException('Variant not found');
+    }
+
+    // A cart has one currency: reject a product priced differently from the items
+    // already in it (docs/MONETARY-CONTRACT.md). An empty cart accepts any currency.
+    const existingVariantIds = Array.from(cartFound.get('cartItems').keys());
+    if (existingVariantIds.length > 0) {
+      const cartVariants = await this.productAdapter.getVariantsDetails(
+        existingVariantIds,
+        command.storeId,
+      );
+      if (
+        cartVariants.some(
+          (item) => item.productCurrency !== variants[0].productCurrency,
+        )
+      ) {
+        throw new PublicBadRequestException(
+          'This item is priced in a different currency than the items in your cart',
+        );
+      }
     }
 
     // Cart Item object

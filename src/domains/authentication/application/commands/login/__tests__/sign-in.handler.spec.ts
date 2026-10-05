@@ -118,10 +118,10 @@ describe('AuthenticationLoginHandler', () => {
 
     await expect(
       handler.execute(command(AccountTypeEnum.CUSTOMER, 'tenant.example.com')),
-    ).rejects.toThrow(new NotFoundException('Invalid credentials'));
+    ).rejects.toThrow(new UnauthorizedException('Invalid credentials'));
     expect(bcrypt.compare).toHaveBeenCalledWith(
       'dummy',
-      '$2b$10$dummy.hash.to.prevent.timing.attacks',
+      '$2b$10$BFKzHPvcHbFc342iIBM.1eaksK3/X1VdFw847epdExekKA43fZfGK',
     );
     expect(publisher.mergeObjectContext).not.toHaveBeenCalled();
     expect(authRepository.update).not.toHaveBeenCalled();

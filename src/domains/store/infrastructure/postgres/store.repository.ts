@@ -46,11 +46,13 @@ export default class StoreRepository implements IStoreRepository {
           where: {
             id_tenantId: { id: id.getValue(), tenantId: tenantId.getValue() },
           },
+          // The DTO maps cleared fields to undefined, which Prisma ignores;
+          // `?? null` is what actually clears them in the database.
           data: {
-            name: data.name,
-            domain: data.domain,
-            logo: data.logo,
-            description: data.description,
+            name: data.name ?? null,
+            domain: data.domain ?? null,
+            logo: data.logo ?? null,
+            description: data.description ?? null,
             currency: data.currency,
           },
         }),

@@ -11,7 +11,7 @@ describe('enrichWithVariantDetails', () => {
           productName: 'Product 1',
           firstAttribute: { key: 'Color', value: 'Blue' },
           price: '10',
-          currency: 'USD',
+          productCurrency: 'USD',
           isArchived: false,
         },
       ],

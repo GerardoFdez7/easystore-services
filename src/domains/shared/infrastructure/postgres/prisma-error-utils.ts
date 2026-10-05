@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { Prisma } from '.prisma/postgres';
 import {
   DatabaseOperationError,
@@ -14,6 +15,64 @@ interface PrismaDatabaseErrorOptions {
     error: Prisma.PrismaClientKnownRequestError,
     field: string,
   ) => UniqueConstraintViolationError | undefined;
+}
+
+const prismaErrorLogger = new Logger('PrismaErrorUtils');
+
+type PrismaDatabaseFailureDiagnostic = {
+  event: 'unmapped_prisma_database_error';
+  resource: string;
+  operation: string;
+  errorClass: string;
+  prismaCode?: string;
+  hasPrismaMetadata?: true;
+};
+
+function getPrismaErrorCode(error: unknown): string | undefined {
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    return error.code;
+  }
+
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'errorCode' in error &&
+    typeof error.errorCode === 'string' &&
+    /^P\d{4}$/.test(error.errorCode)
+  ) {
+    return error.errorCode;
+  }
+
+  return undefined;
+}
+
+function logUnmappedPrismaDatabaseError(
+  error: unknown,
+  operation: string,
+  resource: string,
+): void {
+  const diagnostic: PrismaDatabaseFailureDiagnostic = {
+    event: 'unmapped_prisma_database_error',
+    resource,
+    operation,
+    errorClass: error instanceof Error ? error.constructor.name : typeof error,
+  };
+  const prismaCode = getPrismaErrorCode(error);
+
+  if (prismaCode) {
+    diagnostic.prismaCode = prismaCode;
+  }
+
+  if (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.meta !== undefined
+  ) {
+    diagnostic.hasPrismaMetadata = true;
+  }
+
+  // Deliberately log only allowlisted structural fields. Prisma messages, stacks,
+  // SQL, connection details, and metadata values can contain sensitive data.
+  prismaErrorLogger.error(JSON.stringify(diagnostic));
 }
 
 /**
@@ -98,6 +157,7 @@ export function handlePrismaDatabaseError(
     }
   }
 
+  logUnmappedPrismaDatabaseError(error, operation, options.resource);
   throw new DatabaseOperationError(operation);
 }
 

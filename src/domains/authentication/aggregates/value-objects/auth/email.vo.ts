@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-const emailSchema = z.string().email({ message: 'Invalid email format' });
+const emailSchema = z.email({ message: 'Invalid email format' });
 
 export class Email {
   private constructor(private readonly value: string) {}

@@ -22,6 +22,28 @@ const decimalAmountSchema = z.string().refine((value) => {
         )))
   );
 }, 'Amount must be a decimal string');
+
+/** Every supported currency is priced with exactly this many fractional digits. */
+export const moneyScale = 2;
+
+const moneyScaleSchema = z.string().refine((value) => {
+  const decimalPoint = value.indexOf('.');
+  return decimalPoint === -1 || value.length - decimalPoint - 1 <= moneyScale;
+}, `Amount must have at most ${moneyScale} decimal places`);
+
+/** Raised when two Money values of different currencies are combined. */
+export class CurrencyMismatchError extends Error {
+  constructor(
+    public readonly left: string,
+    public readonly right: string,
+  ) {
+    super(
+      `Cannot combine amounts in different currencies: ${left} and ${right}`,
+    );
+    this.name = 'CurrencyMismatchError';
+  }
+}
+
 export interface IMoney {
   amount: string;
   currency: CurrencyCodes;
@@ -31,11 +53,85 @@ export interface IMoney {
 export class Money {
   private constructor(private readonly value: IMoney) {}
 
+  /**
+   * Creates a Money value. The amount must have at most {@link moneyScale}
+   * decimal places; extra digits are rejected, never rounded.
+   */
   static create(amount: string, currency: string): Money {
     return new Money({
-      amount: this.normalizeAmount(amount),
+      amount: moneyScaleSchema.parse(this.normalizeAmount(amount)),
       currency: Currency.create(currency).getValue(),
     });
+  }
+
+  /**
+   * Rounds half away from zero to `scale` fractional digits. Use it once, at a line
+   * or total boundary; intermediate results keep full precision.
+   */
+  static roundAmount(amount: string, scale: number = moneyScale): string {
+    const parsed = this.toScaledInteger(amount);
+    if (parsed.scale <= scale) return this.normalizeAmount(amount);
+
+    const divisor = 10n ** BigInt(parsed.scale - scale);
+    const negative = parsed.value < 0n;
+    const magnitude = negative ? -parsed.value : parsed.value;
+    let quotient = magnitude / divisor;
+    if ((magnitude % divisor) * 2n >= divisor) quotient += 1n;
+    return this.fromScaledInteger(negative ? -quotient : quotient, scale);
+  }
+
+  /**
+   * Splits `total` across `weights` so the parts sum exactly to the total. Each share
+   * is computed at scale 2; leftover minor units go one at a time to the largest
+   * fractional share first, ties broken by position.
+   */
+  static allocateAmount(total: string, weights: number[]): string[] {
+    if (
+      weights.length === 0 ||
+      weights.some((weight) => !Number.isSafeInteger(weight) || weight < 0) ||
+      weights.every((weight) => weight === 0)
+    ) {
+      throw new Error(
+        'Allocation weights must be non-negative safe integers with a positive sum',
+      );
+    }
+    const normalizedTotal = moneyScaleSchema.parse(this.normalizeAmount(total));
+    const parsed = this.toScaledInteger(normalizedTotal);
+    const minorUnits = parsed.value * 10n ** BigInt(moneyScale - parsed.scale);
+    const negative = minorUnits < 0n;
+    const magnitude = negative ? -minorUnits : minorUnits;
+    const weightSum = weights.reduce((sum, weight) => sum + BigInt(weight), 0n);
+
+    const shares = weights.map((weight) => ({
+      units: (magnitude * BigInt(weight)) / weightSum,
+      remainder: (magnitude * BigInt(weight)) % weightSum,
+    }));
+    const leftover =
+      magnitude - shares.reduce((sum, share) => sum + share.units, 0n);
+
+    // Leftover minor units (fewer than one per share) go to the largest remainders.
+    const winners = new Set(
+      shares
+        .map((share, index) => ({ index, remainder: share.remainder }))
+        .sort((a, b) =>
+          a.remainder === b.remainder
+            ? a.index - b.index
+            : a.remainder > b.remainder
+              ? -1
+              : 1,
+        )
+        .slice(0, Number(leftover))
+        .map(({ index }) => index),
+    );
+
+    return shares.map((share, index) =>
+      this.fromScaledInteger(
+        negative
+          ? -(share.units + (winners.has(index) ? 1n : 0n))
+          : share.units + (winners.has(index) ? 1n : 0n),
+        moneyScale,
+      ),
+    );
   }
 
   static normalizeAmount(amount: string): string {
@@ -90,11 +186,60 @@ export class Money {
     return { ...this.value };
   }
 
+  /** Adds two amounts; throws {@link CurrencyMismatchError} for different currencies. */
+  add(other: Money): Money {
+    this.assertSameCurrency(other);
+    return Money.create(
+      Money.addAmounts(this.value.amount, other.value.amount),
+      this.value.currency,
+    );
+  }
+
+  /** Subtracts `other`; throws {@link CurrencyMismatchError} for different currencies. */
+  subtract(other: Money): Money {
+    this.assertSameCurrency(other);
+    return Money.create(
+      Money.addAmounts(
+        this.value.amount,
+        Money.multiplyNegative(other.value.amount),
+      ),
+      this.value.currency,
+    );
+  }
+
+  /** Compares two amounts; throws {@link CurrencyMismatchError} for different currencies. */
+  compareTo(other: Money): number {
+    this.assertSameCurrency(other);
+    return Money.compareAmounts(this.value.amount, other.value.amount);
+  }
+
+  /** Multiplies by a non-negative integer quantity, keeping the currency. */
+  multiply(quantity: number): Money {
+    return Money.create(
+      Money.multiplyAmount(this.value.amount, quantity),
+      this.value.currency,
+    );
+  }
+
+  assertSameCurrency(other: Money): void {
+    if (this.value.currency !== other.value.currency) {
+      throw new CurrencyMismatchError(
+        this.value.currency,
+        other.value.currency,
+      );
+    }
+  }
+
   equals(other: Money): boolean {
     return (
       this.value.amount === other.value.amount &&
       this.value.currency === other.value.currency
     );
+  }
+
+  private static multiplyNegative(amount: string): string {
+    const parsed = this.toScaledInteger(amount);
+    return this.fromScaledInteger(-parsed.value, parsed.scale);
   }
 
   private static toScaledInteger(amount: string): {
@@ -105,7 +250,7 @@ export class Money {
     const isNegative = normalized.startsWith('-');
     const unsigned = isNegative ? normalized.slice(1) : normalized;
     const [integer, fraction = ''] = unsigned.split('.');
-    const value = BigInt(`${integer}${fraction || '0'}`);
+    const value = BigInt(`${integer}${fraction}`);
     return { value: isNegative ? -value : value, scale: fraction.length };
   }
 

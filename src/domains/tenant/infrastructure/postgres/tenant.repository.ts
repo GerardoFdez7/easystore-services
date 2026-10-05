@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { PostgreService } from '@database/postgres.service';
 import { Id } from '@shared/aggregates/value-objects';
 import { TenantDTO, TenantMapper } from '../../application/mappers';
 import { Tenant, ITenantType } from '../../aggregates/entities';
@@ -15,10 +14,7 @@ import {
 
 @Injectable()
 export default class TenantRepository implements ITenantRepository {
-  constructor(
-    private readonly prisma: PostgreService,
-    private readonly transactions: TransactionManager,
-  ) {}
+  constructor(private readonly transactions: TransactionManager) {}
 
   async create(tenant: Tenant): Promise<Tenant> {
     const tenantDto = TenantMapper.toDto(tenant);
@@ -73,7 +69,7 @@ export default class TenantRepository implements ITenantRepository {
   async findByAuthIdentityId(authIdentityId: Id): Promise<Tenant | null> {
     const authIdentityIdValue = authIdentityId.getValue();
     try {
-      const tenant = await this.prisma.tenant.findFirst({
+      const tenant = await this.transactions.client.tenant.findFirst({
         where: {
           authIdentityId: authIdentityIdValue,
         },
@@ -88,7 +84,7 @@ export default class TenantRepository implements ITenantRepository {
   async findById(id: Id): Promise<Tenant | null> {
     const idValue = id.getValue();
     try {
-      const tenant = await this.prisma.tenant.findUnique({
+      const tenant = await this.transactions.client.tenant.findUnique({
         where: {
           id: idValue,
         },
@@ -104,7 +100,7 @@ export default class TenantRepository implements ITenantRepository {
     authIdentityId: Id,
   ): Promise<ITenantLoginContext | null> {
     try {
-      const tenant = await this.prisma.tenant.findUnique({
+      const tenant = await this.transactions.client.tenant.findUnique({
         where: { authIdentityId: authIdentityId.getValue() },
         select: {
           id: true,

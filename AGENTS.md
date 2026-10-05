@@ -22,12 +22,12 @@ separate reasoning level, report the available model variant or capability tier
 instead. This notice applies to every delegated subagent and must not promise
 model details the platform does not expose.
 
-| Delegated task | Profile | Model requirement |
-| --- | --- | --- |
-| Focused repository inspection, behavior tracing, and evidence gathering | `explorer.agent.md` | Lowest capable tier (for example, GPT-5.6 Luna with low reasoning) |
-| Implementation-ready plan, architecture decision, or cross-layer design | `architect.agent.md` | Highest available tier (for example, GPT-6 Astra with high reasoning or GPT-5.6 Sol) |
-| Approved implementation | `coder.agent.md` | Mid-capability tier suited to code changes (for example, GPT-5.6 Terra with medium reasoning or Claude Sonnet) |
-| A reproducible failure Coder could not resolve in scope | `debugger.agent.md` | Mid-to-high capability tier, selected for the failure's complexity |
+| Delegated task                                                          | Profile              | Model requirement                                                                                              |
+| ----------------------------------------------------------------------- | -------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Focused repository inspection, behavior tracing, and evidence gathering | `explorer.agent.md`  | Lowest capable tier (for example, GPT-5.6 Luna with low reasoning)                                             |
+| Implementation-ready plan, architecture decision, or cross-layer design | `architect.agent.md` | Highest available tier (for example, GPT-6 Astra with high reasoning or GPT-5.6 Sol)                           |
+| Approved implementation                                                 | `coder.agent.md`     | Mid-capability tier suited to code changes (for example, GPT-5.6 Terra with medium reasoning or Claude Sonnet) |
+| A reproducible failure Coder could not resolve in scope                 | `debugger.agent.md`  | Mid-to-high capability tier, selected for the failure's complexity                                             |
 
 The default flow for work that needs a plan is:
 
@@ -52,6 +52,8 @@ parallel Coder, and verify the combined result once all finish.
 - Prefer the smallest complete change and do not broaden the requested scope.
 - Ask only when a missing decision would materially affect behavior, a public
   contract, data, security, or destructive impact.
+- Follow `docs/MONETARY-CONTRACT.md` for any price, currency, or money value: exact
+  decimals, scale 2, never JavaScript `number` or GraphQL `Float`.
 - Do not add dependencies, expose secrets, perform destructive operations, or make
   externally visible breaking changes without explicit approval.
 - Report exact evidence and distinguish current-task failures from pre-existing ones.

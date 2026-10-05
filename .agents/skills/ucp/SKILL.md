@@ -27,35 +27,45 @@ disable-model-invocation: true
 ## Spec Repository Handling
 
 ### Location Priority
+
 Check in this order:
+
 1. `./ucp/` — User's local copy (use as-is)
 2. `./.ucp-spec/` — Previously cloned spec (update it)
 3. Neither exists — Clone fresh
 
 ### Clone Procedure
+
 When cloning is needed:
+
 ```bash
 git clone --depth 1 https://github.com/Universal-Commerce-Protocol/ucp.git .ucp-spec
 ```
 
 If HTTPS fails, try SSH:
+
 ```bash
 git clone --depth 1 git@github.com:Universal-Commerce-Protocol/ucp.git .ucp-spec
 ```
 
 ### Update Procedure
+
 When `./.ucp-spec/` exists:
+
 ```bash
 cd .ucp-spec && git pull && cd ..
 ```
 
 ### Gitignore Management
+
 After cloning, ensure `.ucp-spec/` is in `.gitignore`:
+
 - Read `.gitignore` if it exists
 - Check if `.ucp-spec/` or `.ucp-spec` is already listed
 - If not, append `.ucp-spec/` on a new line
 
 ### Spec File Locations (read on demand)
+
 ```
 docs/specification/overview.md
 docs/specification/checkout.md
@@ -84,9 +94,11 @@ spec/discovery/profile_schema.json
 ## Configuration File
 
 ### Location
+
 `./ucp.config.json` at project root
 
 ### Schema
+
 ```json
 {
   "$schema": "./ucp.config.schema.json",
@@ -128,34 +140,37 @@ spec/discovery/profile_schema.json
 ```
 
 ### Field Descriptions
-| Field | Type | Description |
-|-------|------|-------------|
-| `ucp_version` | string | UCP spec version (date-based) |
-| `roles` | string[] | One or more of: `business`, `platform`, `payment_provider`, `host_embedded` |
-| `runtime` | string | `nodejs` (default) or `bun` |
-| `capabilities.core` | string[] | Required capabilities to implement |
-| `capabilities.extensions` | string[] | Optional extensions to implement |
-| `transports` | string[] | Enabled transports: `rest`, `mcp`, `a2a`, `embedded` |
-| `transport_priority` | string[] | Order to implement transports |
-| `payment_handlers` | string[] | Payment handler IDs to support |
-| `features.ap2_mandates` | boolean | Enable AP2 mandate signing |
-| `features.identity_linking` | boolean | Enable OAuth identity linking |
-| `features.multi_destination_fulfillment` | boolean | Enable multi-destination shipping |
-| `domain` | string | Business domain for `/.well-known/ucp` |
-| `existing_apis` | object | Map of existing API endpoints to analyze |
-| `policy_urls` | object | URLs for privacy, terms, refunds, shipping policies |
-| `scaffold_depth` | string | `types` \| `scaffolding` \| `full` |
-| `generated_files` | string[] | Files created by scaffold (for tracking) |
-| `answers` | object | Raw answers to qualifying questions |
+
+| Field                                    | Type     | Description                                                                 |
+| ---------------------------------------- | -------- | --------------------------------------------------------------------------- |
+| `ucp_version`                            | string   | UCP spec version (date-based)                                               |
+| `roles`                                  | string[] | One or more of: `business`, `platform`, `payment_provider`, `host_embedded` |
+| `runtime`                                | string   | `nodejs` (default) or `bun`                                                 |
+| `capabilities.core`                      | string[] | Required capabilities to implement                                          |
+| `capabilities.extensions`                | string[] | Optional extensions to implement                                            |
+| `transports`                             | string[] | Enabled transports: `rest`, `mcp`, `a2a`, `embedded`                        |
+| `transport_priority`                     | string[] | Order to implement transports                                               |
+| `payment_handlers`                       | string[] | Payment handler IDs to support                                              |
+| `features.ap2_mandates`                  | boolean  | Enable AP2 mandate signing                                                  |
+| `features.identity_linking`              | boolean  | Enable OAuth identity linking                                               |
+| `features.multi_destination_fulfillment` | boolean  | Enable multi-destination shipping                                           |
+| `domain`                                 | string   | Business domain for `/.well-known/ucp`                                      |
+| `existing_apis`                          | object   | Map of existing API endpoints to analyze                                    |
+| `policy_urls`                            | object   | URLs for privacy, terms, refunds, shipping policies                         |
+| `scaffold_depth`                         | string   | `types` \| `scaffolding` \| `full`                                          |
+| `generated_files`                        | string[] | Files created by scaffold (for tracking)                                    |
+| `answers`                                | object   | Raw answers to qualifying questions                                         |
 
 ---
 
 ## Sub-command: (no argument)
 
 ### Trigger
+
 User runs `/ucp` with no sub-command
 
 ### Behavior
+
 Display help listing all available sub-commands:
 
 ```
@@ -184,14 +199,17 @@ Spec location: ./ucp/ or ./.ucp-spec/
 ## Sub-command: init
 
 ### Trigger
+
 User runs `/ucp init`
 
 ### Purpose
+
 Bootstrap UCP in a project: clone spec, create config, ask essential questions.
 
 ### Procedure
 
 #### Step 1: Check/Clone Spec Repository
+
 1. Check if `./ucp/` exists
    - If yes: "Found local UCP spec at ./ucp/"
 2. If not, check if `./.ucp-spec/` exists
@@ -200,6 +218,7 @@ Bootstrap UCP in a project: clone spec, create config, ask essential questions.
 3. After cloning, add `.ucp-spec/` to `.gitignore`
 
 #### Step 2: Check for Existing Config
+
 1. Check if `./ucp.config.json` exists
 2. If yes, ask: "Config file exists. Overwrite, merge, or abort?"
    - Overwrite: Delete and create fresh
@@ -209,6 +228,7 @@ Bootstrap UCP in a project: clone spec, create config, ask essential questions.
 #### Step 3: Ask Essential Questions (4 questions)
 
 **Q1: What role(s) are you implementing?**
+
 - Business (merchant of record)
 - Platform (consumer app or agent)
 - Payment credential provider
@@ -216,32 +236,40 @@ Bootstrap UCP in a project: clone spec, create config, ask essential questions.
 - Multiple (specify)
 
 If user selects multiple roles, WARN:
+
 > "Implementing multiple roles is unusual. This is typically for marketplace/aggregator scenarios. Are you sure?"
 
 **Q2: What runtime will you use?**
+
 - Node.js (recommended, stable)
 - Bun (opt-in, experimental)
 
 NOTE: If user mentions Edge, respond:
+
 > "Edge runtime is not supported for UCP implementations. Please choose Node.js or Bun."
 
 **Q3: What is your business domain?**
+
 - The domain that will host `/.well-known/ucp`
 - Example: `shop.example.com`
 
 **Q4: Which transports do you need at launch?**
+
 - REST (recommended baseline)
 - MCP (Model Context Protocol)
 - A2A (Agent-to-Agent)
 - Embedded (iframe checkout)
 
 #### Step 4: Create Config File
+
 Create `./ucp.config.json` with:
+
 - Answers from essential questions
 - Sensible defaults for other fields
 - `ucp_version` set to latest from spec
 
 #### Step 5: Output Ready Message
+
 ```
 UCP initialized successfully!
 
@@ -261,18 +289,22 @@ Next steps:
 ## Sub-command: consult
 
 ### Trigger
+
 User runs `/ucp consult`
 
 ### Purpose
+
 Walk through all 12 qualifying questions, update config, produce implementation roadmap.
 
 ### Prerequisites
+
 - Config file must exist (run `/ucp init` first)
 - Spec must be available
 
 ### Procedure
 
 #### Step 1: Load Existing Config
+
 Read `./ucp.config.json` and use existing answers as defaults.
 
 #### Step 2: Walk Through 12 Qualifying Questions
@@ -280,10 +312,12 @@ Read `./ucp.config.json` and use existing answers as defaults.
 Ask each question. If already answered in config, show current value and ask to confirm or change.
 
 **Q1: Are we implementing the business side, the platform side, or both?**
+
 - Map to `roles` in config
 - If both/multiple, warn about unusual scenario
 
 **Q2: Which UCP version and which capabilities/extensions are in scope?**
+
 - Read available versions from spec
 - Present capability options:
   - Core: `dev.ucp.shopping.checkout` (required)
@@ -296,32 +330,38 @@ Ask each question. If already answered in config, show current value and ask to 
     - `dev.ucp.common.identity_linking`
 
 **Q3: Which payment handlers do we need?**
+
 - Wallets (Apple Pay, Google Pay)
 - PSP tokenization (Stripe, Adyen, etc.)
 - Custom handler
 - None yet (decide later)
 
 **Q4: Do we need AP2 mandates and signing key infrastructure?**
+
 - Yes → set `features.ap2_mandates: true`
 - No → set `features.ap2_mandates: false`
 - If yes, explain: "You'll need to provide JWS signing keys (ES256 recommended)"
 
 **Q5: Do we need fulfillment options and multi-group/multi-destination support?**
+
 - No fulfillment needed
 - Single destination only
 - Multi-destination support → set `features.multi_destination_fulfillment: true`
 
 **Q6: Do we need discounts, buyer consent capture, or identity linking?**
+
 - Discounts → add `dev.ucp.shopping.discount` to extensions
 - Buyer consent → add `dev.ucp.shopping.buyer_consent` to extensions
 - Identity linking → add `dev.ucp.common.identity_linking`, set `features.identity_linking: true`
 
 **Q7: What are the existing checkout and order APIs we should map to UCP?**
+
 - Ask for existing endpoint paths
 - Store in `existing_apis` object
 - Examples: `/api/checkout`, `/api/cart`, `/api/orders`
 
 **Q8: What are the required policy URLs?**
+
 - Privacy policy URL
 - Terms of service URL
 - Refund policy URL
@@ -329,6 +369,7 @@ Ask each question. If already answered in config, show current value and ask to 
 - Store in `policy_urls` object
 
 **Q9: What authentication model is required for checkout endpoints?**
+
 - None (anonymous checkout)
 - API key
 - OAuth 2.0
@@ -336,21 +377,26 @@ Ask each question. If already answered in config, show current value and ask to 
 - Store in `answers.authentication_model`
 
 **Q10: Who will receive order webhooks and what event cadence is required?**
+
 - Webhook URL for order events
 - Event types needed: `order.created`, `order.updated`, `order.fulfilled`, `order.canceled`
 - Store in `answers.webhook_config`
 
 **Q11: Do we need to support MCP, A2A, or embedded checkout at launch?**
+
 - Confirm/update `transports` array
 - Set `transport_priority` order
 
 **Q12: What is the business domain that will host /.well-known/ucp?**
+
 - Confirm/update `domain` field
 
 #### Step 3: Update Config
+
 Write all answers to `./ucp.config.json`
 
 #### Step 4: Generate Implementation Roadmap
+
 Based on answers, produce a roadmap:
 
 ```
@@ -393,22 +439,27 @@ Run /ucp plan for detailed file-by-file plan.
 ## Sub-command: plan
 
 ### Trigger
+
 User runs `/ucp plan`
 
 ### Purpose
+
 Generate detailed implementation plan with specific files and order of operations.
 
 ### Prerequisites
+
 - Config file must exist with completed consultation
 - Spec must be available
 
 ### Procedure
 
 #### Step 1: Load Config and Spec
+
 - Read `./ucp.config.json`
 - Read relevant spec files based on capabilities/transports
 
 #### Step 2: Analyze Existing Codebase Structure
+
 - Detect Next.js version (App Router vs Pages Router)
 - Find existing API routes
 - Find existing lib/utils structure
@@ -416,6 +467,7 @@ Generate detailed implementation plan with specific files and order of operation
 - Identify package manager (npm, yarn, pnpm, bun)
 
 #### Step 3: Generate File Plan
+
 For each capability/transport, list files to create/modify.
 
 **Example output:**
@@ -512,6 +564,7 @@ Run /ucp scaffold to generate these files.
 ```
 
 #### Step 4: Save Plan to Config
+
 Store the plan in `answers.implementation_plan` for scaffold reference.
 
 ---
@@ -519,44 +572,52 @@ Store the plan in `answers.implementation_plan` for scaffold reference.
 ## Sub-command: gaps
 
 ### Trigger
+
 User runs `/ucp gaps`
 
 ### Purpose
+
 Deep analysis of existing codebase against UCP requirements. Uses AST parsing and data flow tracing.
 
 ### Prerequisites
+
 - Config file should exist (for role/capability context)
 - Spec must be available
 
 ### Procedure
 
 #### Step 1: Load Context
+
 - Read config for declared capabilities
 - Read relevant spec files
 
 #### Step 2: Discover Existing Code
+
 Scan for:
+
 - API routes (`app/api/**`, `pages/api/**`)
 - Checkout-related files (search for "checkout", "cart", "order")
 - Payment handling code
 - Webhook implementations
 
 #### Step 3: Deep Analysis (AST-based)
+
 For each relevant file:
+
 - Parse AST
 - Trace data flow for checkout objects
 - Identify existing patterns
 
 **Analyze against UCP requirements:**
 
-| Requirement | Status | Finding |
-|-------------|--------|---------|
-| Discovery profile at /.well-known/ucp | MISSING | No route found |
-| Checkout session creation | PARTIAL | Found /api/checkout but missing UCP fields |
-| Status lifecycle | MISSING | No status state machine |
-| Capability negotiation | MISSING | No UCP-Agent header handling |
-| Payment handler support | PARTIAL | Stripe exists but not UCP-compliant |
-| Response metadata (ucp object) | MISSING | Responses don't include ucp field |
+| Requirement                           | Status  | Finding                                    |
+| ------------------------------------- | ------- | ------------------------------------------ |
+| Discovery profile at /.well-known/ucp | MISSING | No route found                             |
+| Checkout session creation             | PARTIAL | Found /api/checkout but missing UCP fields |
+| Status lifecycle                      | MISSING | No status state machine                    |
+| Capability negotiation                | MISSING | No UCP-Agent header handling               |
+| Payment handler support               | PARTIAL | Stripe exists but not UCP-compliant        |
+| Response metadata (ucp object)        | MISSING | Responses don't include ucp field          |
 
 #### Step 4: Generate Gap Report
 
@@ -617,20 +678,26 @@ Total: 3 critical gaps, 2 partial, 3 compliant
 ## Sub-command: scaffold
 
 ### Trigger
+
 User runs `/ucp scaffold`
 
 ### Purpose
+
 Generate full working UCP implementation based on config and plan.
 
 ### Prerequisites
+
 - Config file must exist
 - Plan should exist (run `/ucp plan` first, or scaffold will generate one)
 
 ### Procedure
 
 #### Step 1: Confirm Scaffold Depth
+
 Ask user:
+
 > "What level of code generation do you want?"
+>
 > - **types**: TypeScript interfaces and Zod schemas only
 > - **scaffolding**: Structure with TODO markers for business logic
 > - **full**: Complete working implementation (recommended)
@@ -638,19 +705,24 @@ Ask user:
 Store choice in `config.scaffold_depth`
 
 #### Step 2: Check Dependencies
+
 Identify required packages based on config:
+
 - `zod` — Always needed
 - `jose` — If AP2 mandates or webhook signing enabled
 - `uuid` — For session ID generation
 
 Ask before installing:
+
 > "The following packages are required: zod, jose, uuid"
 > "Install now? (npm install / bun add)"
 
 If yes, run appropriate install command.
 
 #### Step 3: Generate Code
+
 Generate files according to plan. For each file:
+
 1. Create parent directories if needed
 2. Write file content
 3. Track in `config.generated_files`
@@ -658,6 +730,7 @@ Generate files according to plan. For each file:
 ### Code Generation Templates
 
 #### lib/ucp/types/checkout.ts
+
 ```typescript
 /**
  * UCP Checkout Types
@@ -761,6 +834,7 @@ export interface BuyerInfo {
 ```
 
 #### lib/ucp/schemas/checkout.ts
+
 ```typescript
 /**
  * UCP Checkout Zod Schemas
@@ -790,19 +864,23 @@ export const TotalsSchema = z.object({
 export const CreateCheckoutRequestSchema = z.object({
   line_items: z.array(LineItemSchema).min(1),
   currency: z.string().length(3),
-  buyer: z.object({
-    email: z.string().email().optional(),
-    phone: z.string().optional(),
-  }).optional(),
+  buyer: z
+    .object({
+      email: z.string().email().optional(),
+      phone: z.string().optional(),
+    })
+    .optional(),
   // Extension fields...
 });
 
 export const UpdateCheckoutRequestSchema = z.object({
   line_items: z.array(LineItemSchema).optional(),
-  buyer: z.object({
-    email: z.string().email().optional(),
-    phone: z.string().optional(),
-  }).optional(),
+  buyer: z
+    .object({
+      email: z.string().email().optional(),
+      phone: z.string().optional(),
+    })
+    .optional(),
   // Extension fields...
 });
 
@@ -813,10 +891,13 @@ export const CompleteCheckoutRequestSchema = z.object({
 
 export type CreateCheckoutRequest = z.infer<typeof CreateCheckoutRequestSchema>;
 export type UpdateCheckoutRequest = z.infer<typeof UpdateCheckoutRequestSchema>;
-export type CompleteCheckoutRequest = z.infer<typeof CompleteCheckoutRequestSchema>;
+export type CompleteCheckoutRequest = z.infer<
+  typeof CompleteCheckoutRequestSchema
+>;
 ```
 
 #### app/.well-known/ucp/route.ts
+
 ```typescript
 /**
  * UCP Discovery Profile Endpoint
@@ -842,6 +923,7 @@ export async function GET() {
 ```
 
 #### lib/ucp/profile.ts
+
 ```typescript
 /**
  * UCP Discovery Profile Generator
@@ -899,7 +981,8 @@ export function generateProfile(): UCPProfile {
           spec: 'https://ucp.dev/spec/services/shopping',
           ...(config.transports.includes('rest') && {
             rest: {
-              schema: 'https://ucp.dev/spec/services/shopping/rest.openapi.json',
+              schema:
+                'https://ucp.dev/spec/services/shopping/rest.openapi.json',
               endpoint: `${baseUrl}/api/ucp`,
             },
           }),
@@ -916,7 +999,8 @@ export function generateProfile(): UCPProfile {
           }),
           ...(config.transports.includes('embedded') && {
             embedded: {
-              schema: 'https://ucp.dev/spec/services/shopping/embedded.openrpc.json',
+              schema:
+                'https://ucp.dev/spec/services/shopping/embedded.openrpc.json',
             },
           }),
         },
@@ -934,7 +1018,9 @@ export function generateProfile(): UCPProfile {
   return profile;
 }
 
-function buildCapabilities(config: typeof import('@/../ucp.config.json')): CapabilityDefinition[] {
+function buildCapabilities(
+  config: typeof import('@/../ucp.config.json'),
+): CapabilityDefinition[] {
   const capabilities: CapabilityDefinition[] = [];
 
   // Core checkout capability (always present)
@@ -955,10 +1041,13 @@ function buildCapabilities(config: typeof import('@/../ucp.config.json')): Capab
 
 function buildExtensionCapability(
   extension: string,
-  config: typeof import('@/../ucp.config.json')
+  config: typeof import('@/../ucp.config.json'),
 ): CapabilityDefinition {
   // Map extension names to spec URLs
-  const extMap: Record<string, { spec: string; schema: string; extends?: string }> = {
+  const extMap: Record<
+    string,
+    { spec: string; schema: string; extends?: string }
+  > = {
     'dev.ucp.shopping.fulfillment': {
       spec: 'https://ucp.dev/spec/capabilities/fulfillment',
       schema: 'https://ucp.dev/spec/schemas/shopping/fulfillment.json',
@@ -1020,6 +1109,7 @@ function buildHandlerDefinition(handlerId: string): PaymentHandlerDefinition {
 ```
 
 #### app/api/ucp/checkout/route.ts
+
 ```typescript
 /**
  * UCP Checkout Session Endpoint
@@ -1063,12 +1153,17 @@ export async function POST(request: NextRequest) {
     return wrapResponse(checkout, negotiation, 201);
   } catch (error) {
     console.error('Checkout creation failed:', error);
-    return errorResponse(500, 'internal_error', 'Failed to create checkout session');
+    return errorResponse(
+      500,
+      'internal_error',
+      'Failed to create checkout session',
+    );
   }
 }
 ```
 
 #### lib/ucp/handlers/checkout.ts
+
 ```typescript
 /**
  * UCP Checkout Handler
@@ -1095,14 +1190,17 @@ interface CreateCheckoutOptions {
 
 export async function createCheckout(
   request: CreateCheckoutRequest,
-  options: CreateCheckoutOptions
+  options: CreateCheckoutOptions,
 ): Promise<CheckoutSession> {
   const id = randomUUID();
   const now = new Date().toISOString();
   const expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString(); // 30 min
 
   // Calculate totals
-  const subtotal = request.line_items.reduce((sum, item) => sum + item.total_price, 0);
+  const subtotal = request.line_items.reduce(
+    (sum, item) => sum + item.total_price,
+    0,
+  );
   const tax = calculateTax(subtotal); // Implement your tax logic
   const shipping = 0; // Set by fulfillment extension
   const discount = 0; // Set by discount extension
@@ -1138,8 +1236,12 @@ export async function createCheckout(
       continue_url: `https://${config.domain}/checkout/${id}`,
       privacy_policy: config.policy_urls.privacy,
       terms_of_service: config.policy_urls.terms,
-      ...(config.policy_urls.refunds && { refund_policy: config.policy_urls.refunds }),
-      ...(config.policy_urls.shipping && { shipping_policy: config.policy_urls.shipping }),
+      ...(config.policy_urls.refunds && {
+        refund_policy: config.policy_urls.refunds,
+      }),
+      ...(config.policy_urls.shipping && {
+        shipping_policy: config.policy_urls.shipping,
+      }),
     },
     messages: [],
     expires_at: expiresAt,
@@ -1169,7 +1271,7 @@ export async function getCheckout(id: string): Promise<CheckoutSession | null> {
 export async function updateCheckout(
   id: string,
   request: UpdateCheckoutRequest,
-  capabilities: string[]
+  capabilities: string[],
 ): Promise<CheckoutSession | null> {
   const checkout = checkoutStore.get(id);
   if (!checkout) return null;
@@ -1202,7 +1304,7 @@ export async function updateCheckout(
 export async function completeCheckout(
   id: string,
   paymentData: Record<string, unknown>,
-  capabilities: string[]
+  capabilities: string[],
 ): Promise<CheckoutSession | null> {
   const checkout = checkoutStore.get(id);
   if (!checkout) return null;
@@ -1236,7 +1338,8 @@ export async function completeCheckout(
     checkout.messages.push({
       code: 'payment_failed',
       severity: 'recoverable',
-      message: error instanceof Error ? error.message : 'Payment processing failed',
+      message:
+        error instanceof Error ? error.message : 'Payment processing failed',
     });
     checkout.updated_at = new Date().toISOString();
     checkoutStore.set(id, checkout);
@@ -1262,14 +1365,16 @@ function determineStatus(checkout: CheckoutSession): CheckoutStatus {
   }
 
   // Check if buyer input needed
-  if (checkout.messages.some(m => m.severity === 'requires_buyer_input')) {
+  if (checkout.messages.some((m) => m.severity === 'requires_buyer_input')) {
     return 'requires_escalation';
   }
 
   return 'ready_for_complete';
 }
 
-function generateMessages(checkout: CheckoutSession): CheckoutSession['messages'] {
+function generateMessages(
+  checkout: CheckoutSession,
+): CheckoutSession['messages'] {
   const messages: CheckoutSession['messages'] = [];
 
   if (!checkout.buyer?.email) {
@@ -1285,11 +1390,17 @@ function generateMessages(checkout: CheckoutSession): CheckoutSession['messages'
 }
 
 function recalculateTotals(checkout: CheckoutSession): void {
-  const subtotal = checkout.line_items.reduce((sum, item) => sum + item.total_price, 0);
+  const subtotal = checkout.line_items.reduce(
+    (sum, item) => sum + item.total_price,
+    0,
+  );
   checkout.totals.subtotal = subtotal;
   checkout.totals.tax = calculateTax(subtotal);
   checkout.totals.grand_total =
-    subtotal + checkout.totals.tax + checkout.totals.shipping - checkout.totals.discount;
+    subtotal +
+    checkout.totals.tax +
+    checkout.totals.shipping -
+    checkout.totals.discount;
   checkout.payment.amount_due = checkout.totals.grand_total;
 }
 
@@ -1298,9 +1409,11 @@ function calculateTax(subtotal: number): number {
   return Math.round(subtotal * 0.08); // Example: 8% tax
 }
 
-function getPaymentHandlers(capabilities: string[]): CheckoutSession['payment']['handlers'] {
+function getPaymentHandlers(
+  capabilities: string[],
+): CheckoutSession['payment']['handlers'] {
   // Return configured payment handlers
-  return config.payment_handlers.map(id => ({
+  return config.payment_handlers.map((id) => ({
     id,
     type: 'tokenization',
   }));
@@ -1308,7 +1421,7 @@ function getPaymentHandlers(capabilities: string[]): CheckoutSession['payment'][
 
 async function processPayment(
   checkout: CheckoutSession,
-  paymentData: Record<string, unknown>
+  paymentData: Record<string, unknown>,
 ): Promise<void> {
   // Validate handler_id against advertised handlers
   const handlerId = paymentData.handler_id as string;
@@ -1327,6 +1440,7 @@ async function emitOrderCreated(checkout: CheckoutSession): Promise<void> {
 ```
 
 #### lib/ucp/negotiation.ts
+
 ```typescript
 /**
  * UCP Capability Negotiation
@@ -1361,7 +1475,7 @@ export function parseUCPAgent(header: string | null): UCPAgentInfo | null {
  * Negotiate capabilities between business and platform
  */
 export async function negotiateCapabilities(
-  platformProfileUrl?: string
+  platformProfileUrl?: string,
 ): Promise<NegotiationResult> {
   // Business capabilities
   const businessCapabilities = new Set([
@@ -1399,11 +1513,12 @@ export async function negotiateCapabilities(
 
     // Compute intersection
     const platformCapabilities = new Set(
-      platformProfile.ucp?.capabilities?.map((c: { name: string }) => c.name) || []
+      platformProfile.ucp?.capabilities?.map((c: { name: string }) => c.name) ||
+        [],
     );
 
-    const intersection = [...businessCapabilities].filter(c =>
-      platformCapabilities.has(c)
+    const intersection = [...businessCapabilities].filter((c) =>
+      platformCapabilities.has(c),
     );
 
     // Version negotiation - accept platform version <= business version
@@ -1428,6 +1543,7 @@ export async function negotiateCapabilities(
 ```
 
 #### lib/ucp/response.ts
+
 ```typescript
 /**
  * UCP Response Helpers
@@ -1443,7 +1559,7 @@ import type { NegotiationResult } from './negotiation';
 export function wrapResponse<T extends { ucp?: unknown }>(
   data: T,
   negotiation: NegotiationResult,
-  status: number = 200
+  status: number = 200,
 ): NextResponse {
   // Ensure ucp metadata is present
   const response = {
@@ -1464,7 +1580,7 @@ export function errorResponse(
   status: number,
   code: string,
   message: string,
-  details?: Record<string, unknown>
+  details?: Record<string, unknown>,
 ): NextResponse {
   return NextResponse.json(
     {
@@ -1474,7 +1590,7 @@ export function errorResponse(
         ...(details && { details }),
       },
     },
-    { status }
+    { status },
   );
 }
 ```
@@ -1484,6 +1600,7 @@ export function errorResponse(
 When MCP transport is enabled in config, generate these additional files.
 
 #### Dependencies for MCP Transport
+
 ```bash
 npm install mcp-handler @modelcontextprotocol/sdk@1.25.2 zod
 ```
@@ -1491,6 +1608,7 @@ npm install mcp-handler @modelcontextprotocol/sdk@1.25.2 zod
 **IMPORTANT:** Use `@modelcontextprotocol/sdk@1.25.2` or later — earlier versions have security vulnerabilities.
 
 #### app/api/mcp/[transport]/route.ts
+
 ```typescript
 /**
  * UCP MCP Transport Endpoint
@@ -1528,7 +1646,8 @@ const handler = createMcpHandler(
       'ucp_get_profile',
       {
         title: 'Get UCP Profile',
-        description: 'Retrieve the UCP discovery profile for this business. Returns supported capabilities, transports, and payment handlers.',
+        description:
+          'Retrieve the UCP discovery profile for this business. Returns supported capabilities, transports, and payment handlers.',
         inputSchema: {},
       },
       async () => {
@@ -1541,7 +1660,7 @@ const handler = createMcpHandler(
             },
           ],
         };
-      }
+      },
     );
 
     // =========================================================================
@@ -1552,25 +1671,63 @@ const handler = createMcpHandler(
       'ucp_create_checkout',
       {
         title: 'Create Checkout Session',
-        description: 'Create a new UCP checkout session with line items. Returns a checkout session with id, status, totals, and available payment handlers.',
+        description:
+          'Create a new UCP checkout session with line items. Returns a checkout session with id, status, totals, and available payment handlers.',
         inputSchema: {
-          line_items: z.array(
-            z.object({
-              id: z.string().optional().describe('Unique identifier for the line item'),
-              name: z.string().describe('Product name'),
-              quantity: z.number().int().positive().describe('Quantity ordered'),
-              unit_price: z.number().int().describe('Price per unit in minor units (cents)'),
-              total_price: z.number().int().describe('Total price for this line (quantity * unit_price)'),
-              currency: z.string().length(3).describe('ISO 4217 currency code'),
+          line_items: z
+            .array(
+              z.object({
+                id: z
+                  .string()
+                  .optional()
+                  .describe('Unique identifier for the line item'),
+                name: z.string().describe('Product name'),
+                quantity: z
+                  .number()
+                  .int()
+                  .positive()
+                  .describe('Quantity ordered'),
+                unit_price: z
+                  .number()
+                  .int()
+                  .describe('Price per unit in minor units (cents)'),
+                total_price: z
+                  .number()
+                  .int()
+                  .describe(
+                    'Total price for this line (quantity * unit_price)',
+                  ),
+                currency: z
+                  .string()
+                  .length(3)
+                  .describe('ISO 4217 currency code'),
+              }),
+            )
+            .min(1)
+            .describe('Array of items in the checkout'),
+          currency: z
+            .string()
+            .length(3)
+            .describe('ISO 4217 currency code for the checkout'),
+          buyer: z
+            .object({
+              email: z
+                .string()
+                .email()
+                .optional()
+                .describe('Buyer email address'),
+              phone: z.string().optional().describe('Buyer phone number'),
+              name: z.string().optional().describe('Buyer full name'),
             })
-          ).min(1).describe('Array of items in the checkout'),
-          currency: z.string().length(3).describe('ISO 4217 currency code for the checkout'),
-          buyer: z.object({
-            email: z.string().email().optional().describe('Buyer email address'),
-            phone: z.string().optional().describe('Buyer phone number'),
-            name: z.string().optional().describe('Buyer full name'),
-          }).optional().describe('Buyer information'),
-          platform_profile_url: z.string().url().optional().describe('URL to the platform UCP profile for capability negotiation'),
+            .optional()
+            .describe('Buyer information'),
+          platform_profile_url: z
+            .string()
+            .url()
+            .optional()
+            .describe(
+              'URL to the platform UCP profile for capability negotiation',
+            ),
         },
       },
       async ({ line_items, currency, buyer, platform_profile_url }) => {
@@ -1580,7 +1737,7 @@ const handler = createMcpHandler(
 
           const checkout = await createCheckout(
             { line_items, currency, buyer },
-            { capabilities: negotiation.capabilities }
+            { capabilities: negotiation.capabilities },
           );
 
           return {
@@ -1599,7 +1756,8 @@ const handler = createMcpHandler(
                 text: JSON.stringify({
                   error: {
                     code: 'checkout_creation_failed',
-                    message: error instanceof Error ? error.message : 'Unknown error',
+                    message:
+                      error instanceof Error ? error.message : 'Unknown error',
                   },
                 }),
               },
@@ -1607,14 +1765,15 @@ const handler = createMcpHandler(
             isError: true,
           };
         }
-      }
+      },
     );
 
     server.registerTool(
       'ucp_get_checkout',
       {
         title: 'Get Checkout Session',
-        description: 'Retrieve an existing checkout session by ID. Returns the current state including status, line items, totals, and messages.',
+        description:
+          'Retrieve an existing checkout session by ID. Returns the current state including status, line items, totals, and messages.',
         inputSchema: {
           checkout_id: z.string().describe('The checkout session ID'),
         },
@@ -1647,54 +1806,88 @@ const handler = createMcpHandler(
             },
           ],
         };
-      }
+      },
     );
 
     server.registerTool(
       'ucp_update_checkout',
       {
         title: 'Update Checkout Session',
-        description: 'Update an existing checkout session. Can modify line items, buyer info, fulfillment selection, or discount codes.',
+        description:
+          'Update an existing checkout session. Can modify line items, buyer info, fulfillment selection, or discount codes.',
         inputSchema: {
           checkout_id: z.string().describe('The checkout session ID'),
-          line_items: z.array(
-            z.object({
-              id: z.string(),
-              name: z.string(),
-              quantity: z.number().int().positive(),
-              unit_price: z.number().int(),
-              total_price: z.number().int(),
-              currency: z.string().length(3),
+          line_items: z
+            .array(
+              z.object({
+                id: z.string(),
+                name: z.string(),
+                quantity: z.number().int().positive(),
+                unit_price: z.number().int(),
+                total_price: z.number().int(),
+                currency: z.string().length(3),
+              }),
+            )
+            .optional()
+            .describe('Updated line items (replaces existing)'),
+          buyer: z
+            .object({
+              email: z.string().email().optional(),
+              phone: z.string().optional(),
+              name: z.string().optional(),
             })
-          ).optional().describe('Updated line items (replaces existing)'),
-          buyer: z.object({
-            email: z.string().email().optional(),
-            phone: z.string().optional(),
-            name: z.string().optional(),
-          }).optional().describe('Updated buyer information (merged with existing)'),
-          fulfillment: z.object({
-            selected_option_id: z.string().optional().describe('ID of selected fulfillment option'),
-            destination: z.object({
-              address_line1: z.string(),
-              address_line2: z.string().optional(),
-              city: z.string(),
-              state: z.string().optional(),
-              postal_code: z.string(),
-              country: z.string().length(2),
-            }).optional().describe('Shipping destination address'),
-          }).optional().describe('Fulfillment selection (if fulfillment extension enabled)'),
-          discount_codes: z.array(z.string()).optional().describe('Discount codes to apply (if discount extension enabled)'),
-          platform_profile_url: z.string().url().optional().describe('Platform profile URL for capability negotiation'),
+            .optional()
+            .describe('Updated buyer information (merged with existing)'),
+          fulfillment: z
+            .object({
+              selected_option_id: z
+                .string()
+                .optional()
+                .describe('ID of selected fulfillment option'),
+              destination: z
+                .object({
+                  address_line1: z.string(),
+                  address_line2: z.string().optional(),
+                  city: z.string(),
+                  state: z.string().optional(),
+                  postal_code: z.string(),
+                  country: z.string().length(2),
+                })
+                .optional()
+                .describe('Shipping destination address'),
+            })
+            .optional()
+            .describe(
+              'Fulfillment selection (if fulfillment extension enabled)',
+            ),
+          discount_codes: z
+            .array(z.string())
+            .optional()
+            .describe(
+              'Discount codes to apply (if discount extension enabled)',
+            ),
+          platform_profile_url: z
+            .string()
+            .url()
+            .optional()
+            .describe('Platform profile URL for capability negotiation'),
         },
       },
-      async ({ checkout_id, line_items, buyer, fulfillment, discount_codes, platform_profile_url }) => {
+      async ({
+        checkout_id,
+        line_items,
+        buyer,
+        fulfillment,
+        discount_codes,
+        platform_profile_url,
+      }) => {
         try {
           const negotiation = await negotiateCapabilities(platform_profile_url);
 
           const checkout = await updateCheckout(
             checkout_id,
             { line_items, buyer },
-            negotiation.capabilities
+            negotiation.capabilities,
           );
 
           if (!checkout) {
@@ -1730,7 +1923,8 @@ const handler = createMcpHandler(
                 text: JSON.stringify({
                   error: {
                     code: 'checkout_update_failed',
-                    message: error instanceof Error ? error.message : 'Unknown error',
+                    message:
+                      error instanceof Error ? error.message : 'Unknown error',
                   },
                 }),
               },
@@ -1738,22 +1932,39 @@ const handler = createMcpHandler(
             isError: true,
           };
         }
-      }
+      },
     );
 
     server.registerTool(
       'ucp_complete_checkout',
       {
         title: 'Complete Checkout',
-        description: 'Complete a checkout session with payment. Checkout must be in ready_for_complete status. Returns the completed checkout or error messages.',
+        description:
+          'Complete a checkout session with payment. Checkout must be in ready_for_complete status. Returns the completed checkout or error messages.',
         inputSchema: {
           checkout_id: z.string().describe('The checkout session ID'),
-          payment_data: z.object({
-            handler_id: z.string().describe('Payment handler ID (must match one from checkout.payment.handlers)'),
-            token: z.string().optional().describe('Payment token from tokenization handler'),
-            instrument: z.record(z.unknown()).optional().describe('Payment instrument data'),
-          }).describe('Payment data from the selected payment handler'),
-          platform_profile_url: z.string().url().optional().describe('Platform profile URL'),
+          payment_data: z
+            .object({
+              handler_id: z
+                .string()
+                .describe(
+                  'Payment handler ID (must match one from checkout.payment.handlers)',
+                ),
+              token: z
+                .string()
+                .optional()
+                .describe('Payment token from tokenization handler'),
+              instrument: z
+                .record(z.unknown())
+                .optional()
+                .describe('Payment instrument data'),
+            })
+            .describe('Payment data from the selected payment handler'),
+          platform_profile_url: z
+            .string()
+            .url()
+            .optional()
+            .describe('Platform profile URL'),
         },
       },
       async ({ checkout_id, payment_data, platform_profile_url }) => {
@@ -1763,7 +1974,7 @@ const handler = createMcpHandler(
           const checkout = await completeCheckout(
             checkout_id,
             payment_data,
-            negotiation.capabilities
+            negotiation.capabilities,
           );
 
           if (!checkout) {
@@ -1799,7 +2010,8 @@ const handler = createMcpHandler(
                 text: JSON.stringify({
                   error: {
                     code: 'checkout_completion_failed',
-                    message: error instanceof Error ? error.message : 'Unknown error',
+                    message:
+                      error instanceof Error ? error.message : 'Unknown error',
                   },
                 }),
               },
@@ -1807,29 +2019,37 @@ const handler = createMcpHandler(
             isError: true,
           };
         }
-      }
+      },
     );
 
     // =========================================================================
     // Fulfillment Extension Tools (if enabled)
     // =========================================================================
 
-    if (config.capabilities.extensions.includes('dev.ucp.shopping.fulfillment')) {
+    if (
+      config.capabilities.extensions.includes('dev.ucp.shopping.fulfillment')
+    ) {
       server.registerTool(
         'ucp_get_fulfillment_options',
         {
           title: 'Get Fulfillment Options',
-          description: 'Get available fulfillment/shipping options for a checkout. Requires a destination address.',
+          description:
+            'Get available fulfillment/shipping options for a checkout. Requires a destination address.',
           inputSchema: {
             checkout_id: z.string().describe('The checkout session ID'),
-            destination: z.object({
-              address_line1: z.string(),
-              address_line2: z.string().optional(),
-              city: z.string(),
-              state: z.string().optional(),
-              postal_code: z.string(),
-              country: z.string().length(2).describe('ISO 3166-1 alpha-2 country code'),
-            }).describe('Shipping destination'),
+            destination: z
+              .object({
+                address_line1: z.string(),
+                address_line2: z.string().optional(),
+                city: z.string(),
+                state: z.string().optional(),
+                postal_code: z.string(),
+                country: z
+                  .string()
+                  .length(2)
+                  .describe('ISO 3166-1 alpha-2 country code'),
+              })
+              .describe('Shipping destination'),
           },
         },
         async ({ checkout_id, destination }) => {
@@ -1838,30 +2058,34 @@ const handler = createMcpHandler(
             content: [
               {
                 type: 'text',
-                text: JSON.stringify({
-                  checkout_id,
-                  destination,
-                  options: [
-                    {
-                      id: 'standard',
-                      name: 'Standard Shipping',
-                      description: '5-7 business days',
-                      price: 599,
-                      currency: 'USD',
-                    },
-                    {
-                      id: 'express',
-                      name: 'Express Shipping',
-                      description: '2-3 business days',
-                      price: 1299,
-                      currency: 'USD',
-                    },
-                  ],
-                }, null, 2),
+                text: JSON.stringify(
+                  {
+                    checkout_id,
+                    destination,
+                    options: [
+                      {
+                        id: 'standard',
+                        name: 'Standard Shipping',
+                        description: '5-7 business days',
+                        price: 599,
+                        currency: 'USD',
+                      },
+                      {
+                        id: 'express',
+                        name: 'Express Shipping',
+                        description: '2-3 business days',
+                        price: 1299,
+                        currency: 'USD',
+                      },
+                    ],
+                  },
+                  null,
+                  2,
+                ),
               },
             ],
           };
-        }
+        },
       );
     }
 
@@ -1874,7 +2098,8 @@ const handler = createMcpHandler(
         'ucp_validate_discount',
         {
           title: 'Validate Discount Code',
-          description: 'Validate a discount code before applying to checkout. Returns discount details or rejection reason.',
+          description:
+            'Validate a discount code before applying to checkout. Returns discount details or rejection reason.',
           inputSchema: {
             checkout_id: z.string().describe('The checkout session ID'),
             code: z.string().describe('The discount code to validate'),
@@ -1886,19 +2111,23 @@ const handler = createMcpHandler(
             content: [
               {
                 type: 'text',
-                text: JSON.stringify({
-                  valid: true,
-                  code,
-                  discount: {
-                    type: 'percentage',
-                    value: 10,
-                    description: '10% off your order',
+                text: JSON.stringify(
+                  {
+                    valid: true,
+                    code,
+                    discount: {
+                      type: 'percentage',
+                      value: 10,
+                      description: '10% off your order',
+                    },
                   },
-                }, null, 2),
+                  null,
+                  2,
+                ),
               },
             ],
           };
-        }
+        },
       );
     }
 
@@ -1910,7 +2139,8 @@ const handler = createMcpHandler(
       'ucp_get_payment_handlers',
       {
         title: 'Get Payment Handlers',
-        description: 'Get available payment handlers for a checkout session. Use this to determine how to collect payment information.',
+        description:
+          'Get available payment handlers for a checkout session. Use this to determine how to collect payment information.',
         inputSchema: {
           checkout_id: z.string().describe('The checkout session ID'),
         },
@@ -1939,16 +2169,20 @@ const handler = createMcpHandler(
           content: [
             {
               type: 'text',
-              text: JSON.stringify({
-                checkout_id,
-                amount_due: checkout.payment.amount_due,
-                currency: checkout.payment.currency,
-                handlers: checkout.payment.handlers,
-              }, null, 2),
+              text: JSON.stringify(
+                {
+                  checkout_id,
+                  amount_due: checkout.payment.amount_due,
+                  currency: checkout.payment.currency,
+                  handlers: checkout.payment.handlers,
+                },
+                null,
+                2,
+              ),
             },
           ],
         };
-      }
+      },
     );
   },
   {
@@ -1961,13 +2195,14 @@ const handler = createMcpHandler(
     basePath: '/api/mcp',
     maxDuration: 60,
     verboseLogs: process.env.NODE_ENV === 'development',
-  }
+  },
 );
 
 export { handler as GET, handler as POST };
 ```
 
 #### lib/ucp/transports/mcp-tools.ts
+
 ```typescript
 /**
  * UCP MCP Tool Definitions
@@ -2076,6 +2311,7 @@ export const UCP_MCP_TOOLS = {
 ### Deployment Configuration
 
 #### vercel.json
+
 ```json
 {
   "framework": "nextjs",
@@ -2107,15 +2343,17 @@ export const UCP_MCP_TOOLS = {
 ```
 
 #### Environment Variables
+
 Set these in Vercel Dashboard → Settings → Environment Variables:
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `UCP_DOMAIN` | Yes | Production domain (e.g., `shop.example.com`) |
-| `UCP_SIGNING_KEY` | If AP2 | JWS signing key (PEM or JWK) |
-| `STRIPE_SECRET_KEY` | If Stripe | Stripe API secret key |
+| Variable            | Required  | Description                                  |
+| ------------------- | --------- | -------------------------------------------- |
+| `UCP_DOMAIN`        | Yes       | Production domain (e.g., `shop.example.com`) |
+| `UCP_SIGNING_KEY`   | If AP2    | JWS signing key (PEM or JWK)                 |
+| `STRIPE_SECRET_KEY` | If Stripe | Stripe API secret key                        |
 
 #### next.config.js (MCP-optimized)
+
 ```javascript
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -2134,7 +2372,10 @@ const nextConfig = {
         headers: [
           { key: 'Access-Control-Allow-Origin', value: '*' },
           { key: 'Access-Control-Allow-Methods', value: 'GET, POST, OPTIONS' },
-          { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'Content-Type, Authorization',
+          },
         ],
       },
     ];
@@ -2155,6 +2396,7 @@ module.exports = nextConfig;
 
 **Option 1: Direct HTTP (if client supports streamable HTTP)**
 Add to MCP client config:
+
 ```json
 {
   "mcpServers": {
@@ -2166,6 +2408,7 @@ Add to MCP client config:
 ```
 
 **Option 2: Via mcp-remote bridge (for stdio-only clients)**
+
 ```json
 {
   "mcpServers": {
@@ -2180,6 +2423,7 @@ Add to MCP client config:
 ### Testing MCP Deployment
 
 #### scripts/test-mcp.mjs
+
 ```javascript
 #!/usr/bin/env node
 /**
@@ -2286,11 +2530,13 @@ When running `/ucp scaffold` with Vercel deployment, verify:
 After deploying to Vercel:
 
 1. **Check discovery profile:**
+
    ```bash
    curl https://your-domain.vercel.app/.well-known/ucp | jq .
    ```
 
 2. **Test MCP endpoint:**
+
    ```bash
    node scripts/test-mcp.mjs https://your-domain.vercel.app
    ```
@@ -2306,11 +2552,14 @@ After deploying to Vercel:
 ### Post-Generation Steps
 
 #### Step 4: Update Config
+
 After generation, update `ucp.config.json`:
+
 - Add all created files to `generated_files` array
 - Update `scaffold_depth` to reflect what was generated
 
 #### Step 5: Output Summary
+
 ```
 UCP Scaffold Complete
 =====================
@@ -2355,36 +2604,46 @@ Next steps:
 ## Sub-command: validate
 
 ### Trigger
+
 User runs `/ucp validate`
 
 ### Purpose
+
 Validate the implementation against UCP JSON schemas.
 
 ### Prerequisites
+
 - Implementation must exist (run `/ucp scaffold` first)
 - Spec must be available
 
 ### Procedure
 
 #### Step 1: Load Schemas
+
 Read JSON schemas from spec:
+
 - `spec/schemas/shopping/checkout.json`
 - `spec/schemas/shopping/fulfillment.json`
 - `spec/schemas/shopping/discount.json`
 - `spec/discovery/profile_schema.json`
 
 #### Step 2: Validate Discovery Profile
+
 - Make request to `/.well-known/ucp` route (or read file directly)
 - Validate against `profile_schema.json`
 
 #### Step 3: Validate Response Shapes
+
 For each implemented endpoint:
+
 - Generate sample request
 - Execute handler (mock mode)
 - Validate response against schema
 
 #### Step 4: Check Protocol Requirements
+
 Verify:
+
 - [ ] All responses include `ucp` object
 - [ ] Status values are valid enum values
 - [ ] Amounts are integers (minor units)
@@ -2393,6 +2652,7 @@ Verify:
 - [ ] Capability names follow reverse-DNS format
 
 #### Step 5: Output Report
+
 ```
 UCP Validation Report
 =====================
@@ -2435,20 +2695,25 @@ Overall: PASS (24/24 checks)
 ## Sub-command: profile
 
 ### Trigger
+
 User runs `/ucp profile`
 
 ### Purpose
+
 Generate and display the `/.well-known/ucp` discovery profile JSON.
 
 ### Prerequisites
+
 - Config must exist
 
 ### Procedure
 
 #### Step 1: Generate Profile
+
 Use the `generateProfile()` function from `lib/ucp/profile.ts` (or generate inline if not scaffolded yet).
 
 #### Step 2: Display Profile
+
 Output the formatted JSON:
 
 ```json
@@ -2478,9 +2743,11 @@ Output the formatted JSON:
 ```
 
 #### Step 3: Offer to Write File
+
 Ask: "Write this to `public/.well-known/ucp` for static serving, or keep as dynamic route?"
 
 If static:
+
 - Create `public/.well-known/ucp` (no extension, JSON content)
 - Note: May need Next.js config for extensionless files
 
@@ -2489,27 +2756,34 @@ If static:
 ## Sub-command: test
 
 ### Trigger
+
 User runs `/ucp test`
 
 ### Purpose
+
 Generate unit tests for UCP handlers.
 
 ### Prerequisites
+
 - Implementation must exist
 - Test framework detected (Jest, Vitest, etc.)
 
 ### Procedure
 
 #### Step 1: Detect Test Framework
+
 Look for:
+
 - `jest.config.js` / `jest.config.ts` → Jest
 - `vitest.config.js` / `vitest.config.ts` → Vitest
 - `package.json` test script hints
 
 #### Step 2: Generate Test Files
+
 For each handler, generate corresponding test file.
 
-#### Example: lib/ucp/handlers/__tests__/checkout.test.ts
+#### Example: lib/ucp/handlers/**tests**/checkout.test.ts
+
 ```typescript
 /**
  * UCP Checkout Handler Tests
@@ -2559,7 +2833,9 @@ describe('UCP Checkout Handler', () => {
       });
 
       expect(checkout.totals.subtotal).toBe(1000);
-      expect(checkout.totals.grand_total).toBeGreaterThanOrEqual(checkout.totals.subtotal);
+      expect(checkout.totals.grand_total).toBeGreaterThanOrEqual(
+        checkout.totals.subtotal,
+      );
     });
 
     it('sets expiration time', async () => {
@@ -2612,7 +2888,7 @@ describe('UCP Checkout Handler', () => {
             { ...validRequest.line_items[0], quantity: 2, total_price: 2000 },
           ],
         },
-        ['dev.ucp.shopping.checkout']
+        ['dev.ucp.shopping.checkout'],
       );
 
       expect(updated?.totals.subtotal).toBe(2000);
@@ -2626,7 +2902,7 @@ describe('UCP Checkout Handler', () => {
       const updated = await updateCheckout(
         created.id,
         { buyer: { email: 'test@example.com' } },
-        ['dev.ucp.shopping.checkout']
+        ['dev.ucp.shopping.checkout'],
       );
 
       expect(updated?.buyer?.email).toBe('test@example.com');
@@ -2640,7 +2916,7 @@ describe('UCP Checkout Handler', () => {
       const updated = await updateCheckout(
         created.id,
         { buyer: { email: 'test@example.com' } },
-        ['dev.ucp.shopping.checkout']
+        ['dev.ucp.shopping.checkout'],
       );
 
       expect(updated?.status).toBe('ready_for_complete');
@@ -2658,7 +2934,7 @@ describe('UCP Checkout Handler', () => {
       const updated = await updateCheckout(
         checkout.id,
         { buyer: { email: 'test@example.com' } },
-        ['dev.ucp.shopping.checkout']
+        ['dev.ucp.shopping.checkout'],
       );
       expect(updated?.status).toBe('ready_for_complete');
     });
@@ -2667,6 +2943,7 @@ describe('UCP Checkout Handler', () => {
 ```
 
 #### Step 3: Output Summary
+
 ```
 Generated test files:
   CREATE  lib/ucp/handlers/__tests__/checkout.test.ts
@@ -2683,18 +2960,22 @@ Run tests with: npm test (or bun test)
 ## Sub-command: docs
 
 ### Trigger
+
 User runs `/ucp docs`
 
 ### Purpose
+
 Generate internal documentation for the UCP integration.
 
 ### Prerequisites
+
 - Config must exist
 - Implementation ideally exists
 
 ### Procedure
 
 #### Step 1: Gather Information
+
 - Read config for capabilities, transports, handlers
 - Scan generated files
 - Read spec files for accurate descriptions
@@ -2717,27 +2998,32 @@ This codebase implements the Universal Commerce Protocol (UCP) version {version}
 ## Capabilities
 
 ### Core
+
 - `dev.ucp.shopping.checkout` - Checkout session management
 
 ### Extensions
+
 {list extensions with descriptions}
 
 ## API Endpoints
 
 ### Discovery
+
 - `GET /.well-known/ucp` - UCP discovery profile
 
 ### Checkout (REST)
+
 - `POST /api/ucp/checkout` - Create checkout session
 - `GET /api/ucp/checkout/:id` - Get checkout session
 - `PATCH /api/ucp/checkout/:id` - Update checkout session
 - `POST /api/ucp/checkout/:id` (action=complete) - Complete checkout
 
 ## Checkout Status Lifecycle
-
 ```
+
 incomplete → requires_escalation → ready_for_complete → complete_in_progress → completed
-                                                                            ↘ canceled
+↘ canceled
+
 ```
 
 ## Payment Handlers
@@ -2748,8 +3034,10 @@ incomplete → requires_escalation → ready_for_complete → complete_in_progre
 
 The platform sends their profile URL via `UCP-Agent` header:
 ```
+
 UCP-Agent: profile="https://platform.example.com/.well-known/ucp"
-```
+
+````
 
 The business fetches the platform profile, computes the capability intersection,
 and includes the negotiated capabilities in every response.
@@ -2767,28 +3055,33 @@ Configuration is stored in `ucp.config.json` at the project root.
 Run unit tests:
 ```bash
 npm test
-```
+````
 
 ## Validation
 
 Validate implementation against UCP schemas:
+
 ```bash
 # Using the skill
 /ucp validate
 ```
+
 ```
 
 #### Step 3: Output
 ```
+
 Generated documentation:
-  CREATE  docs/ucp-integration.md
+CREATE docs/ucp-integration.md
 
 Documentation includes:
-  - Capability overview
-  - API endpoint reference
-  - Status lifecycle diagram
-  - Configuration guide
-  - File manifest
+
+- Capability overview
+- API endpoint reference
+- Status lifecycle diagram
+- Configuration guide
+- File manifest
+
 ```
 
 ---
@@ -2819,56 +3112,60 @@ When encountering ambiguous situations, always ask the user:
 
 ### File Structure
 ```
+
 project/
 ├── app/
-│   ├── .well-known/
-│   │   └── ucp/
-│   │       └── route.ts          # Discovery profile
-│   └── api/
-│       └── ucp/
-│           ├── checkout/
-│           │   ├── route.ts      # POST create
-│           │   └── [id]/
-│           │       └── route.ts  # GET, PATCH, POST complete
-│           ├── mcp/
-│           │   └── route.ts      # MCP transport (if enabled)
-│           └── a2a/
-│               └── route.ts      # A2A transport (if enabled)
+│ ├── .well-known/
+│ │ └── ucp/
+│ │ └── route.ts # Discovery profile
+│ └── api/
+│ └── ucp/
+│ ├── checkout/
+│ │ ├── route.ts # POST create
+│ │ └── [id]/
+│ │ └── route.ts # GET, PATCH, POST complete
+│ ├── mcp/
+│ │ └── route.ts # MCP transport (if enabled)
+│ └── a2a/
+│ └── route.ts # A2A transport (if enabled)
 ├── lib/
-│   └── ucp/
-│       ├── types/
-│       │   ├── checkout.ts
-│       │   └── index.ts
-│       ├── schemas/
-│       │   └── checkout.ts
-│       ├── handlers/
-│       │   ├── checkout.ts
-│       │   ├── fulfillment.ts
-│       │   ├── discount.ts
-│       │   └── payment.ts
-│       ├── transports/
-│       │   └── mcp.ts
-│       ├── profile.ts
-│       ├── negotiation.ts
-│       └── response.ts
+│ └── ucp/
+│ ├── types/
+│ │ ├── checkout.ts
+│ │ └── index.ts
+│ ├── schemas/
+│ │ └── checkout.ts
+│ ├── handlers/
+│ │ ├── checkout.ts
+│ │ ├── fulfillment.ts
+│ │ ├── discount.ts
+│ │ └── payment.ts
+│ ├── transports/
+│ │ └── mcp.ts
+│ ├── profile.ts
+│ ├── negotiation.ts
+│ └── response.ts
 ├── docs/
-│   └── ucp-integration.md
+│ └── ucp-integration.md
 ├── ucp.config.json
-└── .ucp-spec/                    # Cloned spec (gitignored)
-```
+└── .ucp-spec/ # Cloned spec (gitignored)
+
+````
 
 ### Runtime Declaration
 Every route file must include:
 ```typescript
 export const runtime = 'nodejs'; // Edge runtime is not supported
-```
+````
 
 Or for Bun:
+
 ```typescript
 export const runtime = 'nodejs'; // Bun-compatible Node.js runtime
 ```
 
 ### App Router Patterns
+
 - Use Route Handlers (`route.ts`) not API Routes (`pages/api`)
 - Use `NextRequest` and `NextResponse` from `next/server`
 - Await `request.json()` for body parsing
@@ -2879,17 +3176,20 @@ export const runtime = 'nodejs'; // Bun-compatible Node.js runtime
 ## Credential Handling
 
 ### Keys Required For
+
 - **AP2 Mandates:** JWS signing key (ES256)
 - **Webhook Signing:** JWS signing key (ES256)
 - **Identity Linking:** OAuth client credentials
 
 ### Prompting for Credentials
+
 When a feature requires credentials, ask:
 
 > "AP2 mandates require a JWS signing key (ES256 recommended).
 > Do you have an existing key pair, or should I explain how to generate one?"
 
 If user needs generation instructions:
+
 ```bash
 # Generate ES256 key pair
 openssl ecparam -genkey -name prime256v1 -noout -out private.pem
@@ -2899,7 +3199,9 @@ openssl ec -in private.pem -pubout -out public.pem
 ```
 
 ### Storage
+
 Credentials should be stored in environment variables, not in config:
+
 - `UCP_SIGNING_KEY` - Private key (PEM or JWK)
 - `UCP_OAUTH_CLIENT_ID` - OAuth client ID
 - `UCP_OAUTH_CLIENT_SECRET` - OAuth client secret

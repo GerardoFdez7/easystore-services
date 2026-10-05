@@ -6,7 +6,8 @@ export { MediumDescription } from './medium-description.vo';
 export { LongDescription } from './long-description.vo';
 export { PhoneNumber } from './phone-number.vo';
 export { Currency, CurrencyCodes, currencySchema } from './currency.vo';
-export { IMoney, Money } from './money.vo';
+export { CurrencyMismatchError, IMoney, Money, moneyScale } from './money.vo';
+export { MoneyAmount } from './money-amount.vo';
 export { Feature, FeatureEnum } from './authorization/feature.vo';
 export {
   PermissionAction,

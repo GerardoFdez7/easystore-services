@@ -16,6 +16,7 @@ export interface IProductType extends IProductSystem {
   shortDescription: string;
   longDescription?: string;
   productType: TypeEnum;
+  currency: string;
   cover: string;
   brand?: string;
   manufacturer?: string;
@@ -33,6 +34,7 @@ export interface IProductBase {
   shortDescription: string;
   longDescription?: string;
   productType: TypeEnum;
+  currency: string;
   cover: string;
   brand?: string;
   manufacturer?: string;

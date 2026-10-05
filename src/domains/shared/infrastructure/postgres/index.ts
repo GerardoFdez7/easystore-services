@@ -4,6 +4,7 @@ export {
   ForeignKeyConstraintViolationError,
   ResourceNotFoundError,
   UniqueConstraintViolationError,
+  ProductCurrencyLockedError,
 } from './errors';
 export {
   executeDatabaseOperation,

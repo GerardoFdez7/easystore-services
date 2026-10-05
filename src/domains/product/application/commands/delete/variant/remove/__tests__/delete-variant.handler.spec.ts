@@ -32,7 +32,7 @@ describe('DeleteVariantHandler', () => {
   });
 
   it('permanently removes a variant from its store-scoped product aggregate', async () => {
-    await expect(handler.execute(command)).resolves.toBe(dto);
+    await expect(handler.execute(command)).resolves.toEqual(dto);
 
     expect(repository.findById).toHaveBeenCalledWith(
       expect.objectContaining({ value: storeId }),

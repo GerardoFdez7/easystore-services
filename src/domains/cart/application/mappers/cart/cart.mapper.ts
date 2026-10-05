@@ -63,7 +63,7 @@ export class CartMapper {
     }
 
     const unitPrice = Money.normalizeAmount(variant.price);
-    const currency = variant.currency;
+    const currency = variant.productCurrency;
     const productName = variant.productName;
     const subTotal = Money.multiplyAmount(unitPrice, qty);
 

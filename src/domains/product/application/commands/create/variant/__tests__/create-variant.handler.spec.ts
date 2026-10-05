@@ -87,7 +87,6 @@ describe('CreateVariantHandler', () => {
       storeId: 'store-456',
       sku: 'VAR-001',
       price: '29.99',
-      currency: 'USD',
       stock: 100,
       weight: 1.5,
       dimension: {
@@ -664,7 +663,7 @@ describe('CreateVariantHandler', () => {
 
         const result = await handler.execute(baseCommand);
 
-        expect(result).toBe(expectedDto);
+        expect(result).toEqual(expectedDto);
       });
     });
 
@@ -676,7 +675,6 @@ describe('CreateVariantHandler', () => {
             storeId: 'store-1',
             sku: 'SKU-001',
             price: '10',
-            currency: 'USD',
             stock: 0,
           },
         } as unknown as CreateVariantDTO;
@@ -701,7 +699,6 @@ describe('CreateVariantHandler', () => {
             storeId: 'store-1',
             sku: 'SKU-001',
             price: '99.99',
-            currency: 'USD',
             stock: 100,
             weight: 2.5,
             dimension: {
@@ -759,7 +756,6 @@ describe('CreateVariantHandler', () => {
             storeId: 'store-123',
             sku: 'VAR-COMPLETE',
             price: '49.99',
-            currency: 'USD',
             stock: 50,
             weight: 1.0,
             dimension: {
@@ -777,7 +773,6 @@ describe('CreateVariantHandler', () => {
             {
               sku: 'VAR-COMPLETE',
               price: '49.99',
-              currency: 'USD',
               stock: 50,
             },
           ],
@@ -798,7 +793,17 @@ describe('CreateVariantHandler', () => {
         expect(updateMock).toHaveBeenCalledTimes(1);
         expect(mockUpdatedProduct.commit).toHaveBeenCalledTimes(1);
         expect(toDtoMock).toHaveBeenCalledTimes(1);
-        expect(result).toEqual(expectedDto);
+        expect(result).toEqual({
+          id: 'product-789',
+          name: 'Complete Product',
+          variants: [
+            {
+              sku: 'VAR-COMPLETE',
+              price: '49.99',
+              stock: 50,
+            },
+          ],
+        });
       });
     });
   });

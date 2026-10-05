@@ -64,7 +64,7 @@ describe('GetDashboardHandler', () => {
 });
 
 describe('DashboardMapper monetary values', () => {
-  it('keeps fractional and large decimal aggregate totals and averages exact', () => {
+  it('keeps large aggregates exact and rounds extra decimals half away from zero once', () => {
     const summary = DashboardMapper.dashboardSummary(
       {
         totalOrders: 3,
@@ -84,22 +84,22 @@ describe('DashboardMapper monetary values', () => {
 
     expect(summary).toMatchObject({
       totalRevenue: {
-        amount: '9007199254740993.123456789012345678',
+        amount: '9007199254740993.12',
         currency: 'USD',
       },
       averageOrderValue: {
-        amount: '3002399751580331.041152263004115226',
+        amount: '3002399751580331.04',
         currency: 'USD',
       },
       completedRevenue: {
-        amount: '9007199254740992.999999999999999999',
+        amount: '9007199254740993',
         currency: 'USD',
       },
-      cancelledRevenue: { amount: '0.123456789012345679', currency: 'USD' },
+      cancelledRevenue: { amount: '0.12', currency: 'USD' },
     });
   });
 
-  it('keeps exact values through timeline, recent-order, and product responses', () => {
+  it('keeps exact large values through timeline, recent-order, and product responses', () => {
     expect(
       DashboardMapper.orderTimeline(
         {
@@ -110,7 +110,7 @@ describe('DashboardMapper monetary values', () => {
         'USD',
       ).revenue,
     ).toEqual({
-      amount: '10000000000000000.000000000000000001',
+      amount: '10000000000000000',
       currency: 'USD',
     });
 
@@ -126,7 +126,7 @@ describe('DashboardMapper monetary values', () => {
         },
         'USD',
       ).orderTotal,
-    ).toEqual({ amount: '0.000000000000000001', currency: 'USD' });
+    ).toEqual({ amount: '0', currency: 'USD' });
 
     expect(
       DashboardMapper.topProduct(
@@ -143,11 +143,11 @@ describe('DashboardMapper monetary values', () => {
       ),
     ).toMatchObject({
       variantPrice: {
-        amount: '9999999999999999.999999999999999999',
+        amount: '10000000000000000',
         currency: 'USD',
       },
       totalRevenue: {
-        amount: '19999999999999999.999999999999999998',
+        amount: '20000000000000000',
         currency: 'USD',
       },
     });

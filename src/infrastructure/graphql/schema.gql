@@ -31,7 +31,7 @@ input AddVariantToProductInput {
   installmentPayments: [CreateInstallmentInput!]
   isbn: String
   personalizationOptions: [String!]
-  price: MoneyInput!
+  price: Decimal!
   sku: String!
   upc: String
   variantCover: String
@@ -189,6 +189,7 @@ input CreateProductInput {
   brand: String
   categories: [CreateProductCategoryInput!]
   cover: String!
+  currency: CurrencyCodes!
   longDescription: String
   manufacturer: String
   media: [CreateMediaInput!]
@@ -225,172 +226,8 @@ input CreateWarrantyInput {
 }
 
 enum CurrencyCodes {
-  AED
-  AFN
-  ALL
-  AMD
-  ANG
-  AOA
-  ARS
-  AUD
-  AWG
-  AZN
-  BAM
-  BBD
-  BDT
-  BGN
-  BHD
-  BIF
-  BMD
-  BND
-  BOB
-  BOV
-  BRL
-  BSD
-  BTN
-  BWP
-  BYR
-  BZD
-  CAD
-  CDF
-  CHE
-  CHF
-  CHW
-  CLF
-  CLP
-  CNY
-  COP
-  COU
-  CRC
-  CUC
-  CUP
-  CVE
-  CZK
-  DJF
-  DKK
-  DOP
-  DZD
-  EGP
-  ERN
-  ETB
-  EUR
-  FJD
-  FKP
-  GBP
-  GEL
-  GHS
-  GIP
-  GMD
-  GNF
   GTQ
-  GYD
-  HKD
-  HNL
-  HRK
-  HTG
-  HUF
-  IDR
-  ILS
-  INR
-  IQD
-  IRR
-  ISK
-  JMD
-  JOD
-  JPY
-  KES
-  KGS
-  KHR
-  KMF
-  KPW
-  KRW
-  KWD
-  KYD
-  KZT
-  LAK
-  LBP
-  LKR
-  LRD
-  LSL
-  LYD
-  MAD
-  MDL
-  MGA
-  MKD
-  MMK
-  MNT
-  MOP
-  MRO
-  MUR
-  MVR
-  MWK
-  MXN
-  MXV
-  MYR
-  MZN
-  NAD
-  NGN
-  NIO
-  NOK
-  NPR
-  NZD
-  OMR
-  PAB
-  PEN
-  PGK
-  PHP
-  PKR
-  PLN
-  PYG
-  QAR
-  RON
-  RSD
-  RUB
-  RWF
-  SAR
-  SBD
-  SCR
-  SDG
-  SEK
-  SGD
-  SLL
-  SOS
-  SRD
-  SSP
-  STD
-  SVC
-  SYP
-  SZL
-  THB
-  TJS
-  TMT
-  TND
-  TOP
-  TRY
-  TTD
-  TWD
-  TZS
-  UAH
-  UGX
   USD
-  UYI
-  UYU
-  UZS
-  VEF
-  VND
-  VUV
-  WST
-  XAF
-  XCD
-  XDR
-  XOF
-  XPF
-  XSU
-  XUA
-  YER
-  ZAR
-  ZMW
-  ZWL
 }
 
 type Customer {
@@ -522,11 +359,6 @@ type Money {
   currency: String!
 }
 
-input MoneyInput {
-  amount: Decimal!
-  currency: String!
-}
-
 type Mutation {
   addItemToCart(input: AddItemToCartInput!): Cart!
   addReviewProduct(input: CreateCustomerReviewProductInput!): CustomerReviewProduct!
@@ -638,6 +470,7 @@ type Product {
   categories: [ProductCategory!]
   cover: String!
   createdAt: DateTime!
+  currency: CurrencyCodes!
   id: ID!
   isArchived: Boolean!
   longDescription: String
@@ -695,7 +528,7 @@ type Query {
   getMediaUploadToken: MediaAuthResponse!
   getProductById(id: String!): Product!
   getStatesByCountryId(countryId: ID!): [StateType!]!
-  getStoreById(id: ID!): Store!
+  getStoreById(id: ID): Store!
   getTenantById: Tenant!
   getWarehouseById(id: ID!, isArchived: Boolean): Warehouse!
   getWishListItems(limit: Int = 10, page: Int = 1, sortBy: WishListSortBy, sortOrder: SortOrder): PaginatedWishlist!
@@ -892,6 +725,7 @@ input UpdateProductInput {
   brand: String
   categories: [UpdateProductCategoryInput!]
   cover: String
+  currency: CurrencyCodes
   longDescription: String
   manufacturer: String
   media: [UpdateMediaInput!]
@@ -948,7 +782,7 @@ type Variant {
   isArchived: Boolean
   isbn: String
   personalizationOptions: [String!]
-  price: Money!
+  price: Decimal!
   sku: String!
   upc: String
   variantCover: String

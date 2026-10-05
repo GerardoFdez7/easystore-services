@@ -1,6 +1,10 @@
 import { VariantDetailsDTO } from '@shared/application/dtos';
 
-type VariantEnriched<T> = T & Omit<VariantDetailsDTO, 'variantId'>;
+type VariantEnriched<T> = T &
+  Omit<VariantDetailsDTO, 'variantId' | 'productCurrency'> & {
+    /** Currency of the variant's product. */
+    currency: string;
+  };
 
 /** Adds product-owned variant details to customer application DTOs. */
 export function enrichWithVariantDetails<T extends { variantId: string }>(
@@ -20,7 +24,7 @@ export function enrichWithVariantDetails<T extends { variantId: string }>(
       productName: variant?.productName ?? '',
       firstAttribute: variant?.firstAttribute ?? { key: '', value: '' },
       price: variant?.price ?? null,
-      currency: variant?.currency ?? null,
+      currency: variant?.productCurrency ?? null,
       isArchived: variant?.isArchived ?? true,
     };
   });
