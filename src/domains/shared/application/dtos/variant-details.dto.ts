@@ -5,5 +5,5 @@ export interface VariantDetailsDTO {
   productName: string;
   isArchived: boolean;
   price: string;
-  currency: string;
+  productCurrency: string;
 }

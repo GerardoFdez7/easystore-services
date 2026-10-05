@@ -2,6 +2,7 @@ import {
   Id,
   Attribute,
   Money,
+  MoneyAmount,
   Media as MediaVO,
   PersonalizationOptions,
   Weight,
@@ -23,7 +24,8 @@ import {
 export interface IVariantProps extends DomainEntityProps {
   id: Id;
   attributes: Attribute[];
-  price: Money;
+  /** Priced in the currency of the product that owns the variant. */
+  price: MoneyAmount;
   variantCover?: MediaVO;
   personalizationOptions: PersonalizationOptions[];
   weight?: Weight;
@@ -64,7 +66,7 @@ export class Variant extends DomainEntity<IVariantProps> {
       attributes: props.attributes.map((attr) =>
         Attribute.create(attr.key, attr.value),
       ),
-      price: Money.create(props.price, props.currency),
+      price: MoneyAmount.create(props.price),
       variantCover: props.variantCover
         ? MediaVO.create(props.variantCover)
         : null,
@@ -142,13 +144,9 @@ export class Variant extends DomainEntity<IVariantProps> {
         Attribute.create(attr.key, attr.value),
       );
     }
-    if (data.price !== undefined || data.currency !== undefined) {
-      const amount = data.price ?? this.props.price.getValue().amount;
-      Variant.assertNonNegativePrice(amount);
-      newProps.price = Money.create(
-        amount,
-        data.currency ?? this.props.price.getValue().currency,
-      );
+    if (data.price !== undefined) {
+      Variant.assertNonNegativePrice(data.price);
+      newProps.price = MoneyAmount.create(data.price);
     }
     if (data.variantCover !== undefined) {
       newProps.variantCover = MediaVO.create(data.variantCover);

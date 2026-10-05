@@ -20,6 +20,7 @@ import {
   UpdateSustainabilityInput,
 } from './';
 import { TypeEnum } from '../../../aggregates/value-objects';
+import { CurrencyCodes } from '@shared/aggregates/value-objects';
 
 // Query types for products
 registerEnumType(TypeEnum, {
@@ -42,6 +43,10 @@ export class ProductType {
 
   @Field(() => TypeEnum)
   productType: TypeEnum;
+
+  /** Currency of every variant price of this product. */
+  @Field(() => CurrencyCodes)
+  currency: CurrencyCodes;
 
   @Field()
   cover: string;
@@ -104,6 +109,9 @@ export class CreateProductInput {
   @Field(() => [AddVariantToProductInput])
   variants: AddVariantToProductInput[];
 
+  @Field(() => CurrencyCodes)
+  currency: CurrencyCodes;
+
   @Field(() => TypeEnum)
   productType: TypeEnum;
 
@@ -143,6 +151,9 @@ export class UpdateProductInput {
 
   @Field(() => [AddVariantToProductInput], { nullable: true })
   variants?: AddVariantToProductInput[];
+
+  @Field(() => CurrencyCodes, { nullable: true })
+  currency?: CurrencyCodes;
 
   @Field(() => TypeEnum, { nullable: true })
   productType?: TypeEnum;

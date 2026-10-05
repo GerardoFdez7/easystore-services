@@ -108,6 +108,18 @@ reviews:
           children may derive Store ownership through a globally unique parent and must
           not duplicate storeId, but the parent scope must remain enforced. Require
           fail-closed account ownership and cross-Store isolation throughout.
+      - name: 'Monetary contract'
+        mode: 'error'
+        instructions: >-
+          Enforce docs/MONETARY-CONTRACT.md for every changed price, amount, currency,
+          or total. Fail money converted to JavaScript number or GraphQL Float (including
+          intermediate math), amounts with more than 2 fractional digits accepted or
+          rounded silently, non-normalized decimal strings, rounding other than half away
+          from zero or rounding before line and total boundaries, allocation that does not
+          sum exactly, combining Money values without a currency-match check, currencies
+          outside the supported-currency rules, a variant price currency changed after
+          orders contain it, and totals, taxes, or discounts trusted from the client. Do
+          not flag non-monetary numbers such as quantities or rates.
       - name: 'Authorization coverage'
         mode: 'error'
         instructions: >-

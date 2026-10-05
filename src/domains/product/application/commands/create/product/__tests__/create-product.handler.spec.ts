@@ -67,11 +67,11 @@ describe('CreateProductHandler', () => {
       description: 'Test Description',
       storeId: 'store-123',
       productType: TypeEnum.PHYSICAL,
+      currency: 'USD',
       variants: [
         {
           sku: 'TEST-001',
           price: '29.99',
-          currency: 'USD',
           stock: 100,
           weight: 1.5,
           dimension: {
@@ -98,11 +98,11 @@ describe('CreateProductHandler', () => {
           cover: 'https://example.com/cover.jpg',
           storeId: '0198b746-8c72-7a2f-9c31-6d4f9866f322',
           productType: TypeEnum.PHYSICAL,
+          currency: 'USD',
           variants: [
             {
               attributes: [{ key: 'Size', value: 'M' }],
               price: '-0.01',
-              currency: 'USD',
               condition: 'NEW',
               sku: 'TEST-001',
               weight: 1,
@@ -125,11 +125,11 @@ describe('CreateProductHandler', () => {
             data: {
               ...baseProductData,
               productType: TypeEnum.DIGITAL,
+              currency: 'USD',
               variants: [
                 {
                   sku: 'DIGITAL-001',
                   price: '19.99',
-                  currency: 'USD',
                   stock: 50,
                   weight: 1.5,
                   dimension: undefined,
@@ -152,11 +152,11 @@ describe('CreateProductHandler', () => {
             data: {
               ...baseProductData,
               productType: TypeEnum.DIGITAL,
+              currency: 'USD',
               variants: [
                 {
                   sku: 'DIGITAL-002',
                   price: '19.99',
-                  currency: 'USD',
                   stock: 50,
                   weight: undefined,
                   dimension: {
@@ -183,11 +183,11 @@ describe('CreateProductHandler', () => {
             data: {
               ...baseProductData,
               productType: TypeEnum.DIGITAL,
+              currency: 'USD',
               variants: [
                 {
                   sku: 'DIGITAL-003',
                   price: '19.99',
-                  currency: 'USD',
                   stock: 50,
                   weight: 1.0,
                   dimension: {
@@ -212,11 +212,11 @@ describe('CreateProductHandler', () => {
             data: {
               ...baseProductData,
               productType: TypeEnum.DIGITAL,
+              currency: 'USD',
               variants: [
                 {
                   sku: 'DIGITAL-004',
                   price: '19.99',
-                  currency: 'USD',
                   stock: 50,
                 },
               ],
@@ -246,11 +246,11 @@ describe('CreateProductHandler', () => {
             data: {
               ...baseProductData,
               productType: TypeEnum.PHYSICAL,
+              currency: 'USD',
               variants: [
                 {
                   sku: 'PHYSICAL-001',
                   price: '29.99',
-                  currency: 'USD',
                   stock: 100,
                   weight: null,
                   dimension: {
@@ -277,11 +277,11 @@ describe('CreateProductHandler', () => {
             data: {
               ...baseProductData,
               productType: TypeEnum.PHYSICAL,
+              currency: 'USD',
               variants: [
                 {
                   sku: 'PHYSICAL-002',
                   price: '29.99',
-                  currency: 'USD',
                   stock: 100,
                   weight: undefined,
                   dimension: {
@@ -308,11 +308,11 @@ describe('CreateProductHandler', () => {
             data: {
               ...baseProductData,
               productType: TypeEnum.PHYSICAL,
+              currency: 'USD',
               variants: [
                 {
                   sku: 'PHYSICAL-003',
                   price: '29.99',
-                  currency: 'USD',
                   stock: 100,
                   weight: 1.5,
                   dimension: null,
@@ -335,11 +335,11 @@ describe('CreateProductHandler', () => {
             data: {
               ...baseProductData,
               productType: TypeEnum.PHYSICAL,
+              currency: 'USD',
               variants: [
                 {
                   sku: 'PHYSICAL-004',
                   price: '29.99',
-                  currency: 'USD',
                   stock: 100,
                   weight: 1.5,
                   dimension: undefined,
@@ -362,11 +362,11 @@ describe('CreateProductHandler', () => {
             data: {
               ...baseProductData,
               productType: TypeEnum.PHYSICAL,
+              currency: 'USD',
               variants: [
                 {
                   sku: 'PHYSICAL-005',
                   price: '29.99',
-                  currency: 'USD',
                   stock: 100,
                   weight: 0,
                   dimension: {
@@ -393,11 +393,11 @@ describe('CreateProductHandler', () => {
             data: {
               ...baseProductData,
               productType: TypeEnum.PHYSICAL,
+              currency: 'USD',
               variants: [
                 {
                   sku: 'PHYSICAL-006',
                   price: '29.99',
-                  currency: 'USD',
                   stock: 100,
                   weight: -1.5,
                   dimension: {
@@ -424,11 +424,11 @@ describe('CreateProductHandler', () => {
             data: {
               ...baseProductData,
               productType: TypeEnum.PHYSICAL,
+              currency: 'USD',
               variants: [
                 {
                   sku: 'PHYSICAL-007',
                   price: '29.99',
-                  currency: 'USD',
                   stock: 100,
                   weight: 1.5,
                   dimension: {
@@ -455,11 +455,11 @@ describe('CreateProductHandler', () => {
             data: {
               ...baseProductData,
               productType: TypeEnum.PHYSICAL,
+              currency: 'USD',
               variants: [
                 {
                   sku: 'PHYSICAL-008',
                   price: '29.99',
-                  currency: 'USD',
                   stock: 100,
                   weight: 1.5,
                   dimension: {
@@ -486,11 +486,11 @@ describe('CreateProductHandler', () => {
             data: {
               ...baseProductData,
               productType: TypeEnum.PHYSICAL,
+              currency: 'USD',
               variants: [
                 {
                   sku: 'PHYSICAL-009',
                   price: '29.99',
-                  currency: 'USD',
                   stock: 100,
                   weight: 1.5,
                   dimension: {
@@ -517,11 +517,11 @@ describe('CreateProductHandler', () => {
             data: {
               ...baseProductData,
               productType: TypeEnum.PHYSICAL,
+              currency: 'USD',
               variants: [
                 {
                   sku: 'PHYSICAL-010',
                   price: '29.99',
-                  currency: 'USD',
                   stock: 100,
                   weight: 1.5,
                   dimension: {
@@ -548,11 +548,11 @@ describe('CreateProductHandler', () => {
             data: {
               ...baseProductData,
               productType: TypeEnum.PHYSICAL,
+              currency: 'USD',
               variants: [
                 {
                   sku: 'PHYSICAL-011',
                   price: '29.99',
-                  currency: 'USD',
                   stock: 100,
                   weight: 1.5,
                   dimension: {
@@ -579,11 +579,11 @@ describe('CreateProductHandler', () => {
             data: {
               ...baseProductData,
               productType: TypeEnum.PHYSICAL,
+              currency: 'USD',
               variants: [
                 {
                   sku: 'PHYSICAL-012',
                   price: '29.99',
-                  currency: 'USD',
                   stock: 100,
                   weight: 1.5,
                   dimension: {
@@ -764,17 +764,16 @@ describe('CreateProductHandler', () => {
           data: {
             ...baseProductData,
             productType: TypeEnum.DIGITAL,
+            currency: 'USD',
             variants: [
               {
                 sku: 'DIGITAL-001',
                 price: '19.99',
-                currency: 'USD',
                 stock: 50,
               },
               {
                 sku: 'DIGITAL-002',
                 price: '29.99',
-                currency: 'USD',
                 stock: 30,
                 weight: 1.0, // This should cause validation error
               },
@@ -796,11 +795,11 @@ describe('CreateProductHandler', () => {
           data: {
             ...baseProductData,
             productType: TypeEnum.PHYSICAL,
+            currency: 'USD',
             variants: [
               {
                 sku: 'PHYSICAL-001',
                 price: '29.99',
-                currency: 'USD',
                 stock: 100,
                 weight: 1.5,
                 dimension: {
@@ -812,7 +811,6 @@ describe('CreateProductHandler', () => {
               {
                 sku: 'PHYSICAL-002',
                 price: '39.99',
-                currency: 'USD',
                 stock: 50,
                 weight: 2.0,
                 dimension: {

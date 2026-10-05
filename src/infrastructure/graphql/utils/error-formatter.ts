@@ -56,6 +56,11 @@ function classifyDomainError(error: DomainError): PublicErrorClassification {
       return { code: 'NOT_FOUND', message: 'Resource not found' };
     case 'UNIQUE_CONSTRAINT_VIOLATION':
       return { code: 'CONFLICT', message: 'Resource already exists' };
+    case 'PRODUCT_CURRENCY_LOCKED':
+      return {
+        code: 'CONFLICT',
+        message: 'Product currency cannot change while orders use it',
+      };
     case 'FOREIGN_KEY_CONSTRAINT_VIOLATION':
       return { code: 'BAD_USER_INPUT', message: 'Invalid request' };
     case 'DATABASE_OPERATION_ERROR':

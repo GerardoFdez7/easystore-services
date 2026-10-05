@@ -104,7 +104,7 @@ export interface IProductRepository {
       product: { name: string };
       isArchived: boolean;
       price: string;
-      currency: string;
+      productCurrency: string;
     }>
   >;
 }

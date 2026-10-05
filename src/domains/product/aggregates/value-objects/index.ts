@@ -12,6 +12,7 @@ export {
   Money,
   IMoney,
   CurrencyCodes,
+  MoneyAmount,
 } from '../../../shared/aggregates/value-objects';
 
 export enum SortBy {

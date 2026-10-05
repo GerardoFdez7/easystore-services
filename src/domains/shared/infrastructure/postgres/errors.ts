@@ -72,6 +72,25 @@ export class ForeignKeyConstraintViolationError extends DomainError {
 }
 
 /**
+ * Error indicating that a product's currency cannot change because existing orders
+ * contain its variants in that currency (docs/MONETARY-CONTRACT.md).
+ */
+export class ProductCurrencyLockedError extends DomainError {
+  /**
+   * Constructs a new ProductCurrencyLockedError.
+   * @param productId The product whose currency was changed.
+   * @param currency The currency locked by existing orders.
+   */
+  constructor(productId: string, currency: string) {
+    super(
+      'PRODUCT_CURRENCY_LOCKED',
+      `Product ${productId} cannot change currency while orders use ${currency}`,
+      { productId, currency },
+    );
+  }
+}
+
+/**
  * Error indicating that a database operation failed for an unexpected reason.
  */
 export class DatabaseOperationError extends DomainError {

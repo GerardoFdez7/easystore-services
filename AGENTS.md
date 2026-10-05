@@ -52,6 +52,8 @@ parallel Coder, and verify the combined result once all finish.
 - Prefer the smallest complete change and do not broaden the requested scope.
 - Ask only when a missing decision would materially affect behavior, a public
   contract, data, security, or destructive impact.
+- Follow `docs/MONETARY-CONTRACT.md` for any price, currency, or money value: exact
+  decimals, scale 2, never JavaScript `number` or GraphQL `Float`.
 - Do not add dependencies, expose secrets, perform destructive operations, or make
   externally visible breaking changes without explicit approval.
 - Report exact evidence and distinguish current-task failures from pre-existing ones.

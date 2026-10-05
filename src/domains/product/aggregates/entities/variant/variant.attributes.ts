@@ -15,7 +15,6 @@ import {
 interface VariantCoreAttributes {
   attributes: AttributeProps[];
   price: string;
-  currency: string;
   variantCover?: string;
   weight?: number;
   dimension?: DimensionProps;

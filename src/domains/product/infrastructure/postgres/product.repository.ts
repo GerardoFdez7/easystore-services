@@ -9,12 +9,14 @@ import {
   Warranty as PrismaWarranty,
   InstallmentPayment as PrismaInstallmentPayment,
   Prisma,
+  Currency as PrismaCurrency,
 } from '.prisma/postgres';
 import {
   DatabaseOperationError,
   ForeignKeyConstraintViolationError,
   handlePrismaDatabaseError,
   ResourceNotFoundError,
+  ProductCurrencyLockedError,
 } from '@shared/infrastructure/postgres';
 import { Product, IProductType } from '../../aggregates/entities';
 import { IProductRepository } from '../../aggregates/repositories/product.interface';
@@ -217,7 +219,6 @@ export class ProductRepository implements IProductRepository {
       const variantData = {
         id: variantDto.id,
         price: variantDto.price,
-        currency: variantDto.currency,
         variantCover: variantDto.variantCover,
         personalizationOptions: variantDto.personalizationOptions || [],
         weight: variantDto.weight,
@@ -283,6 +284,34 @@ export class ProductRepository implements IProductRepository {
     }
   }
 
+  /**
+   * A product's currency cannot change while an order contains one of its variants in
+   * the current currency. Runs inside the update transaction so the check and the
+   * write are atomic.
+   */
+  private async assertCurrencyUnlocked(
+    tx: Prisma.TransactionClient,
+    existingProduct: PrismaProduct,
+    nextCurrency: string,
+    storeId: string,
+  ): Promise<void> {
+    if (existingProduct.currency === nextCurrency) return;
+
+    const ordersUsingCurrency = await tx.orderDetail.count({
+      where: {
+        storeId,
+        variant: { productId: existingProduct.id },
+        order: { currency: existingProduct.currency },
+      },
+    });
+    if (ordersUsingCurrency > 0) {
+      throw new ProductCurrencyLockedError(
+        existingProduct.id,
+        existingProduct.currency,
+      );
+    }
+  }
+
   private async manageCategories(
     tx: Prisma.TransactionClient,
     productId: string,
@@ -337,6 +366,7 @@ export class ProductRepository implements IProductRepository {
             shortDescription: productDto.shortDescription,
             longDescription: productDto.longDescription,
             productType: productDto.productType,
+            currency: productDto.currency as PrismaCurrency,
             cover: productDto.cover,
             tags: productDto.tags,
             brand: productDto.brand,
@@ -411,6 +441,13 @@ export class ProductRepository implements IProductRepository {
           throw new ResourceNotFoundError('Product', idValue);
         }
 
+        await this.assertCurrencyUnlocked(
+          tx,
+          existingProduct,
+          updatesDto.currency,
+          storeIdValue,
+        );
+
         // Update the main product
         await tx.product.update({
           where: {
@@ -422,6 +459,7 @@ export class ProductRepository implements IProductRepository {
             shortDescription: updatesDto.shortDescription,
             longDescription: updatesDto.longDescription,
             productType: updatesDto.productType,
+            currency: updatesDto.currency as PrismaCurrency,
             cover: updatesDto.cover,
             tags: updatesDto.tags,
             brand: updatesDto.brand,
@@ -788,7 +826,7 @@ export class ProductRepository implements IProductRepository {
       product: { name: string };
       isArchived: boolean;
       price: string;
-      currency: string;
+      productCurrency: string;
     }>
   > {
     const idValues = ids.map((id) => id.getValue());
@@ -857,6 +895,7 @@ export class ProductRepository implements IProductRepository {
           product: {
             select: {
               name: true,
+              currency: true,
             },
           },
         },
@@ -869,7 +908,7 @@ export class ProductRepository implements IProductRepository {
         product: { name: v.product.name },
         isArchived: v.isArchived,
         price: v.price.toString(),
-        currency: v.currency,
+        productCurrency: v.product.currency,
       }));
     } catch (error) {
       return this.handleDatabaseError(error, 'find variants by ids');

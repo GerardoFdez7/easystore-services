@@ -66,7 +66,7 @@ describe('FindWishListItemsHandler', () => {
         productName: 'Product 1',
         firstAttribute: { key: 'Color', value: 'Blue' },
         price: '12.5',
-        currency: 'USD',
+        productCurrency: 'USD',
         isArchived: false,
       },
     ]);
@@ -150,7 +150,7 @@ describe('FindWishListItemsHandler', () => {
         productName: 'Zebra',
         firstAttribute: { key: 'Color', value: 'Blue' },
         price: '20',
-        currency: 'GTQ',
+        productCurrency: 'GTQ',
         isArchived: false,
       },
       {
@@ -159,7 +159,7 @@ describe('FindWishListItemsHandler', () => {
         productName: 'Apple',
         firstAttribute: { key: 'Color', value: 'Red' },
         price: '30',
-        currency: 'GTQ',
+        productCurrency: 'GTQ',
         isArchived: false,
       },
       {
@@ -168,7 +168,7 @@ describe('FindWishListItemsHandler', () => {
         productName: 'Banana',
         firstAttribute: { key: 'Color', value: 'Yellow' },
         price: '10',
-        currency: 'GTQ',
+        productCurrency: 'GTQ',
         isArchived: false,
       },
     ]);
@@ -241,7 +241,7 @@ describe('FindWishListItemsHandler', () => {
         productName: `Product ${index}`,
         firstAttribute: { key: 'Color', value: 'Blue' },
         price: index === 0 ? '9007199254740992' : '9007199254740993',
-        currency: 'USD',
+        productCurrency: 'USD',
         isArchived: false,
       })),
     );

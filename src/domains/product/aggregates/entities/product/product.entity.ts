@@ -1,4 +1,5 @@
 import { Entity, EntityProps } from '@shared/aggregates/entities/entity.base';
+import { Currency } from '@shared/aggregates/value-objects';
 import {
   Id,
   Name,
@@ -37,6 +38,7 @@ export interface IProductProps extends EntityProps {
   shortDescription: ShortDescription;
   longDescription?: LongDescription;
   productType: Type;
+  currency: Currency;
   cover: MediaVO;
   tags?: Tags[];
   brand?: Brand;
@@ -103,6 +105,7 @@ export class Product extends Entity<IProductProps> {
         ? LongDescription.create(props.longDescription)
         : null,
       productType: Type.create(props.productType),
+      currency: Currency.create(props.currency),
       cover: MediaVO.createCover(props.cover),
       tags: (props.tags || []).map((tag) => Tags.create([tag])),
       brand: props.brand ? Brand.create(props.brand) : null,
@@ -200,6 +203,12 @@ export class Product extends Entity<IProductProps> {
 
     if (updates.cover !== undefined) {
       props.cover = MediaVO.createCover(updates.cover);
+    }
+
+    // Variant prices are plain amounts in the product currency, so a currency change
+    // keeps every amount as is (no conversion).
+    if (updates.currency !== undefined) {
+      props.currency = Currency.create(updates.currency);
     }
 
     if (updates.variants !== undefined) {

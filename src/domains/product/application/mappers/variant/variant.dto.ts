@@ -7,9 +7,9 @@ import { IVariantType } from '../../../aggregates/entities';
 export type VariantDTO = IVariantType;
 
 /**
- * Read model for Variant: price and currency are exposed as a single Money
- * value, matching the GraphQL contract. VariantDTO stays flat for persistence.
+ * Read model for Variant: the price is exposed as a Money value in the currency of the
+ * variant's product, matching the GraphQL contract. VariantDTO keeps the plain amount.
  */
-export type VariantReadDTO = Omit<VariantDTO, 'price' | 'currency'> & {
+export type VariantReadDTO = Omit<VariantDTO, 'price'> & {
   price: { amount: string; currency: string };
 };
