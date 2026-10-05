@@ -46,10 +46,12 @@ export default class StoreResolver {
   @AllowAccountTypes(AccountTypeEnum.TENANT)
   @Query(() => StoreType)
   getStoreById(
-    @Args('id', { type: () => ID }) id: string,
+    @Args('id', { type: () => ID, nullable: true }) id: string | undefined,
     @CurrentUser() user: JwtPayload,
   ): Promise<StoreType> {
-    return this.queries.execute(new GetStoreByIdDTO(id, user.tenantId));
+    return this.queries.execute(
+      new GetStoreByIdDTO(id ?? user.storeId, user.tenantId),
+    );
   }
   @AllowAccountTypes(AccountTypeEnum.TENANT)
   @Query(() => PaginatedStoresType)

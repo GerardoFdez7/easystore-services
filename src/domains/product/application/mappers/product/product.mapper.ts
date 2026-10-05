@@ -19,6 +19,8 @@ import {
 import {
   ProductDTO,
   PaginatedProductsDTO,
+  ProductReadDTO,
+  PaginatedProductsReadDTO,
   MediaMapper,
   VariantMapper,
   ProductCategoriesMapper,
@@ -188,6 +190,29 @@ export class ProductMapper {
     });
 
     return dto as ProductDTO;
+  }
+
+  /**
+   * Adapts a flat ProductDTO to the read model, nesting each variant's
+   * price and currency into a Money value.
+   */
+  static toReadDto(dto: ProductDTO): ProductReadDTO {
+    return {
+      ...dto,
+      variants: (dto.variants ?? []).map(({ price, currency, ...variant }) => ({
+        ...variant,
+        price: { amount: price, currency },
+      })),
+    };
+  }
+
+  static toPaginatedReadDto(
+    dto: PaginatedProductsDTO,
+  ): PaginatedProductsReadDTO {
+    return {
+      ...dto,
+      products: dto.products.map((product) => this.toReadDto(product)),
+    };
   }
 
   /**

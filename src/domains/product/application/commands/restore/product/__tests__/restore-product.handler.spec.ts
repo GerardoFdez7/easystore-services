@@ -32,7 +32,10 @@ describe('RestoreProductHandler', () => {
   });
 
   it('restores an archived store-scoped product and commits its event', async () => {
-    await expect(handler.execute(command)).resolves.toBe(dto);
+    await expect(handler.execute(command)).resolves.toEqual({
+      ...dto,
+      variants: [],
+    });
 
     expect(repository.findById).toHaveBeenCalledWith(
       expect.objectContaining({ value: storeId }),

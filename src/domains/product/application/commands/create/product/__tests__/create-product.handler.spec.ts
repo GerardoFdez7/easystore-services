@@ -234,7 +234,7 @@ describe('CreateProductHandler', () => {
 
           const result = await handler.execute(digitalProduct);
 
-          expect(result).toEqual(expectedDto);
+          expect(result).toEqual({ ...expectedDto, variants: [] });
           expect(createMock).toHaveBeenCalledWith(mockProduct);
           expect(mockProduct.commit).toHaveBeenCalledTimes(1);
         });
@@ -617,7 +617,7 @@ describe('CreateProductHandler', () => {
 
           const result = await handler.execute(baseCommand);
 
-          expect(result).toEqual(expectedDto);
+          expect(result).toEqual({ ...expectedDto, variants: [] });
           expect(createMock).toHaveBeenCalledWith(mockProduct);
           expect(mockProduct.commit).toHaveBeenCalledTimes(1);
         });
@@ -696,7 +696,7 @@ describe('CreateProductHandler', () => {
         const result = await handler.execute(baseCommand);
 
         expect(toDtoMock).toHaveBeenCalledWith(mockProduct);
-        expect(result).toEqual(expectedDto);
+        expect(result).toEqual({ ...expectedDto, variants: [] });
       });
     });
 
@@ -837,7 +837,7 @@ describe('CreateProductHandler', () => {
 
         const result = await handler.execute(productWithMultipleValidVariants);
 
-        expect(result).toEqual(expectedDto);
+        expect(result).toEqual({ ...expectedDto, variants: [] });
         expect(createMock).toHaveBeenCalledWith(mockProduct);
         expect(mockProduct.commit).toHaveBeenCalledTimes(1);
       });

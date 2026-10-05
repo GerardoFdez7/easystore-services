@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { IProductRepository } from '../../../../aggregates/repositories/product.interface';
 import { Id } from '../../../../aggregates/value-objects';
-import { ProductMapper, ProductDTO } from '../../../mappers';
+import { ProductMapper, ProductDTO, ProductReadDTO } from '../../../mappers';
 import { RestoreVariantDTO } from './restore-variant.dto';
 import { findProductOrThrow } from '../../shared/find-product-or-throw';
 
@@ -16,7 +16,7 @@ export class RestoreVariantHandler
     private readonly eventPublisher: EventPublisher,
   ) {}
 
-  async execute(command: RestoreVariantDTO): Promise<ProductDTO> {
+  async execute(command: RestoreVariantDTO): Promise<ProductReadDTO> {
     // Find the product by ID
     const product = await findProductOrThrow(
       this.productRepository,
@@ -41,6 +41,8 @@ export class RestoreVariantHandler
     restoredVariant.commit();
 
     // Return the product as DTO
-    return ProductMapper.toDto(restoredVariant) as ProductDTO;
+    return ProductMapper.toReadDto(
+      ProductMapper.toDto(restoredVariant) as ProductDTO,
+    );
   }
 }

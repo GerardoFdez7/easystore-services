@@ -46,6 +46,7 @@ const developmentSeedUuidNamespace = '2f8f2b5e-4f1e-5a92-9a9c-4bc1c0a6a5d1';
 const developmentSeedOutletDomain = Domain.create(
   'outlet.easystore.lat',
 ).getValue();
+const developmentSeedStockLocation = 'Aisle A-03-02';
 
 /** Shorthand for preset expansion only, never a stored value: no aggregate `FULL`. */
 type PresetGrant = 'full' | 'edit' | 'view' | 'none';
@@ -265,8 +266,8 @@ export function validateDevelopmentFixtures(): void {
     'Home Office',
     'Ergonomic Desk Chair',
   ].forEach((name) => Name.create(name));
-  ['+50255550101', '+50255550102'].forEach((phoneNumber) =>
-    PhoneNumber.create(phoneNumber),
+  ['+50255550101', '+50255550102', '+50255550103', '+50255550104'].forEach(
+    (phoneNumber) => PhoneNumber.create(phoneNumber),
   );
   ['12 Avenida 4-20', '6a Calle 7-15'].forEach((addressLine1) =>
     AddressLine1.create(addressLine1),
@@ -276,6 +277,7 @@ export function validateDevelopmentFixtures(): void {
   AddressType.create('WAREHOUSE');
   AddressType.create('SHIPPING');
   ShortDescription.create('Adjustable chair for daily work');
+  ShortDescription.create(developmentSeedStockLocation);
   LongDescription.create('Breathable mesh chair with lumbar support.');
   Media.createCover(
     'https://images.unsplash.com/photo-1505843490701-5d5d9f0c7034',
@@ -607,7 +609,7 @@ async function seedDevelopmentDataForDatabase(
       countryId: geography.countryId,
       stateId: geography.stateId,
       addressType: 'WAREHOUSE',
-      deliveryNum: '4-20',
+      deliveryNum: '+50255550103',
       tenantId: ids.tenant,
     },
     create: {
@@ -619,7 +621,7 @@ async function seedDevelopmentDataForDatabase(
       countryId: geography.countryId,
       stateId: geography.stateId,
       addressType: 'WAREHOUSE',
-      deliveryNum: '4-20',
+      deliveryNum: '+50255550103',
       tenantId: ids.tenant,
     },
   });
@@ -633,7 +635,7 @@ async function seedDevelopmentDataForDatabase(
       countryId: geography.countryId,
       stateId: geography.stateId,
       addressType: 'SHIPPING',
-      deliveryNum: '7-15',
+      deliveryNum: '+50255550104',
       customerId: ids.customer,
       tenantId: ids.tenant,
     },
@@ -646,7 +648,7 @@ async function seedDevelopmentDataForDatabase(
       countryId: geography.countryId,
       stateId: geography.stateId,
       addressType: 'SHIPPING',
-      deliveryNum: '7-15',
+      deliveryNum: '+50255550104',
       customerId: ids.customer,
       tenantId: ids.tenant,
     },
@@ -912,7 +914,7 @@ async function seedDevelopmentDataForDatabase(
     update: {
       qtyAvailable: 24,
       qtyReserved: 2,
-      productLocation: 'A-03-02',
+      productLocation: developmentSeedStockLocation,
       serialNumbers: [],
       variantId: ids.variant,
       warehouseId: ids.warehouse,
@@ -922,7 +924,7 @@ async function seedDevelopmentDataForDatabase(
       id: ids.stock,
       qtyAvailable: 24,
       qtyReserved: 2,
-      productLocation: 'A-03-02',
+      productLocation: developmentSeedStockLocation,
       serialNumbers: [],
       variantId: ids.variant,
       warehouseId: ids.warehouse,

@@ -1,7 +1,9 @@
 import { HttpException, Logger } from '@nestjs/common';
 import { unwrapResolverError } from '@apollo/server/errors';
+import { ZodError } from 'zod';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 import { DomainError } from '@shared/infrastructure/postgres';
+import { PublicBadRequestException } from '@shared/application/exceptions/public-bad-request.exception';
 
 interface PublicErrorClassification {
   code: string;
@@ -25,6 +27,10 @@ function classifyHttpException(
   error: HttpException,
 ): PublicErrorClassification {
   const status = error.getStatus();
+
+  if (error instanceof PublicBadRequestException) {
+    return { code: 'BAD_USER_INPUT', message: error.message };
+  }
 
   switch (status) {
     case 401:
@@ -65,6 +71,16 @@ function classifyDomainError(error: DomainError): PublicErrorClassification {
   }
 }
 
+function classifyZodError(error: ZodError): PublicErrorClassification {
+  const message = error.issues
+    .map(({ path, message: issue }) =>
+      path.length > 0 ? `${path.join('.')}: ${issue}` : issue,
+    )
+    .join('; ');
+
+  return { code: 'BAD_USER_INPUT', message };
+}
+
 function classifyGraphqlError(
   error: GraphQLError,
 ): PublicErrorClassification | undefined {
@@ -89,7 +105,29 @@ function toFormattedError(
   };
 }
 
+export interface FormatGraphqlErrorOptions {
+  /** Keep the original message and extensions (e.g. stacktrace). Development only. */
+  exposeDetails?: boolean;
+}
+
 export function formatGraphqlError(
+  formattedError: GraphQLFormattedError,
+  error: unknown,
+  { exposeDetails = false }: FormatGraphqlErrorOptions = {},
+): GraphQLFormattedError {
+  const masked = maskGraphqlError(formattedError, error);
+
+  if (!exposeDetails) {
+    return masked;
+  }
+
+  return {
+    ...formattedError,
+    extensions: { ...formattedError.extensions, ...masked.extensions },
+  };
+}
+
+function maskGraphqlError(
   formattedError: GraphQLFormattedError,
   error: unknown,
 ): GraphQLFormattedError {
@@ -105,6 +143,10 @@ export function formatGraphqlError(
     return toFormattedError(formattedError, classification);
   }
 
+  if (originalError instanceof ZodError) {
+    return toFormattedError(formattedError, classifyZodError(originalError));
+  }
+
   if (originalError instanceof GraphQLError) {
     const classification = classifyGraphqlError(originalError);
 
@@ -113,7 +155,12 @@ export function formatGraphqlError(
     }
   }
 
-  graphqlLogger.error('Unexpected GraphQL execution failure');
+  graphqlLogger.error(
+    'Unexpected GraphQL execution failure',
+    originalError instanceof Error
+      ? originalError.stack
+      : JSON.stringify(originalError),
+  );
 
   return toFormattedError(formattedError, {
     code: 'INTERNAL_SERVER_ERROR',

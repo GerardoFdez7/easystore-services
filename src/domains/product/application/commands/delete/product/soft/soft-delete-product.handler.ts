@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
 import { Inject, BadRequestException } from '@nestjs/common';
 import { IProductRepository } from '../../../../../aggregates/repositories/product.interface';
 import { Id } from '../../../../../aggregates/value-objects';
-import { ProductMapper, ProductDTO } from '../../../../mappers';
+import { ProductMapper, ProductDTO, ProductReadDTO } from '../../../../mappers';
 import { SoftDeleteProductDTO } from './soft-delete-product.dto';
 import { findProductOrThrow } from '../../../shared/find-product-or-throw';
 
@@ -16,7 +16,7 @@ export class SoftDeleteProductHandler
     private readonly eventPublisher: EventPublisher,
   ) {}
 
-  async execute(command: SoftDeleteProductDTO): Promise<ProductDTO> {
+  async execute(command: SoftDeleteProductDTO): Promise<ProductReadDTO> {
     // Find the product by ID
     const product = await findProductOrThrow(
       this.productRepository,
@@ -48,6 +48,8 @@ export class SoftDeleteProductHandler
     deletedProduct.commit();
 
     // Return the product as DTO
-    return ProductMapper.toDto(deletedProduct) as ProductDTO;
+    return ProductMapper.toReadDto(
+      ProductMapper.toDto(deletedProduct) as ProductDTO,
+    );
   }
 }

@@ -695,7 +695,7 @@ type Query {
   getMediaUploadToken: MediaAuthResponse!
   getProductById(id: String!): Product!
   getStatesByCountryId(countryId: ID!): [StateType!]!
-  getStoreById(id: ID!): Store!
+  getStoreById(id: ID): Store!
   getTenantById: Tenant!
   getWarehouseById(id: ID!, isArchived: Boolean): Warehouse!
   getWishListItems(limit: Int = 10, page: Int = 1, sortBy: WishListSortBy, sortOrder: SortOrder): PaginatedWishlist!

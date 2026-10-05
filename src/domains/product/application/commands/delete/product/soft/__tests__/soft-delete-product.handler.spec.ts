@@ -37,7 +37,10 @@ describe('SoftDeleteProductHandler', () => {
   });
 
   it('archives and persists a live store-scoped product', async () => {
-    await expect(handler.execute(command)).resolves.toBe(dto);
+    await expect(handler.execute(command)).resolves.toEqual({
+      ...dto,
+      variants: [],
+    });
 
     expect(findProductOrThrow).toHaveBeenCalledWith(
       repository,

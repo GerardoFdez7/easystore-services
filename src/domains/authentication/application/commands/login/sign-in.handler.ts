@@ -1,7 +1,6 @@
 import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
 import {
   Inject,
-  BadRequestException,
   NotFoundException,
   UnauthorizedException,
   ForbiddenException,
@@ -15,6 +14,7 @@ import {
 import { IEmployeeRepository } from '../../../aggregates/repositories/employee.interface';
 import { IAuthRepository } from '../../../aggregates/repositories/authentication.interface';
 import { ICustomerAdapter, IStoreAdapter, ITenantAdapter } from '../../ports';
+import { PublicBadRequestException } from '@shared/application/exceptions/public-bad-request.exception';
 import { ResponseDTO } from '../../mappers';
 import {
   Id,
@@ -23,6 +23,10 @@ import {
   AccountTypeEnum,
 } from '../../../aggregates/value-objects';
 import { AuthenticationLoginDTO } from './sign-in.dto';
+
+// Valid bcrypt hash used to keep response time equal for unknown identities.
+const dummyPasswordHash =
+  '$2b$10$BFKzHPvcHbFc342iIBM.1eaksK3/X1VdFw847epdExekKA43fZfGK';
 
 @CommandHandler(AuthenticationLoginDTO)
 export class AuthenticationLoginHandler
@@ -54,7 +58,7 @@ export class AuthenticationLoginHandler
       accountTypeVO.getValue() === AccountTypeEnum.EMPLOYEE;
 
     if (requiresDomain && !data.domain) {
-      throw new BadRequestException(
+      throw new PublicBadRequestException(
         'Domain is required for customer and employee sign-in',
       );
     }
@@ -67,11 +71,9 @@ export class AuthenticationLoginHandler
 
     if (!authEntity) {
       // Prevent timing attacks by still hashing a dummy password
-      await bcrypt.compare(
-        'dummy',
-        '$2b$10$dummy.hash.to.prevent.timing.attacks',
-      );
-      throw new NotFoundException('Invalid credentials');
+      await bcrypt.compare('dummy', dummyPasswordHash);
+      // Same error as a wrong password so unknown emails cannot be enumerated
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     const auth = this.eventPublisher.mergeObjectContext(authEntity);

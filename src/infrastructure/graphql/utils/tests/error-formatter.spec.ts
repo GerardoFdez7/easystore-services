@@ -4,11 +4,13 @@ import {
   Logger,
   UnauthorizedException,
 } from '@nestjs/common';
+import { z } from 'zod';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
 import {
   DatabaseOperationError,
   ResourceNotFoundError,
 } from '@shared/infrastructure/postgres';
+import { PublicBadRequestException } from '@shared/application/exceptions/public-bad-request.exception';
 import { formatGraphqlError } from '../error-formatter';
 
 function wrapResolverError(error: Error): GraphQLError {
@@ -66,6 +68,66 @@ describe('formatGraphqlError', () => {
     expect(notFound).toMatchObject({
       message: 'Resource not found',
       extensions: { code: 'NOT_FOUND' },
+    });
+  });
+
+  it('exposes the message of client-safe bad requests', () => {
+    const result = formatGraphqlError(
+      formattedError,
+      wrapResolverError(new PublicBadRequestException('Domain is required')),
+    );
+
+    expect(result).toMatchObject({
+      message: 'Domain is required',
+      extensions: { code: 'BAD_USER_INPUT' },
+    });
+  });
+
+  it('exposes Zod validation issues as bad user input', () => {
+    const parsed = z.object({ email: z.email() }).safeParse({ email: 'x' });
+    if (parsed.success) throw new Error('expected a Zod failure');
+
+    const result = formatGraphqlError(
+      formattedError,
+      wrapResolverError(parsed.error),
+    );
+
+    expect(result).toMatchObject({
+      message: expect.stringContaining('email:') as string,
+      extensions: { code: 'BAD_USER_INPUT' },
+    });
+    expect(Logger.prototype.error).not.toHaveBeenCalled();
+  });
+
+  it('logs the original stack for unexpected failures without exposing it', () => {
+    const failure = new Error('boom secret');
+
+    const result = formatGraphqlError(
+      formattedError,
+      wrapResolverError(failure),
+    );
+
+    expect(result).toMatchObject({
+      message: 'Internal server error',
+      extensions: { code: 'INTERNAL_SERVER_ERROR' },
+    });
+    expect(JSON.stringify(result)).not.toContain('secret');
+    expect(Logger.prototype.error).toHaveBeenCalledWith(
+      'Unexpected GraphQL execution failure',
+      failure.stack,
+    );
+  });
+
+  it('keeps original messages and stacktraces when exposeDetails is on', () => {
+    const result = formatGraphqlError(
+      formattedError,
+      wrapResolverError(new Error('boom secret')),
+      { exposeDetails: true },
+    );
+
+    expect(result).toMatchObject({
+      message: 'sensitive original message',
+      extensions: { code: 'INTERNAL_SERVER_ERROR', stacktrace: ['secret'] },
     });
   });
 

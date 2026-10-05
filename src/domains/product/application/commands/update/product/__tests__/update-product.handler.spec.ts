@@ -37,7 +37,10 @@ describe('UpdateProductHandler', () => {
   });
 
   it('updates a product only within its store boundary', async () => {
-    await expect(handler.execute(command)).resolves.toBe(dto);
+    await expect(handler.execute(command)).resolves.toEqual({
+      ...dto,
+      variants: [],
+    });
 
     expect(findProductOrThrow).toHaveBeenCalledWith(
       repository,

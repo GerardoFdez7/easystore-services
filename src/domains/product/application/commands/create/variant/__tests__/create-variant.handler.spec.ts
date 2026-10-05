@@ -230,7 +230,7 @@ describe('CreateVariantHandler', () => {
             mockProduct,
             digitalVariant.variant,
           );
-          expect(result).toEqual({ id: 'product-id' });
+          expect(result).toEqual({ id: 'product-id', variants: [] });
         });
       });
 
@@ -557,7 +557,7 @@ describe('CreateVariantHandler', () => {
           );
           expect(updateMock).toHaveBeenCalled();
           expect(mockUpdatedProduct.commit).toHaveBeenCalled();
-          expect(result).toEqual({ id: 'product-id' });
+          expect(result).toEqual({ id: 'product-id', variants: [] });
         });
       });
     });
@@ -664,7 +664,7 @@ describe('CreateVariantHandler', () => {
 
         const result = await handler.execute(baseCommand);
 
-        expect(result).toBe(expectedDto);
+        expect(result).toEqual({ ...expectedDto, variants: [] });
       });
     });
 
@@ -691,7 +691,7 @@ describe('CreateVariantHandler', () => {
           mockProduct,
           minimalCommand.variant,
         );
-        expect(result).toEqual({ id: 'product-id' });
+        expect(result).toEqual({ id: 'product-id', variants: [] });
       });
 
       it('should handle variant with all optional fields', async () => {
@@ -728,7 +728,7 @@ describe('CreateVariantHandler', () => {
           mockProduct,
           fullCommand.variant,
         );
-        expect(result).toEqual({ id: 'product-id' });
+        expect(result).toEqual({ id: 'product-id', variants: [] });
       });
 
       it('should propagate repository errors', async () => {
@@ -798,7 +798,17 @@ describe('CreateVariantHandler', () => {
         expect(updateMock).toHaveBeenCalledTimes(1);
         expect(mockUpdatedProduct.commit).toHaveBeenCalledTimes(1);
         expect(toDtoMock).toHaveBeenCalledTimes(1);
-        expect(result).toEqual(expectedDto);
+        expect(result).toEqual({
+          id: 'product-789',
+          name: 'Complete Product',
+          variants: [
+            {
+              sku: 'VAR-COMPLETE',
+              price: { amount: '49.99', currency: 'USD' },
+              stock: 50,
+            },
+          ],
+        });
       });
     });
   });

@@ -32,7 +32,10 @@ export function createGraphqlOptions(
     csrfPrevention: true,
     allowBatchedHttpRequests: false,
     validationRules: [operationLimitRule],
-    formatError: formatGraphqlError,
+    formatError: (formattedError, error) =>
+      formatGraphqlError(formattedError, error, {
+        exposeDetails: isDevelopment,
+      }),
     context: ({ req, res }: { req: Request; res: Response }) => ({ req, res }),
     path: '/gql',
   };
