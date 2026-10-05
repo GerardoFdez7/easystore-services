@@ -14,9 +14,7 @@ import {
 
 @Injectable()
 export default class TenantRepository implements ITenantRepository {
-  constructor(
-    private readonly transactions: TransactionManager,
-  ) {}
+  constructor(private readonly transactions: TransactionManager) {}
 
   async create(tenant: Tenant): Promise<Tenant> {
     const tenantDto = TenantMapper.toDto(tenant);
