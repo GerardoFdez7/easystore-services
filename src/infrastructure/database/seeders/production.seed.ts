@@ -67,6 +67,18 @@ const featureCatalog: FeatureCatalogEntry[] = [
   },
 ];
 
+function readCountryFiles(): CountryFileData[] {
+  return fs
+    .readdirSync(dataDir)
+    .filter((file) => file.endsWith('.json'))
+    .map(
+      (file) =>
+        JSON.parse(
+          fs.readFileSync(path.join(dataDir, file), 'utf-8'),
+        ) as CountryFileData,
+    );
+}
+
 async function seedFeatureCatalog(prisma: PostgreService): Promise<void> {
   for (const feature of featureCatalog) {
     const existingFeature = await prisma.feature.findUnique({
@@ -115,22 +127,53 @@ export async function assertFeatureCatalogSeeded(
   }
 }
 
+/**
+ * Refuses to start the application if a country or state from the bundled
+ * country files is missing from the database.
+ */
+export async function assertGeographySeeded(
+  prisma: PostgreService,
+): Promise<void> {
+  const missing: string[] = [];
+
+  for (const { country, states } of readCountryFiles()) {
+    const existingCountry = await prisma.country.findFirst({
+      where: { code: country.code },
+      select: { id: true },
+    });
+
+    if (!existingCountry) {
+      missing.push(`country ${country.code}`);
+      continue;
+    }
+
+    const existingStates = await prisma.state.findMany({
+      where: { countryId: existingCountry.id },
+      select: { code: true },
+    });
+    const stateCodes = new Set(existingStates.map((state) => state.code));
+
+    for (const state of states) {
+      if (!stateCodes.has(state.code)) {
+        missing.push(`state ${country.code}/${state.code}`);
+      }
+    }
+  }
+
+  if (missing.length > 0) {
+    throw new Error(
+      `Missing geography rows: ${missing.join(', ')}. ` +
+        'Run the database seed before starting the application.',
+    );
+  }
+}
+
 export async function seedProductionData(): Promise<void> {
   const prisma = new PostgreService(new ConfigService(process.env));
   await prisma.onModuleInit();
 
   try {
-    const files = fs
-      .readdirSync(dataDir)
-      .filter((file) => file.endsWith('.json'));
-
-    for (const file of files) {
-      const filePath = path.join(dataDir, file);
-      const data = JSON.parse(
-        fs.readFileSync(filePath, 'utf-8'),
-      ) as CountryFileData;
-      const { country, states } = data;
-
+    for (const { country, states } of readCountryFiles()) {
       // Check if country exists by code
       const existingCountry = await prisma.country.findFirst({
         where: { code: country.code },
@@ -183,6 +226,7 @@ export async function seedProductionData(): Promise<void> {
       }
     }
 
+    await assertGeographySeeded(prisma);
     logger.log('Seeding completed for all countries.');
 
     await seedFeatureCatalog(prisma);

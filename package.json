@@ -10,7 +10,7 @@
   },
   "scripts": {
     "build": "npx nest build",
-    "start": "node dist/src/main.js",
+    "start": "node -e \"if(process.env.NODE_ENV==='production'){require('./dist/src/infrastructure/database/seeders/seed.js')}\" && node dist/src/main.js",
     "prod": "npx nest build && node dist/src/main.js",
     "dev": "npx nest start --watch",
     "debug": "npx nest start --debug --watch",
