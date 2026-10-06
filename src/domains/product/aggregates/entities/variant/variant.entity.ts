@@ -19,6 +19,7 @@ import {
   DomainEntity,
   DomainEntityProps,
 } from '@shared/aggregates/entities/domain-entity.base';
+import { BusinessRuleViolationError } from '@shared/aggregates/errors';
 
 // Props for the Variant entity, using Value Objects
 export interface IVariantProps extends DomainEntityProps {
@@ -57,7 +58,9 @@ export class Variant extends DomainEntity<IVariantProps> {
 
   public static create(props: IVariantBase): Variant {
     if (!props.attributes || props.attributes.length === 0) {
-      throw new Error('A variant must have at least one attribute.');
+      throw new BusinessRuleViolationError(
+        'A variant must have at least one attribute.',
+      );
     }
 
     this.assertNonNegativePrice(props.price);
@@ -135,10 +138,12 @@ export class Variant extends DomainEntity<IVariantProps> {
 
     if (data.attributes !== undefined) {
       if (data.attributes.length === 0) {
-        throw new Error('A variant must have at least one attribute.');
+        throw new BusinessRuleViolationError(
+          'A variant must have at least one attribute.',
+        );
       }
       if (data.attributes.length > 30) {
-        throw new Error('Attributes 30 limit exceeded.');
+        throw new BusinessRuleViolationError('Attributes 30 limit exceeded.');
       }
       newProps.attributes = data.attributes.map((attr) =>
         Attribute.create(attr.key, attr.value),
@@ -220,7 +225,7 @@ export class Variant extends DomainEntity<IVariantProps> {
 
   private static assertNonNegativePrice(price: string): void {
     if (Money.compareAmounts(price, '0') < 0) {
-      throw new Error('Price must be non-negative.');
+      throw new BusinessRuleViolationError('Price must be non-negative.');
     }
   }
 

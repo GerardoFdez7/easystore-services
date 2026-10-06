@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  ForbiddenException,
+  NotFoundException,
   InternalServerErrorException,
   Logger,
   UnauthorizedException,
@@ -9,7 +11,9 @@ import { GraphQLError, GraphQLFormattedError } from 'graphql';
 import {
   DatabaseOperationError,
   ResourceNotFoundError,
+  UniqueConstraintViolationError,
 } from '@shared/infrastructure/postgres';
+import { BusinessRuleViolationError } from '@shared/aggregates/errors';
 import { PublicBadRequestException } from '@shared/application/exceptions/public-bad-request.exception';
 import { formatGraphqlError } from '../error-formatter';
 
@@ -81,6 +85,64 @@ describe('formatGraphqlError', () => {
       message: 'Domain is required',
       extensions: { code: 'BAD_USER_INPUT' },
     });
+  });
+
+  it('exposes safe reasons for credentials, lockout and not-found failures', () => {
+    const format = (error: Error) =>
+      formatGraphqlError(formattedError, wrapResolverError(error));
+
+    expect(
+      format(new UnauthorizedException('Invalid credentials')),
+    ).toMatchObject({
+      message: 'Authentication required',
+      extensions: { code: 'UNAUTHENTICATED', reason: 'INVALID_CREDENTIALS' },
+    });
+    expect(
+      format(new ForbiddenException('Account is temporarily locked')),
+    ).toMatchObject({
+      extensions: { code: 'FORBIDDEN', reason: 'ACCOUNT_LOCKED' },
+    });
+
+    const notFound = format(
+      new NotFoundException('Product with ID secret-id not found'),
+    );
+    expect(notFound).toMatchObject({
+      message: 'Resource not found',
+      extensions: { code: 'NOT_FOUND', resource: 'product' },
+    });
+    expect(JSON.stringify(notFound)).not.toContain('secret-id');
+  });
+
+  it('exposes unique constraint conflicts with the conflicting field', () => {
+    const result = formatGraphqlError(
+      formattedError,
+      wrapResolverError(
+        new UniqueConstraintViolationError(
+          'name',
+          'Category name already exists',
+        ),
+      ),
+    );
+
+    expect(result).toMatchObject({
+      message: 'Category name already exists',
+      extensions: { code: 'CONFLICT', field: 'name' },
+    });
+  });
+
+  it('exposes the message of aggregate business rule violations', () => {
+    const result = formatGraphqlError(
+      formattedError,
+      wrapResolverError(
+        new BusinessRuleViolationError('Item already exists in cart.'),
+      ),
+    );
+
+    expect(result).toMatchObject({
+      message: 'Item already exists in cart.',
+      extensions: { code: 'BAD_USER_INPUT' },
+    });
+    expect(Logger.prototype.error).not.toHaveBeenCalled();
   });
 
   it('exposes Zod validation issues as bad user input', () => {

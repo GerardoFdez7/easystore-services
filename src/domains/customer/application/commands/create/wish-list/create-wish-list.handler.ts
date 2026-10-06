@@ -1,12 +1,13 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { CreateWishListDto } from './create-wish-list.dto';
 import { IWishListRepository } from '../../../../aggregates/repositories/wish-list.interface';
-import { BadRequestException, Inject } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { ICustomerRepository } from '../../../../aggregates/repositories/customer.interface';
 import { Id } from '@shared/aggregates/value-objects';
 import { Customer } from '../../../../aggregates/entities';
 import { WishListDTO, WishListMapper } from '../../../mappers';
 import { findCustomerOrThrow } from '../../../shared/find-customer-or-throw';
+import { PublicBadRequestException } from '@shared/application/exceptions/public-bad-request.exception';
 
 @CommandHandler(CreateWishListDto)
 export class CreateWishListHandler
@@ -41,7 +42,7 @@ export class CreateWishListHandler
       );
 
     if (wishListItemFound !== null)
-      throw new BadRequestException(
+      throw new PublicBadRequestException(
         'This variant already exist in your wishlist!',
       );
 

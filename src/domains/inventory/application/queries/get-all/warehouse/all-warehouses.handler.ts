@@ -1,5 +1,5 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
-import { Inject, BadRequestException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { IWarehouseRepository } from '../../../../aggregates/repositories';
 import { GetAllWarehousesDTO } from './all-warehouses.dto';
 import { WarehouseMapper, PaginatedWarehousesDTO } from '../../../mappers';
@@ -34,18 +34,6 @@ export class GetAllWarehousesHandler
 
     const { variantId, lowStockThreshold, isArchived, stockSortBy, search } =
       stockOptions;
-
-    // Validate pagination parameters
-    if (page !== undefined && page < 1) {
-      throw new BadRequestException(
-        'Page must be a positive number if provided',
-      );
-    }
-    if (limit !== undefined && limit < 1) {
-      throw new BadRequestException(
-        'Limit must be a positive number if provided',
-      );
-    }
 
     const result = await this.warehouseRepository.findAll(Id.create(storeId), {
       page,

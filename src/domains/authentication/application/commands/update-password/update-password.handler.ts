@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
-import { Inject, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Inject, NotFoundException } from '@nestjs/common';
 import { IAuthRepository } from '../../../aggregates/repositories/authentication.interface';
 import { UpdatePasswordDTO } from './update-password.dto';
 import { Id } from '../../../aggregates/value-objects';
@@ -9,6 +9,7 @@ import {
   invalidateToken,
 } from '../../../infrastructure/strategies';
 import { PasswordResetRateLimiter } from '../../../infrastructure/rate-limiting/password-reset-rate-limiter';
+import { PublicBadRequestException } from '@shared/application/exceptions/public-bad-request.exception';
 
 @CommandHandler(UpdatePasswordDTO)
 export class UpdatePasswordHandler
@@ -39,7 +40,7 @@ export class UpdatePasswordHandler
 
       // Verify the email matches (additional security check)
       if (existingUser.get('email').getValue() !== email) {
-        throw new BadRequestException('Invalid reset token');
+        throw new PublicBadRequestException('Invalid reset token');
       }
 
       // Update the user's password using the domain method
@@ -70,7 +71,7 @@ export class UpdatePasswordHandler
         (error.message === 'JsonWebTokenError' ||
           error.message === 'TokenExpiredError')
       ) {
-        throw new BadRequestException('Invalid or expired reset token');
+        throw new PublicBadRequestException('Invalid or expired reset token');
       }
       throw error;
     }

@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
-import { BadRequestException, Inject, NotFoundException } from '@nestjs/common';
+import { Inject, NotFoundException } from '@nestjs/common';
 import { IAuthRepository } from '../../../aggregates/repositories/authentication.interface';
 import { AccountTypeEnum } from '../../../aggregates/value-objects';
 import { AuthenticationMapper } from '../../mappers';
@@ -7,6 +7,7 @@ import { IStoreAdapter } from '../../ports';
 import { ICustomerOnboarding, ITenantOnboarding } from '../../ports';
 import { AuthenticationRegisterDTO } from './sign-up.dto';
 import { AuthenticationDTO } from '../../mappers/auth/authentication.dto';
+import { PublicBadRequestException } from '@shared/application/exceptions/public-bad-request.exception';
 
 @CommandHandler(AuthenticationRegisterDTO)
 export class AuthenticationRegisterHandler
@@ -35,7 +36,7 @@ export class AuthenticationRegisterHandler
       data.accountType === AccountTypeEnum.EMPLOYEE;
 
     if (requiresDomain && !data.domain) {
-      throw new BadRequestException(
+      throw new PublicBadRequestException(
         'Domain is required for customer and employee sign-up',
       );
     }

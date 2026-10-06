@@ -31,6 +31,7 @@ import {
   VariantRestoredEvent,
   VariantDeletedEvent,
 } from '../../events';
+import { BusinessRuleViolationError } from '@shared/aggregates/errors';
 
 export interface IProductProps extends EntityProps {
   id: Id;
@@ -95,7 +96,9 @@ export class Product extends Entity<IProductProps> {
    */
   static create(props: IProductBase): Product {
     if (!props.variants || props.variants.length === 0) {
-      throw new Error('A product must have at least one variant.');
+      throw new BusinessRuleViolationError(
+        'A product must have at least one variant.',
+      );
     }
 
     const transformedProps = {
@@ -213,11 +216,13 @@ export class Product extends Entity<IProductProps> {
 
     if (updates.variants !== undefined) {
       if (updates.variants.length === 0) {
-        throw new Error('A product must have at least one variant.');
+        throw new BusinessRuleViolationError(
+          'A product must have at least one variant.',
+        );
       }
 
       if (updates.variants.length > 20) {
-        throw new Error('Variants 20 limit exceeded.');
+        throw new BusinessRuleViolationError('Variants 20 limit exceeded.');
       }
 
       props.variants = updates.variants.map((variantData) =>
@@ -345,7 +350,7 @@ export class Product extends Entity<IProductProps> {
   private getVariantOrThrow(variantId: string): Variant {
     const variant = this.variantsMap.get(variantId);
     if (!variant) {
-      throw new Error(
+      throw new BusinessRuleViolationError(
         `Variant with ID ${variantId} not found on product ${this.props.id.getValue()}.`,
       );
     }
@@ -420,7 +425,7 @@ export class Product extends Entity<IProductProps> {
     // Check if the product is already archived
     const isArchived = variantToArchive.getProps().isArchived;
     if (isArchived === true) {
-      throw new Error(
+      throw new BusinessRuleViolationError(
         `Variant with ID ${variantId} is already archived and cannot be archived again`,
       );
     }
@@ -452,7 +457,7 @@ export class Product extends Entity<IProductProps> {
     // Check if the variant is actually deleted
     const isArchived = variantToRestore.getProps().isArchived;
     if (isArchived === false) {
-      throw new Error(
+      throw new BusinessRuleViolationError(
         `Variant with ID ${variantId} is not in a deleted state and cannot be restored`,
       );
     }

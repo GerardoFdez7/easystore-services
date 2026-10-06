@@ -1,5 +1,5 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
-import { Inject, BadRequestException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { IStockMovementRepository } from '../../../../aggregates/repositories';
 import { GetAllStockMovementsDTO } from './all-movements.dto';
 import {
@@ -35,18 +35,6 @@ export class GetAllStockMovementsHandler
       sortOrder,
       includeDeleted,
     } = options || {};
-
-    // Validate pagination parameters
-    if (page !== undefined && page < 1) {
-      throw new BadRequestException(
-        'Page must be a positive number if provided',
-      );
-    }
-    if (limit !== undefined && limit < 1) {
-      throw new BadRequestException(
-        'Limit must be a positive number if provided',
-      );
-    }
 
     const stockMovements = await this.stockMovementRepository.findAll(
       Id.create(storeId),

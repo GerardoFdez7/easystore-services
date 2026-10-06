@@ -1,4 +1,5 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { PublicBadRequestException } from '@shared/application/exceptions/public-bad-request.exception';
 import { PostgreService } from '@database/postgres.service';
 import {
   executeDatabaseOperation,
@@ -43,7 +44,7 @@ export default class CategoryRepository implements ICategoryRepository {
 
           // Check if adding this category would exceed the limit
           if (parentDepth + 1 > 10) {
-            throw new BadRequestException(
+            throw new PublicBadRequestException(
               `Category hierarchy cannot exceed 10 levels. ` +
                 `Parent is at depth ${parentDepth}, adding this category would reach depth ${parentDepth + 1}`,
             );
@@ -464,7 +465,7 @@ export default class CategoryRepository implements ICategoryRepository {
     const totalDepth = currentDepth + 1 + subcategoriesDepth;
 
     if (totalDepth > maxDepth) {
-      throw new BadRequestException(
+      throw new PublicBadRequestException(
         `Category hierarchy cannot exceed ${maxDepth} levels. ` +
           `Current depth: ${currentDepth}, Subcategories depth: ${subcategoriesDepth}, ` +
           `Total would be: ${totalDepth}`,

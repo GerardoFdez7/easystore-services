@@ -1,5 +1,5 @@
 import { ArgsType, Field, Int } from '@nestjs/graphql';
-import { BadRequestException } from '@nestjs/common';
+import { PublicBadRequestException } from '@shared/application/exceptions/public-bad-request.exception';
 
 export const maxPaginationPage = 10_000;
 export const maxPaginationLimit = 100;
@@ -12,7 +12,7 @@ export function assertPagination(
     page !== undefined &&
     (!Number.isSafeInteger(page) || page < 1 || page > maxPaginationPage)
   ) {
-    throw new BadRequestException(
+    throw new PublicBadRequestException(
       `page must be an integer between 1 and ${maxPaginationPage}`,
     );
   }
@@ -20,7 +20,7 @@ export function assertPagination(
     limit !== undefined &&
     (!Number.isSafeInteger(limit) || limit < 1 || limit > maxPaginationLimit)
   ) {
-    throw new BadRequestException(
+    throw new PublicBadRequestException(
       `limit must be an integer between 1 and ${maxPaginationLimit}`,
     );
   }

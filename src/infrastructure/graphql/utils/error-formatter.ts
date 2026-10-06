@@ -2,12 +2,14 @@ import { HttpException, Logger } from '@nestjs/common';
 import { unwrapResolverError } from '@apollo/server/errors';
 import { ZodError } from 'zod';
 import { GraphQLError, GraphQLFormattedError } from 'graphql';
+import { BusinessRuleViolationError } from '@shared/aggregates/errors';
 import { DomainError } from '@shared/infrastructure/postgres';
 import { PublicBadRequestException } from '@shared/application/exceptions/public-bad-request.exception';
 
 interface PublicErrorClassification {
   code: string;
   message: string;
+  extensions?: Record<string, unknown>;
 }
 
 const protocolErrorCodes = new Set([
@@ -20,6 +22,11 @@ const protocolErrorCodes = new Set([
   'QUERY_DEPTH_LIMIT_EXCEEDED',
   'QUERY_COMPLEXITY_LIMIT_EXCEEDED',
 ]);
+
+// Resources named in NotFoundException messages. Only the name is exposed (never
+// the identifier) so the client can say what was not found.
+const notFoundResourcePattern =
+  /^(Address|Category|Warehouse|Product|Variant|Tenant|Store|Customer|Employee|Cart)\b/;
 
 const graphqlLogger = new Logger('GraphqlErrorFormatter');
 
@@ -48,11 +55,31 @@ function classifyHttpException(
 
   switch (status) {
     case 401:
-      return { code: 'UNAUTHENTICATED', message: 'Authentication required' };
+      return {
+        code: 'UNAUTHENTICATED',
+        message: 'Authentication required',
+        extensions:
+          error.message === 'Invalid credentials'
+            ? { reason: 'INVALID_CREDENTIALS' }
+            : undefined,
+      };
     case 403:
-      return { code: 'FORBIDDEN', message: 'Operation not permitted' };
-    case 404:
-      return { code: 'NOT_FOUND', message: 'Resource not found' };
+      return {
+        code: 'FORBIDDEN',
+        message: 'Operation not permitted',
+        extensions:
+          error.message === 'Account is temporarily locked'
+            ? { reason: 'ACCOUNT_LOCKED' }
+            : undefined,
+      };
+    case 404: {
+      const resource = notFoundResourcePattern.exec(error.message)?.[1];
+      return {
+        code: 'NOT_FOUND',
+        message: 'Resource not found',
+        extensions: resource ? { resource: resource.toLowerCase() } : undefined,
+      };
+    }
     case 409:
       return { code: 'CONFLICT', message: 'Resource already exists' };
     case 429:
@@ -66,10 +93,27 @@ function classifyHttpException(
 
 function classifyDomainError(error: DomainError): PublicErrorClassification {
   switch (error.code) {
-    case 'RESOURCE_NOT_FOUND':
-      return { code: 'NOT_FOUND', message: 'Resource not found' };
-    case 'UNIQUE_CONSTRAINT_VIOLATION':
-      return { code: 'CONFLICT', message: 'Resource already exists' };
+    case 'RESOURCE_NOT_FOUND': {
+      const resource = error.metadata?.resource;
+      return {
+        code: 'NOT_FOUND',
+        message: 'Resource not found',
+        extensions:
+          typeof resource === 'string'
+            ? { resource: resource.toLowerCase() }
+            : undefined,
+      };
+    }
+    case 'UNIQUE_CONSTRAINT_VIOLATION': {
+      // Built from resource/field names only (never values), so the client can
+      // tell which field conflicts and present a localized message.
+      const field = error.metadata?.field;
+      return {
+        code: 'CONFLICT',
+        message: error.message,
+        extensions: typeof field === 'string' ? { field } : undefined,
+      };
+    }
     case 'PRODUCT_CURRENCY_LOCKED':
       return {
         code: 'CONFLICT',
@@ -120,7 +164,7 @@ function toFormattedError(
     message: classification.message,
     locations: formattedError.locations,
     path: formattedError.path,
-    extensions: { code: classification.code },
+    extensions: { ...classification.extensions, code: classification.code },
   };
 }
 
@@ -160,6 +204,13 @@ function maskGraphqlError(
   if (originalError instanceof DomainError) {
     const classification = classifyDomainError(originalError);
     return toFormattedError(formattedError, classification);
+  }
+
+  if (originalError instanceof BusinessRuleViolationError) {
+    return toFormattedError(formattedError, {
+      code: 'BAD_USER_INPUT',
+      message: originalError.message,
+    });
   }
 
   if (originalError instanceof ZodError) {

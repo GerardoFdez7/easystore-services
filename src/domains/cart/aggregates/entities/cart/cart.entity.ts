@@ -9,6 +9,7 @@ import {
   ItemQuantityUpdatedEvent,
   RemoveManyItemsFromCartEvent,
 } from '../../events';
+import { BusinessRuleViolationError } from '@shared/aggregates/errors';
 
 export interface ICartProps extends EntityProps {
   id: Id;
@@ -45,7 +46,8 @@ export class Cart extends Entity<ICartProps> {
     const variantId = item.getVariantIdValue();
     const itemExist = cart.props.cartItems.get(variantId);
 
-    if (itemExist) throw new Error('Item already exists in cart.');
+    if (itemExist)
+      throw new BusinessRuleViolationError('Item already exists in cart.');
 
     // Create a new map to maintain inmutability
     const cartItems = new Map(cart.props.cartItems);
@@ -69,7 +71,7 @@ export class Cart extends Entity<ICartProps> {
 
     // Check if item exists before removing
     if (!cartItems.has(idVariant.getValue())) {
-      throw new Error('Item not found in cart');
+      throw new BusinessRuleViolationError('Item not found in cart');
     }
 
     // Get the item BEFORE deleting it
@@ -99,7 +101,8 @@ export class Cart extends Entity<ICartProps> {
     // Get cart item
     const cartItem = cartItems.get(variantId.getValue());
 
-    if (!cartItem) throw new Error('Item not found in cart');
+    if (!cartItem)
+      throw new BusinessRuleViolationError('Item not found in cart');
     // Update item using reconstitute to preserve original ID and timestamp
     const itemUpdated = CartItem.reconstitute({
       id: cartItem.getId().getValue(),
@@ -142,7 +145,7 @@ export class Cart extends Entity<ICartProps> {
 
     // If no items exist in the cart, throw an error
     if (existingVariantIds.length === 0) {
-      throw new Error(
+      throw new BusinessRuleViolationError(
         `No items found in cart with the provided IDs: ${nonExistentItems.join(', ')}`,
       );
     }

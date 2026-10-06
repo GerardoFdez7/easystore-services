@@ -1,5 +1,5 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { Inject, BadRequestException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { IProductRepository } from '../../../aggregates/repositories/product.interface';
 import { Id, Type, ProductFilterMode } from '../../../aggregates/value-objects';
 import { ProductMapper, PaginatedProductsDTO } from '../../mappers';
@@ -27,24 +27,6 @@ export class GetAllProductsHandler implements IQueryHandler<GetAllProductsDTO> {
       sortOrder,
       filterMode,
     } = options || {};
-
-    // Validate pagination parameters
-    if (page !== undefined && page < 1) {
-      throw new BadRequestException(
-        'Page must be a positive number if provided',
-      );
-    }
-    if (limit !== undefined && limit < 1) {
-      throw new BadRequestException(
-        'Limit must be a positive number if provided',
-      );
-    }
-
-    if (limit && limit > 50) {
-      throw new BadRequestException(
-        'Limit must be less than or equal to 50 if provided',
-      );
-    }
 
     // Create value objects
     const storeIdVO = Id.create(storeId);

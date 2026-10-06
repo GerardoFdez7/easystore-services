@@ -1,5 +1,5 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { Inject, BadRequestException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import ICategoryRepository from '../../../../aggregates/repositories/category.interface';
 import { Id } from '../../../../aggregates/value-objects';
 import { CategoryMapper, PaginatedCategoriesDTO } from '../../../mappers';
@@ -25,18 +25,6 @@ export class GetAllCategoriesHandler
       sortBy,
       sortOrder,
     } = options || {};
-
-    // Validate pagination parameters
-    if (page !== undefined && page < 1) {
-      throw new BadRequestException(
-        'Page must be a positive number if provided',
-      );
-    }
-    if (limit !== undefined && limit < 1) {
-      throw new BadRequestException(
-        'Limit must be a positive number if provided',
-      );
-    }
 
     // Find all categories with pagination and optional filtering
     const result = await this.categoryRepository.findAll(Id.create(storeId), {

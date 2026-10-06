@@ -1,9 +1,10 @@
 import { CommandHandler, ICommandHandler, EventPublisher } from '@nestjs/cqrs';
-import { Inject, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Inject, NotFoundException } from '@nestjs/common';
 import { IProductRepository } from '../../../../aggregates/repositories/product.interface';
 import { Id } from '../../../../aggregates/value-objects';
 import { ProductMapper, ProductDTO } from '../../../mappers';
 import { RestoreProductDTO } from './restore-product.dto';
+import { PublicBadRequestException } from '@shared/application/exceptions/public-bad-request.exception';
 
 @CommandHandler(RestoreProductDTO)
 export class RestoreProductHandler
@@ -30,7 +31,7 @@ export class RestoreProductHandler
     // Check if the product is actually deleted
     const isArchived = product.get('isArchived');
     if (isArchived === false) {
-      throw new BadRequestException(
+      throw new PublicBadRequestException(
         `Product with ID ${id} is not in a deleted state and cannot be restored`,
       );
     }
