@@ -236,3 +236,28 @@ export async function seedProductionData(): Promise<void> {
     await prisma.onModuleDestroy();
   }
 }
+
+/**
+ * Validates every seeding step in one place: init.sql objects (extensions, views),
+ * the feature catalog and the geography data.
+ */
+export async function assertDatabaseSeeded(
+  prisma: PostgreService,
+): Promise<void> {
+  const [extension, view] = await Promise.all([
+    prisma.$queryRaw<
+      unknown[]
+    >`SELECT 1 FROM pg_extension WHERE extname = 'citext'`,
+    prisma.$queryRaw<
+      unknown[]
+    >`SELECT 1 FROM pg_views WHERE schemaname = 'sales' AND viewname = 'dashboard_sales_view'`,
+  ]);
+  if (extension.length === 0 || view.length === 0) {
+    throw new Error(
+      'init.sql has not been applied (citext extension or sales.dashboard_sales_view missing). Run `npm run database`.',
+    );
+  }
+
+  await assertFeatureCatalogSeeded(prisma);
+  await assertGeographySeeded(prisma);
+}

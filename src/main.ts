@@ -9,10 +9,7 @@ import {
   getPinoLogger,
 } from '@config/logger';
 import { PostgreService } from '@database/postgres.service';
-import {
-  assertFeatureCatalogSeeded,
-  assertGeographySeeded,
-} from '@database/seeders/production.seed';
+import { assertDatabaseSeeded } from '@database/seeders/production.seed';
 
 export async function bootstrap(): Promise<void> {
   // Initialize global logger first
@@ -31,8 +28,7 @@ export async function bootstrap(): Promise<void> {
     const corsOrigins = [configService.getOrThrow<string>('FRONTEND_URL')];
 
     // Refuse to start if the seeded data is missing
-    await assertFeatureCatalogSeeded(app.get(PostgreService));
-    await assertGeographySeeded(app.get(PostgreService));
+    await assertDatabaseSeeded(app.get(PostgreService));
 
     if (isDevelopment) {
       corsOrigins.push('https://studio.apollographql.com');

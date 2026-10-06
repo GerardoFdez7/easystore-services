@@ -1,14 +1,14 @@
 import bcrypt from 'bcrypt';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { Id } from '../../../domains/shared/aggregates/value-objects';
+import { Id } from '../../../../domains/shared/aggregates/value-objects';
 import {
   createDevelopmentFixtureIds,
   developmentSeedAccounts,
   developmentSeedPassword,
   developmentSeedPasswordHash,
   validateDevelopmentFixtures,
-} from './development.seed';
+} from '../development.seed';
 
 describe('development database seed fixtures', () => {
   it('uses stable UUIDs for idempotent fixture upserts', () => {

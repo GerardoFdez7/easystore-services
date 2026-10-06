@@ -11,13 +11,13 @@ datasource postgres {
 
 // Tenant schema models
 model Tenant {
-  id                       String        @id
+  id                       String        @id @default(uuid(7)) @postgres.Uuid
   name                     String
-  authIdentityId           String        @unique
-  defaultStoreId           String?       @unique
-  defaultPhoneNumberId     String?       @unique
-  defaultShippingAddressId String?       @unique
-  defaultBillingAddressId  String?       @unique
+  authIdentityId           String        @unique @postgres.Uuid
+  defaultStoreId           String?       @unique @postgres.Uuid
+  defaultPhoneNumberId     String?       @unique @postgres.Uuid
+  defaultShippingAddressId String?       @unique @postgres.Uuid
+  defaultBillingAddressId  String?       @unique @postgres.Uuid
   createdAt                DateTime      @default(now())
   updatedAt                DateTime      @updatedAt
   authIdentity             AuthIdentity  @relation("TenantAuth", fields: [authIdentityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -37,8 +37,8 @@ model Tenant {
 }
 
 model Store {
-  id                     String                  @id
-  tenantId               String
+  id                     String                  @id @default(uuid(7)) @postgres.Uuid
+  tenantId               String                  @postgres.Uuid
   name                   String?
   domain                 String?                 @unique
   logo                   String?
@@ -92,12 +92,12 @@ enum Currency {
 }
 
 model Subscription {
-  id        String             @id
+  id        String             @id @default(uuid(7)) @postgres.Uuid
   status    SubscriptionStatus
   startDate DateTime
   endDate   DateTime
-  planId    String
-  storeId   String             @unique
+  planId    String             @postgres.Uuid
+  storeId   String             @unique @postgres.Uuid
   createdAt DateTime           @default(now())
   updatedAt DateTime           @updatedAt
   store     Store              @relation(fields: [storeId], references: [id], onDelete: Cascade, onUpdate: Restrict)
@@ -118,7 +118,7 @@ enum SubscriptionStatus {
 }
 
 model Plan {
-  id           String         @id
+  id           String         @id @default(uuid(7)) @postgres.Uuid
   name         String         @unique @postgres.Citext
   description  String
   price        Decimal        @postgres.Decimal(19, 2)
@@ -130,11 +130,11 @@ model Plan {
 }
 
 model Employee {
-  id             String          @id
+  id             String          @id @default(uuid(7)) @postgres.Uuid
   name           String          @postgres.Citext
-  roleId         String
-  authIdentityId String          @unique
-  storeId        String
+  roleId         String          @postgres.Uuid
+  authIdentityId String          @unique @postgres.Uuid
+  storeId        String          @postgres.Uuid
   role           EmployeeRole    @relation(fields: [roleId, storeId], references: [id, storeId], onDelete: Restrict, onUpdate: Cascade)
   authIdentity   AuthIdentity    @relation("EmployeeAuth", fields: [authIdentityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   store          Store           @relation(fields: [storeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -147,10 +147,10 @@ model Employee {
 }
 
 model EmployeeRole {
-  id           String         @id
+  id           String         @id @default(uuid(7)) @postgres.Uuid
   role         String
   isSystem     Boolean        @default(false)
-  storeId      String
+  storeId      String         @postgres.Uuid
   store        Store          @relation(fields: [storeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   employees    Employee[]
   roleFeatures RoleFeatures[]
@@ -162,11 +162,11 @@ model EmployeeRole {
 }
 
 model RoleFeatures {
-  id           String           @id
-  roleId       String
-  featureId    String
+  id           String           @id @default(uuid(7)) @postgres.Uuid
+  roleId       String           @postgres.Uuid
+  featureId    String           @postgres.Uuid
   action       PermissionAction
-  storeId      String
+  storeId      String           @postgres.Uuid
   employeeRole EmployeeRole     @relation(fields: [roleId, storeId], references: [id, storeId], onDelete: Cascade, onUpdate: Cascade)
   feature      Feature          @relation(fields: [featureId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   store        Store            @relation(fields: [storeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -188,7 +188,7 @@ enum PermissionAction {
 }
 
 model Feature {
-  id           String         @id
+  id           String         @id @default(uuid(7)) @postgres.Uuid
   code         String         @unique
   name         String         @postgres.Citext
   description  String?
@@ -201,10 +201,10 @@ model Feature {
 
 // Inventory schema models
 model Warehouse {
-  id                 String              @id
+  id                 String              @id @default(uuid(7)) @postgres.Uuid
   name               String              @postgres.Citext
-  addressId          String
-  storeId            String
+  addressId          String              @postgres.Uuid
+  storeId            String              @postgres.Uuid
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   store              Store               @relation(fields: [storeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -220,13 +220,13 @@ model Warehouse {
 }
 
 model StockMovement {
-  id                  String            @id
+  id                  String            @id @default(uuid(7)) @postgres.Uuid
   deltaQty            Int
   reason              String            @postgres.Text
-  createdById         String?
-  warehouseId         String
-  stockPerWarehouseId String
-  storeId             String
+  createdById         String?           @postgres.Uuid
+  warehouseId         String            @postgres.Uuid
+  stockPerWarehouseId String            @postgres.Uuid
+  storeId             String            @postgres.Uuid
   occurredAt          DateTime          @default(now())
   warehouse           Warehouse         @relation(fields: [warehouseId, storeId], references: [id, storeId], onDelete: Cascade, onUpdate: Cascade)
   createdBy           Employee?         @relation(fields: [createdById], references: [id], onDelete: SetNull, onUpdate: Cascade)
@@ -241,16 +241,16 @@ model StockMovement {
 }
 
 model StockPerWarehouse {
-  id                         String          @id
+  id                         String          @id @default(uuid(7)) @postgres.Uuid
   qtyAvailable               Int             @default(0)
   qtyReserved                Int             @default(0)
   productLocation            String?
   estimatedReplenishmentDate DateTime?
   lotNumber                  String?
   serialNumbers              String[]
-  variantId                  String
-  warehouseId                String
-  storeId                    String
+  variantId                  String          @postgres.Uuid
+  warehouseId                String          @postgres.Uuid
+  storeId                    String          @postgres.Uuid
   deletedAt                  DateTime?
   stockMovements             StockMovement[]
   variant                    Variant         @relation(fields: [variantId, storeId], references: [id, storeId], onDelete: Cascade, onUpdate: Cascade)
@@ -266,15 +266,15 @@ model StockPerWarehouse {
 
 // Shipping schema models
 model ShippingRule {
-  id             String           @id
+  id             String           @id @default(uuid(7)) @postgres.Uuid
   type           ShippingRuleType
   slug           String
   description    String
   isEnabled      Boolean          @default(true)
   priority       Int?
   conditions     Json?
-  storeId        String
-  variantId      String?
+  storeId        String           @postgres.Uuid
+  variantId      String?          @postgres.Uuid
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
   shippmentRates ShipmentRate[]
@@ -297,15 +297,15 @@ enum ShippingRuleType {
 }
 
 model ShipmentRate {
-  id                String            @id
+  id                String            @id @default(uuid(7)) @postgres.Uuid
   fixedRate         Float
   description       String?
   calculationMethod CalculationMethod
   data              Json?
-  shippingRuleId    String
-  countryId         String
-  stateId           String?
-  storeId           String
+  shippingRuleId    String            @postgres.Uuid
+  countryId         String            @postgres.Uuid
+  stateId           String?           @postgres.Uuid
+  storeId           String            @postgres.Uuid
   country           Country           @relation(fields: [countryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   state             State?            @relation(fields: [stateId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   shippingRule      ShippingRule      @relation(fields: [shippingRuleId, storeId], references: [id, storeId], onDelete: Cascade, onUpdate: Cascade)
@@ -329,12 +329,12 @@ enum CalculationMethod {
 
 // Product schema models
 model TaxRate {
-  id         String    @id
+  id         String    @id @default(uuid(7)) @postgres.Uuid
   rate       Float
-  countryId  String
-  stateId    String?
-  categoryId String?
-  storeId    String
+  countryId  String    @postgres.Uuid
+  stateId    String?   @postgres.Uuid
+  categoryId String?   @postgres.Uuid
+  storeId    String    @postgres.Uuid
   store      Store     @relation(fields: [storeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   category   Category? @relation(fields: [categoryId, storeId], references: [id, storeId], onDelete: Cascade, onUpdate: Cascade)
   country    Country   @relation(fields: [countryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
@@ -348,13 +348,13 @@ model TaxRate {
 }
 
 model Category {
-  id            String              @id
+  id            String              @id @default(uuid(7)) @postgres.Uuid
   name          String              @postgres.Citext
   cover         String
   description   String?
   subCategories Category[]          @relation("Subcategory")
-  parentId      String?
-  storeId       String
+  parentId      String?             @postgres.Uuid
+  storeId       String              @postgres.Uuid
   updatedAt     DateTime            @updatedAt
   createdAt     DateTime            @default(now())
   taxRate       TaxRate[]
@@ -369,10 +369,10 @@ model Category {
 }
 
 model ProductCategories {
-  id         String   @id
-  productId  String
-  categoryId String
-  storeId    String
+  id         String   @id @default(uuid(7)) @postgres.Uuid
+  productId  String   @postgres.Uuid
+  categoryId String   @postgres.Uuid
+  storeId    String   @postgres.Uuid
   product    Product  @relation(fields: [productId, storeId], references: [id, storeId], onDelete: Cascade, onUpdate: Cascade)
   category   Category @relation(fields: [categoryId, storeId], references: [id, storeId], onDelete: Cascade, onUpdate: Cascade)
   store      Store    @relation(fields: [storeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -384,7 +384,7 @@ model ProductCategories {
 }
 
 model Product {
-  id               String              @id
+  id               String              @id @default(uuid(7)) @postgres.Uuid
   name             String              @postgres.Citext
   shortDescription String
   longDescription  String?             @postgres.Text
@@ -395,7 +395,7 @@ model Product {
   manufacturer     String?
   tags             String[]
   isArchived       Boolean             @default(false)
-  storeId          String
+  storeId          String              @postgres.Uuid
   updatedAt        DateTime            @updatedAt
   createdAt        DateTime            @default(now())
   media            Media[]
@@ -417,13 +417,13 @@ enum ProductType {
 }
 
 model Media {
-  id        String    @id
+  id        String    @id @default(uuid(7)) @postgres.Uuid
   url       String
   position  Int
   mediaType MediaType
-  productId String?
-  variantId String?
-  storeId   String
+  productId String?   @postgres.Uuid
+  variantId String?   @postgres.Uuid
+  storeId   String    @postgres.Uuid
   product   Product?  @relation(fields: [productId, storeId], references: [id, storeId], onDelete: Cascade, onUpdate: Cascade)
   Variant   Variant?  @relation(fields: [variantId, storeId], references: [id, storeId], onDelete: Cascade, onUpdate: Cascade)
   store     Store     @relation(fields: [storeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -442,10 +442,10 @@ enum MediaType {
 }
 
 model InstallmentPayment {
-  id           String  @id
+  id           String  @id @default(uuid(7)) @postgres.Uuid
   months       Int
   interestRate Float
-  variantId    String
+  variantId    String  @postgres.Uuid
   variant      Variant @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([variantId])
@@ -453,10 +453,10 @@ model InstallmentPayment {
 }
 
 model Sustainability {
-  id                 String  @id
+  id                 String  @id @default(uuid(7)) @postgres.Uuid
   certification      String?
   recycledPercentage Float
-  productId          String
+  productId          String  @postgres.Uuid
   product            Product @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([productId])
@@ -464,11 +464,11 @@ model Sustainability {
 }
 
 model Warranty {
-  id           String  @id
+  id           String  @id @default(uuid(7)) @postgres.Uuid
   months       Int
   coverage     String
   instructions String
-  variantId    String
+  variantId    String  @postgres.Uuid
   variant      Variant @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([variantId])
@@ -476,7 +476,7 @@ model Warranty {
 }
 
 model Variant {
-  id                     String                  @id
+  id                     String                  @id @default(uuid(7)) @postgres.Uuid
   price                  Decimal                 @default(0) @postgres.Decimal(19, 2)
   variantCover           String?
   personalizationOptions String[]
@@ -489,8 +489,8 @@ model Variant {
   barcode                String?
   sku                    String                  @postgres.Citext
   isArchived             Boolean                 @default(false)
-  productId              String
-  storeId                String
+  productId              String                  @postgres.Uuid
+  storeId                String                  @postgres.Uuid
   updatedAt              DateTime                @updatedAt
   createdAt              DateTime                @default(now())
   attributes             Attribute[]
@@ -515,10 +515,10 @@ model Variant {
 }
 
 model Attribute {
-  id        String  @id
+  id        String  @id @default(uuid(7)) @postgres.Uuid
   key       String
   value     String
-  variantId String
+  variantId String  @postgres.Uuid
   variant   Variant @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@index([variantId])
@@ -526,11 +526,11 @@ model Attribute {
 }
 
 model Dimension {
-  id        String  @id
+  id        String  @id @default(uuid(7)) @postgres.Uuid
   length    Float
   width     Float
   height    Float
-  variantId String  @unique
+  variantId String  @unique @postgres.Uuid
   variant   Variant @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   @@schema("product")
@@ -546,7 +546,7 @@ enum ProductCondition {
 
 // Pricing schema models
 model Promotion {
-  id              String               @id
+  id              String               @id @default(uuid(7)) @postgres.Uuid
   name            String               @postgres.Citext
   description     String
   type            PromotionType
@@ -560,7 +560,7 @@ model Promotion {
   isArchived      Boolean              @default(false)
   updatedAt       DateTime             @updatedAt
   createdAt       DateTime             @default(now())
-  storeId         String
+  storeId         String               @postgres.Uuid
   coupons         Coupon[]
   cartItems       CartItem[]
   orderPromotions OrderPromotions[]
@@ -593,14 +593,14 @@ enum PromotionActionType {
 }
 
 model Coupon {
-  id               String        @id
+  id               String        @id @default(uuid(7)) @postgres.Uuid
   code             String
   usageLimit       Int?
   perCustomerLimit Int           @default(1)
   usedCount        Int           @default(0)
-  promotionId      String
-  customerId       String?
-  storeId          String
+  promotionId      String        @postgres.Uuid
+  customerId       String?       @postgres.Uuid
+  storeId          String        @postgres.Uuid
   updatedAt        DateTime      @updatedAt
   createdAt        DateTime      @default(now())
   couponUsages     CouponUsage[]
@@ -616,10 +616,10 @@ model Coupon {
 }
 
 model CouponUsage {
-  id       String   @id
-  couponId String
-  orderId  String
-  storeId  String
+  id       String   @id @default(uuid(7)) @postgres.Uuid
+  couponId String   @postgres.Uuid
+  orderId  String   @postgres.Uuid
+  storeId  String   @postgres.Uuid
   usedAt   DateTime @default(now())
   coupon   Coupon   @relation(fields: [couponId, storeId], references: [id, storeId], onDelete: Cascade, onUpdate: Cascade)
   order    Order    @relation(fields: [orderId, storeId], references: [id, storeId], onDelete: Cascade, onUpdate: Cascade)
@@ -632,10 +632,10 @@ model CouponUsage {
 }
 
 model CartPromotions {
-  id          String    @id
-  cartId      String
-  promotionId String
-  storeId     String
+  id          String    @id @default(uuid(7)) @postgres.Uuid
+  cartId      String    @postgres.Uuid
+  promotionId String    @postgres.Uuid
+  storeId     String    @postgres.Uuid
   cart        Cart      @relation(fields: [cartId, storeId], references: [id, storeId], onDelete: Cascade, onUpdate: Cascade)
   promotion   Promotion @relation(fields: [promotionId, storeId], references: [id, storeId], onDelete: Cascade, onUpdate: Cascade)
   store       Store     @relation(fields: [storeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -647,10 +647,10 @@ model CartPromotions {
 }
 
 model OrderPromotions {
-  id          String    @id
-  orderId     String
-  promotionId String
-  storeId     String
+  id          String    @id @default(uuid(7)) @postgres.Uuid
+  orderId     String    @postgres.Uuid
+  promotionId String    @postgres.Uuid
+  storeId     String    @postgres.Uuid
   order       Order     @relation(fields: [orderId, storeId], references: [id, storeId], onDelete: Restrict, onUpdate: Cascade)
   promotion   Promotion @relation(fields: [promotionId, storeId], references: [id, storeId], onDelete: Restrict, onUpdate: Cascade)
   store       Store     @relation(fields: [storeId], references: [id], onDelete: Restrict, onUpdate: Cascade)
@@ -663,9 +663,9 @@ model OrderPromotions {
 
 // Sales schema models
 model Cart {
-  id             String           @id
-  customerId     String
-  storeId        String
+  id             String           @id @default(uuid(7)) @postgres.Uuid
+  customerId     String           @postgres.Uuid
+  storeId        String           @postgres.Uuid
   cartItems      CartItem[]
   orders         Order[]
   customer       Customer         @relation(fields: [customerId, storeId], references: [id, storeId], onDelete: Cascade, onUpdate: Cascade)
@@ -679,12 +679,12 @@ model Cart {
 }
 
 model CartItem {
-  id          String     @id
+  id          String     @id @default(uuid(7)) @postgres.Uuid
   qty         Int
-  variantId   String
-  cartId      String
-  promotionId String?
-  storeId     String
+  variantId   String     @postgres.Uuid
+  cartId      String     @postgres.Uuid
+  promotionId String?    @postgres.Uuid
+  storeId     String     @postgres.Uuid
   updatedAt   DateTime   @updatedAt
   cart        Cart       @relation(fields: [cartId, storeId], references: [id, storeId], onDelete: Cascade, onUpdate: Cascade)
   promotion   Promotion? @relation(fields: [promotionId], references: [id], onDelete: SetNull, onUpdate: Cascade)
@@ -700,15 +700,15 @@ model CartItem {
 }
 
 model Order {
-  id              String            @id
+  id              String            @id @default(uuid(7)) @postgres.Uuid
   orderNumber     String
   status          OrderStatus
   totalAmount     Decimal           @postgres.Decimal(19, 2)
   currency        Currency
-  customerId      String
-  cartId          String
-  addressId       String
-  storeId         String
+  customerId      String            @postgres.Uuid
+  cartId          String            @postgres.Uuid
+  addressId       String            @postgres.Uuid
+  storeId         String            @postgres.Uuid
   updatedAt       DateTime          @updatedAt
   createdAt       DateTime          @default(now())
   orderDetails    OrderDetail[]
@@ -740,14 +740,14 @@ enum OrderStatus {
 }
 
 model OrderDetail {
-  id          String   @id
+  id          String   @id @default(uuid(7)) @postgres.Uuid
   productName String
   qty         Int
   unitPrice   Decimal  @postgres.Decimal(19, 2)
   subtotal    Decimal  @postgres.Decimal(19, 2)
-  orderId     String
-  variantId   String
-  storeId     String
+  orderId     String   @postgres.Uuid
+  variantId   String   @postgres.Uuid
+  storeId     String   @postgres.Uuid
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   order       Order    @relation(fields: [orderId, storeId], references: [id, storeId], onDelete: Restrict, onUpdate: Cascade)
@@ -761,12 +761,12 @@ model OrderDetail {
 }
 
 model Return {
-  id           String   @id
+  id           String   @id @default(uuid(7)) @postgres.Uuid
   returnReason String   @postgres.Text
   refundAmount Decimal  @postgres.Decimal(19, 2)
-  variantId    String
-  orderId      String
-  storeId      String
+  variantId    String   @postgres.Uuid
+  orderId      String   @postgres.Uuid
+  storeId      String   @postgres.Uuid
   updatedAt    DateTime @updatedAt
   createdAt    DateTime @default(now())
   order        Order    @relation(fields: [orderId, storeId], references: [id, storeId], onDelete: Restrict, onUpdate: Cascade)
@@ -780,14 +780,14 @@ model Return {
 }
 
 model Payment {
-  id              String        @id
+  id              String        @id @default(uuid(7)) @postgres.Uuid
   amount          Decimal       @postgres.Decimal(19, 2)
   status          Status
   transactionId   String?
-  orderId         String
-  paymentMethodId String
-  subscriptionId  String
-  storeId         String
+  orderId         String        @postgres.Uuid
+  paymentMethodId String        @postgres.Uuid
+  subscriptionId  String        @postgres.Uuid
+  storeId         String        @postgres.Uuid
   updatedAt       DateTime      @updatedAt
   createdAt       DateTime      @default(now())
   order           Order         @relation(fields: [orderId, storeId], references: [id, storeId], onDelete: Restrict, onUpdate: Cascade)
@@ -813,10 +813,10 @@ enum Status {
 }
 
 model PaymentMethod {
-  id                     String                  @id
+  id                     String                  @id @default(uuid(7)) @postgres.Uuid
   acceptedPaymentMethods AcceptedPaymentMethod[]
-  storeId                String
-  customerId             String?
+  storeId                String                  @postgres.Uuid
+  customerId             String?                 @postgres.Uuid
   updatedAt              DateTime                @updatedAt
   createdAt              DateTime                @default(now())
   store                  Store                   @relation(fields: [storeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -843,13 +843,13 @@ enum AcceptedPaymentMethod {
 
 // Customer schema models
 model Customer {
-  id                       String                  @id
+  id                       String                  @id @default(uuid(7)) @postgres.Uuid
   name                     String                  @postgres.Citext
-  storeId                  String
-  authIdentityId           String                  @unique
-  defaultPhoneNumberId     String?                 @unique
-  defaultShippingAddressId String?                 @unique
-  defaultBillingAddressId  String?                 @unique
+  storeId                  String                  @postgres.Uuid
+  authIdentityId           String                  @unique @postgres.Uuid
+  defaultPhoneNumberId     String?                 @unique @postgres.Uuid
+  defaultShippingAddressId String?                 @unique @postgres.Uuid
+  defaultBillingAddressId  String?                 @unique @postgres.Uuid
   updatedAt                DateTime                @updatedAt
   createdAt                DateTime                @default(now())
   wishLists                WishList[]
@@ -875,10 +875,10 @@ model Customer {
 }
 
 model WishList {
-  id         String   @id
-  variantId  String
-  customerId String
-  storeId    String
+  id         String   @id @default(uuid(7)) @postgres.Uuid
+  variantId  String   @postgres.Uuid
+  customerId String   @postgres.Uuid
+  storeId    String   @postgres.Uuid
   updatedAt  DateTime @updatedAt
   customer   Customer @relation(fields: [customerId, storeId], references: [id, storeId], onDelete: Cascade, onUpdate: Cascade)
   variant    Variant  @relation(fields: [variantId, storeId], references: [id, storeId], onDelete: Cascade, onUpdate: Cascade)
@@ -893,12 +893,12 @@ model WishList {
 }
 
 model CustomerReviewProduct {
-  id          String   @id
+  id          String   @id @default(uuid(7)) @postgres.Uuid
   ratingCount Float
   comment     String   @postgres.Text
-  customerId  String
-  variantId   String
-  storeId     String
+  customerId  String   @postgres.Uuid
+  variantId   String   @postgres.Uuid
+  storeId     String   @postgres.Uuid
   updatedAt   DateTime @updatedAt
   createdAt   DateTime @default(now())
   customer    Customer @relation(fields: [customerId, storeId], references: [id, storeId], onDelete: Cascade, onUpdate: Cascade)
@@ -914,10 +914,10 @@ model CustomerReviewProduct {
 
 // Common schema models
 model PhoneNumber {
-  id                 String    @id
+  id                 String    @id @default(uuid(7)) @postgres.Uuid
   number             String
-  customerId         String?
-  tenantId           String
+  customerId         String?   @postgres.Uuid
+  tenantId           String    @postgres.Uuid
   defaultForTenant   Tenant?   @relation("TenantDefaultPhone")
   defaultForCustomer Customer? @relation("CustomerDefaultPhone")
   customer           Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
@@ -931,19 +931,19 @@ model PhoneNumber {
 }
 
 model Address {
-  id                         String       @id
+  id                         String       @id @default(uuid(7)) @postgres.Uuid
   name                       String       @postgres.Citext
   addressLine1               String
   addressLine2               String?
   postalCode                 String
   city                       String
-  countryId                  String
-  stateId                    String
+  countryId                  String       @postgres.Uuid
+  stateId                    String       @postgres.Uuid
   addressType                AddressTypes
   deliveryNum                String
   deliveryInstructions       String?
-  tenantId                   String
-  customerId                 String?
+  tenantId                   String       @postgres.Uuid
+  customerId                 String?      @postgres.Uuid
   warehouses                 Warehouse[]
   orders                     Order[]
   country                    Country      @relation(fields: [countryId], references: [id], onDelete: Restrict, onUpdate: Cascade)
@@ -973,7 +973,7 @@ enum AddressTypes {
 }
 
 model AuthIdentity {
-  id             String      @id
+  id             String      @id @default(uuid(7)) @postgres.Uuid
   email          String
   password       String
   accountType    AccountType
@@ -1002,7 +1002,7 @@ enum AccountType {
 
 // Geography schema models
 model Country {
-  id             String         @id
+  id             String         @id @default(uuid(7)) @postgres.Uuid
   name           String         @unique @postgres.Citext
   code           String         @unique
   states         State[]
@@ -1014,10 +1014,10 @@ model Country {
 }
 
 model State {
-  id             String         @id
+  id             String         @id @default(uuid(7)) @postgres.Uuid
   name           String         @postgres.Citext
   code           String
-  countryId      String
+  countryId      String         @postgres.Uuid
   addresses      Address[]
   taxRates       TaxRate[]
   shippmentRates ShipmentRate[]

@@ -8,6 +8,10 @@
       {
         "include": "infrastructure/database/countries/*.json",
         "outDir": "dist/src"
+      },
+      {
+        "include": "infrastructure/database/init.sql",
+        "outDir": "dist/src"
       }
     ]
   }
