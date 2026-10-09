@@ -57,7 +57,7 @@ export class AnalyticsRepository implements IAnalyticsRepository {
           COALESCE(SUM(CASE WHEN o.status = 'COMPLETED' THEN o."totalAmount" ELSE 0 END), 0) as "completedRevenue",
           COALESCE(SUM(CASE WHEN o.status = 'CANCELLED' THEN o."totalAmount" ELSE 0 END), 0) as "cancelledRevenue"
         FROM sales."Order" o
-        WHERE o."storeId" = ${storeIdValue}
+        WHERE o."storeId" = ${storeIdValue}::uuid
         AND o."createdAt" >= ${threeMonthsAgo}
       `;
 
@@ -66,7 +66,7 @@ export class AnalyticsRepository implements IAnalyticsRepository {
           CAST(COUNT(o.id) AS INTEGER) as "ordersCount",
           COALESCE(SUM(o."totalAmount"), 0) as revenue
         FROM sales."Order" o
-        WHERE o."storeId" = ${storeIdValue} AND o."createdAt" >= ${threeMonthsAgo}
+        WHERE o."storeId" = ${storeIdValue}::uuid AND o."createdAt" >= ${threeMonthsAgo}
         GROUP BY DATE(o."createdAt") ORDER BY DATE(o."createdAt") ASC
       `;
       const recentOrdersResult = await this.prisma.$queryRaw<RawRecentOrder[]>`
@@ -74,8 +74,8 @@ export class AnalyticsRepository implements IAnalyticsRepository {
           o."totalAmount" as "orderTotal", o.status as "orderStatus", a.city as "shippingCity"
         FROM sales."Order" o
         INNER JOIN customer."Customer" c ON c.id = o."customerId" AND c."storeId" = o."storeId"
-        INNER JOIN "common"."Address" a ON a.id = o."addressId" AND a."storeId" = o."storeId"
-        WHERE o."storeId" = ${storeIdValue}
+        INNER JOIN "common"."Address" a ON a.id = o."addressId" AND a."customerId" = o."customerId"
+        WHERE o."storeId" = ${storeIdValue}::uuid
         ORDER BY o."createdAt" DESC LIMIT 5
       `;
       const topProductsResult = await this.prisma.$queryRaw<RawTopProduct[]>`
@@ -86,7 +86,7 @@ export class AnalyticsRepository implements IAnalyticsRepository {
           COALESCE(SUM(item_subtotal), 0) as "totalRevenue",
           CAST(COUNT(DISTINCT order_id) AS INTEGER) as "ordersCount"
         FROM sales.dashboard_sales_view
-        WHERE store_id = ${storeIdValue} AND order_date >= ${threeMonthsAgo}
+        WHERE store_id = ${storeIdValue}::uuid AND order_date >= ${threeMonthsAgo}
           AND order_status IN ('COMPLETED', 'SHIPPED')
         GROUP BY variant_id, variant_sku ORDER BY "totalRevenue" DESC LIMIT 10
       `;

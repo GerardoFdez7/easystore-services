@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { Prisma } from '.prisma/postgres';
+import { isDevelopmentEnvironment } from '@config/environment/environment';
 import {
   DatabaseOperationError,
   DomainError,
@@ -26,7 +27,49 @@ type PrismaDatabaseFailureDiagnostic = {
   errorClass: string;
   prismaCode?: string;
   hasPrismaMetadata?: true;
+  postgresCode?: string;
+  databaseCause?: string;
+  databaseIdentifier?: string;
 };
+
+function getDevelopmentDatabaseCause(
+  error: Prisma.PrismaClientKnownRequestError,
+): Pick<
+  PrismaDatabaseFailureDiagnostic,
+  'postgresCode' | 'databaseCause' | 'databaseIdentifier'
+> {
+  if (error.code !== 'P2010') {
+    return {};
+  }
+
+  const diagnostic: ReturnType<typeof getDevelopmentDatabaseCause> = {};
+  const postgresCode = error.meta?.code;
+  if (typeof postgresCode === 'string' && /^[A-Z0-9]{5}$/.test(postgresCode)) {
+    diagnostic.postgresCode = postgresCode;
+  }
+
+  const message = error.meta?.message;
+  if (typeof message !== 'string') {
+    return diagnostic;
+  }
+
+  // PostgreSQL identifiers in these errors refer to schema objects, not query
+  // parameters. Only accept identifier characters from the message.
+  const missingObject = message.match(
+    /\b(column|relation|function) ([A-Za-z_"][A-Za-z_0-9".]*) does not exist\b/i,
+  );
+  if (missingObject) {
+    diagnostic.databaseCause = `${missingObject[1].toLowerCase()} does not exist`;
+    diagnostic.databaseIdentifier = missingObject[2];
+    return diagnostic;
+  }
+
+  if (/\boperator does not exist\b/i.test(message)) {
+    diagnostic.databaseCause = 'operator does not exist';
+  }
+
+  return diagnostic;
+}
 
 function getPrismaErrorCode(error: unknown): string | undefined {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -70,8 +113,15 @@ function logUnmappedPrismaDatabaseError(
     diagnostic.hasPrismaMetadata = true;
   }
 
-  // Deliberately log only allowlisted structural fields. Prisma messages, stacks,
-  // SQL, connection details, and metadata values can contain sensitive data.
+  if (
+    isDevelopmentEnvironment(process.env) &&
+    error instanceof Prisma.PrismaClientKnownRequestError
+  ) {
+    Object.assign(diagnostic, getDevelopmentDatabaseCause(error));
+  }
+
+  // Never log complete Prisma messages or metadata: they can contain SQL, values,
+  // connection details, or other sensitive data, even in development.
   prismaErrorLogger.error(JSON.stringify(diagnostic));
 }
 
